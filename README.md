@@ -2,6 +2,10 @@
 
 A compact, schema-driven widget renderer for chat UIs. Pass a **Widget UI template string** + a **Zod schema** + **data**, and it renders a small, opinionated widget with minimal interactivity.
 
+
+https://github.com/user-attachments/assets/0a1ad957-2e58-4837-b5b1-a44750fc7148
+
+
 ## What’s in this repo
 
 - **Reusable renderer**: `WidgetRenderer` (exported from `src/widget`)
