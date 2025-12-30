@@ -26,7 +26,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 py-4 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b border-white/50 bg-white/60 py-4 backdrop-blur">
         <div className="app-container flex flex-wrap items-center justify-between gap-4">
           <NavLink
             to="/"
@@ -47,19 +47,21 @@ export default function App() {
               </p>
             </div>
           </NavLink>
-          <nav className="flex items-center gap-2 rounded-full bg-white/70 p-1 shadow-sm">
-            <NavLink to="/" className={navLinkClass}>
-              Home
-            </NavLink>
-            <NavLink to="/docs" className={navLinkClass}>
-              Docs
-            </NavLink>
-            <NavLink to="/gallery" className={navLinkClass}>
-              Gallery
-            </NavLink>
-            <NavLink to="/playground" className={navLinkClass}>
-              Playground
-            </NavLink>
+          <nav className="max-w-full overflow-x-auto">
+            <div className="flex flex-nowrap items-center gap-2 rounded-full bg-white/70 p-1 shadow-sm">
+              <NavLink to="/" className={navLinkClass}>
+                Home
+              </NavLink>
+              <NavLink to="/docs" className={navLinkClass}>
+                Docs
+              </NavLink>
+              <NavLink to="/gallery" className={navLinkClass}>
+                Gallery
+              </NavLink>
+              <NavLink to="/playground" className={navLinkClass}>
+                Playground
+              </NavLink>
+            </div>
           </nav>
         </div>
       </header>

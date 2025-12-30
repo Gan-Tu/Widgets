@@ -63,6 +63,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100svh;
   background:
     radial-gradient(900px 600px at 10% -10%, #fef3c7 0%, transparent 55%),
     radial-gradient(800px 500px at 100% 10%, #dbeafe 0%, transparent 60%),
@@ -72,17 +73,22 @@ body {
 
 #root {
   min-height: 100vh;
+  min-height: 100svh;
 }
 
 .app-shell {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .app-container {
-  width: min(1100px, 92vw);
+  width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
+  padding-inline: clamp(16px, 4vw, 32px);
 }
 
 .widget-root {
