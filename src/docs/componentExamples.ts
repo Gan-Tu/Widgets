@@ -368,5 +368,197 @@ export const componentExamples: Record<string, ComponentExample> = {
     `.trim(),
     schema: EmptySchema,
     data: emptyData
+  },
+  Accordion: {
+    template: `
+<Card size="sm">
+  <Accordion
+    items={[
+      { id: "shipping", title: "Shipping", content: "Free delivery in 2 business days." },
+      { id: "returns", title: "Returns", content: "30-day hassle-free returns." }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Collapsible: {
+    template: `
+<Card size="sm">
+  <Collapsible title="Advanced options" content="Show extra configuration here." />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Menubar: {
+    template: `
+<Card size="sm">
+  <Menubar
+    menus={[
+      {
+        id: "file",
+        label: "File",
+        items: [
+          { id: "new", label: "New file" },
+          { id: "sep-1", type: "separator" },
+          { id: "share", label: "Share" }
+        ]
+      },
+      {
+        id: "edit",
+        label: "Edit",
+        items: [
+          { id: "copy", label: "Copy" },
+          { id: "paste", label: "Paste" }
+        ]
+      }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ContextMenu: {
+    template: `
+<Card size="sm">
+  <ContextMenu
+    triggerLabel="Right click this box"
+    items={[
+      { id: "copy", label: "Copy" },
+      { id: "sep-1", type: "separator" },
+      { id: "delete", label: "Delete" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Tooltip: {
+    template: `
+<Card size="sm">
+  <Tooltip label="Hover me" content="Extra details shown on hover." />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Toggle: {
+    template: `
+<Card size="sm">
+  <Toggle name="subscribe" label="Subscribe" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ToggleGroup: {
+    template: `
+<Card size="sm">
+  <ToggleGroup
+    name="view"
+    type="single"
+    options={[
+      { label: "Grid", value: "grid" },
+      { label: "List", value: "list" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Slider: {
+    template: `
+<Card size="sm">
+  <Slider name="volume" defaultValue={35} />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Sheet: {
+    template: `
+<Card size="sm">
+  <Sheet
+    triggerLabel="Open sheet"
+    title="Sheet title"
+    description="Optional supporting text."
+    content="Sheet content goes here."
+    side="right"
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Drawer: {
+    template: `
+<Card size="sm">
+  <Drawer
+    triggerLabel="Open drawer"
+    title="Drawer title"
+    description="Optional supporting text."
+    content="Drawer content goes here."
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Combobox: {
+    template: `
+<Card size="sm">
+  <Combobox
+    name="assignee"
+    options={[
+      { label: "Alex Rivera", value: "alex" },
+      { label: "Sam Example", value: "sam" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  InputOTP: {
+    template: `
+<Card size="sm">
+  <InputOTP name="code" length={6} />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Spinner: {
+    template: `
+<Card size="sm">
+  <Spinner size="sm" label="Loading" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  DataTable: {
+    template: `
+<Card size="md">
+  <DataTable
+    caption="Quarterly revenue"
+    columns={[
+      { key: "quarter", label: "Quarter" },
+      { key: "revenue", label: "Revenue", align: "end" }
+    ]}
+    rows={[
+      { quarter: "Q1", revenue: "$12,400" },
+      { quarter: "Q2", revenue: "$18,900" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
   }
 };

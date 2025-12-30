@@ -9,6 +9,22 @@ import { Checkbox, DatePicker, Form, Input, Label, RadioGroup, Select, Textarea 
 import { Text, Title, Caption, Markdown } from "./components/text";
 import { Transition } from "./components/transition";
 import { Avatar, Progress } from "./components/extras";
+import {
+  Accordion,
+  Collapsible,
+  Menubar,
+  ContextMenu,
+  Tooltip,
+  Toggle,
+  ToggleGroup,
+  Slider,
+  Sheet,
+  Drawer,
+  Combobox,
+  InputOTP,
+  Spinner,
+  DataTable
+} from "./components/advanced";
 
 export type ComponentRegistry = Record<string, React.ComponentType<any>>;
 
@@ -41,5 +57,19 @@ export const widgetRegistry: ComponentRegistry = {
   Badge,
   Markdown,
   Avatar,
-  Progress
+  Progress,
+  Accordion,
+  Collapsible,
+  Menubar,
+  ContextMenu,
+  Tooltip,
+  Toggle,
+  ToggleGroup,
+  Slider,
+  Sheet,
+  Drawer,
+  Combobox,
+  InputOTP,
+  Spinner,
+  DataTable
 };

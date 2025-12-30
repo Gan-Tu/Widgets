@@ -11,3 +11,4 @@ export * from "./components/forms";
 export * from "./components/chart";
 export * from "./components/transition";
 export * from "./components/extras";
+export * from "./components/advanced";

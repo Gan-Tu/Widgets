@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -40,10 +41,52 @@ const defaultData = {
 };
 
 export function PlaygroundPage() {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [template, setTemplate] = React.useState(defaultTemplate);
   const [jsonInput, setJsonInput] = React.useState(
     JSON.stringify(defaultData, null, 2)
   );
+  const [theme, setTheme] = React.useState<"light" | "dark">("light");
+  const lastLoadedExampleIdRef = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    // Prefer reading from location.search so this effect reliably re-runs when the
+    // query string changes (even if the URLSearchParams instance identity is stable).
+    const exampleId = new URLSearchParams(location.search).get("example");
+    if (!exampleId) return;
+
+    if (lastLoadedExampleIdRef.current === exampleId) return;
+
+    let cancelled = false;
+
+    import("@/examples/widgetExamples")
+      .then((mod) => {
+        const examples = mod.widgetExamples as {
+          id: string;
+          template: string;
+          data: unknown;
+          theme?: "light" | "dark";
+        }[];
+
+        const match = examples.find((ex) => ex.id === exampleId);
+        if (!match) return;
+
+        if (cancelled) return;
+        lastLoadedExampleIdRef.current = exampleId;
+
+        setTemplate(match.template ?? "");
+        setJsonInput(JSON.stringify(match.data ?? {}, null, 2) ?? "{}");
+        setTheme(match.theme ?? "light");
+      })
+      .catch(() => {
+        // If examples can't be loaded, keep the current editor contents.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [location.search, searchParams]);
 
   const { data, error } = React.useMemo(() => {
     const sanitizeJson = (input: string) =>
@@ -109,6 +152,7 @@ export function PlaygroundPage() {
               template={template}
               schema={PlaygroundSchema}
               data={data}
+              theme={theme}
               onAction={(action) => console.info("Playground action", action)}
             />
           </div>

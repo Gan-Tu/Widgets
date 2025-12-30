@@ -4,6 +4,7 @@ import { Checkbox as UiCheckbox } from "@/components/ui/checkbox";
 import { Input as UiInput } from "@/components/ui/input";
 import { Label as UiLabel } from "@/components/ui/label";
 import { Button as UiButton } from "@/components/ui/button";
+import { RadioGroup as UiRadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select as UiSelect,
   SelectContent,
@@ -495,26 +496,21 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   };
 
   return (
-    <div
-      role="radiogroup"
+    <UiRadioGroup
       aria-label={ariaLabel ?? name}
+      value={value}
+      onValueChange={handleChange}
       className={`flex ${direction === "row" ? "flex-row" : "flex-col"} gap-2`}
+      disabled={disabled}
+      required={required}
     >
       {options?.map((option) => (
         <label key={option.value} className="flex items-center gap-2 text-sm text-slate-700">
-          <input
-            type="radio"
-            name={name}
-            value={option.value}
-            checked={value === option.value}
-            onChange={() => handleChange(option.value)}
-            disabled={disabled || option.disabled}
-            required={required}
-          />
+          <RadioGroupItem value={option.value} disabled={disabled || option.disabled} />
           {option.label}
         </label>
       ))}
-    </div>
+    </UiRadioGroup>
   );
 };
 

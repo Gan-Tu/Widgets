@@ -373,6 +373,179 @@ export const componentDocs: ComponentDoc[] = [
       { name: "max", description: "Maximum value.", type: "number", default: "100" },
       { name: "label", description: "Optional label.", type: "string" }
     ]
+  },
+  {
+    id: "Accordion",
+    name: "Accordion",
+    description: "Expandable list of items.",
+    category: "Layout",
+    usage: `<Accordion items={[{ id: "a", title: "Title", content: "Body" }]} />`,
+    props: [
+      { name: "items", description: "Accordion items.", type: "Array<{ id: string; title: string; content: string }>" },
+      { name: "type", description: "Accordion type.", type: "\"single\" | \"multiple\"", default: '"single"' },
+      { name: "collapsible", description: "Allow single accordion to collapse.", type: "boolean", default: "true" }
+    ]
+  },
+  {
+    id: "Collapsible",
+    name: "Collapsible",
+    description: "Toggleable content block.",
+    category: "Layout",
+    usage: `<Collapsible title="Details" content="Hidden text" />`,
+    props: [
+      { name: "title", description: "Trigger label.", type: "string" },
+      { name: "content", description: "Collapsible content.", type: "string" },
+      { name: "defaultOpen", description: "Initially open.", type: "boolean" }
+    ]
+  },
+  {
+    id: "Menubar",
+    name: "Menubar",
+    description: "Top-level menu bar.",
+    category: "Navigation",
+    usage: `<Menubar menus={[{ id: "file", label: "File", items: [{ id: "new", label: "New" }] }]} />`,
+    props: [
+      { name: "menus", description: "Menu definitions.", type: "Array<{ id: string; label: string; items: MenuItem[] }>" }
+    ]
+  },
+  {
+    id: "ContextMenu",
+    name: "ContextMenu",
+    description: "Right-click menu for a target.",
+    category: "Navigation",
+    usage: `<ContextMenu triggerLabel="Right click me" items={[{ id: "copy", label: "Copy" }]} />`,
+    props: [
+      { name: "triggerLabel", description: "Text shown for the trigger.", type: "string" },
+      { name: "items", description: "Menu items.", type: "MenuItem[]" }
+    ]
+  },
+  {
+    id: "Tooltip",
+    name: "Tooltip",
+    description: "Hover tooltip.",
+    category: "Feedback",
+    usage: `<Tooltip label="Help" content="More info" />`,
+    props: [
+      { name: "label", description: "Trigger label.", type: "string" },
+      { name: "content", description: "Tooltip content.", type: "string" }
+    ]
+  },
+  {
+    id: "Toggle",
+    name: "Toggle",
+    description: "Binary toggle button.",
+    category: "Controls",
+    usage: `<Toggle name="subscribe" label="Subscribe" />`,
+    props: [
+      { name: "name", description: "Form field name.", type: "string" },
+      { name: "label", description: "Button label.", type: "string" },
+      { name: "defaultPressed", description: "Initial pressed state.", type: "boolean" },
+      { name: "disabled", description: "Disable interactions.", type: "boolean" }
+    ]
+  },
+  {
+    id: "ToggleGroup",
+    name: "ToggleGroup",
+    description: "Group of toggle buttons.",
+    category: "Controls",
+    usage: `<ToggleGroup name="view" type="single" options={[{ label: "Grid", value: "grid" }]} />`,
+    props: [
+      { name: "name", description: "Form field name.", type: "string" },
+      { name: "type", description: "Selection mode.", type: "\"single\" | \"multiple\"", default: '"single"' },
+      { name: "options", description: "Toggle options.", type: "Array<{ label: string; value: string }>" },
+      { name: "defaultValue", description: "Initial value.", type: "string" },
+      { name: "defaultValues", description: "Initial values (multiple).", type: "string[]" }
+    ]
+  },
+  {
+    id: "Slider",
+    name: "Slider",
+    description: "Continuous range slider.",
+    category: "Controls",
+    usage: `<Slider name="volume" defaultValue={45} />`,
+    props: [
+      { name: "name", description: "Form field name.", type: "string" },
+      { name: "defaultValue", description: "Initial value.", type: "number | number[]" },
+      { name: "min", description: "Minimum value.", type: "number", default: "0" },
+      { name: "max", description: "Maximum value.", type: "number", default: "100" },
+      { name: "step", description: "Step size.", type: "number", default: "1" }
+    ]
+  },
+  {
+    id: "Sheet",
+    name: "Sheet",
+    description: "Side panel overlay.",
+    category: "Overlays",
+    usage: `<Sheet triggerLabel="Open" title="Details" content="Sheet body" />`,
+    props: [
+      { name: "triggerLabel", description: "Trigger button label.", type: "string" },
+      { name: "title", description: "Sheet title.", type: "string" },
+      { name: "description", description: "Sheet description.", type: "string" },
+      { name: "content", description: "Sheet content.", type: "string" },
+      { name: "side", description: "Sheet side.", type: "\"left\" | \"right\" | \"top\" | \"bottom\"" }
+    ]
+  },
+  {
+    id: "Drawer",
+    name: "Drawer",
+    description: "Bottom drawer overlay.",
+    category: "Overlays",
+    usage: `<Drawer triggerLabel="Open" title="Drawer" content="Drawer body" />`,
+    props: [
+      { name: "triggerLabel", description: "Trigger button label.", type: "string" },
+      { name: "title", description: "Drawer title.", type: "string" },
+      { name: "description", description: "Drawer description.", type: "string" },
+      { name: "content", description: "Drawer content.", type: "string" }
+    ]
+  },
+  {
+    id: "Combobox",
+    name: "Combobox",
+    description: "Searchable select menu.",
+    category: "Controls",
+    usage: `<Combobox name="assignee" options={[{ label: "Alex", value: "alex" }]} />`,
+    props: [
+      { name: "name", description: "Form field name.", type: "string" },
+      { name: "options", description: "Selectable options.", type: "Array<{ label: string; value: string }>" },
+      { name: "placeholder", description: "Trigger placeholder.", type: "string" },
+      { name: "searchPlaceholder", description: "Search input placeholder.", type: "string" },
+      { name: "emptyLabel", description: "Empty state text.", type: "string" }
+    ]
+  },
+  {
+    id: "InputOTP",
+    name: "InputOTP",
+    description: "One-time passcode input.",
+    category: "Controls",
+    usage: `<InputOTP name="code" length={6} />`,
+    props: [
+      { name: "name", description: "Form field name.", type: "string" },
+      { name: "length", description: "OTP length.", type: "number", default: "6" },
+      { name: "groupSize", description: "Slot group size.", type: "number", default: "3" }
+    ]
+  },
+  {
+    id: "Spinner",
+    name: "Spinner",
+    description: "Inline loading indicator.",
+    category: "Feedback",
+    usage: `<Spinner size="sm" label="Loading" />`,
+    props: [
+      { name: "size", description: "Spinner size.", type: "\"xs\" | \"sm\" | \"md\" | \"lg\"", default: '"md"' },
+      { name: "label", description: "Optional label.", type: "string" }
+    ]
+  },
+  {
+    id: "DataTable",
+    name: "DataTable",
+    description: "Tabular data display.",
+    category: "Data",
+    usage: `<DataTable columns={[{ key: "name", label: "Name" }]} rows={[{ name: "Alex" }]} />`,
+    props: [
+      { name: "columns", description: "Column definitions.", type: "Array<{ key: string; label: string }>" },
+      { name: "rows", description: "Row data.", type: "Array<Record<string, string | number>>" },
+      { name: "caption", description: "Table caption.", type: "string" }
+    ]
   }
 ];
 

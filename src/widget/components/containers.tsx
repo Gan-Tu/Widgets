@@ -114,7 +114,8 @@ const CardInner: React.FC<CardProps> = ({
   const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
 
   const style: React.CSSProperties = {
-    width: cardWidths[size],
+    width: "100%",
+    maxWidth: cardWidths[size],
     background: resolveColor(background, resolvedTheme),
     border: "1px solid var(--widget-border-default)",
     borderRadius: "var(--widget-radius)",

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { iconNames } from "@/widget/iconNames";
 
+const EmptySchema = z.strictObject({});
+
 const Event = z.strictObject({
   id: z.string(),
   isNew: z.boolean(),
@@ -145,6 +147,20 @@ const PlayerSchema = z.strictObject({
   number: z.string(),
   accent: z.string(),
   stats: z.array(Stat)
+});
+
+const DataTableSchema = z.strictObject({
+  table: z.strictObject({
+    caption: z.string().optional(),
+    columns: z.array(
+      z.strictObject({
+        key: z.string(),
+        label: z.string(),
+        align: z.enum(["start", "center", "end"]).optional()
+      })
+    ),
+    rows: z.array(z.record(z.string(), z.union([z.string(), z.number()])))
+  })
 });
 
 const ForecastItem = z.strictObject({
@@ -1072,6 +1088,218 @@ export const widgetExamples: {
           photo: "https://cdn.openai.com/API/storybook/driver.png"
         }
       }
+    },
+    {
+      id: "accordion-demo",
+      title: "Accordion",
+      description: "Expandable FAQ list.",
+      template: `
+<Card size="sm">
+  <Accordion
+    items={[
+      { id: "shipping", title: "Shipping", content: "Free delivery in 2 business days." },
+      { id: "returns", title: "Returns", content: "30-day hassle-free returns." }
+    ]}
+  />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "menubar-demo",
+      title: "Menubar",
+      description: "Top navigation menu.",
+      template: `
+<Card size="sm">
+  <Menubar
+    menus={[
+      {
+        id: "file",
+        label: "File",
+        items: [
+          { id: "new", label: "New file" },
+          { id: "sep-1", type: "separator" },
+          { id: "share", label: "Share" }
+        ]
+      },
+      {
+        id: "edit",
+        label: "Edit",
+        items: [
+          { id: "copy", label: "Copy" },
+          { id: "paste", label: "Paste" }
+        ]
+      }
+    ]}
+  />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "context-menu-demo",
+      title: "Context menu",
+      description: "Right-click menu example.",
+      template: `
+<Card size="sm">
+  <ContextMenu
+    triggerLabel="Right click this box"
+    items={[
+      { id: "copy", label: "Copy" },
+      { id: "sep-1", type: "separator" },
+      { id: "delete", label: "Delete" }
+    ]}
+  />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "combobox-demo",
+      title: "Combobox",
+      description: "Searchable select control.",
+      template: `
+<Card size="sm">
+  <Combobox
+    name="assignee"
+    options={[
+      { label: "Alex Rivera", value: "alex" },
+      { label: "Sam Example", value: "sam" }
+    ]}
+  />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "toggle-slider-demo",
+      title: "Toggle + Slider",
+      description: "Interactive controls with state.",
+      template: `
+<Card size="sm">
+  <Col gap={3}>
+    <Toggle name="notifications" label="Notifications" />
+    <Slider name="volume" defaultValue={42} />
+  </Col>
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "tooltip-demo",
+      title: "Tooltip",
+      description: "Hover to reveal details.",
+      template: `
+<Card size="sm">
+  <Tooltip label="Hover me" content="Extra details shown on hover." />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "sheet-demo",
+      title: "Sheet",
+      description: "Side panel overlay.",
+      template: `
+<Card size="sm">
+  <Sheet
+    triggerLabel="Open sheet"
+    title="Sheet title"
+    description="Optional supporting text."
+    content="Sheet content goes here."
+    side="right"
+  />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "drawer-demo",
+      title: "Drawer",
+      description: "Bottom drawer overlay.",
+      template: `
+<Card size="sm">
+  <Drawer
+    triggerLabel="Open drawer"
+    title="Drawer title"
+    description="Optional supporting text."
+    content="Drawer content goes here."
+  />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "otp-demo",
+      title: "Input OTP",
+      description: "One-time passcode input.",
+      template: `
+<Card size="sm">
+  <InputOTP name="code" length={6} />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "spinner-demo",
+      title: "Spinner",
+      description: "Loading indicator.",
+      template: `
+<Card size="sm">
+  <Spinner size="sm" label="Loading" />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
+    },
+    {
+      id: "data-table-demo",
+      title: "Data table",
+      description: "Compact table layout.",
+      template: `
+<Card size="md">
+  <DataTable
+    caption={table.caption}
+    columns={table.columns}
+    rows={table.rows}
+  />
+</Card>
+    `.trim(),
+      schema: DataTableSchema,
+      data: {
+        table: {
+          caption: "Quarterly revenue",
+          columns: [
+            { key: "quarter", label: "Quarter" },
+            { key: "revenue", label: "Revenue", align: "end" }
+          ],
+          rows: [
+            { quarter: "Q1", revenue: "$12,400" },
+            { quarter: "Q2", revenue: "$18,900" }
+          ]
+        }
+      }
+    },
+    {
+      id: "collapsible-demo",
+      title: "Collapsible",
+      description: "Toggleable details block.",
+      template: `
+<Card size="sm">
+  <Collapsible title="Advanced options" content="Show extra configuration here." />
+</Card>
+    `.trim(),
+      schema: EmptySchema,
+      data: {}
     }
   ];
 

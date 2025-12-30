@@ -86,14 +86,24 @@ The renderer implements the full spec provided in `AGENTS.md`, including:
 
 ### New additions (extra spec)
 
-The project adds two reusable components that are not present in the original spec:
+The project adds several reusable components that are not present in the original spec:
 
-- **Avatar**
-  - Props: `src?`, `name`, `size?`, `radius?`, `status?`
-  - Renders an image or initials with an optional status dot.
-- **Progress**
-  - Props: `value`, `max?`, `label?`, `color?`, `size?`
-  - Displays a compact progress bar with optional percent label.
+- **Avatar** — `src?`, `name`, `size?`, `radius?`, `status?`
+- **Progress** — `value`, `max?`, `label?`, `color?`, `size?`
+- **Accordion** — `items`, `type?`, `collapsible?`
+- **Collapsible** — `title`, `content`, `defaultOpen?`
+- **Menubar** — `menus`
+- **ContextMenu** — `triggerLabel`, `items`
+- **Tooltip** — `label`, `content`
+- **Toggle** — `name?`, `label`, `defaultPressed?`
+- **ToggleGroup** — `name?`, `type?`, `options`
+- **Slider** — `name?`, `defaultValue?`, `min?`, `max?`, `step?`
+- **Sheet** — `triggerLabel`, `title?`, `description?`, `content?`, `side?`
+- **Drawer** — `triggerLabel`, `title?`, `description?`, `content?`
+- **Combobox** — `name?`, `options`, `placeholder?`
+- **InputOTP** — `name?`, `length?`, `groupSize?`
+- **Spinner** — `size?`, `label?`
+- **DataTable** — `columns`, `rows`, `caption?`
 
 These are included in the gallery examples and are registered in `widgetRegistry`.
 

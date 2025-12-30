@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { WidgetRenderer } from "@/widget";
 
@@ -89,7 +90,16 @@ export function GalleryPage() {
                   />
                 </div>
 
-                <details className="mt-4">
+                <div className="mt-4 flex items-center justify-between">
+                  <Link
+                    className="cursor-pointer text-xs font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-400"
+                    to={`/playground?example=${encodeURIComponent(example.id)}`}
+                  >
+                    Try it
+                  </Link>
+                </div>
+
+                <details className="mt-2">
                   <summary className="cursor-pointer text-xs font-semibold text-slate-500">
                     View template + data
                   </summary>
