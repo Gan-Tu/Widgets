@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { iconNames } from "@/widget/iconNames";
+import { z } from "zod";
 
 const EmptySchema = z.strictObject({});
 
@@ -389,7 +389,7 @@ export const widgetExamples: {
       src={image}
       aspectRatio={1}
       radius="full"
-      size={200}
+      size={150}
       frame
       background="surface-elevated-secondary"
     />
