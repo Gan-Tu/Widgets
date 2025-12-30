@@ -30,7 +30,7 @@ export default function App() {
         <div className="app-container flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img
-              src="/public/logo.png"
+              src="/logo.png"
               alt="Widget Renderer Logo"
               className="h-10 w-10 rounded-2xl"
             />
