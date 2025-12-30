@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { iconNames } from "@/widget/iconNames";
 
 const Event = z.strictObject({
   id: z.string(),
@@ -81,63 +82,7 @@ const SessionDetailSchema = z.strictObject({
   speakers: z.array(Speaker)
 });
 
-const IconName = z.enum([
-  "analytics",
-  "atom",
-  "bolt",
-  "book-open",
-  "book-closed",
-  "calendar",
-  "chart",
-  "check",
-  "check-circle",
-  "check-circle-filled",
-  "chevron-left",
-  "chevron-right",
-  "circle-question",
-  "compass",
-  "cube",
-  "document",
-  "dots-horizontal",
-  "empty-circle",
-  "globe",
-  "keys",
-  "lab",
-  "images",
-  "info",
-  "lifesaver",
-  "lightbulb",
-  "mail",
-  "map-pin",
-  "maps",
-  "name",
-  "notebook",
-  "notebook-pencil",
-  "page-blank",
-  "phone",
-  "plus",
-  "profile",
-  "profile-card",
-  "star",
-  "star-filled",
-  "search",
-  "sparkle",
-  "sparkle-double",
-  "square-code",
-  "square-image",
-  "square-text",
-  "suitcase",
-  "settings-slider",
-  "user",
-  "write",
-  "write-alt",
-  "write-alt2",
-  "reload",
-  "play",
-  "mobile",
-  "desktop",
-  "external-link"
-]);
+const IconName = z.enum(iconNames);
 
 const Device = z.strictObject({
   id: z.string(),
@@ -173,6 +118,13 @@ const PurchaseItem = z.strictObject({
   image: z.string(),
   title: z.string(),
   subtitle: z.string()
+});
+
+const PurchaseConfirmationSchema = z.strictObject({
+  product: z.strictObject({
+    name: z.string(),
+    image: z.string()
+  })
 });
 
 const PurchaseSchema = z.strictObject({
@@ -243,6 +195,15 @@ const TeamProgressSchema = z.strictObject({
   members: z.array(TeamMember)
 });
 
+const RiderStatusSchema = z.strictObject({
+  eta: z.string(),
+  address: z.string(),
+  driver: z.strictObject({
+    name: z.string(),
+    photo: z.string()
+  })
+});
+
 export const widgetExamples: {
   id: string;
   title: string;
@@ -252,11 +213,11 @@ export const widgetExamples: {
   data: unknown;
   theme?: "light" | "dark";
 }[] = [
-  {
-    id: "calendar-confirm",
-    title: "Confirm calendar event",
-    description: "Multiple events with highlighted new ones.",
-    template: `
+    {
+      id: "calendar-confirm",
+      title: "Confirm calendar event",
+      description: "Multiple events with highlighted new ones.",
+      template: `
 <Card
   size="md"
   confirm={{ label: "Add to calendar", action: { type: "calendar.add" } }}
@@ -293,32 +254,32 @@ export const widgetExamples: {
   </Row>
 </Card>
     `.trim(),
-    schema: CalendarConfirmSchema,
-    data: {
-      date: { name: "Tue", number: "14" },
-      events: [
-        {
-          id: "event-1",
-          isNew: true,
-          color: "red",
-          title: "Design review",
-          time: "2:00 PM - 3:00 PM"
-        },
-        {
-          id: "event-2",
-          isNew: false,
-          color: "blue",
-          title: "1:1 catch up",
-          time: "4:30 PM - 5:00 PM"
-        }
-      ]
-    }
-  },
-  {
-    id: "calendar-detail",
-    title: "Event detail",
-    description: "Compact detail view for a single event.",
-    template: `
+      schema: CalendarConfirmSchema,
+      data: {
+        date: { name: "Tue", number: "14" },
+        events: [
+          {
+            id: "event-1",
+            isNew: true,
+            color: "red",
+            title: "Design review",
+            time: "2:00 PM - 3:00 PM"
+          },
+          {
+            id: "event-2",
+            isNew: false,
+            color: "blue",
+            title: "1:1 catch up",
+            time: "4:30 PM - 5:00 PM"
+          }
+        ]
+      }
+    },
+    {
+      id: "calendar-detail",
+      title: "Event detail",
+      description: "Compact detail view for a single event.",
+      template: `
 <Card>
   <Row align="stretch" gap={3}>
     <Box width={5} background={color} radius="full" />
@@ -337,19 +298,19 @@ export const widgetExamples: {
   </Row>
 </Card>
     `.trim(),
-    schema: CalendarDetailSchema,
-    data: {
-      color: "blue",
-      date: { dayName: "Monday", monthName: "January", dayNumber: "8" },
-      time: "10:30 AM",
-      title: "Team sync"
-    }
-  },
-  {
-    id: "task-create",
-    title: "Create task",
-    description: "Editable text, date picker, and submit action.",
-    template: `
+      schema: CalendarDetailSchema,
+      data: {
+        color: "blue",
+        date: { dayName: "Monday", monthName: "January", dayNumber: "8" },
+        time: "10:30 AM",
+        title: "Team sync"
+      }
+    },
+    {
+      id: "task-create",
+      title: "Create task",
+      description: "Editable text, date picker, and submit action.",
+      template: `
 <Card size="md">
   <Form onSubmitAction={{ type: "task.create" }}>
     <Col gap={3}>
@@ -376,7 +337,7 @@ export const widgetExamples: {
         }}
       />
       <Divider flush />
-      <Row align="center" gap={3}>
+      <Row align="center" gap={2} wrap="wrap">
         <Row align="center" gap={2}>
           <DatePicker
             name="task.due"
@@ -393,19 +354,19 @@ export const widgetExamples: {
   </Form>
 </Card>
     `.trim(),
-    schema: TaskSchema,
-    data: {
-      initialTitle: "Investigate flaky CI",
-      initialDescription:
-        "Track down the intermittent failure in the integration suite and propose a fix.",
-      initialDueDate: "2026-01-05"
-    }
-  },
-  {
-    id: "attendee-card",
-    title: "Conference attendee",
-    description: "Profile with sessions.",
-    template: `
+      schema: TaskSchema,
+      data: {
+        initialTitle: "Investigate flaky CI",
+        initialDescription:
+          "Track down the intermittent failure in the integration suite and propose a fix.",
+        initialDueDate: "2026-01-05"
+      }
+    },
+    {
+      id: "attendee-card",
+      title: "Conference attendee",
+      description: "Profile with sessions.",
+      template: `
 <Card size="sm">
   <Col align="center" padding={{ top: 6, bottom: 4 }} gap={4}>
     <Image
@@ -442,22 +403,22 @@ export const widgetExamples: {
   </Col>
 </Card>
     `.trim(),
-    schema: AttendeeSchema,
-    data: {
-      image: "https://cdn.openai.com/API/storybook/sam.png",
-      name: "Sam Example",
-      title: "Developer Advocate",
-      sessions: [
-        { id: "s-1", title: "Practical Agents", time: "9:30 AM" },
-        { id: "s-2", title: "UI Patterns", time: "2:10 PM" }
-      ]
-    }
-  },
-  {
-    id: "agenda-list",
-    title: "Agenda list",
-    description: "ListView with accent colors.",
-    template: `
+      schema: AttendeeSchema,
+      data: {
+        image: "https://widgets.chatkit.studio/zj.png",
+        name: "Zheng Jie",
+        title: "Developer Advocate",
+        sessions: [
+          { id: "s-1", title: "Practical Agents", time: "9:30 AM" },
+          { id: "s-2", title: "UI Patterns", time: "2:10 PM" }
+        ]
+      }
+    },
+    {
+      id: "agenda-list",
+      title: "Agenda list",
+      description: "ListView with accent colors.",
+      template: `
 <ListView>
   {items.map((item) => (
     <ListViewItem gap={2} align="stretch">
@@ -474,31 +435,31 @@ export const widgetExamples: {
   ))}
 </ListView>
     `.trim(),
-    schema: AgendaSchema,
-    data: {
-      items: [
-        {
-          accent: "purple",
-          time: "10:00 AM",
-          location: "Hall A",
-          title: "Keynote",
-          note: "Arrive early for a good seat; Q&A tends to fill fast."
-        },
-        {
-          accent: "blue",
-          time: "11:15 AM",
-          location: "Room 204",
-          title: "Agent Tooling Workshop",
-          note: "Bring a laptop; you'll be wiring actions and schema hydration."
-        }
-      ]
-    }
-  },
-  {
-    id: "session-detail",
-    title: "Session detail",
-    description: "Session with speakers and location.",
-    template: `
+      schema: AgendaSchema,
+      data: {
+        items: [
+          {
+            accent: "purple",
+            time: "10:00 AM",
+            location: "Hall A",
+            title: "Keynote",
+            note: "Arrive early for a good seat; Q&A tends to fill fast."
+          },
+          {
+            accent: "blue",
+            time: "11:15 AM",
+            location: "Room 204",
+            title: "Agent Tooling Workshop",
+            note: "Bring a laptop; you'll be wiring actions and schema hydration."
+          }
+        ]
+      }
+    },
+    {
+      id: "session-detail",
+      title: "Session detail",
+      description: "Session with speakers and location.",
+      template: `
 <Card size="md">
   <Col gap={1}>
     <Text value={type} size="sm" color="purple" />
@@ -550,28 +511,28 @@ export const widgetExamples: {
   </Col>
 </Card>
     `.trim(),
-    schema: SessionDetailSchema,
-    data: {
-      type: "Workshop",
-      title: "Building Reliable Widgets",
-      description: "A hands-on session on schema-first UI construction.",
-      location: "Room 1B",
-      time: "3:40 PM",
-      speakers: [
-        {
-          id: "sp-1",
-          image: "https://cdn.openai.com/API/storybook/alex.png",
-          name: "Alex Rivera",
-          title: "Staff Engineer"
-        }
-      ]
-    }
-  },
-  {
-    id: "device-list",
-    title: "Devices",
-    description: "Selectable devices list.",
-    template: `
+      schema: SessionDetailSchema,
+      data: {
+        type: "Workshop",
+        title: "Building Reliable Widgets",
+        description: "A hands-on session on schema-first UI construction.",
+        location: "Room 1B",
+        time: "3:40 PM",
+        speakers: [
+          {
+            id: "sp-1",
+            image: "https://widgets.chatkit.studio/rohanmehta.png",
+            name: "Rohan Mehta",
+            title: "Staff Engineer"
+          }
+        ]
+      }
+    },
+    {
+      id: "device-list",
+      title: "Devices",
+      description: "Selectable devices list.",
+      template: `
 <ListView>
   {devices.map((item) => (
     <ListViewItem
@@ -594,33 +555,33 @@ export const widgetExamples: {
   ))}
 </ListView>
     `.trim(),
-    schema: DevicesSchema,
-    data: {
-      devices: [
-        {
-          id: "dev-iphone",
-          icon: "mobile",
-          name: "iPhone 16",
-          status: "Online",
-          os: "iOS",
-          version: "18.2"
-        },
-        {
-          id: "dev-mbp",
-          icon: "desktop",
-          name: "MacBook Pro",
-          status: "Last seen 2h ago",
-          os: "macOS",
-          version: "15.1"
-        }
-      ]
-    }
-  },
+      schema: DevicesSchema,
+      data: {
+        devices: [
+          {
+            id: "dev-iphone",
+            icon: "mobile",
+            name: "iPhone 16",
+            status: "Online",
+            os: "iOS",
+            version: "18.2"
+          },
+          {
+            id: "dev-mbp",
+            icon: "desktop",
+            name: "MacBook Pro",
+            status: "Last seen 2h ago",
+            os: "macOS",
+            version: "15.1"
+          }
+        ]
+      }
+    },
   {
     id: "notifications",
     title: "Enable notifications",
     description: "Confirmation dialog with two actions.",
-    template: `
+      template: `
 <Card>
   <Col align="center" gap={4} padding={4}>
     <Box background="green-400" radius="full" padding={3}>
@@ -653,17 +614,77 @@ export const widgetExamples: {
   </Row>
 </Card>
     `.trim(),
-    schema: NotificationSchema,
-    data: {
-      title: "Enable notifications",
-      description: "Turn on alerts to get timely updates."
+      schema: NotificationSchema,
+      data: {
+        title: "Enable notifications",
+        description: "Turn on alerts to get timely updates."
     }
   },
   {
-    id: "playlist",
-    title: "Playlist",
-    description: "Playlist with play controls.",
+    id: "purchase-confirmation",
+    title: "Purchase confirmation",
+    description: "Compact receipt-style order confirmation.",
     template: `
+<Card size="sm">
+  <Col gap={3}>
+    <Row align="center" gap={2}>
+      <Icon name="check-circle-filled" color="success" />
+      <Text size="sm" value="Purchase complete" color="success" />
+    </Row>
+    <Divider color="subtle" flush />
+
+    <Row gap={3}>
+      <Image src={product.image} alt="Blue folding chair" size={80} frame />
+      <Col gap={1}>
+        <Title value={product.name} maxLines={2} />
+        <Text
+          value="Free delivery • 14-day returns"
+          size="sm"
+          color="secondary"
+        />
+      </Col>
+    </Row>
+  </Col>
+  <Col gap={2} padding={{ y: 2 }}>
+    <Row>
+      <Text value="Estimated delivery" size="sm" color="secondary" />
+      <Spacer />
+      <Text value="Thursday, Oct 8" size="sm" />
+    </Row>
+    <Row>
+      <Text value="Sold by" size="sm" color="secondary" />
+      <Spacer />
+      <Text value="OpenAI" size="sm" />
+    </Row>
+    <Row>
+      <Text value="Paid" size="sm" color="secondary" />
+      <Spacer />
+      <Text value="$20.00" size="sm" />
+    </Row>
+  </Col>
+
+  <Button
+    label="View details"
+    onClickAction={{ type: "order.view_details" }}
+    variant="outline"
+    pill
+    block
+  />
+</Card>
+    `.trim(),
+    schema: PurchaseConfirmationSchema,
+    data: {
+      product: {
+        name: "Blue folding chair",
+        image: "https://widgets.chatkit.studio/blue-chair.png"
+      }
+    }
+  },
+    {
+      id: "playlist",
+      title: "Playlist",
+      description: "Playlist with play controls.",
+      template: `
 <Card size="sm" padding={0}>
   <Image src={bannerImage} alt="K-POP" height={180} fit="cover" flush />
   <Col padding={{ y: 2, x: 3 }}>
@@ -697,36 +718,36 @@ export const widgetExamples: {
   </Col>
 </Card>
     `.trim(),
-    schema: PlaylistSchema,
-    data: {
-      bannerImage: "https://widgets.chatkit.studio/kpop.png",
-      tracks: [
-        {
-          id: "retrovinyl",
-          title: "retrovinyl",
-          artist: "Erik Mclean",
-          cover: "https://widgets.chatkit.studio/album01.png"
-        },
-        {
-          id: "neon-polaroid",
-          title: "Neon Polaroid",
-          artist: "Efe Kurnaz",
-          cover: "https://widgets.chatkit.studio/album03.png"
-        },
-        {
-          id: "morning-grain",
-          title: "Morning Grain",
-          artist: "Reinhart Julian",
-          cover: "https://widgets.chatkit.studio/album02.png"
-        }
-      ]
-    }
-  },
-  {
-    id: "purchase-items",
-    title: "Purchase items",
-    description: "Itemized checkout with totals.",
-    template: `
+      schema: PlaylistSchema,
+      data: {
+        bannerImage: "https://widgets.chatkit.studio/kpop.png",
+        tracks: [
+          {
+            id: "retrovinyl",
+            title: "retrovinyl",
+            artist: "Erik Mclean",
+            cover: "https://widgets.chatkit.studio/album01.png"
+          },
+          {
+            id: "neon-polaroid",
+            title: "Neon Polaroid",
+            artist: "Efe Kurnaz",
+            cover: "https://widgets.chatkit.studio/album03.png"
+          },
+          {
+            id: "morning-grain",
+            title: "Morning Grain",
+            artist: "Reinhart Julian",
+            cover: "https://widgets.chatkit.studio/album02.png"
+          }
+        ]
+      }
+    },
+    {
+      id: "purchase-items",
+      title: "Purchase items",
+      description: "Itemized checkout with totals.",
+      template: `
 <Card size="sm">
   <Col>
     {items.map((item) => (
@@ -783,36 +804,36 @@ export const widgetExamples: {
   </Col>
 </Card>
     `.trim(),
-    schema: PurchaseSchema,
-    data: {
-      items: [
-        {
-          image: "https://cdn.openai.com/API/storybook/blacksugar.png",
-          title: "Black Sugar Hoick Latte",
-          subtitle: "16oz Iced - Boba - $6.50"
-        },
-        {
-          image: "https://cdn.openai.com/API/storybook/classic.png",
-          title: "Classic Milk Tea",
-          subtitle: "16oz Iced - Double Boba - $6.75"
-        },
-        {
-          image: "https://cdn.openai.com/API/storybook/matcha.png",
-          title: "Matcha Latte",
-          subtitle: "16oz Iced - Boba - $6.50"
-        }
-      ],
-      subTotal: "$19.75",
-      taxPct: "8.75%",
-      tax: "$1.72",
-      total: "$21.47"
-    }
-  },
-  {
-    id: "player-card",
-    title: "Player card",
-    description: "Dark themed card with stats.",
-    template: `
+      schema: PurchaseSchema,
+      data: {
+        items: [
+          {
+            image: "https://cdn.openai.com/API/storybook/blacksugar.png",
+            title: "Black Sugar Hoick Latte",
+            subtitle: "16oz Iced - Boba - $6.50"
+          },
+          {
+            image: "https://cdn.openai.com/API/storybook/classic.png",
+            title: "Classic Milk Tea",
+            subtitle: "16oz Iced - Double Boba - $6.75"
+          },
+          {
+            image: "https://cdn.openai.com/API/storybook/matcha.png",
+            title: "Matcha Latte",
+            subtitle: "16oz Iced - Boba - $6.50"
+          }
+        ],
+        subTotal: "$19.75",
+        taxPct: "8.75%",
+        tax: "$1.72",
+        total: "$21.47"
+      }
+    },
+    {
+      id: "player-card",
+      title: "Player card",
+      description: "Dark themed card with stats.",
+      template: `
 <Card
   size="md"
   theme="dark"
@@ -840,25 +861,25 @@ export const widgetExamples: {
   </Row>
 </Card>
     `.trim(),
-    schema: PlayerSchema,
-    data: {
-      name: "Froge",
-      number: "22",
-      accent: "blue-100",
-      stats: [
-        { value: "18", label: "PTS" },
-        { value: "141", label: "YDS" },
-        { value: "2", label: "TKL" },
-        { value: "17", label: "LEAPS" }
-      ]
+      schema: PlayerSchema,
+      data: {
+        name: "Froge",
+        number: "22",
+        accent: "blue-100",
+        stats: [
+          { value: "18", label: "PTS" },
+          { value: "141", label: "YDS" },
+          { value: "2", label: "TKL" },
+          { value: "17", label: "LEAPS" }
+        ]
+      },
+      theme: "dark"
     },
-    theme: "dark"
-  },
-  {
-    id: "weather-forecast",
-    title: "Weather forecast",
-    description: "Gradient background with daily temps.",
-    template: `
+    {
+      id: "weather-forecast",
+      title: "Weather forecast",
+      description: "Gradient background with daily temps.",
+      template: `
 <Card theme="dark" size="sm" padding={8} background={background}>
   <Col align="center" gap={3}>
     <Image src={conditionImage} size={60} />
@@ -892,45 +913,45 @@ export const widgetExamples: {
   </Col>
 </Card>
     `.trim(),
-    schema: WeatherSchema,
-    data: {
-      background:
-        "linear-gradient(111deg, #1769C8 0%, #258AE3 56.92%, #31A3F8 100%)",
-      conditionImage: "https://cdn.openai.com/API/storybook/mixed-sun.png",
-      lowTemperature: "47°",
-      highTemperature: "69°",
-      location: "San Francisco, CA",
-      conditionDescription: "Partly sunny skies accompanied by some clouds",
-      forecast: [
-        {
-          conditionImage: "https://cdn.openai.com/API/storybook/mostly-sunny.png",
-          temperature: "54°"
-        },
-        {
-          conditionImage: "https://cdn.openai.com/API/storybook/rain.png",
-          temperature: "54°"
-        },
-        {
-          conditionImage: "https://cdn.openai.com/API/storybook/mixed-sun.png",
-          temperature: "54°"
-        },
-        {
-          conditionImage: "https://cdn.openai.com/API/storybook/windy.png",
-          temperature: "54°"
-        },
-        {
-          conditionImage: "https://cdn.openai.com/API/storybook/mostly-sunny.png",
-          temperature: "54°"
-        }
-      ]
+      schema: WeatherSchema,
+      data: {
+        background:
+          "linear-gradient(111deg, #1769C8 0%, #258AE3 56.92%, #31A3F8 100%)",
+        conditionImage: "https://cdn.openai.com/API/storybook/mixed-sun.png",
+        lowTemperature: "47°",
+        highTemperature: "69°",
+        location: "San Francisco, CA",
+        conditionDescription: "Partly sunny skies accompanied by some clouds",
+        forecast: [
+          {
+            conditionImage: "https://cdn.openai.com/API/storybook/mostly-sunny.png",
+            temperature: "54°"
+          },
+          {
+            conditionImage: "https://cdn.openai.com/API/storybook/rain.png",
+            temperature: "54°"
+          },
+          {
+            conditionImage: "https://cdn.openai.com/API/storybook/mixed-sun.png",
+            temperature: "54°"
+          },
+          {
+            conditionImage: "https://cdn.openai.com/API/storybook/windy.png",
+            temperature: "54°"
+          },
+          {
+            conditionImage: "https://cdn.openai.com/API/storybook/mostly-sunny.png",
+            temperature: "54°"
+          }
+        ]
+      },
+      theme: "dark"
     },
-    theme: "dark"
-  },
-  {
-    id: "analytics",
-    title: "Analytics snapshot",
-    description: "Custom chart component with series definitions.",
-    template: `
+    {
+      id: "analytics",
+      title: "Analytics snapshot",
+      description: "Custom chart component with series definitions.",
+      template: `
 <Card size="md">
   <Col gap={2}>
     <Title value={title} size="sm" />
@@ -940,31 +961,31 @@ export const widgetExamples: {
   <Chart data={chart.data} series={chart.series} xAxis={chart.xAxis} showYAxis />
 </Card>
     `.trim(),
-    schema: AnalyticsSchema,
-    data: {
-      title: "Weekly usage",
-      subtitle: "Desktop vs. Mobile interactions",
-      chart: {
-        data: [
-          { date: "Mon", Desktop: 320, Mobile: 240 },
-          { date: "Tue", Desktop: 280, Mobile: 210 },
-          { date: "Wed", Desktop: 360, Mobile: 300 },
-          { date: "Thu", Desktop: 420, Mobile: 280 },
-          { date: "Fri", Desktop: 380, Mobile: 340 }
-        ],
-        series: [
-          { type: "bar", dataKey: "Desktop", label: "Desktop", color: "blue" },
-          { type: "line", dataKey: "Mobile", label: "Mobile", color: "purple" }
-        ],
-        xAxis: { dataKey: "date" }
+      schema: AnalyticsSchema,
+      data: {
+        title: "Weekly usage",
+        subtitle: "Desktop vs. Mobile interactions",
+        chart: {
+          data: [
+            { date: "Mon", Desktop: 320, Mobile: 240 },
+            { date: "Tue", Desktop: 280, Mobile: 210 },
+            { date: "Wed", Desktop: 360, Mobile: 300 },
+            { date: "Thu", Desktop: 420, Mobile: 280 },
+            { date: "Fri", Desktop: 380, Mobile: 340 }
+          ],
+          series: [
+            { type: "bar", dataKey: "Desktop", label: "Desktop", color: "blue" },
+            { type: "line", dataKey: "Mobile", label: "Mobile", color: "purple" }
+          ],
+          xAxis: { dataKey: "date" }
+        }
       }
-    }
-  },
-  {
-    id: "team-progress",
-    title: "Team progress",
-    description: "New components: Avatar + Progress.",
-    template: `
+    },
+    {
+      id: "team-progress",
+      title: "Team progress",
+      description: "New components: Avatar + Progress.",
+      template: `
 <Card size="sm">
   <Col gap={3}>
     <Row align="center">
@@ -989,34 +1010,69 @@ export const widgetExamples: {
   </Col>
 </Card>
     `.trim(),
-    schema: TeamProgressSchema,
-    data: {
-      squad: "Launch squad",
-      percent: 78,
-      members: [
-        {
-          id: "m-1",
-          name: "Avery Park",
-          role: "Ops lead",
-          avatar: "https://cdn.openai.com/API/storybook/ava.png",
-          status: "online"
-        },
-        {
-          id: "m-2",
-          name: "Riley Chen",
-          role: "PM",
-          avatar: "https://cdn.openai.com/API/storybook/olivia.png",
-          status: "away"
-        },
-        {
-          id: "m-3",
-          name: "Morgan Doe",
-          role: "Design",
-          status: "offline"
+      schema: TeamProgressSchema,
+      data: {
+        squad: "Launch squad",
+        percent: 78,
+        members: [
+          {
+            id: "m-1",
+            name: "Avery Park",
+            role: "Ops lead",
+            avatar: "https://widgets.chatkit.studio/jameshills.png",
+            status: "online"
+          },
+          {
+            id: "m-2",
+            name: "Riley Chen",
+            role: "PM",
+            avatar: "https://cdn.openai.com/API/storybook/driver.png",
+            status: "away"
+          },
+          {
+            id: "m-3",
+            name: "Morgan Doe",
+            role: "Design",
+            status: "offline"
+          }
+        ]
+      }
+    },
+    {
+      id: "rider-status",
+      title: "Rider status",
+      description: "Ride tracking with driver info and ETA.",
+      template: `
+<Card size="sm">
+  <Title value={eta} size="xl" />
+  <Row align="center">
+    <Col minWidth="auto">
+      <Caption value="Pick up" />
+      <Text value={address} truncate />
+    </Col>
+    <Spacer />
+    <Col align="end">
+      <Caption value="Driver" />
+      <Text value={driver.name} />
+    </Col>
+    <Image
+      src={driver.photo}
+      size={40}
+      radius="full"
+    />
+  </Row>
+</Card>
+    `.trim(),
+      schema: RiderStatusSchema,
+      data: {
+        eta: "1 min",
+        address: "1008 Mission St",
+        driver: {
+          name: "Jonathan",
+          photo: "https://cdn.openai.com/API/storybook/driver.png"
         }
-      ]
+      }
     }
-  }
-];
+  ];
 
 export type WidgetExample = (typeof widgetExamples)[number];

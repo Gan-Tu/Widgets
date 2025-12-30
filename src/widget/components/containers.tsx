@@ -118,7 +118,8 @@ const CardInner: React.FC<CardProps> = ({
     background: resolveColor(background, resolvedTheme),
     border: "1px solid var(--widget-border-default)",
     borderRadius: "var(--widget-radius)",
-    boxShadow: "var(--widget-shadow)"
+    boxShadow: "var(--widget-shadow)",
+    overflow: "hidden"
   };
 
   const paddingValue =

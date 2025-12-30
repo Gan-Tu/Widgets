@@ -1,10 +1,8 @@
 import React from "react";
 
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox as UiCheckbox } from "@/components/ui/checkbox";
 import { Input as UiInput } from "@/components/ui/input";
 import { Label as UiLabel } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button as UiButton } from "@/components/ui/button";
 import {
   Select as UiSelect,
@@ -15,8 +13,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea as UiTextarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
-import { format, isAfter, isBefore, isValid, parseISO } from "date-fns";
 
 import {
   getFormValue,
@@ -340,8 +336,6 @@ type DatePickerProps = {
   max?: string;
   variant?: ControlVariant;
   size?: ControlSize;
-  side?: "top" | "bottom" | "left" | "right";
-  align?: "start" | "center" | "end";
   pill?: boolean;
   block?: boolean;
   clearable?: boolean;
@@ -357,8 +351,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
   max,
   variant = "outline",
   size = "md",
-  side = "bottom",
-  align = "center",
   pill,
   block,
   clearable,
@@ -367,19 +359,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const action = useWidgetAction();
   const [value, setValue] = useFieldValue(name, defaultValue);
   const height = controlHeights[size] ?? controlHeights.md;
-  const minDate = min ? parseISO(min) : undefined;
-  const maxDate = max ? parseISO(max) : undefined;
-  const selectedDate = value ? parseISO(value) : undefined;
-  const isSelectedValid = selectedDate ? isValid(selectedDate) : false;
-
-  const handleSelect = (date?: Date) => {
-    if (!date) return;
-    const next = format(date, "yyyy-MM-dd");
-    setValue(next);
-    if (onChangeAction && action) {
-      action(onChangeAction, { [name]: next });
-    }
-  };
+  const width =
+    size === "sm"
+      ? "180px"
+      : size === "lg"
+      ? "240px"
+      : size === "xl"
+      ? "260px"
+      : "200px";
+  const variantClasses =
+    variant === "ghost"
+      ? "border-transparent bg-transparent shadow-none"
+      : variant === "soft"
+      ? "bg-slate-50 border-slate-200"
+      : "bg-white border-slate-200";
 
   const handleClear = () => {
     setValue("");
@@ -388,46 +381,35 @@ const DatePicker: React.FC<DatePickerProps> = ({
     }
   };
 
-  const disabledDays = (date: Date) => {
-    if (minDate && isValid(minDate) && isBefore(date, minDate)) return true;
-    if (maxDate && isValid(maxDate) && isAfter(date, maxDate)) return true;
-    return false;
-  };
-
   return (
     <div className="flex items-center gap-2" style={{ width: block ? "100%" : undefined }}>
-      <Popover>
-        <PopoverTrigger asChild>
-          <UiButton
-            type="button"
-            variant={variant === "ghost" ? "ghost" : "outline"}
-            className={cn(
-              "w-[240px] justify-start text-left font-normal",
-              !value && "text-slate-500",
-              block && "w-full"
-            )}
-            style={{
-              height,
-              borderRadius: pill ? "999px" : "10px",
-              borderColor: variant === "outline" ? "#e2e8f0" : "transparent",
-              background: variant === "ghost" ? "transparent" : "#ffffff"
-            }}
-            disabled={disabled}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {isSelectedValid ? format(selectedDate as Date, "PPP") : placeholder ?? "Pick a date"}
-          </UiButton>
-        </PopoverTrigger>
-        <PopoverContent align={align} side={side} className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={isSelectedValid ? (selectedDate as Date) : undefined}
-            onSelect={handleSelect}
-            disabled={disabledDays}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
+      <div className={cn("relative", block ? "w-full" : "w-auto")} style={block ? undefined : { width }}>
+        <UiInput
+          type="date"
+          value={value}
+          placeholder={placeholder}
+          className={cn(variantClasses, "pr-9", block && "w-full")}
+          style={{
+            height,
+            borderRadius: pill ? "999px" : "10px"
+          }}
+          disabled={disabled}
+          min={min}
+          max={max}
+          onChange={(event) => {
+            const nextValue = event.target.value;
+            setValue(nextValue);
+            if (onChangeAction && action) {
+              action(onChangeAction, { [name]: nextValue });
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+            }
+          }}
+        />
+      </div>
       {clearable && value ? (
         <UiButton type="button" variant="ghost" size="sm" onClick={handleClear}>
           Clear

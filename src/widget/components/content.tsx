@@ -348,6 +348,7 @@ const Button: React.FC<ButtonProps> = ({
     gap: "0.4rem",
     fontWeight: 600,
     fontSize: "0.9rem",
+    whiteSpace: "nowrap",
     cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.6 : 1,
     background: variant === "solid" ? resolvedColor.bg : "transparent",

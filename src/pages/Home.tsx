@@ -1,5 +1,11 @@
+import {
+  ArrowRight,
+  Code2,
+  LayoutGrid,
+  ShieldCheck,
+  Sparkles
+} from "lucide-react";
 import { motion } from "motion/react";
-import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -33,102 +39,202 @@ const heroData = {
 export function HomePage() {
   return (
     <div className="space-y-16">
-      <section className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
-        <div className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm"
-          >
-            <Sparkles className="h-4 w-4" />
-            Compact widgets for conversational UIs
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.05 }}
-            className="text-4xl font-semibold text-slate-900 md:text-5xl"
-          >
-            Build expressive, schema-first widgets in minutes.
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-lg text-slate-600"
-          >
-            Drop the WidgetRenderer into any React app, pass a schema + template,
-            and get production-ready widgets that feel at home in chat.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="flex flex-wrap items-center gap-3"
-          >
-            <Button asChild className="gap-2" variant="default">
-              <Link to="/examples">
-                Browse examples <ArrowRight className="h-4 w-4" />
+      <section className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/55 p-8 shadow-sm backdrop-blur md:p-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_480px_at_12%_10%,rgba(99,102,241,0.16),transparent_60%),radial-gradient(740px_420px_at_100%_24%,rgba(14,165,233,0.14),transparent_62%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-size-[44px_44px] opacity-[0.55] mask-[radial-gradient(ellipse_at_center,black_55%,transparent_72%)]"
+        />
+
+        <div className="relative grid gap-10 md:grid-cols-[1.12fr_0.88fr] md:items-center">
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm"
+            >
+              <Sparkles className="h-4 w-4" />
+              Schema-first widgets for conversational UIs
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl"
+            >
+              A compact widget renderer that feels native to chat.
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="max-w-[56ch] text-base leading-relaxed text-slate-600 md:text-lg"
+            >
+              Import <span className="font-semibold text-slate-800">WidgetRenderer</span>,
+              pass a template + Zod schema + data, and ship polished widgets with
+              predictable behavior and beautiful defaults.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="flex flex-wrap items-center gap-3"
+            >
+              <Button asChild className="gap-2 cursor-pointer" variant="default" size="lg">
+                <Link to="/gallery">
+                  View gallery <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild className="cursor-pointer" variant="outline" size="lg">
+                <Link to="/playground">Open playground</Link>
+              </Button>
+              <Link
+                to="/docs"
+                className="cursor-pointer text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+              >
+                Read docs
               </Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link to="/playground">Open playground</Link>
-            </Button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-wrap items-center gap-2 text-xs text-slate-500"
+            >
+              <span className="rounded-full bg-slate-900/5 px-3 py-1 font-semibold">
+                10+ examples
+              </span>
+              <span className="rounded-full bg-slate-900/5 px-3 py-1 font-semibold">
+                Tailwind v4 + shadcn
+              </span>
+              <span className="rounded-full bg-slate-900/5 px-3 py-1 font-semibold">
+                Motion-ready
+              </span>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="flex justify-center md:justify-end"
+          >
+            <div className="relative">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-3 rounded-[28px] bg-linear-to-b from-white/70 to-white/0 blur-xl"
+              />
+              <div className="relative rounded-[28px] border border-white/60 bg-white/60 p-4 shadow-sm backdrop-blur">
+                <WidgetRenderer template={heroTemplate} schema={HeroSchema} data={heroData} />
+              </div>
+            </div>
           </motion.div>
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex justify-center"
-        >
-          <WidgetRenderer
-            template={heroTemplate}
-            schema={HeroSchema}
-            data={heroData}
-          />
-        </motion.div>
       </section>
 
       <section className="grid gap-6 md:grid-cols-3">
         {[
           {
-            title: "Opinionated defaults",
-            body: "Spacing, radii, typography, and colors are tuned to look great inside chat."
-          },
-          {
+            icon: ShieldCheck,
             title: "Schema-driven",
-            body: "Validate data with Zod so templates stay predictable and safe."
+            body: "Validate data with Zod so templates stay predictable and safe to render."
           },
           {
-            title: "Composable",
-            body: "Use layout primitives, list views, and controls to build compact flows."
+            icon: LayoutGrid,
+            title: "Opinionated defaults",
+            body: "Tuned spacing, radii, typography, and surfaces that look great in chat."
+          },
+          {
+            icon: Code2,
+            title: "Composable primitives",
+            body: "Build compact flows using layout, list, content, and form components."
           }
-        ].map((item) => (
-          <Card key={item.title} className="border-none bg-white/80 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-            <p className="mt-2 text-sm text-slate-600">{item.body}</p>
-          </Card>
+        ].map((item, index) => (
+          <motion.div
+            key={item.title}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.05 + index * 0.03 }}
+          >
+            <Card className="h-full rounded-3xl border border-white/60 bg-white/60 p-6 shadow-sm backdrop-blur">
+              <div className="flex items-start gap-4">
+                <div className="rounded-2xl border border-white/60 bg-white/70 p-3 text-slate-900 shadow-sm">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.body}</p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         ))}
       </section>
 
-      <section className="rounded-3xl bg-white/80 p-8 shadow-sm">
-        <h2 className="text-2xl font-semibold text-slate-900">Quick start</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Import the WidgetRenderer, pass a template + schema + data, and you are live.
-        </p>
-        <pre className="mt-4 overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs text-slate-100">
+      <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <Card className="rounded-3xl border border-white/60 bg-white/60 p-8 shadow-sm backdrop-blur">
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+                Quick start
+              </h2>
+              <p className="text-sm text-slate-600">
+                Import the renderer, pass template + schema + data, and wire an action handler.
+              </p>
+            </div>
+            <span className="hidden rounded-full bg-slate-900/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:inline">
+              60 seconds
+            </span>
+          </div>
+
+          <pre className="mt-5 overflow-x-auto rounded-2xl bg-slate-950 p-5 text-xs leading-relaxed text-slate-100">
 {`import { WidgetRenderer } from "@/widget";
 import WidgetSchema from "./schema";
 
-<WidgetRenderer
-  template={templateString}
-  schema={WidgetSchema}
-  data={widgetData}
-  onAction={(action) => console.log(action)}
-/>`}
-        </pre>
+export function WidgetMessage() {
+  return (
+    <WidgetRenderer
+      template={templateString}
+      schema={WidgetSchema}
+      data={widgetData}
+      onAction={(action) => console.log(action)}
+    />
+  );
+}`}
+          </pre>
+        </Card>
+
+        <Card className="rounded-3xl border border-white/60 bg-white/60 p-8 shadow-sm backdrop-blur">
+          <h3 className="text-base font-semibold text-slate-900">Next steps</h3>
+          <p className="mt-2 text-sm text-slate-600">
+            Explore examples, inspect component docs, or iterate live.
+          </p>
+          <div className="mt-5 grid gap-2">
+            <Button asChild className="justify-between cursor-pointer" variant="secondary">
+              <Link to="/gallery">
+                Gallery <ArrowRight className="h-4 w-4 opacity-60" />
+              </Link>
+            </Button>
+            <Button asChild className="justify-between cursor-pointer" variant="secondary">
+              <Link to="/docs">
+                Docs <ArrowRight className="h-4 w-4 opacity-60" />
+              </Link>
+            </Button>
+            <Button asChild className="justify-between cursor-pointer" variant="secondary">
+              <Link to="/playground">
+                Playground <ArrowRight className="h-4 w-4 opacity-60" />
+              </Link>
+            </Button>
+          </div>
+        </Card>
       </section>
     </div>
   );
