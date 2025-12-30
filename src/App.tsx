@@ -28,7 +28,11 @@ export default function App() {
     <div className="app-shell">
       <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 py-4 backdrop-blur">
         <div className="app-container flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <NavLink
+            to="/"
+            className="flex items-center gap-3 rounded-2xl transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            aria-label="Go to home"
+          >
             <img
               src="/logo.png"
               alt="Widget Renderer Logo"
@@ -42,7 +46,7 @@ export default function App() {
                 LLM compatible UI primitives by Gan
               </p>
             </div>
-          </div>
+          </NavLink>
           <nav className="flex items-center gap-2 rounded-full bg-white/70 p-1 shadow-sm">
             <NavLink to="/" className={navLinkClass}>
               Home
