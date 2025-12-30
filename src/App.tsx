@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
 
 const HomePage = lazy(() =>
@@ -20,10 +20,6 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 export default function App() {
-  useEffect(() => {
-    document.title = "Widgets Kit";
-  }, []);
-
   return (
     <div className="app-shell">
       <header className="sticky top-0 z-50 w-full border-b border-white/50 bg-white/60 py-4 backdrop-blur">
