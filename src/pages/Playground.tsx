@@ -7,6 +7,35 @@ import { WidgetRenderer } from "@/widget";
 
 const PlaygroundSchema = z.any();
 
+type PlaygroundErrorBoundaryProps = {
+  children: React.ReactNode;
+  onError: (error: unknown) => void;
+};
+
+type PlaygroundErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class PlaygroundErrorBoundary extends React.Component<
+  PlaygroundErrorBoundaryProps,
+  PlaygroundErrorBoundaryState
+> {
+  state: PlaygroundErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    this.props.onError(error);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 const defaultTemplate = `
 <Card size="sm">
 <Title value={ eta } size="xl" />
@@ -48,45 +77,73 @@ export function PlaygroundPage() {
     JSON.stringify(defaultData, null, 2)
   );
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
+  const [renderError, setRenderError] = React.useState<string | null>(null);
+  const [previewKey, setPreviewKey] = React.useState(0);
   const lastLoadedExampleIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     // Prefer reading from location.search so this effect reliably re-runs when the
     // query string changes (even if the URLSearchParams instance identity is stable).
-    const exampleId = new URLSearchParams(location.search).get("example");
-    if (!exampleId) return;
+    const params = new URLSearchParams(location.search);
+    const exampleId = params.get("example");
+    const componentId = params.get("component");
 
-    if (lastLoadedExampleIdRef.current === exampleId) return;
+    const key = exampleId ? `example:${exampleId}` : componentId ? `component:${componentId}` : null;
+    if (!key) return;
+    if (lastLoadedExampleIdRef.current === key) return;
 
     let cancelled = false;
 
-    import("@/examples/widgetExamples")
-      .then((mod) => {
-        const examples = mod.widgetExamples as {
-          id: string;
-          template: string;
-          data: unknown;
-          theme?: "light" | "dark";
-        }[];
+    const load = async () => {
+      try {
+        if (exampleId) {
+          const mod = await import("@/examples/widgetExamples");
+          const examples = mod.widgetExamples as {
+            id: string;
+            template: string;
+            data: unknown;
+            theme?: "light" | "dark";
+          }[];
+          const match = examples.find((ex) => ex.id === exampleId);
+          if (!match || cancelled) return;
 
-        const match = examples.find((ex) => ex.id === exampleId);
-        if (!match) return;
+          lastLoadedExampleIdRef.current = key;
+          setTemplate(match.template ?? "");
+          setJsonInput(JSON.stringify(match.data ?? {}, null, 2) ?? "{}");
+          setTheme(match.theme ?? "light");
+          return;
+        }
 
-        if (cancelled) return;
-        lastLoadedExampleIdRef.current = exampleId;
+        if (componentId) {
+          const mod = await import("@/docs/componentExamples");
+          const match = (mod.componentExamples as Record<
+            string,
+            { template: string; data: unknown; theme?: "light" | "dark" }
+          >)[componentId];
+          if (!match || cancelled) return;
 
-        setTemplate(match.template ?? "");
-        setJsonInput(JSON.stringify(match.data ?? {}, null, 2) ?? "{}");
-        setTheme(match.theme ?? "light");
-      })
-      .catch(() => {
+          lastLoadedExampleIdRef.current = key;
+          setTemplate(match.template ?? "");
+          setJsonInput(JSON.stringify(match.data ?? {}, null, 2) ?? "{}");
+          setTheme(match.theme ?? "light");
+        }
+      } catch {
         // If examples can't be loaded, keep the current editor contents.
-      });
+      }
+    };
+
+    void load();
 
     return () => {
       cancelled = true;
     };
   }, [location.search, searchParams]);
+
+  React.useEffect(() => {
+    // Any edit should reset the preview and clear prior runtime errors.
+    setRenderError(null);
+    setPreviewKey((prev) => prev + 1);
+  }, [template, jsonInput, theme]);
 
   const { data, error } = React.useMemo(() => {
     const sanitizeJson = (input: string) =>
@@ -143,18 +200,32 @@ export function PlaygroundPage() {
               <p className="mt-2 text-xs text-rose-600">{error}</p>
             ) : null}
           </div>
+          {renderError ? (
+            <p className="text-xs text-rose-600">{renderError}</p>
+          ) : null}
         </div>
 
         <div className="rounded-3xl border border-white/60 bg-white/70 p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-slate-700">Preview</h2>
           <div className="mt-4 flex justify-center">
-            <WidgetRenderer
-              template={template}
-              schema={PlaygroundSchema}
-              data={data}
-              theme={theme}
-              onAction={(action) => console.info("Playground action", action)}
-            />
+            <PlaygroundErrorBoundary
+              key={previewKey}
+              onError={(caught) => {
+                setRenderError(
+                  caught instanceof Error
+                    ? caught.message
+                    : "Preview failed to render"
+                );
+              }}
+            >
+              <WidgetRenderer
+                template={template}
+                schema={PlaygroundSchema}
+                data={data}
+                theme={theme}
+                onAction={(action) => console.info("Playground action", action)}
+              />
+            </PlaygroundErrorBoundary>
           </div>
         </div>
       </div>

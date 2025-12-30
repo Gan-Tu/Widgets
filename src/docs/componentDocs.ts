@@ -230,12 +230,19 @@ export const componentDocs: ComponentDoc[] = [
     category: "Controls",
     usage: `<Button label="Continue" style="primary" />`,
     props: [
+      { name: "submit", description: "Configure as a submit button for the nearest form.", type: "boolean", default: "false" },
       { name: "label", description: "Button label text.", type: "string" },
       { name: "onClickAction", description: "Action fired on click.", type: "ActionConfig" },
+      { name: "iconStart", description: "Optional leading icon.", type: "WidgetIcon" },
+      { name: "iconEnd", description: "Optional trailing icon.", type: "WidgetIcon" },
+      { name: "style", description: "Color style preset.", type: "\"primary\" | \"secondary\"", default: '"secondary"' },
+      { name: "iconSize", description: "Icon size token.", type: "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"", default: '"md"' },
       { name: "variant", description: "Visual variant.", type: "ControlVariant", default: '"solid"' },
       { name: "size", description: "Control size.", type: "ControlSize", default: '"lg"' },
       { name: "pill", description: "Pill shape.", type: "boolean", default: "true" },
-      { name: "block", description: "Full width.", type: "boolean", default: "false" }
+      { name: "uniform", description: "Make the button square (icon button).", type: "boolean", default: "false" },
+      { name: "block", description: "Full width.", type: "boolean", default: "false" },
+      { name: "disabled", description: "Disable interactions.", type: "boolean", default: "false" }
     ]
   },
   {
@@ -283,7 +290,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "DatePicker",
     name: "DatePicker",
-    description: "Native date input control with ISO value handling.",
+    description: "Popover date picker with calendar UI, storing dates as ISO (YYYY-MM-DD).",
     category: "Controls",
     usage: `<DatePicker name="due" placeholder="Due date" />`,
     props: [
@@ -328,16 +335,97 @@ export const componentDocs: ComponentDoc[] = [
     ]
   },
   {
-    id: "Chart",
-    name: "Chart",
-    description: "Data visualization component.",
+    id: "BarChart",
+    name: "BarChart",
+    description: "Bar chart (Recharts `BarChart`) with one or more bar series.",
     category: "Data",
-    usage: `<Chart data={data} series={series} xAxis={{ dataKey: "date" }} />`,
+    usage: `<BarChart data={data} series={[{ dataKey: "Desktop" }]} xAxis={{ dataKey: "day" }} showYAxis />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Series definitions.", type: "Series[]" },
+      {
+        name: "series",
+        description: "Bars to render: { dataKey, label?, color?, stack?, radius? }.",
+        type: "BarSeries[]"
+      },
+      {
+        name: "xAxis",
+        description: "X-axis config.",
+        type: "XAxisConfig"
+      },
+      { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
+      { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
+      { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
+      { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
+      { name: "barGap", description: "Gap between bars within a category.", type: "number" },
+      { name: "barCategoryGap", description: "Gap between bar categories.", type: "number" },
+      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+    ]
+  },
+  {
+    id: "LineChart",
+    name: "LineChart",
+    description: "Line chart (Recharts `LineChart`) with one or more line series.",
+    category: "Data",
+    usage: `<LineChart data={data} series={[{ dataKey: "Mobile" }]} xAxis={{ dataKey: "day" }} />`,
+    props: [
+      { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
+      { name: "series", description: "Lines to render: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }.", type: "LineSeries[]" },
       { name: "xAxis", description: "X-axis config.", type: "XAxisConfig" },
-      { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" }
+      { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
+      { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
+      { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
+      { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
+      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+    ]
+  },
+  {
+    id: "AreaChart",
+    name: "AreaChart",
+    description: "Area chart (Recharts `AreaChart`) with one or more area series.",
+    category: "Data",
+    usage: `<AreaChart data={data} series={[{ dataKey: "Desktop" }]} xAxis={{ dataKey: "day" }} />`,
+    props: [
+      { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
+      { name: "series", description: "Areas to render: { dataKey, label?, color?, stack?, curveType?, fillOpacity? }.", type: "AreaSeries[]" },
+      { name: "xAxis", description: "X-axis config.", type: "XAxisConfig" },
+      { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
+      { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
+      { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
+      { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
+      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+    ]
+  },
+  {
+    id: "PieChart",
+    name: "PieChart",
+    description: "Pie / donut chart (Recharts `PieChart`). Use `innerRadius` to create a donut.",
+    category: "Data",
+    usage: `<PieChart data={data} series={[{ dataKey: "value", nameKey: "name", innerRadius: "60%" }]} />`,
+    props: [
+      { name: "data", description: "Tabular dataset. For per-slice colors, add a `fill` field per row.", type: "Array<Record<string, string | number>>" },
+      { name: "series", description: "Pies to render: { dataKey, nameKey?, innerRadius?, outerRadius?, paddingAngle?, cornerRadius?, color? }.", type: "PieSeries[]" },
+      { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
+      { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
+      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+    ]
+  },
+  {
+    id: "Chart",
+    name: "Chart",
+    description: "Mixed cartesian chart combining bars/lines/areas via a `series` array.",
+    category: "Data",
+    usage: `<Chart data={data} series={[{ type: "bar", dataKey: "Desktop" }, { type: "line", dataKey: "Mobile" }]} xAxis={{ dataKey: "day" }} />`,
+    props: [
+      { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
+      { name: "series", description: "Mixed series: { type: 'bar' | 'line' | 'area', ... }.", type: "ComposedSeries[]" },
+      { name: "xAxis", description: "X-axis config.", type: "XAxisConfig" },
+      { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
+      { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
+      { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
+      { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
+      { name: "barGap", description: "Gap between bars within a category.", type: "number" },
+      { name: "barCategoryGap", description: "Gap between bar categories.", type: "number" },
+      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
     ]
   },
   {

@@ -52,7 +52,15 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
 
   const scope =
     typeof parseResult.data === "object" && parseResult.data !== null
-      ? { ...parseResult.data, data: parseResult.data }
+      ? (() => {
+          const record = parseResult.data as Record<string, unknown>;
+          // Historically we exposed the full validated state as `data`, but that can clobber
+          // widgets that legitimately have a `data` field (common for chart datasets).
+          // Keep backwards-compat by only injecting `data` when it doesn't already exist.
+          return "data" in record
+            ? { ...record, state: record }
+            : { ...record, data: record };
+        })()
       : { value: parseResult.data };
 
   let rendered: React.ReactNode;

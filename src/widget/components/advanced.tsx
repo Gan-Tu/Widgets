@@ -185,7 +185,9 @@ const TooltipWidget: React.FC<TooltipProps> = ({ label, content }) => (
   <TooltipProvider>
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="text-sm text-slate-700 underline decoration-dotted">{label}</span>
+        <span className="cursor-pointer text-sm text-slate-700 underline decoration-dotted">
+          {label}
+        </span>
       </TooltipTrigger>
       <TooltipContent>{content}</TooltipContent>
     </Tooltip>

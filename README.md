@@ -1,133 +1,90 @@
-# Widget Renderer
+# WidgetRenderer
 
-A compact, schema-driven widget system for chat UIs. It ships with a JSX-like template language, a fully typed component library, and a demo gallery + playground.
+A compact, schema-driven widget renderer for chat UIs. Pass a **Widget UI template string** + a **Zod schema** + **data**, and it renders a small, opinionated widget with minimal interactivity.
 
-## What you get
+## What’s in this repo
 
-- **WidgetRenderer** component that accepts a Widget UI template + Zod schema + data.
-- **Gallery** page with 12+ real widgets rendered from the spec.
-- **Playground** page for live template + JSON editing.
-- **Tailwind v4**, **shadcn/ui**, and **Motion (Framer Motion)** baked in.
+- **Reusable renderer**: `WidgetRenderer` (exported from `src/widget`)
+- **Component library**: the Widget UI primitives (containers, layout, text, content, forms)
+- **Demo app**:
+  - `/gallery` — lots of pre-built widgets
+  - `/docs` — component docs + reference
+  - `/playground` — live template + JSON editing
 
-## Quick start
+Built with **React**, **Tailwind v4**, **shadcn/ui**, and **Motion** (`motion/react`).
 
-```tsx
-import { WidgetRenderer } from "@/widget";
-import WidgetSchema from "./schema";
-
-<WidgetRenderer
-  template={templateString}
-  schema={WidgetSchema}
-  data={widgetData}
-  onAction={(action) => console.log(action)}
-/>;
-```
-
-### Run locally
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open:
-- `/examples` for the gallery
-- `/playground` for the live editor
+Open the URL printed by Vite, then visit `/gallery`, `/docs`, or `/playground`.
 
-## WidgetRenderer API
-
-```ts
-type WidgetRendererProps<T extends z.ZodTypeAny> = {
-  template: string;
-  schema: T;
-  data: z.infer<T>;
-  onAction?: (action: { type: string; payload?: Record<string, unknown> }) => void;
-  components?: ComponentRegistry;
-  theme?: "light" | "dark";
-  debug?: boolean;
-};
-```
-
-### Action handling
-
-Interactive components dispatch declarative `ActionConfig` objects. The renderer surfaces them via the `onAction` callback. If the action is attached to a `Form` or `Card` with `asForm`, the payload includes the current form data.
-
-## Template language
-
-Templates use a strict JSX-like format. Text must be passed via props, not children.
+## Basic usage (embed in your app)
 
 ```tsx
-// Correct
+import { WidgetRenderer } from "@/widget";
+import WidgetSchema from "./schema";
+
+export function WidgetMessage() {
+  return (
+    <WidgetRenderer
+      template={templateString}
+      schema={WidgetSchema}
+      data={widgetData}
+      onAction={(action, formData) => {
+        console.log("action", action);
+        console.log("formData", formData);
+      }}
+    />
+  );
+}
+```
+
+## `WidgetRenderer` props
+
+- **`template: string`**: Widget UI template (a strict JSX-like language)
+- **`schema: z.ZodTypeAny`**: Zod schema for widget data (validated before render)
+- **`data: z.infer<typeof schema>`**: data matching the schema
+- **`onAction?: (action, formData?) => void`**: receives declarative actions (and optional captured form state)
+- **`components?: ComponentRegistry`**: override / add components to the registry
+- **`theme?: "light" | "dark"`**: force theme for the widget subtree
+- **`debug?: boolean`**: render validated data under the widget
+
+## Template rules (the important bits)
+
+- **No text children**: text is always passed via props.
+
+```tsx
+// ✅ valid
 <Text value="Hello" />
 <Button label="Continue" />
 
-// Incorrect
+// ❌ invalid
 <Text>Hello</Text>
 <Button>Continue</Button>
 ```
 
-Supported structures:
-- **Data binding**: `{title}`
-- **Loops**: `{items.map((item) => (<Row ... />))}`
-- **Conditions**: `{isNew ? <Badge ... /> : null}`
+- **Declarative logic only**: bindings (`{title}`), conditions (`{ok ? <Badge ... /> : null}`), and `.map(...)` loops.
+- **No arbitrary JS**: the template engine is intentionally conservative for safety and predictability.
 
-> Note: The demo renderer intentionally supports a limited expression set (identifiers, member access, literals, conditionals, and `.map`). Arbitrary JavaScript is blocked by design.
+## Where to look in code
 
-## Component reference
+- **Renderer**: `src/widget/WidgetRenderer.tsx`
+- **Template engine**: `src/widget/renderer/templateEngine.tsx`
+- **Widget components**: `src/widget/components/*`
+- **Registry**: `src/widget/registry.ts`
+- **Example widgets**: `src/examples/widgetExamples.ts`
+- **Demo routes**: `src/pages/*` + `src/App.tsx`
 
-The renderer implements the full spec provided in `AGENTS.md`, including:
+## Extending the system
 
-- **Containers**: `Basic`, `Card`, `ListView`, `ListViewItem`
-- **Layout**: `Box`, `Row`, `Col`, `Form`, `Spacer`, `Divider`
-- **Text**: `Title`, `Text`, `Caption`, `Markdown`, `Label`
-- **Content**: `Badge`, `Icon`, `Image`, `Button`
-- **Controls**: `Input`, `Textarea`, `Select`, `DatePicker`, `Checkbox`, `RadioGroup`
-- **Visuals**: `Chart`, `Transition`
-
-### New additions (extra spec)
-
-The project adds several reusable components that are not present in the original spec:
-
-- **Avatar** — `src?`, `name`, `size?`, `radius?`, `status?`
-- **Progress** — `value`, `max?`, `label?`, `color?`, `size?`
-- **Accordion** — `items`, `type?`, `collapsible?`
-- **Collapsible** — `title`, `content`, `defaultOpen?`
-- **Menubar** — `menus`
-- **ContextMenu** — `triggerLabel`, `items`
-- **Tooltip** — `label`, `content`
-- **Toggle** — `name?`, `label`, `defaultPressed?`
-- **ToggleGroup** — `name?`, `type?`, `options`
-- **Slider** — `name?`, `defaultValue?`, `min?`, `max?`, `step?`
-- **Sheet** — `triggerLabel`, `title?`, `description?`, `content?`, `side?`
-- **Drawer** — `triggerLabel`, `title?`, `description?`, `content?`
-- **Combobox** — `name?`, `options`, `placeholder?`
-- **InputOTP** — `name?`, `length?`, `groupSize?`
-- **Spinner** — `size?`, `label?`
-- **DataTable** — `columns`, `rows`, `caption?`
-
-These are included in the gallery examples and are registered in `widgetRegistry`.
-
-## Theming
-
-All widget roots define CSS variables in `.widget-root`. Use the `theme` prop on `Card`, `ListView`, or `Basic` to force light/dark styling for any subtree.
-
-## File map
-
-- `src/widget/WidgetRenderer.tsx` - main renderer
-- `src/widget/renderer/templateEngine.tsx` - JSX-like template parser
-- `src/widget/components/*` - widget component library
-- `src/examples/widgetExamples.ts` - demo gallery examples
-- `src/pages/*` - Home, Examples, Playground
-
-## Extending
-
-To add new components:
-
-1. Implement the component under `src/widget/components`.
-2. Register it in `src/widget/registry.ts`.
-3. Document it in this README and add a demo example.
+1. Add a component under `src/widget/components/*`
+2. Register it in `src/widget/registry.ts`
+3. Add an example to `src/examples/widgetExamples.ts` (so it shows up in `/gallery`)
 
 ## Notes
 
-- The template engine is deliberately conservative: it supports the constructs shown in the spec examples and blocks arbitrary code execution.
-- `DatePicker` is implemented as a styled native date input for simplicity; it respects the API from the spec.
+- `DatePicker` is implemented as a styled native date input for simplicity (matching the Widget UI API surface).

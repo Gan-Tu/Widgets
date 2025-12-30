@@ -77,7 +77,7 @@ Widget UI components adapt to context. A Button may render solid by default but 
 
 - Box: defaults to `direction="col"`.
 - Row: defaults `align="center"`.
-- Button: defaults `color="secondary"`.
+- Button: defaults `style="secondary"`.
 - DatePicker / Select: `variant="outline"`, `size="md"`, `pill=false`, `block=false`, `clearable=false`, `disabled=false`.
 - Divider: `color="default"`, `size=1`.
 - Image: `fit="cover"`, `position="center"`, `radius="md"`, `border={ size: 1, color: "subtle" }`.

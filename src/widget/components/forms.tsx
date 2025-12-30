@@ -5,15 +5,20 @@ import { Input as UiInput } from "@/components/ui/input";
 import { Label as UiLabel } from "@/components/ui/label";
 import { Button as UiButton } from "@/components/ui/button";
 import { RadioGroup as UiRadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Calendar as UiCalendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select as UiSelect,
   SelectContent,
   SelectItem,
+  SelectItemText,
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
 import { Textarea as UiTextarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { format, isValid, parseISO, startOfDay } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 import {
   getFormValue,
@@ -311,15 +316,22 @@ const Select: React.FC<SelectProps> = ({
       </SelectTrigger>
       <SelectContent>
         {clearable && (
-          <SelectItem value="">Clear</SelectItem>
+          <SelectItem value="">
+            <SelectItemText>Clear</SelectItemText>
+          </SelectItem>
         )}
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
-            <div className="flex flex-col">
-              <span>{option.label}</span>
-              {option.description && (
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            disabled={option.disabled}
+            className="items-start"
+          >
+            <div className="flex flex-col gap-0.5">
+              <SelectItemText>{option.label}</SelectItemText>
+              {option.description ? (
                 <span className="text-xs text-slate-500">{option.description}</span>
-              )}
+              ) : null}
             </div>
           </SelectItem>
         ))}
@@ -337,6 +349,8 @@ type DatePickerProps = {
   max?: string;
   variant?: ControlVariant;
   size?: ControlSize;
+  side?: "top" | "bottom" | "left" | "right";
+  align?: "start" | "center" | "end";
   pill?: boolean;
   block?: boolean;
   clearable?: boolean;
@@ -352,6 +366,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
   max,
   variant = "outline",
   size = "md",
+  side,
+  align,
   pill,
   block,
   clearable,
@@ -359,6 +375,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 }) => {
   const action = useWidgetAction();
   const [value, setValue] = useFieldValue(name, defaultValue);
+  const [open, setOpen] = React.useState(false);
   const height = controlHeights[size] ?? controlHeights.md;
   const width =
     size === "sm"
@@ -375,6 +392,40 @@ const DatePicker: React.FC<DatePickerProps> = ({
       ? "bg-slate-50 border-slate-200"
       : "bg-white border-slate-200";
 
+  const buttonVariant =
+    variant === "ghost"
+      ? "ghost"
+      : variant === "soft"
+      ? "secondary"
+      : variant === "outline"
+      ? "outline"
+      : "default";
+
+  const resolvedDate = (() => {
+    if (!value) return undefined;
+    const parsed = parseISO(value);
+    return isValid(parsed) ? parsed : undefined;
+  })();
+
+  const minDate = (() => {
+    if (!min) return undefined;
+    const parsed = parseISO(min);
+    return isValid(parsed) ? startOfDay(parsed) : undefined;
+  })();
+
+  const maxDate = (() => {
+    if (!max) return undefined;
+    const parsed = parseISO(max);
+    return isValid(parsed) ? startOfDay(parsed) : undefined;
+  })();
+
+  const isDayDisabled = (day: Date) => {
+    const normalized = startOfDay(day);
+    if (minDate && normalized < minDate) return true;
+    if (maxDate && normalized > maxDate) return true;
+    return false;
+  };
+
   const handleClear = () => {
     setValue("");
     if (onChangeAction && action) {
@@ -385,34 +436,61 @@ const DatePicker: React.FC<DatePickerProps> = ({
   return (
     <div className="flex items-center gap-2" style={{ width: block ? "100%" : undefined }}>
       <div className={cn("relative", block ? "w-full" : "w-auto")} style={block ? undefined : { width }}>
-        <UiInput
-          type="date"
-          value={value}
-          placeholder={placeholder}
-          className={cn(variantClasses, "pr-9", block && "w-full")}
-          style={{
-            height,
-            borderRadius: pill ? "999px" : "10px"
-          }}
-          disabled={disabled}
-          min={min}
-          max={max}
-          onChange={(event) => {
-            const nextValue = event.target.value;
-            setValue(nextValue);
-            if (onChangeAction && action) {
-              action(onChangeAction, { [name]: nextValue });
-            }
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowDown") {
-              event.preventDefault();
-            }
-          }}
-        />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <UiButton
+              type="button"
+              variant={buttonVariant as "default" | "secondary" | "outline" | "ghost"}
+              disabled={disabled}
+              className={cn(
+                "w-full justify-between font-normal cursor-pointer",
+                variantClasses
+              )}
+              style={{
+                height,
+                width: block ? "100%" : width,
+                borderRadius: pill ? "999px" : "10px"
+              }}
+            >
+              <span className={cn(!resolvedDate && "text-slate-400")}>
+                {resolvedDate
+                  ? format(resolvedDate, "PPP")
+                  : (placeholder ?? "Pick a date")}
+              </span>
+              <CalendarIcon className="h-4 w-4 text-slate-500" />
+            </UiButton>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-auto overflow-hidden p-0 z-[9999]"
+            align={align ?? "start"}
+            side={side ?? "bottom"}
+          >
+            <UiCalendar
+              mode="single"
+              selected={resolvedDate}
+              captionLayout="dropdown"
+              onSelect={(next: Date | undefined) => {
+                if (!next) return;
+                const nextValue = format(next, "yyyy-MM-dd");
+                setValue(nextValue);
+                if (onChangeAction && action) {
+                  action(onChangeAction, { [name]: nextValue });
+                }
+                setOpen(false);
+              }}
+              disabled={isDayDisabled}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       {clearable && value ? (
-        <UiButton type="button" variant="ghost" size="sm" onClick={handleClear}>
+        <UiButton
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="cursor-pointer"
+          onClick={handleClear}
+        >
           Clear
         </UiButton>
       ) : null}

@@ -150,7 +150,7 @@ const CardInner: React.FC<CardProps> = ({
               <span className="text-sm text-slate-500">This widget is collapsed.</span>
               <button
                 type="button"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-slate-600 cursor-pointer"
                 onClick={() => setIsCollapsed(false)}
               >
                 Expand
@@ -163,12 +163,16 @@ const CardInner: React.FC<CardProps> = ({
         {(confirm || cancel) && (
           <div className="flex gap-2 border-t border-slate-200 px-4 py-3">
             {cancel ? (
-              <UiButton variant="outline" onClick={() => handleAction(cancel.action)}>
+              <UiButton
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => handleAction(cancel.action)}
+              >
                 {cancel.label}
               </UiButton>
             ) : null}
             {confirm ? (
-              <UiButton onClick={() => handleAction(confirm.action)}>
+              <UiButton className="cursor-pointer" onClick={() => handleAction(confirm.action)}>
                 {confirm.label}
               </UiButton>
             ) : null}
@@ -232,7 +236,7 @@ const ListView: React.FC<ListViewProps> = ({
           <div className="flex justify-center py-3">
             <button
               type="button"
-              className="text-xs font-semibold text-slate-500"
+              className="text-xs font-semibold text-slate-500 cursor-pointer"
               onClick={() => setExpanded(true)}
             >
               Show more
@@ -265,7 +269,7 @@ const ListViewItem: React.FC<ListViewItemProps> = ({
       onClick={() => {
         if (onClickAction && action) action(onClickAction);
       }}
-      className="border-b border-slate-100 last:border-b-0"
+      className={`border-b border-slate-100 last:border-b-0 ${onClickAction ? "cursor-pointer" : ""}`}
       style={{ padding: "0.75rem 1rem" }}
     >
       <Row align={align} gap={gap ?? 3}>

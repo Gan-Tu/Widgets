@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { iconNames } from "@/widget/iconNames";
+import { z } from "zod";
 
 type ComponentExample = {
   template: string;
@@ -13,6 +13,41 @@ const emptyData = {};
 const IconGallerySchema = z.strictObject({
   icons: z.array(z.enum(iconNames))
 });
+
+export const iconGalleryExample: ComponentExample = {
+  template: `
+<Card size="xl">
+  <Col gap={1}>
+    <Row align="center">
+      <Title value="Icon gallery" size="sm" />
+      <Spacer />
+      <Badge label={\`\${icons.length} icons\`} variant="outline" />
+    </Row>
+    <Box direction="row" wrap="wrap" gap={2} align="center">
+      {icons.map((name) => (
+        <Col
+          key={name}
+          align="center"
+          gap={1}
+          padding={2}
+          width={88}
+          radius="lg"
+          background="surface-secondary"
+          border={{ size: 1, color: "default" }}
+        >
+          <Icon name={name} size="lg" />
+          <Caption value={name} size="sm" textAlign="center" />
+        </Col>
+      ))}
+    </Box>
+  </Col>
+</Card>
+  `.trim(),
+  schema: IconGallerySchema,
+  data: {
+    icons: iconNames
+  }
+};
 
 export const componentExamples: Record<string, ComponentExample> = {
   Card: {
@@ -137,7 +172,7 @@ export const componentExamples: Record<string, ComponentExample> = {
 <Card size="sm">
   <Row gap={2}>
     <Button label="Primary" style="primary" />
-    <Button label="Outline" variant="outline" />
+    <Button label="Open" variant="outline" iconEnd="external-link" />
   </Row>
 </Card>
     `.trim(),
@@ -166,10 +201,13 @@ export const componentExamples: Record<string, ComponentExample> = {
     template: `
 <Card size="sm">
   <Select
-    name="size"
+    name="volume"
+    defaultValue="20"
+    placeholder="Select volume"
     options={[
-      { label: "Small", value: "sm" },
-      { label: "Large", value: "lg" }
+      { label: "10", value: "10" },
+      { label: "20", value: "20" },
+      { label: "30", value: "30" }
     ]}
   />
 </Card>
@@ -269,37 +307,27 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Icon: {
     template: `
-<Card size="lg">
-  <Col gap={3}>
-    <Row align="center">
-      <Title value="Icon gallery" size="sm" />
-      <Spacer />
-      <Badge label={\`\${icons.length} icons\`} variant="outline" />
-    </Row>
-    <Box direction="row" wrap="wrap" gap={2}>
-      {icons.map((name) => (
-        <Col
-          key={name}
-          align="center"
-          gap={1}
-          width={88}
-          padding={2}
-          radius="lg"
-          background="surface-secondary"
-          border={{ size: 1, color: "subtle" }}
-        >
-          <Icon name={name} size="lg" />
-          <Caption value={name} size="sm" textAlign="center" />
-        </Col>
-      ))}
+<Card size="sm">
+  <Row align="center" gap={3}>
+    <Box
+      size={44}
+      radius="lg"
+      background="surface-secondary"
+      border={{ size: 1, color: "subtle" }}
+      align="center"
+      justify="center"
+    >
+      <Icon name="sparkle" size="xl" />
     </Box>
-  </Col>
+    <Col gap={0}>
+      <Title value="Icon" size="sm" />
+      <Caption value="Use the name prop to pick an icon from the library." size="sm" />
+    </Col>
+  </Row>
 </Card>
     `.trim(),
-    schema: IconGallerySchema,
-    data: {
-      icons: iconNames
-    }
+    schema: EmptySchema,
+    data: emptyData
   },
   Badge: {
     template: `
@@ -308,6 +336,89 @@ export const componentExamples: Record<string, ComponentExample> = {
     <Badge label="Beta" />
     <Badge label="Success" color="success" />
   </Row>
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  BarChart: {
+    template: `
+<Card size="sm">
+  <BarChart
+    data={[
+      { day: "Mon", Desktop: 120, Mobile: 80 },
+      { day: "Tue", Desktop: 140, Mobile: 95 },
+      { day: "Wed", Desktop: 160, Mobile: 110 }
+    ]}
+    series={[
+      { dataKey: "Desktop", label: "Desktop" },
+      { dataKey: "Mobile", label: "Mobile" }
+    ]}
+    xAxis={{ dataKey: "day" }}
+    showYAxis
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  LineChart: {
+    template: `
+<Card size="sm">
+  <LineChart
+    data={[
+      { day: "Mon", Mobile: 80 },
+      { day: "Tue", Mobile: 95 },
+      { day: "Wed", Mobile: 110 }
+    ]}
+    series={[{ dataKey: "Mobile", label: "Mobile" }]}
+    xAxis={{ dataKey: "day" }}
+    showYAxis
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  AreaChart: {
+    template: `
+<Card size="sm">
+  <AreaChart
+    data={[
+      { day: "Mon", Desktop: 120 },
+      { day: "Tue", Desktop: 140 },
+      { day: "Wed", Desktop: 160 }
+    ]}
+    series={[{ dataKey: "Desktop", label: "Desktop" }]}
+    xAxis={{ dataKey: "day" }}
+    showYAxis
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  PieChart: {
+    template: `
+<Card size="sm">
+  <PieChart
+    height={240}
+    data={[
+      { name: "Search", value: 1240, fill: "blue" },
+      { name: "Direct", value: 860, fill: "purple" },
+      { name: "Referrals", value: 420, fill: "green" }
+    ]}
+    series={[
+      {
+        dataKey: "value",
+        nameKey: "name",
+        innerRadius: "58%",
+        outerRadius: "82%",
+        paddingAngle: 2,
+        cornerRadius: 6
+      }
+    ]}
+  />
 </Card>
     `.trim(),
     schema: EmptySchema,
@@ -323,8 +434,8 @@ export const componentExamples: Record<string, ComponentExample> = {
       { day: "Wed", Desktop: 160, Mobile: 110 }
     ]}
     series={[
-      { type: "bar", dataKey: "Desktop" },
-      { type: "bar", dataKey: "Mobile" }
+      { type: "bar", dataKey: "Desktop", label: "Desktop" },
+      { type: "line", dataKey: "Mobile", label: "Mobile" }
     ]}
     xAxis={{ dataKey: "day" }}
     showYAxis

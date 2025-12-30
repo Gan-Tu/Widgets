@@ -1,11 +1,10 @@
-import React from "react";
 import {
-  BarChart3,
   Atom,
   BadgeCheck,
-  Box,
+  BarChart3,
   Book,
   BookOpen,
+  Box,
   Briefcase,
   Calendar,
   Check,
@@ -42,24 +41,26 @@ import {
   RefreshCcw,
   Search,
   SlidersHorizontal,
+  Smartphone,
   Sparkles,
   SquareCode,
   Star,
   Type,
   User,
   UserSquare,
-  Zap,
-  Smartphone
+  Zap
 } from "lucide-react";
+import React from "react";
 
 import { useWidgetAction, useWidgetTheme } from "../context";
-import type { ActionConfig, IconSize, RadiusValue, ThemeColor, WidgetIcon } from "../types";
 import {
+  applyBorder,
   controlHeights,
   resolveColor,
   resolveRadius,
   sizeToCss
 } from "../style";
+import type { ActionConfig, Border, IconSize, RadiusValue, ThemeColor, WidgetIcon } from "../types";
 
 type BadgeProps = {
   label: string;
@@ -227,7 +228,7 @@ type ImageProps = {
   aspectRatio?: number | string;
   radius?: RadiusValue;
   background?: string | ThemeColor;
-  border?: number;
+  border?: number | Border;
 };
 
 const Image: React.FC<ImageProps> = ({
@@ -243,8 +244,6 @@ const Image: React.FC<ImageProps> = ({
   ...props
 }) => {
   const theme = useWidgetTheme();
-  const borderSize = border ?? 1;
-  const borderColor = frame ? "var(--widget-border-strong)" : "var(--widget-border-subtle)";
   const hasExplicitSize =
     props.size !== undefined ||
     props.width !== undefined ||
@@ -262,9 +261,16 @@ const Image: React.FC<ImageProps> = ({
     minHeight: sizeToCss(props.minHeight),
     maxWidth: sizeToCss(props.maxWidth),
     maxHeight: sizeToCss(props.maxHeight),
-    aspectRatio: props.aspectRatio,
-    border: `${borderSize}px solid ${borderColor}`
+    aspectRatio: props.aspectRatio
   };
+
+  // Image border defaults to `{ size: 1, color: "subtle" }`.
+  // `frame` opts into a stronger border by default.
+  applyBorder(
+    style,
+    border ?? { size: 1, color: frame ? "strong" : "subtle" },
+    theme
+  );
 
   if (flush) {
     style.marginLeft = "calc(var(--widget-card-padding, 1rem) * -1)";
@@ -280,20 +286,10 @@ type ButtonProps = {
   submit?: boolean;
   label?: string;
   onClickAction?: ActionConfig;
-  onPress?: () => void;
   iconStart?: WidgetIcon;
   iconEnd?: WidgetIcon;
   style?: "primary" | "secondary";
   iconSize?: "sm" | "md" | "lg" | "xl" | "2xl";
-  color?:
-    | "primary"
-    | "secondary"
-    | "info"
-    | "discovery"
-    | "success"
-    | "caution"
-    | "warning"
-    | "danger";
   variant?: "solid" | "soft" | "outline" | "ghost";
   size?: keyof typeof controlHeights;
   pill?: boolean;
@@ -304,25 +300,17 @@ type ButtonProps = {
 
 const buttonPalette: Record<string, { fg: string; bg: string; border: string }> = {
   primary: { fg: "#ffffff", bg: "#0f172a", border: "#0f172a" },
-  secondary: { fg: "#0f172a", bg: "#f1f5f9", border: "#e2e8f0" },
-  info: { fg: "#1d4ed8", bg: "#dbeafe", border: "#bfdbfe" },
-  discovery: { fg: "#4338ca", bg: "#e0e7ff", border: "#c7d2fe" },
-  success: { fg: "#166534", bg: "#dcfce7", border: "#86efac" },
-  caution: { fg: "#92400e", bg: "#fef3c7", border: "#fde68a" },
-  warning: { fg: "#92400e", bg: "#fef3c7", border: "#fde68a" },
-  danger: { fg: "#991b1b", bg: "#fee2e2", border: "#fecaca" }
+  secondary: { fg: "#0f172a", bg: "#f1f5f9", border: "#e2e8f0" }
 };
 
 const Button: React.FC<ButtonProps> = ({
   submit = false,
   label,
   onClickAction,
-  onPress,
   iconStart,
   iconEnd,
-  style: stylePreset,
+  style: stylePreset = "secondary",
   iconSize = "md",
-  color = "secondary",
   variant = "solid",
   size = "lg",
   pill = true,
@@ -331,7 +319,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false
 }) => {
   const action = useWidgetAction();
-  const resolvedColor = buttonPalette[stylePreset ?? color] ?? buttonPalette.secondary;
+  const resolvedColor = buttonPalette[stylePreset] ?? buttonPalette.secondary;
   const height = controlHeights[size] ?? controlHeights.lg;
   const paddingX = uniform ? "0px" : "1.1rem";
 
@@ -376,12 +364,9 @@ const Button: React.FC<ButtonProps> = ({
 
   const handleClick = () => {
     if (disabled) return;
-    if (onPress) {
-      onPress();
-    }
-    if (onClickAction && action) {
-      action(onClickAction);
-    }
+    // If this is a submit button, let the nearest <Form> handle submission.
+    if (submit) return;
+    if (onClickAction && action) action(onClickAction);
   };
 
   return (
@@ -393,5 +378,5 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-export { Badge, Icon, Image, Button };
+export { Badge, Button, Icon, Image };
 export type { BadgeProps, ButtonProps, ImageProps };

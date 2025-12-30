@@ -197,6 +197,30 @@ const AnalyticsSchema = z.strictObject({
   })
 });
 
+const TrafficSlice = z.strictObject({
+  source: z.string(),
+  value: z.number(),
+  fill: z.string().optional()
+});
+
+const TrafficBreakdownSchema = z.strictObject({
+  title: z.string(),
+  subtitle: z.string(),
+  slices: z.array(TrafficSlice)
+});
+
+const RevenuePoint = z.strictObject({
+  month: z.string(),
+  recurring: z.number(),
+  oneTime: z.number()
+});
+
+const RevenueStackedSchema = z.strictObject({
+  title: z.string(),
+  subtitle: z.string(),
+  data: z.array(RevenuePoint)
+});
+
 const TeamMember = z.strictObject({
   id: z.string(),
   name: z.string(),
@@ -218,6 +242,60 @@ const RiderStatusSchema = z.strictObject({
     name: z.string(),
     photo: z.string()
   })
+});
+
+const QuickSetupSchema = z.strictObject({
+  banner: z.string(),
+  workspaceName: z.string(),
+  defaultView: z.enum(["overview", "tasks", "analytics"]),
+  timezone: z.enum(["America/Los_Angeles", "America/New_York", "Europe/London"]),
+  emailUpdates: z.boolean()
+});
+
+const CampaignComposerSchema = z.strictObject({
+  banner: z.string(),
+  brandName: z.string(),
+  progress: z.number(),
+  initialSubject: z.string(),
+  initialMessage: z.string(),
+  defaultChannels: z.array(z.enum(["email", "sms", "push"])),
+  defaultAudience: z.enum(["all", "active", "churn_risk"]),
+  sendOn: z.string(),
+  owner: z.string()
+});
+
+const OpsMetricsSchema = z.strictObject({
+  banner: z.string(),
+  title: z.string(),
+  timeframe: z.enum(["7d", "30d", "90d"]),
+  kpis: z.strictObject({
+    uptime: z.string(),
+    p95: z.string(),
+    incidents: z.string()
+  }),
+  chartData: z.array(
+    z.strictObject({
+      day: z.string(),
+      Uptime: z.number(),
+      Incidents: z.number()
+    })
+  ),
+  table: DataTableSchema.shape.table
+});
+
+const ItinerarySchema = z.strictObject({
+  cover: z.string(),
+  city: z.string(),
+  dates: z.string(),
+  items: z.array(
+    z.strictObject({
+      id: z.string(),
+      time: z.string(),
+      title: z.string(),
+      place: z.string(),
+      icon: IconName
+    })
+  )
 });
 
 export const widgetExamples: {
@@ -613,6 +691,7 @@ export const widgetExamples: {
     <Button
       label="Yes"
       block
+      primary
       onClickAction={{
         type: "notification.settings",
         payload: { enable: true }
@@ -963,40 +1042,7 @@ export const widgetExamples: {
       },
       theme: "dark"
     },
-    {
-      id: "analytics",
-      title: "Analytics snapshot",
-      description: "Custom chart component with series definitions.",
-      template: `
-<Card size="md">
-  <Col gap={2}>
-    <Title value={title} size="sm" />
-    <Text value={subtitle} size="sm" color="secondary" />
-  </Col>
-  <Divider flush />
-  <Chart data={chart.data} series={chart.series} xAxis={chart.xAxis} showYAxis />
-</Card>
-    `.trim(),
-      schema: AnalyticsSchema,
-      data: {
-        title: "Weekly usage",
-        subtitle: "Desktop vs. Mobile interactions",
-        chart: {
-          data: [
-            { date: "Mon", Desktop: 320, Mobile: 240 },
-            { date: "Tue", Desktop: 280, Mobile: 210 },
-            { date: "Wed", Desktop: 360, Mobile: 300 },
-            { date: "Thu", Desktop: 420, Mobile: 280 },
-            { date: "Fri", Desktop: 380, Mobile: 340 }
-          ],
-          series: [
-            { type: "bar", dataKey: "Desktop", label: "Desktop", color: "blue" },
-            { type: "line", dataKey: "Mobile", label: "Mobile", color: "purple" }
-          ],
-          xAxis: { dataKey: "date" }
-        }
-      }
-    },
+    // (Charts and "combo" dashboard widgets are intentionally placed at the bottom of the gallery.)
     {
       id: "team-progress",
       title: "Team progress",
@@ -1087,6 +1133,98 @@ export const widgetExamples: {
           name: "Jonathan",
           photo: "https://cdn.openai.com/API/storybook/driver.png"
         }
+      }
+    },
+    // (Quick setup / campaign / ops review moved to the bottom of the gallery.)
+    {
+      id: "basic-itinerary",
+      title: "Basic itinerary",
+      description: "A postcard-style plan that stays compact, scannable, and action-ready.",
+      template: `
+<Card size="sm" padding={0}>
+  <Image src={cover} height={170} fit="cover" flush />
+  <Col padding={{ x: 4, top: 4, bottom: 3 }} gap={3}>
+    <Row align="center" gap={2}>
+      <Col gap={0}>
+        <Title value={city} size="lg" />
+        <Text value={dates} size="sm" color="secondary" />
+      </Col>
+      <Spacer />
+      <Badge label={\`\${items.length} stops\`} variant="outline" />
+    </Row>
+
+    <Divider flush />
+
+    <Col gap={2}>
+      {items.map((item) => (
+        <Row
+          key={item.id}
+          gap={3}
+          align="center"
+          padding={{ x: 3, y: 2 }}
+          radius="xl"
+          border={{ size: 1, color: "subtle" }}
+        >
+          <Box
+            size={36}
+            radius="lg"
+            background="surface-elevated"
+            border={{ size: 1, color: "subtle" }}
+            align="center"
+            justify="center"
+          >
+            <Icon name={item.icon} />
+          </Box>
+
+          <Col gap={0} flex={1}>
+            <Row>
+              <Caption value={item.time} size="sm" />
+              <Spacer />
+              <Caption value={item.place} size="sm" color="secondary" />
+            </Row>
+            <Text value={item.title} weight="semibold" />
+          </Col>
+
+          <Button
+            uniform
+            size="lg"
+            variant="ghost"
+            iconStart="chevron-right"
+            onClickAction={{ type: "trip.open", payload: { id: item.id } }}
+          />
+        </Row>
+      ))}
+    </Col>
+  </Col>
+
+  <Row
+    padding={{ x: 4, y: 3 }}
+    background="surface-elevated-secondary"
+    border={{ top: { size: 1, color: "subtle" } }}
+    gap={2}
+  >
+    <Button
+      label="Open map"
+      variant="outline"
+      iconStart="map-pin"
+      onClickAction={{ type: "trip.map" }}
+    />
+    <Spacer />
+    <Button label="Share" iconEnd="external-link" onClickAction={{ type: "trip.share" }} />
+  </Row>
+</Card>
+      `.trim(),
+      schema: ItinerarySchema,
+      data: {
+        cover:
+          "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+        city: "Tokyo",
+        dates: "Jan 18–21 · 3 nights",
+        items: [
+          { id: "it-1", time: "10:30", title: "Coffee + notes", place: "Kanda", icon: "notebook" },
+          { id: "it-2", time: "12:00", title: "Museum visit", place: "Ueno", icon: "images" },
+          { id: "it-3", time: "19:30", title: "Dinner reservation", place: "Shibuya", icon: "star" }
+        ]
       }
     },
     {
@@ -1300,6 +1438,495 @@ export const widgetExamples: {
     `.trim(),
       schema: EmptySchema,
       data: {}
+    }
+    ,
+    {
+      id: "setup-form",
+      title: "Quick setup",
+      description: "A tiny onboarding flow",
+      template: `
+<Card size="md" padding={0}>
+  <Image src={banner} height={150} fit="cover" flush />
+  <Form onSubmitAction={{ type: "workspace.setup" }}>
+    <Col padding={{ x: 4, y: 4 }} gap={3}>
+      <Row align="center">
+        <Col gap={0}>
+          <Title value="Quick setup" size="sm" />
+          <Text value="A compact onboarding form built with widget-native controls." size="sm" color="secondary" />
+        </Col>
+        <Spacer />
+        <Tooltip label="Why?" content="Widgets stay minimal: collect just enough info to move forward." />
+      </Row>
+
+      <Col gap={2}>
+        <Label value="Workspace name" fieldName="workspace.name" />
+        <Input
+          name="workspace.name"
+          defaultValue={workspaceName}
+          placeholder="Acme, Inc."
+          required
+        />
+      </Col>
+
+      <Col gap={2}>
+        <Label value="Default view" fieldName="workspace.view" />
+        <ToggleGroup
+          name="workspace.view"
+          type="single"
+          defaultValue={defaultView}
+          options={[
+            { label: "Overview", value: "overview" },
+            { label: "Tasks", value: "tasks" },
+            { label: "Analytics", value: "analytics" }
+          ]}
+        />
+      </Col>
+
+      <Col gap={2}>
+        <Label value="Timezone" fieldName="workspace.timezone" />
+        <Select
+          name="workspace.timezone"
+          defaultValue={timezone}
+          options={[
+            { label: "San Francisco (PT)", value: "America/Los_Angeles" },
+            { label: "New York (ET)", value: "America/New_York" },
+            { label: "London (GMT)", value: "Europe/London" }
+          ]}
+        />
+      </Col>
+
+      <Checkbox
+        name="workspace.emailUpdates"
+        label="Email me weekly updates"
+        defaultChecked={emailUpdates}
+      />
+
+      <Divider flush />
+
+      <Row align="center" gap={2}>
+        <Button
+          label="Preview"
+          variant="outline"
+          onClickAction={{ type: "workspace.preview" }}
+        />
+        <Spacer />
+        <Button submit label="Save" style="primary" />
+      </Row>
+    </Col>
+  </Form>
+</Card>
+      `.trim(),
+      schema: QuickSetupSchema,
+      data: {
+        banner:
+          "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
+        workspaceName: "OpenAI Widgets",
+        defaultView: "overview",
+        timezone: "America/Los_Angeles",
+        emailUpdates: true
+      }
+    },
+    {
+      id: "campaign-composer",
+      title: "Campaign composer",
+      description: "Compose Marketing Campaigns.",
+      template: `
+<Card size="md" padding={0}>
+  <Image src={banner} height={150} fit="cover" flush />
+  <Form onSubmitAction={{ type: "campaign.send" }}>
+    <Col padding={{ x: 4, y: 4 }} gap={3}>
+      <Row align="center" gap={2}>
+        <Col gap={0}>
+          <Title value={\`\${brandName} campaign\`} size="sm" />
+          <Text value="Draft a message and schedule a send." size="sm" color="secondary" />
+        </Col>
+        <Spacer />
+        <Badge label={\`\${progress}% ready\`} variant="outline" />
+      </Row>
+
+      <Progress value={progress} label="Completeness" />
+
+      <Col gap={2}>
+        <Label value="Owner" fieldName="campaign.owner" />
+        <Combobox
+          name="campaign.owner"
+          defaultValue={owner}
+          options={[
+            { label: "Avery Park", value: "avery" },
+            { label: "Riley Chen", value: "riley" },
+            { label: "Morgan Doe", value: "morgan" }
+          ]}
+          placeholder="Select owner"
+        />
+      </Col>
+
+      <Col gap={2}>
+        <Label value="Audience" fieldName="campaign.audience" />
+        <Select
+          name="campaign.audience"
+          defaultValue={defaultAudience}
+          options={[
+            { label: "All users", value: "all" },
+            { label: "Active users", value: "active" },
+            { label: "Churn risk", value: "churn_risk" }
+          ]}
+        />
+      </Col>
+
+      <Col gap={2}>
+        <Label value="Channels" fieldName="campaign.channels" />
+        <ToggleGroup
+          name="campaign.channels"
+          type="multiple"
+          defaultValues={defaultChannels}
+          options={[
+            { label: "Email", value: "email" },
+            { label: "SMS", value: "sms" },
+            { label: "Push", value: "push" }
+          ]}
+        />
+      </Col>
+
+      <Col gap={2}>
+        <Label value="Subject" fieldName="campaign.subject" />
+        <Input
+          name="campaign.subject"
+          defaultValue={initialSubject}
+          placeholder="Subject"
+          required
+        />
+      </Col>
+
+      <Col gap={2}>
+        <Label value="Message" fieldName="campaign.message" />
+        <Textarea
+          name="campaign.message"
+          defaultValue={initialMessage}
+          rows={4}
+          placeholder="Write the message..."
+          required
+        />
+      </Col>
+
+      <Row align="center" gap={2}>
+        <Col gap={1}>
+          <Label value="Send on" fieldName="campaign.sendOn" />
+          <DatePicker name="campaign.sendOn" defaultValue={sendOn} />
+        </Col>
+        <Spacer />
+        <Button submit label="Schedule" style="primary" />
+      </Row>
+    </Col>
+  </Form>
+</Card>
+      `.trim(),
+      schema: CampaignComposerSchema,
+      data: {
+        banner:
+          "https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1200&q=80",
+        brandName: "OpenAI Widgets",
+        progress: 72,
+        initialSubject: "A faster way to ship compact UI",
+        initialMessage:
+          "We built a schema-first widget renderer for chat. Try it in the gallery, then tailor the template to your product.",
+        defaultChannels: ["email", "push"],
+        defaultAudience: "active",
+        sendOn: "2026-01-12",
+        owner: "riley"
+      }
+    },
+    {
+      id: "ops-metrics-review",
+      title: "Ops metrics review",
+      description: "Combines ToggleGroup + Chart + DataTable with a compact KPI header (all Unsplash imagery).",
+      template: `
+<Card size="md" padding={0}>
+  <Image src={banner} height={150} fit="cover" flush />
+  <Col padding={{ x: 4, y: 4 }} gap={3}>
+    <Row align="center" gap={2}>
+      <Col gap={0}>
+        <Title value={title} size="sm" />
+        <Text value="A tiny dashboard that stays chat-friendly." size="sm" color="secondary" />
+      </Col>
+      <Spacer />
+      <ToggleGroup
+        name="metrics.timeframe"
+        type="single"
+        defaultValue={timeframe}
+        options={[
+          { label: "7d", value: "7d" },
+          { label: "30d", value: "30d" },
+          { label: "90d", value: "90d" }
+        ]}
+      />
+    </Row>
+
+    <Row gap={6} align="center">
+      <Col gap={0}>
+        <Caption value="Uptime" />
+        <Text value={kpis.uptime} weight="semibold" />
+      </Col>
+      <Col gap={0}>
+        <Caption value="p95 latency" />
+        <Text value={kpis.p95} weight="semibold" />
+      </Col>
+      <Col gap={0}>
+        <Caption value="Incidents" />
+        <Text value={kpis.incidents} weight="semibold" />
+      </Col>
+      <Spacer />
+      <Tooltip label="Tip" content="Use ToggleGroup for quick, compact filters in a chat widget." />
+    </Row>
+
+    <Divider flush />
+
+    <Chart
+      height={220}
+      data={chartData}
+      series={[
+        { type: "area", dataKey: "Uptime", label: "Uptime", color: "green", stack: "a" },
+        { type: "bar", dataKey: "Incidents", label: "Incidents", color: "orange" }
+      ]}
+      xAxis={{ dataKey: "day" }}
+      showYAxis
+    />
+
+    <Divider flush />
+
+    <DataTable caption={table.caption} columns={table.columns} rows={table.rows} />
+  </Col>
+</Card>
+      `.trim(),
+      schema: OpsMetricsSchema,
+      data: {
+        banner:
+          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+        title: "Ops metrics review",
+        timeframe: "30d",
+        kpis: { uptime: "99.97%", p95: "182ms", incidents: "4" },
+        chartData: [
+          { day: "Mon", Uptime: 99.95, Incidents: 1 },
+          { day: "Tue", Uptime: 99.99, Incidents: 0 },
+          { day: "Wed", Uptime: 99.92, Incidents: 2 },
+          { day: "Thu", Uptime: 99.98, Incidents: 0 },
+          { day: "Fri", Uptime: 99.97, Incidents: 1 }
+        ],
+        table: {
+          caption: "Recent incidents",
+          columns: [
+            { key: "id", label: "ID" },
+            { key: "summary", label: "Summary" },
+            { key: "severity", label: "Severity", align: "end" }
+          ],
+          rows: [
+            { id: "INC-1042", summary: "Elevated 5xx in us-west", severity: "High" },
+            { id: "INC-1043", summary: "Webhook retries spiking", severity: "Med" },
+            { id: "INC-1044", summary: "Latency regression", severity: "Med" }
+          ]
+        }
+      }
+    },
+    {
+      id: "analytics",
+      title: "Analytics snapshot",
+      description: "Custom chart component with series definitions.",
+      template: `
+<Card size="md">
+  <Col gap={2}>
+    <Title value={title} size="sm" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+  <Divider flush />
+  <Chart data={chart.data} series={chart.series} xAxis={chart.xAxis} showYAxis />
+</Card>
+    `.trim(),
+      schema: AnalyticsSchema,
+      data: {
+        title: "Weekly usage",
+        subtitle: "Desktop vs. Mobile interactions",
+        chart: {
+          data: [
+            { date: "Mon", Desktop: 320, Mobile: 240 },
+            { date: "Tue", Desktop: 280, Mobile: 210 },
+            { date: "Wed", Desktop: 360, Mobile: 300 },
+            { date: "Thu", Desktop: 420, Mobile: 280 },
+            { date: "Fri", Desktop: 380, Mobile: 340 }
+          ],
+          series: [
+            { type: "bar", dataKey: "Desktop", label: "Desktop", color: "blue" },
+            { type: "line", dataKey: "Mobile", label: "Mobile", color: "purple" }
+          ],
+          xAxis: { dataKey: "date" }
+        }
+      }
+    },
+    {
+      id: "traffic-breakdown",
+      title: "Traffic breakdown (donut)",
+      description: "Pie / donut chart support using `series.type=\"pie\"` and per-row `fill` colors.",
+      template: `
+<Card size="sm">
+  <Col gap={2}>
+    <Title value={title} size="sm" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+  <Divider flush />
+  <PieChart
+    height={240}
+    data={slices}
+    series={[
+      {
+        dataKey: "value",
+        nameKey: "source",
+        innerRadius: "58%",
+        outerRadius: "82%",
+        paddingAngle: 2,
+        cornerRadius: 6
+      }
+    ]}
+  />
+</Card>
+      `.trim(),
+      schema: TrafficBreakdownSchema,
+      data: {
+        title: "Acquisition",
+        subtitle: "Last 7 days",
+        slices: [
+          { source: "Search", value: 1240, fill: "blue" },
+          { source: "Direct", value: 860, fill: "purple" },
+          { source: "Referrals", value: 420, fill: "green" },
+          { source: "Social", value: 310, fill: "orange" }
+        ]
+      }
+    },
+    {
+      id: "revenue-mix",
+      title: "Revenue mix (stacked bars)",
+      description: "Stacked bar chart (cartesian) using `stack` on bar series.",
+      template: `
+<Card size="md">
+  <Col gap={2}>
+    <Title value={title} size="sm" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+  <Divider flush />
+  <BarChart
+    height={240}
+    data={data}
+    series={[
+      { dataKey: "recurring", label: "Recurring", color: "blue", stack: "rev" },
+      { dataKey: "oneTime", label: "One-time", color: "orange", stack: "rev" }
+    ]}
+    xAxis={{ dataKey: "month" }}
+    showYAxis
+    showLegend
+    showTooltip
+    barCategoryGap={20}
+  />
+</Card>
+      `.trim(),
+      schema: RevenueStackedSchema,
+      data: {
+        title: "Revenue",
+        subtitle: "Recurring vs. one-time",
+        data: [
+          { month: "Jan", recurring: 18_200, oneTime: 3_400 },
+          { month: "Feb", recurring: 19_100, oneTime: 4_200 },
+          { month: "Mar", recurring: 20_050, oneTime: 2_900 },
+          { month: "Apr", recurring: 21_300, oneTime: 5_100 },
+          { month: "May", recurring: 22_100, oneTime: 3_800 }
+        ]
+      }
+    },
+    {
+      id: "conversion-trend",
+      title: "Conversion trend (line)",
+      description: "Line chart example using `<LineChart />`.",
+      template: `
+<Card size="md">
+  <Col gap={2}>
+    <Title value={title} size="sm" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+  <Divider flush />
+  <LineChart
+    height={240}
+    data={data}
+    series={[
+      { dataKey: "conversion", label: "Conversion", color: "green" }
+    ]}
+    xAxis={{ dataKey: "week" }}
+    showYAxis
+  />
+</Card>
+      `.trim(),
+      schema: z.strictObject({
+        title: z.string(),
+        subtitle: z.string(),
+        data: z.array(
+          z.strictObject({
+            week: z.string(),
+            conversion: z.number()
+          })
+        )
+      }),
+      data: {
+        title: "Conversion",
+        subtitle: "Weekly signup conversion",
+        data: [
+          { week: "W1", conversion: 2.1 },
+          { week: "W2", conversion: 2.3 },
+          { week: "W3", conversion: 2.0 },
+          { week: "W4", conversion: 2.6 },
+          { week: "W5", conversion: 2.8 }
+        ]
+      }
+    },
+    {
+      id: "active-users",
+      title: "Active users (area)",
+      description: "Area chart example using `<AreaChart />`.",
+      template: `
+<Card size="md">
+  <Col gap={2}>
+    <Title value={title} size="sm" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+  <Divider flush />
+  <AreaChart
+    height={240}
+    data={data}
+    series={[
+      { dataKey: "active", label: "Active", color: "blue", fillOpacity: 0.25 }
+    ]}
+    xAxis={{ dataKey: "day" }}
+    showYAxis
+  />
+</Card>
+      `.trim(),
+      schema: z.strictObject({
+        title: z.string(),
+        subtitle: z.string(),
+        data: z.array(
+          z.strictObject({
+            day: z.string(),
+            active: z.number()
+          })
+        )
+      }),
+      data: {
+        title: "Active users",
+        subtitle: "Last 7 days",
+        data: [
+          { day: "Mon", active: 820 },
+          { day: "Tue", active: 910 },
+          { day: "Wed", active: 880 },
+          { day: "Thu", active: 970 },
+          { day: "Fri", active: 1020 },
+          { day: "Sat", active: 940 },
+          { day: "Sun", active: 990 }
+        ]
+      }
     }
   ];
 
