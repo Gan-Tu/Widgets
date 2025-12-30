@@ -47,7 +47,7 @@ export default function App() {
               </p>
             </div>
           </NavLink>
-          <nav className="max-w-full overflow-x-auto">
+          <nav className="max-w-full overflow-x-aut px-2">
             <div className="flex flex-nowrap items-center gap-2 rounded-full bg-white/70 p-1 shadow-sm">
               <NavLink to="/" className={navLinkClass}>
                 Home
@@ -61,6 +61,17 @@ export default function App() {
               <NavLink to="/playground" className={navLinkClass}>
                 Playground
               </NavLink>
+              <div
+                className="mx-1 h-6 w-px bg-slate-200/80"
+                aria-hidden="true"
+              />
+              <a
+                className="cursor-pointer rounded-full px-3 py-1 text-xs font-semibold text-slate-600 transition hover:bg-white/80"
+                href="/AGENTS.md"
+                download="AGENTS.md"
+              >
+                AGENTS.md
+              </a>
             </div>
           </nav>
         </div>
