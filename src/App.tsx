@@ -29,9 +29,11 @@ export default function App() {
       <header className="sticky top-0 z-50 border-b border-white/50 bg-white/60 py-4 backdrop-blur">
         <div className="app-container flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white">
-              W
-            </div>
+            <img
+              src="/public/logo.png"
+              alt="Widget Renderer Logo"
+              className="h-10 w-10 rounded-2xl"
+            />
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 Widget Renderer

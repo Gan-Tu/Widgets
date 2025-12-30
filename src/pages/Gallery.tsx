@@ -1,8 +1,11 @@
 import { motion } from "motion/react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { Play } from "lucide-react";
 
 import { WidgetRenderer } from "@/widget";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import type { ZodTypeAny } from "zod";
 
@@ -73,9 +76,28 @@ export function GalleryPage() {
                       {example.description}
                     </p>
                   </div>
-                  <span className="rounded-full bg-slate-900/5 px-3 py-1 text-[10px] font-semibold uppercase text-slate-500">
-                    {example.id}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="secondary"
+                      className="rounded-full px-3 py-1 text-[10px] font-semibold uppercase text-slate-600"
+                    >
+                      {example.id}
+                    </Badge>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer gap-2 border-slate-200 bg-white/80 text-slate-800 hover:bg-white"
+                    >
+                      <Link
+                        className="cursor-pointer"
+                        to={`/playground?example=${encodeURIComponent(example.id)}`}
+                      >
+                        <Play className="h-3.5 w-3.5" />
+                        Try it
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="mt-5 flex justify-center">
@@ -89,29 +111,6 @@ export function GalleryPage() {
                     }}
                   />
                 </div>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <Link
-                    className="cursor-pointer text-xs font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-400"
-                    to={`/playground?example=${encodeURIComponent(example.id)}`}
-                  >
-                    Try it
-                  </Link>
-                </div>
-
-                <details className="mt-2">
-                  <summary className="cursor-pointer text-xs font-semibold text-slate-500">
-                    View template + data
-                  </summary>
-                  <div className="mt-3 space-y-3">
-                    <pre className="max-h-56 overflow-auto rounded-xl bg-slate-900 p-3 text-[11px] text-slate-100">
-{example.template}
-                    </pre>
-                    <pre className="max-h-56 overflow-auto rounded-xl bg-slate-100 p-3 text-[11px] text-slate-700">
-{JSON.stringify(example.data, null, 2)}
-                    </pre>
-                  </div>
-                </details>
               </motion.section>
             ))
           : Array.from({ length: 6 }).map((_, index) => (
