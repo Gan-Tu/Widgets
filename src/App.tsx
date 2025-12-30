@@ -60,8 +60,8 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 py-10">
-        <div className="app-container">
+      <main className="flex-1 min-h-0 py-10">
+        <div className="app-container h-full">
           <Suspense
             fallback={
               <div className="rounded-3xl border border-white/60 bg-white/70 p-6 shadow-sm">
