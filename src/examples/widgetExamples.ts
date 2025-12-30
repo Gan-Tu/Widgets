@@ -283,19 +283,31 @@ const OpsMetricsSchema = z.strictObject({
   table: DataTableSchema.shape.table
 });
 
-const ItinerarySchema = z.strictObject({
-  cover: z.string(),
-  city: z.string(),
+const FlightBookingSegmentSchema = z.strictObject({
+  id: z.string(),
+  image: z.string(),
+  route: z.string(),
+  stopsLabel: z.string(),
+  flightNumber: z.string(),
+  aircraft: z.string(),
+  depart: z.string(),
+  arrive: z.string()
+});
+
+const FlightBookingSchema = z.strictObject({
+  bookingId: z.string(),
+  heroImage: z.string(),
+  tripSummary: z.string(),
+  statusLabel: z.string(),
+  route: z.string(),
   dates: z.string(),
-  items: z.array(
-    z.strictObject({
-      id: z.string(),
-      time: z.string(),
-      title: z.string(),
-      place: z.string(),
-      icon: IconName
-    })
-  )
+  guests: z.string(),
+  cabinClass: z.string(),
+  baggageSummary: z.string(),
+  refundPolicy: z.string(),
+  segments: z.array(FlightBookingSegmentSchema),
+  totalPrice: z.string(),
+  priceNote: z.string()
 });
 
 export const widgetExamples: {
@@ -1149,94 +1161,186 @@ export const widgetExamples: {
     },
     // (Quick setup / campaign / ops review moved to the bottom of the gallery.)
     {
-      id: "basic-itinerary",
-      title: "Basic itinerary",
-      description: "A postcard-style plan that stays compact, scannable, and action-ready.",
+      id: "flight-booking",
+      title: "Flight booking",
+      description: "A detailed booking review with segments, rules, and a confirm action.",
       template: `
-<Card size="sm" padding={0}>
-  <Image src={cover} height={170} fit="cover" flush />
-  <Col padding={{ x: 4, top: 4, bottom: 3 }} gap={3}>
-    <Row align="center" gap={2}>
-      <Col gap={0}>
-        <Title value={city} size="lg" />
-        <Text value={dates} size="sm" color="secondary" />
-      </Col>
-      <Spacer />
-      <Badge label={\`\${items.length} stops\`} variant="outline" />
+<Card
+  size="md"
+  padding={0}
+  confirm={{
+    label: "Confirm booking",
+    action: { type: "flight.booking.confirm", payload: { bookingId } }
+  }}
+  cancel={{
+    label: "Cancel",
+    action: { type: "flight.booking.cancel", payload: { bookingId } }
+  }}
+>
+  <Image src={heroImage} alt="Destination" height={160} fit="cover" flush />
+
+  <Row align="center" padding={{ x: 4, top: 3, bottom: 2 }}>
+    <Col gap={0} flex="auto">
+      <Title value="Confirm international booking" size="sm" />
+      <Text value={tripSummary} size="sm" color="secondary" />
+    </Col>
+    <Badge label={statusLabel} variant="soft" color="info" />
+  </Row>
+
+  <Divider flush />
+
+  <Row align="center" padding={{ x: 4, y: 3 }} gap={3}>
+    <Box
+      size={18}
+      radius="full"
+      border={{ size: 2, color: "subtle" }}
+      background="surface"
+    />
+    <Col flex="auto" gap={0}>
+      <Text value={route} size="sm" weight="semibold" />
+      <Caption value={dates} />
+    </Col>
+    <Col align="end" gap={0}>
+      <Text value={cabinClass} size="sm" weight="semibold" />
+      <Caption value={\`\${guests} guests\`} />
+    </Col>
+  </Row>
+
+  <Divider flush />
+
+  <Col padding={{ x: 4, y: 3 }} gap={3}>
+    <Row gap={2} align="center">
+      <Box background="surface-elevated-secondary" radius="full" padding={2}>
+        <Icon name="suitcase" size="lg" />
+      </Box>
+      <Text value="Flight details" size="sm" weight="semibold" />
     </Row>
+
+    <Col gap={2}>
+      {segments.map((seg) => (
+        <Row key={seg.id} gap={3} align="start">
+          <Image src={seg.image} size={52} radius="md" frame />
+
+          <Col flex="auto" gap={1}>
+            <Row gap={2} align="center">
+              <Text value={seg.route} size="sm" weight="semibold" />
+              <Spacer />
+              <Badge label={seg.stopsLabel} variant="soft" />
+            </Row>
+
+            <Row gap={2} align="center">
+              <Text value={seg.flightNumber} size="sm" color="secondary" />
+              <Text value="•" size="sm" color="tertiary" />
+              <Text value={seg.aircraft} size="sm" color="secondary" />
+            </Row>
+
+            <Row gap={3} align="start">
+              <Col flex={1} gap={0}>
+                <Caption value="Depart" />
+                <Text value={seg.depart} size="sm" />
+              </Col>
+              <Col flex={1} gap={0}>
+                <Caption value="Arrive" />
+                <Text value={seg.arrive} size="sm" />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      ))}
+    </Col>
 
     <Divider flush />
 
     <Col gap={2}>
-      {items.map((item) => (
-        <Row
-          key={item.id}
-          gap={3}
-          align="center"
-          padding={{ x: 3, y: 2 }}
-          radius="xl"
-          border={{ size: 1, color: "subtle" }}
-        >
-          <Box
-            size={36}
-            radius="lg"
-            background="surface-elevated"
-            border={{ size: 1, color: "subtle" }}
-            align="center"
-            justify="center"
-          >
-            <Icon name={item.icon} />
-          </Box>
+      <Row gap={3} align="center">
+        <Box width={110}>
+          <Text value="Guests" size="sm" color="secondary" />
+        </Box>
+        <Spacer />
+        <Text value={guests} size="sm" weight="semibold" />
+      </Row>
 
-          <Col gap={0} flex={1}>
-            <Row>
-              <Caption value={item.time} size="sm" />
-              <Spacer />
-              <Caption value={item.place} size="sm" color="secondary" />
-            </Row>
-            <Text value={item.title} weight="semibold" />
-          </Col>
+      <Row gap={3} align="center">
+        <Box width={110}>
+          <Text value="Cabin" size="sm" color="secondary" />
+        </Box>
+        <Spacer />
+        <Text value={cabinClass} size="sm" weight="semibold" />
+      </Row>
 
-          <Button
-            uniform
-            size="lg"
-            variant="ghost"
-            iconStart="chevron-right"
-            onClickAction={{ type: "trip.open", payload: { id: item.id } }}
-          />
-        </Row>
-      ))}
+      <Row gap={3} align="start">
+        <Box width={110}>
+          <Text value="Baggage" size="sm" color="secondary" />
+        </Box>
+        <Col flex="auto" gap={0} align="end">
+          <Text value={baggageSummary} size="sm" textAlign="end" />
+        </Col>
+      </Row>
+
+      <Row gap={3} align="start">
+        <Box width={110}>
+          <Text value="Refundability" size="sm" color="secondary" />
+        </Box>
+        <Col flex="auto" gap={0} align="end">
+          <Text value={refundPolicy} size="sm" textAlign="end" />
+        </Col>
+      </Row>
     </Col>
   </Col>
 
   <Row
-    padding={{ x: 4, y: 3 }}
+    padding={{ x: 4, y: 4 }}
     background="surface-elevated-secondary"
-    border={{ top: { size: 1, color: "subtle" } }}
-    gap={2}
+    border={{ top: { size: 1 } }}
   >
-    <Button
-      label="Open map"
-      variant="outline"
-      iconStart="map-pin"
-      onClickAction={{ type: "trip.map" }}
-    />
+    <Col gap={0}>
+      <Text value="Total" size="sm" weight="semibold" />
+      <Caption value={priceNote} />
+    </Col>
     <Spacer />
-    <Button label="Share" iconEnd="external-link" onClickAction={{ type: "trip.share" }} />
+    <Text value={totalPrice} size="sm" weight="semibold" />
   </Row>
 </Card>
       `.trim(),
-      schema: ItinerarySchema,
+      schema: FlightBookingSchema,
       data: {
-        cover:
-          "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-        city: "Tokyo",
-        dates: "Jan 18–21 · 3 nights",
-        items: [
-          { id: "it-1", time: "10:30", title: "Coffee + notes", place: "Kanda", icon: "notebook" },
-          { id: "it-2", time: "12:00", title: "Museum visit", place: "Ueno", icon: "images" },
-          { id: "it-3", time: "19:30", title: "Dinner reservation", place: "Shibuya", icon: "star" }
-        ]
+        bookingId: "bk-ua-893421",
+        heroImage:
+          "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1600&q=80",
+        tripSummary: "Round-trip • International",
+        statusLabel: "Review",
+        route: "SFO → NRT",
+        dates: "Mar 12 – Mar 20",
+        guests: "2",
+        cabinClass: "Premium Economy",
+        baggageSummary: "1 checked bag + 1 carry-on per guest",
+        refundPolicy: "Non-refundable • Changes allowed with fee",
+        segments: [
+          {
+            id: "seg-1",
+            image:
+              "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
+            route: "SFO → NRT",
+            stopsLabel: "Nonstop",
+            flightNumber: "United 837",
+            aircraft: "Boeing 787-9",
+            depart: "Wed 11:30 AM • San Francisco (SFO)",
+            arrive: "Thu 3:05 PM • Tokyo Narita (NRT)"
+          },
+          {
+            id: "seg-2",
+            image:
+              "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80",
+            route: "NRT → SFO",
+            stopsLabel: "Nonstop",
+            flightNumber: "United 838",
+            aircraft: "Boeing 787-9",
+            depart: "Thu 5:15 PM • Tokyo Narita (NRT)",
+            arrive: "Thu 10:40 AM • San Francisco (SFO)"
+          }
+        ],
+        totalPrice: "$3,184.20",
+        priceNote: "Includes taxes and fees • 2 guests"
       }
     },
     {
