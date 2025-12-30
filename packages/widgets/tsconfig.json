@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.app.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "allowImportingTsExtensions": false,
+    "outDir": "./dist",
+    "rootDir": "../../src",
+    "tsBuildInfoFile": "./tsconfig.widgets.tsbuildinfo"
+  },
+  "include": [
+    "../../src/widget/**/*",
+    "../../src/components/ui/**/*",
+    "../../src/lib/utils.ts"
+  ]
+}

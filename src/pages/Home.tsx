@@ -1,9 +1,9 @@
 import {
-  ArrowRight,
-  Code2,
-  LayoutGrid,
-  ShieldCheck,
-  Sparkles
+    ArrowRight,
+    Code2,
+    LayoutGrid,
+    ShieldCheck,
+    Sparkles
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
@@ -187,7 +187,7 @@ export function HomePage() {
                 Quick start
               </h2>
               <p className="text-sm text-slate-600">
-                Import the renderer, pass template + schema + data, and wire an action handler.
+                Install the package, import styles, then render with template + schema + data.
               </p>
             </div>
             <span className="hidden rounded-full bg-slate-900/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:inline">
@@ -196,7 +196,8 @@ export function HomePage() {
           </div>
 
           <pre className="mt-5 overflow-x-auto rounded-2xl bg-slate-950 p-5 text-xs leading-relaxed text-slate-100">
-{`import { WidgetRenderer } from "@/widget";
+{`import "@tugan/widgets/styles.css";
+import { WidgetRenderer } from "@tugan/widgets";
 import WidgetSchema from "./schema";
 
 export function WidgetMessage() {

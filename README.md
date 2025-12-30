@@ -8,7 +8,7 @@ https://github.com/user-attachments/assets/0a1ad957-2e58-4837-b5b1-a44750fc7148
 
 ## What’s in this repo
 
-- **Reusable renderer**: `WidgetRenderer` (exported from `src/widget`)
+- **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
 - **Component library**: the Widget UI primitives (containers, layout, text, content, forms)
 - **Demo app**:
   - `/gallery` — lots of pre-built widgets
@@ -16,6 +16,18 @@ https://github.com/user-attachments/assets/0a1ad957-2e58-4837-b5b1-a44750fc7148
   - `/playground` — live template + JSON editing
 
 Built with **React**, **Tailwind v4**, **shadcn/ui**, and **Motion** (`motion/react`).
+
+## Install (for use in your app)
+
+```bash
+npm install @tugan/widgets
+```
+
+Import the styles once in your app entry:
+
+```ts
+import "@tugan/widgets/styles.css";
+```
 
 ## Run locally
 
@@ -29,7 +41,8 @@ Open the URL printed by Vite, then visit `/gallery`, `/docs`, or `/playground`.
 ## Basic usage (embed in your app)
 
 ```tsx
-import { WidgetRenderer } from "@/widget";
+import "@tugan/widgets/styles.css";
+import { WidgetRenderer } from "@tugan/widgets";
 import WidgetSchema from "./schema";
 
 export function WidgetMessage() {

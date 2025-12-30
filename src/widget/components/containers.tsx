@@ -3,7 +3,7 @@ import React from "react";
 import { useWidgetAction, useWidgetForm, useWidgetTheme, WidgetFormProvider, WidgetThemeProvider } from "../context";
 import type { ActionConfig, Alignment, Justification, Padding, ThemeColor, WidgetStatus } from "../types";
 import { applyPadding, resolveColor, resolveGap, spaceToCss } from "../style";
-import { Button as UiButton } from "@/components/ui/button";
+import { Button as UiButton } from "../../components/ui/button";
 import { Row, resolveAlign, resolveJustify } from "./layout";
 import { Icon, Image } from "./content";
 

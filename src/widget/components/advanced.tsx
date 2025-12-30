@@ -1,7 +1,7 @@
 import React from "react";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
 import {
   Menubar,
   MenubarContent,
@@ -9,18 +9,18 @@ import {
   MenubarMenu,
   MenubarSeparator,
   MenubarTrigger
-} from "@/components/ui/menubar";
+} from "../../components/ui/menubar";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger
-} from "@/components/ui/context-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Toggle as UiToggle } from "@/components/ui/toggle";
-import { ToggleGroup as UiToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Slider as UiSlider } from "@/components/ui/slider";
+} from "../../components/ui/context-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
+import { Toggle as UiToggle } from "../../components/ui/toggle";
+import { ToggleGroup as UiToggleGroup, ToggleGroupItem } from "../../components/ui/toggle-group";
+import { Slider as UiSlider } from "../../components/ui/slider";
 import {
   Sheet,
   SheetContent,
@@ -28,7 +28,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger
-} from "@/components/ui/sheet";
+} from "../../components/ui/sheet";
 import {
   Drawer,
   DrawerContent,
@@ -36,7 +36,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger
-} from "@/components/ui/drawer";
+} from "../../components/ui/drawer";
 import {
   Command,
   CommandEmpty,
@@ -44,13 +44,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList
-} from "@/components/ui/command";
-import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
-import { Spinner as UiSpinner } from "@/components/ui/spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button as UiButton } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+} from "../../components/ui/command";
+import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "../../components/ui/input-otp";
+import { Spinner as UiSpinner } from "../../components/ui/spinner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { Button as UiButton } from "../../components/ui/button";
+import { cn } from "../../lib/utils";
 
 import { getFormValue, useWidgetAction, useWidgetForm } from "../context";
 

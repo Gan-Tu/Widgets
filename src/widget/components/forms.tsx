@@ -1,12 +1,12 @@
 import React from "react";
 
-import { Checkbox as UiCheckbox } from "@/components/ui/checkbox";
-import { Input as UiInput } from "@/components/ui/input";
-import { Label as UiLabel } from "@/components/ui/label";
-import { Button as UiButton } from "@/components/ui/button";
-import { RadioGroup as UiRadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Calendar as UiCalendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox as UiCheckbox } from "../../components/ui/checkbox";
+import { Input as UiInput } from "../../components/ui/input";
+import { Label as UiLabel } from "../../components/ui/label";
+import { Button as UiButton } from "../../components/ui/button";
+import { RadioGroup as UiRadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
+import { Calendar as UiCalendar } from "../../components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import {
   Select as UiSelect,
   SelectContent,
@@ -14,9 +14,9 @@ import {
   SelectItemText,
   SelectTrigger,
   SelectValue
-} from "@/components/ui/select";
-import { Textarea as UiTextarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+} from "../../components/ui/select";
+import { Textarea as UiTextarea } from "../../components/ui/textarea";
+import { cn } from "../../lib/utils";
 import { format, isValid, parseISO, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
