@@ -1,21 +1,52 @@
 import React from "react";
 import { z } from "zod";
 
+import { Card } from "./components/containers";
+import { Text, Title } from "./components/text";
 import { WidgetActionProvider, WidgetThemeProvider } from "./context";
 import { widgetRegistry, type ComponentRegistry } from "./registry";
 import { renderTemplate } from "./renderer/templateEngine";
-import { Card } from "./components/containers";
-import { Text, Title } from "./components/text";
 
-type WidgetRendererProps<T extends z.ZodTypeAny> = {
+type WidgetRendererPropsWithSchema<T extends z.ZodTypeAny> = {
   template: string;
+  /**
+   * Zod schema used to validate `data` before rendering.
+   *
+   * When provided, invalid data will render an error panel instead of the widget.
+   */
   schema: T;
+  /** Widget state validated by `schema`. */
   data: z.infer<T>;
-  onAction?: (action: { type: string; payload?: Record<string, unknown> }, formData?: Record<string, unknown>) => void;
+  onAction?: (
+    action: { type: string; payload?: Record<string, unknown> },
+    formData?: Record<string, unknown>
+  ) => void;
   components?: ComponentRegistry;
   theme?: "light" | "dark";
   debug?: boolean;
 };
+
+type WidgetRendererPropsWithoutSchema = {
+  template: string;
+  /**
+   * When `schema` is omitted, WidgetRenderer will skip validation and use `data`
+   * as-is as the template scope.
+   */
+  schema?: undefined;
+  /** Unvalidated widget state. */
+  data: unknown;
+  onAction?: (
+    action: { type: string; payload?: Record<string, unknown> },
+    formData?: Record<string, unknown>
+  ) => void;
+  components?: ComponentRegistry;
+  theme?: "light" | "dark";
+  debug?: boolean;
+};
+
+type WidgetRendererProps<T extends z.ZodTypeAny = z.ZodTypeAny> =
+  | WidgetRendererPropsWithSchema<T>
+  | WidgetRendererPropsWithoutSchema;
 
 function ErrorPanel({ title, message }: { title: string; message: string }) {
   return (
@@ -35,13 +66,18 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
   theme = "light",
   debug = false
 }: WidgetRendererProps<T>) => {
-  // Validate data against the provided schema before rendering.
+  // Validate data against the provided schema before rendering (if present).
   const registry = React.useMemo(
     () => ({ ...widgetRegistry, ...(components ?? {}) }),
     [components]
   );
 
-  const parseResult = React.useMemo(() => schema.safeParse(data), [schema, data]);
+  const parseResult = React.useMemo(() => {
+    if (!schema) {
+      return { success: true as const, data };
+    }
+    return schema.safeParse(data);
+  }, [schema, data]);
 
   if (!parseResult.success) {
     const message = parseResult.error.issues
@@ -91,3 +127,4 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
 
 export { WidgetRenderer };
 export type { WidgetRendererProps };
+
