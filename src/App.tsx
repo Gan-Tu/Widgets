@@ -82,8 +82,27 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="border-t border-white/60 bg-white/70 py-6 text-center text-xs text-slate-500">
-        Built with React, Tailwind v4, shadcn, and Motion.
+      <footer className="border-t border-white/60 bg-white/70 py-6 text-xs text-slate-500">
+        <div className="app-container flex flex-wrap items-center justify-center gap-2 text-center">
+          <span>Built with React, Tailwind v4, shadcn, and Framer Motion.</span>
+          <span aria-hidden>·</span>
+          <a
+            className="inline-flex items-center gap-1 font-normal text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-400 cursor-pointer"
+            href="https://github.com/Gan-Tu/Widgets"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View source on GitHub (Gan-Tu/Widgets)"
+          >
+            <img
+              src="https://github.githubassets.com/favicons/favicon.svg"
+              alt=""
+              className="h-3.5 w-3.5"
+              loading="lazy"
+              decoding="async"
+            />
+            GitHub
+          </a>
+        </div>
       </footer>
     </div>
   );
