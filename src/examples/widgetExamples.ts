@@ -691,7 +691,7 @@ export const widgetExamples: {
     <Button
       label="Yes"
       block
-      primary
+      style="primary"
       onClickAction={{
         type: "notification.settings",
         payload: { enable: true }
