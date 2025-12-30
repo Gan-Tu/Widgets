@@ -491,7 +491,11 @@ export const widgetExamples: {
           <Text value={item.time} size="sm" color="secondary" maxLines={1} />
         </Col>
         <Spacer />
-        <Button label="View" variant="outline" />
+        <Button
+          label="View"
+          variant="outline"
+          onClickAction={{ type: "session.view", payload: { id: item.id } }}
+        />
       </Row>
     ))}
   </Col>
@@ -583,7 +587,11 @@ export const widgetExamples: {
         <Text value={time} size="sm" color="secondary" maxLines={1} />
       </Col>
       <Spacer />
-      <Button label="View" variant="outline" />
+      <Button
+        label="View"
+        variant="outline"
+        onClickAction={{ type: "session.map", payload: { location } }}
+      />
     </Row>
     {speakers.map((item) => (
       <Row key={item.id} gap={3}>
@@ -599,7 +607,11 @@ export const widgetExamples: {
           <Text value={item.title} size="sm" color="secondary" maxLines={1} />
         </Col>
         <Spacer />
-        <Button label="View" variant="outline" />
+        <Button
+          label="View"
+          variant="outline"
+          onClickAction={{ type: "speaker.view", payload: { id: item.id } }}
+        />
       </Row>
     ))}
   </Col>
