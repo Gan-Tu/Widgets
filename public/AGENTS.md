@@ -1562,12 +1562,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <Accordion
-    items={[
-      { id: "shipping", title: "Shipping", content: "Free delivery in 2 business days." },
-      { id: "returns", title: "Returns", content: "30-day hassle-free returns." }
-    ]}
-  />
+  <Accordion items={items} />
 </Card>
 ```
 
@@ -1576,7 +1571,15 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const AccordionItem = z.strictObject({
+  id: z.string(),
+  title: z.string(),
+  content: z.string()
+});
+
+const WidgetState = z.strictObject({
+  items: z.array(AccordionItem)
+});
 
 export default WidgetState;
 ```
@@ -1584,7 +1587,20 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "items": [
+    {
+      "id": "shipping",
+      "title": "Shipping",
+      "content": "Free delivery in 2 business days."
+    },
+    {
+      "id": "returns",
+      "title": "Returns",
+      "content": "30-day hassle-free returns."
+    }
+  ]
+}
 ```
 
 ---
@@ -1596,27 +1612,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <Menubar
-    menus={[
-      {
-        id: "file",
-        label: "File",
-        items: [
-          { id: "new", label: "New file" },
-          { id: "sep-1", type: "separator" },
-          { id: "share", label: "Share" }
-        ]
-      },
-      {
-        id: "edit",
-        label: "Edit",
-        items: [
-          { id: "copy", label: "Copy" },
-          { id: "paste", label: "Paste" }
-        ]
-      }
-    ]}
-  />
+  <Menubar menus={menus} />
 </Card>
 ```
 
@@ -1625,7 +1621,20 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const MenuItem = z.union([
+  z.strictObject({ id: z.string(), label: z.string() }),
+  z.strictObject({ id: z.string(), type: z.literal("separator") })
+]);
+
+const Menu = z.strictObject({
+  id: z.string(),
+  label: z.string(),
+  items: z.array(MenuItem)
+});
+
+const WidgetState = z.strictObject({
+  menus: z.array(Menu)
+});
 
 export default WidgetState;
 ```
@@ -1633,7 +1642,27 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "menus": [
+    {
+      "id": "file",
+      "label": "File",
+      "items": [
+        { "id": "new", "label": "New file" },
+        { "id": "sep-1", "type": "separator" },
+        { "id": "share", "label": "Share" }
+      ]
+    },
+    {
+      "id": "edit",
+      "label": "Edit",
+      "items": [
+        { "id": "copy", "label": "Copy" },
+        { "id": "paste", "label": "Paste" }
+      ]
+    }
+  ]
+}
 ```
 
 ---
@@ -1645,14 +1674,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <ContextMenu
-    triggerLabel="Right click this box"
-    items={[
-      { id: "copy", label: "Copy" },
-      { id: "sep-1", type: "separator" },
-      { id: "delete", label: "Delete" }
-    ]}
-  />
+  <ContextMenu triggerLabel={triggerLabel} items={items} />
 </Card>
 ```
 
@@ -1661,7 +1683,15 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const MenuItem = z.union([
+  z.strictObject({ id: z.string(), label: z.string() }),
+  z.strictObject({ id: z.string(), type: z.literal("separator") })
+]);
+
+const WidgetState = z.strictObject({
+  triggerLabel: z.string(),
+  items: z.array(MenuItem)
+});
 
 export default WidgetState;
 ```
@@ -1669,7 +1699,14 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "triggerLabel": "Right click this box",
+  "items": [
+    { "id": "copy", "label": "Copy" },
+    { "id": "sep-1", "type": "separator" },
+    { "id": "delete", "label": "Delete" }
+  ]
+}
 ```
 
 ---
@@ -1681,13 +1718,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <Combobox
-    name="assignee"
-    options={[
-      { label: "Alex Rivera", value: "alex" },
-      { label: "Sam Example", value: "sam" }
-    ]}
-  />
+  <Combobox name={name} options={options} />
 </Card>
 ```
 
@@ -1696,7 +1727,15 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const Option = z.strictObject({
+  label: z.string(),
+  value: z.string()
+});
+
+const WidgetState = z.strictObject({
+  name: z.string(),
+  options: z.array(Option)
+});
 
 export default WidgetState;
 ```
@@ -1704,7 +1743,13 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "name": "assignee",
+  "options": [
+    { "label": "Alex Rivera", "value": "alex" },
+    { "label": "Sam Example", "value": "sam" }
+  ]
+}
 ```
 
 ---
@@ -1717,8 +1762,8 @@ WIDGET TEMPLATE
 ```tsx
 <Card size="sm">
   <Col gap={3}>
-    <Toggle name="notifications" label="Notifications" />
-    <Slider name="volume" defaultValue={42} />
+    <Toggle name={toggle.name} label={toggle.label} />
+    <Slider name={slider.name} defaultValue={slider.defaultValue} />
   </Col>
 </Card>
 ```
@@ -1728,7 +1773,16 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  toggle: z.strictObject({
+    name: z.string(),
+    label: z.string()
+  }),
+  slider: z.strictObject({
+    name: z.string(),
+    defaultValue: z.number()
+  })
+});
 
 export default WidgetState;
 ```
@@ -1736,7 +1790,10 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "toggle": { "name": "notifications", "label": "Notifications" },
+  "slider": { "name": "volume", "defaultValue": 42 }
+}
 ```
 
 ---
@@ -1748,7 +1805,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <Tooltip label="Hover me" content="Extra details shown on hover." />
+  <Tooltip label={label} content={content} />
 </Card>
 ```
 
@@ -1757,7 +1814,10 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  label: z.string(),
+  content: z.string()
+});
 
 export default WidgetState;
 ```
@@ -1765,7 +1825,10 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "label": "Hover me",
+  "content": "Extra details shown on hover."
+}
 ```
 
 ---
@@ -1778,11 +1841,11 @@ WIDGET TEMPLATE
 ```tsx
 <Card size="sm">
   <Sheet
-    triggerLabel="Open sheet"
-    title="Sheet title"
-    description="Optional supporting text."
-    content="Sheet content goes here."
-    side="right"
+    triggerLabel={triggerLabel}
+    title={title}
+    description={description}
+    content={content}
+    side={side}
   />
 </Card>
 ```
@@ -1792,7 +1855,13 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  triggerLabel: z.string(),
+  title: z.string(),
+  description: z.string(),
+  content: z.string(),
+  side: z.string()
+});
 
 export default WidgetState;
 ```
@@ -1800,7 +1869,13 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "triggerLabel": "Open sheet",
+  "title": "Sheet title",
+  "description": "Optional supporting text.",
+  "content": "Sheet content goes here.",
+  "side": "right"
+}
 ```
 
 ---
@@ -1813,10 +1888,10 @@ WIDGET TEMPLATE
 ```tsx
 <Card size="sm">
   <Drawer
-    triggerLabel="Open drawer"
-    title="Drawer title"
-    description="Optional supporting text."
-    content="Drawer content goes here."
+    triggerLabel={triggerLabel}
+    title={title}
+    description={description}
+    content={content}
   />
 </Card>
 ```
@@ -1826,7 +1901,12 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  triggerLabel: z.string(),
+  title: z.string(),
+  description: z.string(),
+  content: z.string()
+});
 
 export default WidgetState;
 ```
@@ -1834,7 +1914,12 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "triggerLabel": "Open drawer",
+  "title": "Drawer title",
+  "description": "Optional supporting text.",
+  "content": "Drawer content goes here."
+}
 ```
 
 ---
@@ -1846,7 +1931,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <InputOTP name="code" length={6} />
+  <InputOTP name={name} length={length} />
 </Card>
 ```
 
@@ -1855,7 +1940,10 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  name: z.string(),
+  length: z.number()
+});
 
 export default WidgetState;
 ```
@@ -1863,7 +1951,10 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "name": "code",
+  "length": 6
+}
 ```
 
 ---
@@ -1875,7 +1966,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <Spinner size="sm" label="Loading" />
+  <Spinner size={size} label={label} />
 </Card>
 ```
 
@@ -1884,7 +1975,10 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  size: z.string(),
+  label: z.string()
+});
 
 export default WidgetState;
 ```
@@ -1892,7 +1986,10 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "size": "sm",
+  "label": "Loading"
+}
 ```
 
 ---
@@ -1961,7 +2058,7 @@ WIDGET TEMPLATE
 
 ```tsx
 <Card size="sm">
-  <Collapsible title="Advanced options" content="Show extra configuration here." />
+  <Collapsible title={title} content={content} />
 </Card>
 ```
 
@@ -1970,7 +2067,10 @@ WIDGET SCHEMA
 ```tsx
 import { z } from "zod";
 
-const WidgetState = z.strictObject({});
+const WidgetState = z.strictObject({
+  title: z.string(),
+  content: z.string()
+});
 
 export default WidgetState;
 ```
@@ -1978,6 +2078,8 @@ export default WidgetState;
 WIDGET DATA
 
 ```json
-{}
+{
+  "title": "Advanced options",
+  "content": "Show extra configuration here."
+}
 ```
-

@@ -1,8 +1,6 @@
 import { iconNames } from "@/widget/iconNames";
 import { z } from "zod";
 
-const EmptySchema = z.strictObject({});
-
 const Event = z.strictObject({
   id: z.string(),
   isNew: z.boolean(),
@@ -242,6 +240,93 @@ const RiderStatusSchema = z.strictObject({
     name: z.string(),
     photo: z.string()
   })
+});
+
+const AccordionItem = z.strictObject({
+  id: z.string(),
+  title: z.string(),
+  content: z.string()
+});
+
+const AccordionSchema = z.strictObject({
+  items: z.array(AccordionItem)
+});
+
+const MenuItem = z.union([
+  z.strictObject({ id: z.string(), label: z.string() }),
+  z.strictObject({ id: z.string(), type: z.literal("separator") })
+]);
+
+const MenubarMenu = z.strictObject({
+  id: z.string(),
+  label: z.string(),
+  items: z.array(MenuItem)
+});
+
+const MenubarSchema = z.strictObject({
+  menus: z.array(MenubarMenu)
+});
+
+const ContextMenuSchema = z.strictObject({
+  triggerLabel: z.string(),
+  items: z.array(MenuItem)
+});
+
+const ComboboxOption = z.strictObject({
+  label: z.string(),
+  value: z.string()
+});
+
+const ComboboxSchema = z.strictObject({
+  name: z.string(),
+  options: z.array(ComboboxOption)
+});
+
+const ToggleSliderSchema = z.strictObject({
+  toggle: z.strictObject({
+    name: z.string(),
+    label: z.string(),
+    defaultPressed: z.boolean().optional()
+  }),
+  slider: z.strictObject({
+    name: z.string(),
+    defaultValue: z.number()
+  })
+});
+
+const TooltipSchema = z.strictObject({
+  label: z.string(),
+  content: z.string()
+});
+
+const SheetSchema = z.strictObject({
+  triggerLabel: z.string(),
+  title: z.string(),
+  description: z.string(),
+  content: z.string(),
+  side: z.string()
+});
+
+const DrawerSchema = z.strictObject({
+  triggerLabel: z.string(),
+  title: z.string(),
+  description: z.string(),
+  content: z.string()
+});
+
+const OtpSchema = z.strictObject({
+  name: z.string(),
+  length: z.number()
+});
+
+const SpinnerSchema = z.strictObject({
+  size: z.string(),
+  label: z.string()
+});
+
+const CollapsibleSchema = z.strictObject({
+  title: z.string(),
+  content: z.string()
 });
 
 const QuickSetupSchema = z.strictObject({
@@ -1349,16 +1434,24 @@ export const widgetExamples: {
       description: "Expandable FAQ list.",
       template: `
 <Card size="sm">
-  <Accordion
-    items={[
-      { id: "shipping", title: "Shipping", content: "Free delivery in 2 business days." },
-      { id: "returns", title: "Returns", content: "30-day hassle-free returns." }
-    ]}
-  />
+  <Accordion items={items} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: AccordionSchema,
+      data: {
+        items: [
+          {
+            id: "shipping",
+            title: "Shipping",
+            content: "Free delivery in 2 business days."
+          },
+          {
+            id: "returns",
+            title: "Returns",
+            content: "30-day hassle-free returns."
+          }
+        ]
+      }
     },
     {
       id: "menubar-demo",
@@ -1366,31 +1459,31 @@ export const widgetExamples: {
       description: "Top navigation menu.",
       template: `
 <Card size="sm">
-  <Menubar
-    menus={[
-      {
-        id: "file",
-        label: "File",
-        items: [
-          { id: "new", label: "New file" },
-          { id: "sep-1", type: "separator" },
-          { id: "share", label: "Share" }
-        ]
-      },
-      {
-        id: "edit",
-        label: "Edit",
-        items: [
-          { id: "copy", label: "Copy" },
-          { id: "paste", label: "Paste" }
-        ]
-      }
-    ]}
-  />
+  <Menubar menus={menus} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: MenubarSchema,
+      data: {
+        menus: [
+          {
+            id: "file",
+            label: "File",
+            items: [
+              { id: "new", label: "New file" },
+              { id: "sep-1", type: "separator" },
+              { id: "share", label: "Share" }
+            ]
+          },
+          {
+            id: "edit",
+            label: "Edit",
+            items: [
+              { id: "copy", label: "Copy" },
+              { id: "paste", label: "Paste" }
+            ]
+          }
+        ]
+      }
     },
     {
       id: "context-menu-demo",
@@ -1398,18 +1491,18 @@ export const widgetExamples: {
       description: "Right-click menu example.",
       template: `
 <Card size="sm">
-  <ContextMenu
-    triggerLabel="Right click this box"
-    items={[
-      { id: "copy", label: "Copy" },
-      { id: "sep-1", type: "separator" },
-      { id: "delete", label: "Delete" }
-    ]}
-  />
+  <ContextMenu triggerLabel={triggerLabel} items={items} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: ContextMenuSchema,
+      data: {
+        triggerLabel: "Right click this box",
+        items: [
+          { id: "copy", label: "Copy" },
+          { id: "sep-1", type: "separator" },
+          { id: "delete", label: "Delete" }
+        ]
+      }
     },
     {
       id: "combobox-demo",
@@ -1417,17 +1510,17 @@ export const widgetExamples: {
       description: "Searchable select control.",
       template: `
 <Card size="sm">
-  <Combobox
-    name="assignee"
-    options={[
-      { label: "Alex Rivera", value: "alex" },
-      { label: "Sam Example", value: "sam" }
-    ]}
-  />
+  <Combobox name={name} options={options} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: ComboboxSchema,
+      data: {
+        name: "assignee",
+        options: [
+          { label: "Alex Rivera", value: "alex" },
+          { label: "Sam Example", value: "sam" }
+        ]
+      }
     },
     {
       id: "toggle-slider-demo",
@@ -1436,13 +1529,16 @@ export const widgetExamples: {
       template: `
 <Card size="sm">
   <Col gap={3}>
-    <Toggle name="notifications" label="Notifications" />
-    <Slider name="volume" defaultValue={42} />
+    <Toggle name={toggle.name} label={toggle.label} />
+    <Slider name={slider.name} defaultValue={slider.defaultValue} />
   </Col>
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: ToggleSliderSchema,
+      data: {
+        toggle: { name: "notifications", label: "Notifications" },
+        slider: { name: "volume", defaultValue: 42 }
+      }
     },
     {
       id: "tooltip-demo",
@@ -1450,11 +1546,14 @@ export const widgetExamples: {
       description: "Hover to reveal details.",
       template: `
 <Card size="sm">
-  <Tooltip label="Hover me" content="Extra details shown on hover." />
+  <Tooltip label={label} content={content} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: TooltipSchema,
+      data: {
+        label: "Hover me",
+        content: "Extra details shown on hover."
+      }
     },
     {
       id: "sheet-demo",
@@ -1463,16 +1562,22 @@ export const widgetExamples: {
       template: `
 <Card size="sm">
   <Sheet
-    triggerLabel="Open sheet"
-    title="Sheet title"
-    description="Optional supporting text."
-    content="Sheet content goes here."
-    side="right"
+    triggerLabel={triggerLabel}
+    title={title}
+    description={description}
+    content={content}
+    side={side}
   />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: SheetSchema,
+      data: {
+        triggerLabel: "Open sheet",
+        title: "Sheet title",
+        description: "Optional supporting text.",
+        content: "Sheet content goes here.",
+        side: "right"
+      }
     },
     {
       id: "drawer-demo",
@@ -1481,15 +1586,20 @@ export const widgetExamples: {
       template: `
 <Card size="sm">
   <Drawer
-    triggerLabel="Open drawer"
-    title="Drawer title"
-    description="Optional supporting text."
-    content="Drawer content goes here."
+    triggerLabel={triggerLabel}
+    title={title}
+    description={description}
+    content={content}
   />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: DrawerSchema,
+      data: {
+        triggerLabel: "Open drawer",
+        title: "Drawer title",
+        description: "Optional supporting text.",
+        content: "Drawer content goes here."
+      }
     },
     {
       id: "otp-demo",
@@ -1497,11 +1607,14 @@ export const widgetExamples: {
       description: "One-time passcode input.",
       template: `
 <Card size="sm">
-  <InputOTP name="code" length={6} />
+  <InputOTP name={name} length={length} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: OtpSchema,
+      data: {
+        name: "code",
+        length: 6
+      }
     },
     {
       id: "spinner-demo",
@@ -1509,11 +1622,14 @@ export const widgetExamples: {
       description: "Loading indicator.",
       template: `
 <Card size="sm">
-  <Spinner size="sm" label="Loading" />
+  <Spinner size={size} label={label} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: SpinnerSchema,
+      data: {
+        size: "sm",
+        label: "Loading"
+      }
     },
     {
       id: "data-table-demo",
@@ -1549,11 +1665,14 @@ export const widgetExamples: {
       description: "Toggleable details block.",
       template: `
 <Card size="sm">
-  <Collapsible title="Advanced options" content="Show extra configuration here." />
+  <Collapsible title={title} content={content} />
 </Card>
     `.trim(),
-      schema: EmptySchema,
-      data: {}
+      schema: CollapsibleSchema,
+      data: {
+        title: "Advanced options",
+        content: "Show extra configuration here."
+      }
     }
     ,
     {
