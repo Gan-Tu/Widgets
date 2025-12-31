@@ -14,6 +14,8 @@ Import the styles once in your app entry:
 import "@tugan/widgets/styles.css";
 ```
 
+The styles bundle includes the Tailwind utilities used by the widget UI, so you don't need Tailwind set up in the host app.
+
 ## Basic usage
 
 ```tsx

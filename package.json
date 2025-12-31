@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:widgets": "tsc -p packages/widgets/tsconfig.json && node packages/widgets/scripts/build-css.mjs",
     "lint": "eslint .",
-    "publish": "tsc -p packages/widgets/tsconfig.json && node packages/widgets/scripts/copy-css.mjs && npm --prefix packages/widgets run publish",
+    "publish": "tsc -p packages/widgets/tsconfig.json && node packages/widgets/scripts/build-css.mjs && npm --prefix packages/widgets run publish",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -53,6 +54,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@tailwindcss/cli": "^4.1.18",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

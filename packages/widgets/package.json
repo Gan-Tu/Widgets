@@ -1,6 +1,6 @@
 {
   "name": "@tugan/widgets",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Core widget renderer for chat UI.",
   "license": "Apache-2.0",
   "type": "module",
@@ -12,7 +12,7 @@
       "types": "./dist/widget/index.d.ts",
       "import": "./dist/widget/index.js"
     },
-    "./styles.css": "./dist/widget.css"
+    "./styles.css": "./dist/styles.css"
   },
   "files": [
     "dist",
@@ -20,10 +20,10 @@
     "README.md"
   ],
   "sideEffects": [
-    "./dist/widget.css"
+    "./dist/styles.css"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/copy-css.mjs",
+    "build": "tsc -p tsconfig.json && node scripts/build-css.mjs",
     "publish": "node scripts/publish.mjs"
   },
   "peerDependencies": {
