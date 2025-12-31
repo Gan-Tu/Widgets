@@ -2083,3 +2083,275 @@ WIDGET DATA
   "content": "Show extra configuration here."
 }
 ```
+
+---
+
+USER MESSAGE
+"ops metrics snapshot"
+
+WIDGET TEMPLATE
+
+```tsx
+<Card size="md">
+  <Col gap={2}>
+    <Title value={title} size="sm" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+  <Row gap={4}>
+    {metrics.map((item) => (
+      <Col key={item.id} gap={1}>
+        <Text value={item.value} weight="semibold" />
+        <Caption value={item.label} color="secondary" />
+        <Badge label={item.change} color={item.changeColor} />
+      </Col>
+    ))}
+  </Row>
+  <Divider flush />
+  <Chart data={chart.data} series={chart.series} xAxis={chart.xAxis} showYAxis />
+</Card>
+```
+
+WIDGET SCHEMA
+
+```tsx
+import { z } from "zod";
+
+const Metric = z.strictObject({
+  id: z.string(),
+  label: z.string(),
+  value: z.string(),
+  change: z.string(),
+  changeColor: z.enum(["green", "red", "yellow"])
+});
+
+const WidgetState = z.strictObject({
+  title: z.string(),
+  subtitle: z.string(),
+  metrics: z.array(Metric),
+  chart: z.strictObject({
+    data: z.array(z.record(z.string(), z.union([z.string(), z.number()]))),
+    series: z.array(
+      z.strictObject({
+        type: z.enum(["bar", "line", "area"]),
+        dataKey: z.string(),
+        label: z.string().optional(),
+        color: z.string().optional()
+      })
+    ),
+    xAxis: z.strictObject({
+      dataKey: z.string()
+    })
+  })
+});
+
+export default WidgetState;
+```
+
+WIDGET DATA
+
+```json
+{
+  "title": "Ops metrics",
+  "subtitle": "Last 24 hours",
+  "metrics": [
+    {
+      "id": "latency",
+      "label": "P95 latency",
+      "value": "420 ms",
+      "change": "-8%",
+      "changeColor": "green"
+    },
+    {
+      "id": "errors",
+      "label": "Error rate",
+      "value": "0.7%",
+      "change": "+0.2%",
+      "changeColor": "red"
+    },
+    {
+      "id": "slo",
+      "label": "SLO",
+      "value": "99.92%",
+      "change": "steady",
+      "changeColor": "yellow"
+    }
+  ],
+  "chart": {
+    "data": [
+      { "time": "00:00", "Latency": 380, "Errors": 0.6 },
+      { "time": "06:00", "Latency": 410, "Errors": 0.8 },
+      { "time": "12:00", "Latency": 460, "Errors": 0.7 },
+      { "time": "18:00", "Latency": 420, "Errors": 0.6 }
+    ],
+    "series": [
+      { "type": "line", "dataKey": "Latency", "label": "Latency", "color": "blue" },
+      { "type": "bar", "dataKey": "Errors", "label": "Errors", "color": "red" }
+    ],
+    "xAxis": { "dataKey": "time" }
+  }
+}
+```
+
+---
+
+USER MESSAGE
+"quick setup"
+
+WIDGET TEMPLATE
+
+```tsx
+<Card size="sm">
+  <Form onSubmitAction={{ type: "setup.save" }}>
+    <Col gap={3}>
+      <Col gap={1}>
+        <Title value={title} size="sm" />
+        <Text value={subtitle} size="sm" color="secondary" />
+      </Col>
+      <Divider flush />
+      <Col gap={2}>
+        {steps.map((item) => (
+          <Checkbox
+            key={item.id}
+            name={item.name}
+            label={item.label}
+            defaultChecked={item.done}
+          />
+        ))}
+      </Col>
+      <Button submit label="Save progress" style="primary" block />
+    </Col>
+  </Form>
+</Card>
+```
+
+WIDGET SCHEMA
+
+```tsx
+import { z } from "zod";
+
+const SetupStep = z.strictObject({
+  id: z.string(),
+  name: z.string(),
+  label: z.string(),
+  done: z.boolean()
+});
+
+const WidgetState = z.strictObject({
+  title: z.string(),
+  subtitle: z.string(),
+  steps: z.array(SetupStep)
+});
+
+export default WidgetState;
+```
+
+WIDGET DATA
+
+```json
+{
+  "title": "Quick setup",
+  "subtitle": "Finish these 3 items",
+  "steps": [
+    { "id": "profile", "name": "setup.profile", "label": "Complete profile", "done": true },
+    { "id": "alerts", "name": "setup.alerts", "label": "Turn on alerts", "done": false },
+    { "id": "billing", "name": "setup.billing", "label": "Add billing info", "done": false }
+  ]
+}
+```
+
+---
+
+USER MESSAGE
+"flight itinerary"
+
+WIDGET TEMPLATE
+
+```tsx
+<Card size="md">
+  <Row align="center">
+    <Col>
+      <Title value={trip.title} size="sm" />
+      <Caption value={trip.date} color="secondary" />
+    </Col>
+    <Spacer />
+    <Badge label={trip.status.label} color={trip.status.color} />
+  </Row>
+  <Divider flush />
+  <Col gap={3}>
+    {segments.map((segment) => (
+      <Row key={segment.id} align="center" gap={3}>
+        <Col gap={0}>
+          <Text value={segment.depart.code} weight="semibold" />
+          <Caption value={`${segment.depart.city} • ${segment.depart.time}`} />
+        </Col>
+        <Icon name="chevron-right" color="secondary" />
+        <Col gap={0}>
+          <Text value={segment.arrive.code} weight="semibold" />
+          <Caption value={`${segment.arrive.city} • ${segment.arrive.time}`} />
+        </Col>
+        <Spacer />
+        <Badge label={segment.duration} color="blue" />
+      </Row>
+    ))}
+  </Col>
+</Card>
+```
+
+WIDGET SCHEMA
+
+```tsx
+import { z } from "zod";
+
+const Airport = z.strictObject({
+  code: z.string(),
+  city: z.string(),
+  time: z.string()
+});
+
+const Segment = z.strictObject({
+  id: z.string(),
+  depart: Airport,
+  arrive: Airport,
+  duration: z.string()
+});
+
+const WidgetState = z.strictObject({
+  trip: z.strictObject({
+    title: z.string(),
+    date: z.string(),
+    status: z.strictObject({
+      label: z.string(),
+      color: z.enum(["green", "yellow", "red", "blue"])
+    })
+  }),
+  segments: z.array(Segment)
+});
+
+export default WidgetState;
+```
+
+WIDGET DATA
+
+```json
+{
+  "trip": {
+    "title": "NYC → SFO",
+    "date": "Mon, Jan 12",
+    "status": { "label": "On time", "color": "green" }
+  },
+  "segments": [
+    {
+      "id": "seg-1",
+      "depart": { "code": "JFK", "city": "New York", "time": "7:20 AM" },
+      "arrive": { "code": "ORD", "city": "Chicago", "time": "8:55 AM" },
+      "duration": "2h 35m"
+    },
+    {
+      "id": "seg-2",
+      "depart": { "code": "ORD", "city": "Chicago", "time": "10:05 AM" },
+      "arrive": { "code": "SFO", "city": "San Francisco", "time": "12:45 PM" },
+      "duration": "4h 40m"
+    }
+  ]
+}
+```
