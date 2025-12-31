@@ -6,9 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:widgets": "tsc -p packages/widgets/tsconfig.json && node packages/widgets/scripts/copy-css.mjs",
     "lint": "eslint .",
-    "publish:widgets": "npm --prefix packages/widgets run publish",
+    "publish": "tsc -p packages/widgets/tsconfig.json && node packages/widgets/scripts/copy-css.mjs && npm --prefix packages/widgets run publish",
     "preview": "vite preview"
   },
   "dependencies": {

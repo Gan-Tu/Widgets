@@ -1,11 +1,11 @@
+import { Play } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { Play } from "lucide-react";
 
-import { WidgetRenderer } from "@/widget";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WidgetRenderer } from "@/widget";
 
 import type { ZodTypeAny } from "zod";
 
@@ -103,7 +103,7 @@ export function GalleryPage() {
                 <div className="mt-5 flex justify-center">
                   <WidgetRenderer
                     template={example.template}
-                    schema={example.schema}
+                    // schema={example.schema}
                     data={example.data}
                     theme={example.theme ?? "light"}
                     onAction={(action) => {

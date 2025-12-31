@@ -7,9 +7,9 @@ import { renderTemplate } from "./renderer/templateEngine";
 import { Card } from "./components/containers";
 import { Text, Title } from "./components/text";
 
-type WidgetRendererProps<T extends z.ZodTypeAny> = {
+type WidgetRendererProps<T extends z.ZodTypeAny = z.ZodTypeAny> = {
   template: string;
-  schema: T;
+  schema?: T;
   data: z.infer<T>;
   onAction?: (action: { type: string; payload?: Record<string, unknown> }, formData?: Record<string, unknown>) => void;
   components?: ComponentRegistry;
@@ -41,7 +41,12 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
     [components]
   );
 
-  const parseResult = React.useMemo(() => schema.safeParse(data), [schema, data]);
+  const parseResult = React.useMemo(() => {
+    if (!schema) {
+      return { success: true as const, data };
+    }
+    return schema.safeParse(data);
+  }, [schema, data]);
 
   if (!parseResult.success) {
     const message = parseResult.error.issues
