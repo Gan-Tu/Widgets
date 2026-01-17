@@ -2,7 +2,7 @@
 
 A compact, schema-driven widget renderer for chat UIs. Pass a **Widget UI template string** + a **Zod schema** + **data**, and it renders a small, opinionated widget with minimal interactivity.
 
-DeepWiki Docs: https://deepwiki.com/Gan-Tu/Widgets/1-overview
+DeepWiki Docs: https://deepwiki.com/Gan-Tu/Widgets
 
 https://github.com/user-attachments/assets/0a1ad957-2e58-4837-b5b1-a44750fc7148
 
