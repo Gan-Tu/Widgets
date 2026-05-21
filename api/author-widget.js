@@ -173,7 +173,7 @@ async function callOpenAI(prompt) {
       "content-type": "application/json"
     },
     body: JSON.stringify({
-      model: "gpt-5.4",
+      model: "gpt-5.5",
       input: [
         {
           role: "system",
