@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { WidgetRenderer } from "@/widget";
 
@@ -69,6 +70,14 @@ const defaultData = {
   }
 };
 
+type AuthorWidgetResponse = {
+  template: string;
+  data: unknown;
+  theme?: "light" | "dark";
+  designSpec?: string;
+  error?: string;
+};
+
 export function PlaygroundPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -78,6 +87,10 @@ export function PlaygroundPage() {
   );
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [renderError, setRenderError] = React.useState<string | null>(null);
+  const [aiPrompt, setAiPrompt] = React.useState("");
+  const [aiStatus, setAiStatus] = React.useState<string | null>(null);
+  const [aiError, setAiError] = React.useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = React.useState(false);
   const [previewKey, setPreviewKey] = React.useState(0);
   const lastLoadedExampleIdRef = React.useRef<string | null>(null);
 
@@ -163,6 +176,47 @@ export function PlaygroundPage() {
     }
   }, [jsonInput]);
 
+  const generateWidget = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const prompt = aiPrompt.trim();
+    if (!prompt || isGenerating) return;
+
+    setIsGenerating(true);
+    setAiError(null);
+    setAiStatus(null);
+
+    try {
+      const response = await fetch("/api/author-widget", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ prompt })
+      });
+
+      const result = (await response.json()) as AuthorWidgetResponse;
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to generate widget.");
+      }
+
+      if (typeof result.template !== "string") {
+        throw new Error("The authoring agent returned an invalid template.");
+      }
+
+      setTemplate(result.template);
+      setJsonInput(JSON.stringify(result.data ?? {}, null, 2));
+      setTheme(result.theme ?? "light");
+      setAiStatus(result.designSpec ?? "Generated widget loaded.");
+    } catch (caught) {
+      setAiError(
+        caught instanceof Error ? caught.message : "Unable to generate widget."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <header className="space-y-2">
@@ -227,8 +281,40 @@ export function PlaygroundPage() {
               />
             </PlaygroundErrorBoundary>
           </div>
+          {aiStatus ? (
+            <p className="mx-auto mt-4 max-w-md text-center text-xs italic leading-relaxed text-slate-500">
+              {aiStatus}
+            </p>
+          ) : null}
         </div>
       </div>
+
+      <form
+        className="rounded-3xl border border-white/60 bg-white/75 p-5 shadow-sm"
+        onSubmit={generateWidget}
+      >
+        <h2 className="text-sm font-semibold text-slate-700">
+          AI authoring agent
+        </h2>
+        <Textarea
+          className="mt-2 min-h-24 resize-y text-sm"
+          placeholder="Generate a package tracking history widget."
+          value={aiPrompt}
+          onChange={(event) => setAiPrompt(event.target.value)}
+        />
+        <div className="mt-3 flex justify-end">
+          <Button
+            className="cursor-pointer"
+            disabled={!aiPrompt.trim() || isGenerating}
+            type="submit"
+          >
+            {isGenerating ? "Generating..." : "Generate"}
+          </Button>
+        </div>
+        {aiError ? (
+          <p className="mt-3 text-xs text-rose-600">{aiError}</p>
+        ) : null}
+      </form>
     </div>
   );
 }

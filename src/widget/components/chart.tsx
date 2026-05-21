@@ -244,7 +244,7 @@ function ChartFrame({
 function defaultXAxisTickFormatter(xAxis: XAxisConfig) {
   // Recharts expects tickFormatter to return a string.
   // Also, its typing is `(value: any, index: number) => string`.
-  return (value: unknown, _index: number) =>
+  return (value: unknown) =>
     String(xAxis.labels ? xAxis.labels[value as string | number] ?? value : value);
 }
 

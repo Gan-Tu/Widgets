@@ -2,10 +2,22 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import authorWidgetHandler from "./api/author-widget.js";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react()],
+  plugins: [
+    {
+      name: "widget-api-dev-server",
+      configureServer(server) {
+        server.middlewares.use("/api/author-widget", (req, res) => {
+          void authorWidgetHandler(req, res);
+        });
+      }
+    },
+    tailwindcss(),
+    react()
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url))
