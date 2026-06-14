@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Circle,
   Compass,
+  Copy,
   ExternalLink,
   File,
   FileText,
@@ -63,7 +64,8 @@ import {
 import type { ActionConfig, Border, IconSize, RadiusValue, ThemeColor, WidgetIcon } from "../types";
 
 type BadgeProps = {
-  label: string;
+  label?: string;
+  children?: React.ReactNode;
   color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery";
   variant?: "solid" | "soft" | "outline";
   size?: "sm" | "md" | "lg";
@@ -85,6 +87,7 @@ const badgePalette: Record<string, { fg: string; bg: string; border: string }> =
 
 const Badge: React.FC<BadgeProps> = ({
   label,
+  children,
   color = "secondary",
   variant = "soft",
   size = "sm",
@@ -120,7 +123,7 @@ const Badge: React.FC<BadgeProps> = ({
     style.borderColor = palette.bg;
   }
 
-  return <span style={style}>{label}</span>;
+  return <span style={style}>{children ?? label}</span>;
 };
 
 const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: string }>> = {
@@ -138,6 +141,7 @@ const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: s
   "chevron-right": ChevronRight,
   "circle-question": HelpCircle,
   compass: Compass,
+  copy: Copy,
   cube: Box as unknown as React.ComponentType<{ size?: number; color?: string }>,
   document: FileText,
   "dots-horizontal": MoreHorizontal,
@@ -229,6 +233,7 @@ type ImageProps = {
   radius?: RadiusValue;
   background?: string | ThemeColor;
   border?: number | Border;
+  onClickAction?: ActionConfig;
 };
 
 const Image: React.FC<ImageProps> = ({
@@ -241,9 +246,11 @@ const Image: React.FC<ImageProps> = ({
   radius = "md",
   background,
   border,
+  onClickAction,
   ...props
 }) => {
   const theme = useWidgetTheme();
+  const action = useWidgetAction();
   const hasExplicitSize =
     props.size !== undefined ||
     props.width !== undefined ||
@@ -279,16 +286,40 @@ const Image: React.FC<ImageProps> = ({
     style.borderRadius = "0px";
   }
 
-  return <img src={src} alt={alt ?? ""} style={style} />;
+  if (onClickAction) {
+    style.cursor = "pointer";
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt ?? ""}
+      style={style}
+      role={onClickAction ? "button" : undefined}
+      tabIndex={onClickAction ? 0 : undefined}
+      onClick={() => {
+        if (onClickAction && action) action(onClickAction);
+      }}
+      onKeyDown={(event) => {
+        if (!onClickAction || !action) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          action(onClickAction);
+        }
+      }}
+    />
+  );
 };
 
 type ButtonProps = {
   submit?: boolean;
   label?: string;
+  children?: React.ReactNode;
   onClickAction?: ActionConfig;
   iconStart?: WidgetIcon;
   iconEnd?: WidgetIcon;
   style?: "primary" | "secondary";
+  color?: "primary" | "secondary" | "info" | "discovery" | "success" | "caution" | "warning" | "danger";
   iconSize?: "sm" | "md" | "lg" | "xl" | "2xl";
   variant?: "solid" | "soft" | "outline" | "ghost";
   size?: keyof typeof controlHeights;
@@ -300,26 +331,35 @@ type ButtonProps = {
 
 const buttonPalette: Record<string, { fg: string; bg: string; border: string }> = {
   primary: { fg: "#ffffff", bg: "#0f172a", border: "#0f172a" },
-  secondary: { fg: "#0f172a", bg: "#f1f5f9", border: "#e2e8f0" }
+  secondary: { fg: "#0f172a", bg: "#f1f5f9", border: "#e2e8f0" },
+  info: { fg: "#ffffff", bg: "#2563eb", border: "#2563eb" },
+  discovery: { fg: "#ffffff", bg: "#4f46e5", border: "#4f46e5" },
+  success: { fg: "#ffffff", bg: "#16a34a", border: "#16a34a" },
+  caution: { fg: "#111827", bg: "#facc15", border: "#facc15" },
+  warning: { fg: "#111827", bg: "#f59e0b", border: "#f59e0b" },
+  danger: { fg: "#ffffff", bg: "#dc2626", border: "#dc2626" }
 };
 
 const Button: React.FC<ButtonProps> = ({
   submit = false,
   label,
+  children,
   onClickAction,
   iconStart,
   iconEnd,
   style: stylePreset = "secondary",
+  color,
   iconSize = "md",
   variant = "solid",
   size = "lg",
   pill = true,
   uniform = false,
   block = false,
-  disabled = false
+  disabled
 }) => {
   const action = useWidgetAction();
-  const resolvedColor = buttonPalette[stylePreset] ?? buttonPalette.secondary;
+  const isDisabled = disabled ?? (!onClickAction && !submit);
+  const resolvedColor = buttonPalette[color ?? stylePreset] ?? buttonPalette.secondary;
   const height = controlHeights[size] ?? controlHeights.lg;
   const paddingX = uniform ? "0px" : "1.1rem";
 
@@ -337,8 +377,8 @@ const Button: React.FC<ButtonProps> = ({
     fontWeight: 600,
     fontSize: "0.9rem",
     whiteSpace: "nowrap",
-    cursor: disabled ? "not-allowed" : "pointer",
-    opacity: disabled ? 0.6 : 1,
+    cursor: isDisabled ? "not-allowed" : "pointer",
+    opacity: isDisabled ? 0.6 : 1,
     background: variant === "solid" ? resolvedColor.bg : "transparent",
     color:
       variant === "solid"
@@ -363,16 +403,16 @@ const Button: React.FC<ButtonProps> = ({
   const iconToken = (iconSize === "2xl" ? "2xl" : iconSize) as IconSize;
 
   const handleClick = () => {
-    if (disabled) return;
+    if (isDisabled) return;
     // If this is a submit button, let the nearest <Form> handle submission.
     if (submit) return;
     if (onClickAction && action) action(onClickAction);
   };
 
   return (
-    <button type={submit ? "submit" : "button"} style={style} onClick={handleClick} disabled={disabled}>
+    <button type={submit ? "submit" : "button"} style={style} onClick={handleClick} disabled={isDisabled}>
       {iconStart && <Icon name={iconStart} size={iconToken} color={resolvedColor.fg} />}
-      {label && <span>{label}</span>}
+      {(children ?? label) && <span>{children ?? label}</span>}
       {iconEnd && <Icon name={iconEnd} size={iconToken} color={resolvedColor.fg} />}
     </button>
   );

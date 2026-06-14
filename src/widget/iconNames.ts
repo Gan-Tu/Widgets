@@ -13,6 +13,7 @@ export const iconNames = [
   "chevron-right",
   "circle-question",
   "compass",
+  "copy",
   "cube",
   "document",
   "dots-horizontal",

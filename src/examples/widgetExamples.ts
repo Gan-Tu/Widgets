@@ -84,6 +84,92 @@ const SessionDetailSchema = z.strictObject({
 
 const IconName = z.enum(iconNames);
 
+const SubscriptionPlanSchema = z.strictObject({
+  planName: z.string(),
+  price: z.string(),
+  description: z.string(),
+  renewal: z.string()
+});
+
+const UsageRow = z.strictObject({
+  item: z.string(),
+  tokens: z.string(),
+  usage: z.string(),
+  emphasis: z.boolean().optional(),
+  indent: z.boolean().optional()
+});
+
+const IncludedUsageSchema = z.strictObject({
+  title: z.string(),
+  dateRange: z.string(),
+  rows: z.array(UsageRow)
+});
+
+const BillingUsageRow = z.strictObject({
+  type: z.string(),
+  tokens: z.string(),
+  cost: z.string(),
+  quantity: z.string(),
+  total: z.string(),
+  emphasis: z.boolean().optional()
+});
+
+const InvoiceRow = z.strictObject({
+  date: z.string(),
+  description: z.string(),
+  status: z.string(),
+  amount: z.string(),
+  actionLabel: z.string()
+});
+
+const BillingOverviewSchema = z.strictObject({
+  usageTitle: z.string(),
+  usageMonth: z.string(),
+  usageDateRange: z.string(),
+  usageAmount: z.string(),
+  usageLimit: z.string(),
+  usageRows: z.array(BillingUsageRow),
+  invoiceTitle: z.string(),
+  invoiceMonth: z.string(),
+  invoices: z.array(InvoiceRow)
+});
+
+const TeamUpgradeFeature = z.strictObject({
+  icon: IconName,
+  title: z.string(),
+  description: z.string()
+});
+
+const TeamsUpgradeSchema = z.strictObject({
+  title: z.string(),
+  subtitle: z.string(),
+  features: z.array(TeamUpgradeFeature)
+});
+
+const PluginTab = z.strictObject({
+  label: z.string(),
+  value: z.string()
+});
+
+const PluginSuggestion = z.strictObject({
+  name: z.string(),
+  icon: IconName,
+  description: z.string()
+});
+
+const PluginsDirectorySchema = z.strictObject({
+  title: z.string(),
+  subtitle: z.string(),
+  tabs: z.array(PluginTab),
+  activeTab: z.string(),
+  searchPlaceholder: z.string(),
+  emptyTitle: z.string(),
+  emptyDescription: z.string(),
+  suggestionsLabel: z.string(),
+  marketplaceLabel: z.string(),
+  plugins: z.array(PluginSuggestion)
+});
+
 const Device = z.strictObject({
   id: z.string(),
   icon: IconName,
@@ -115,24 +201,34 @@ const PlaylistSchema = z.strictObject({
 });
 
 const PurchaseItem = z.strictObject({
+  id: z.string(),
   image: z.string(),
   title: z.string(),
   subtitle: z.string()
+});
+
+const DetailRow = z.strictObject({
+  label: z.string(),
+  value: z.string()
 });
 
 const PurchaseConfirmationSchema = z.strictObject({
   product: z.strictObject({
     name: z.string(),
     image: z.string()
-  })
+  }),
+  details: z.array(DetailRow)
+});
+
+const PurchaseTotal = z.strictObject({
+  label: z.string(),
+  value: z.string(),
+  emphasis: z.boolean().optional()
 });
 
 const PurchaseSchema = z.strictObject({
   items: z.array(PurchaseItem),
-  subTotal: z.string(),
-  taxPct: z.string(),
-  tax: z.string(),
-  total: z.string()
+  totals: z.array(PurchaseTotal)
 });
 
 const Stat = z.strictObject({
@@ -353,11 +449,7 @@ const OpsMetricsSchema = z.strictObject({
   banner: z.string(),
   title: z.string(),
   timeframe: z.enum(["7d", "30d", "90d"]),
-  kpis: z.strictObject({
-    uptime: z.string(),
-    p95: z.string(),
-    incidents: z.string()
-  }),
+  kpis: z.array(DetailRow),
   chartData: z.array(
     z.strictObject({
       day: z.string(),
@@ -379,6 +471,12 @@ const FlightBookingSegmentSchema = z.strictObject({
   arrive: z.string()
 });
 
+const FlightBookingDetailSchema = z.strictObject({
+  label: z.string(),
+  value: z.string(),
+  multiline: z.boolean().optional()
+});
+
 const FlightBookingSchema = z.strictObject({
   bookingId: z.string(),
   heroImage: z.string(),
@@ -388,11 +486,57 @@ const FlightBookingSchema = z.strictObject({
   dates: z.string(),
   guests: z.string(),
   cabinClass: z.string(),
-  baggageSummary: z.string(),
-  refundPolicy: z.string(),
+  reviewRows: z.array(FlightBookingDetailSchema),
   segments: z.array(FlightBookingSegmentSchema),
   totalPrice: z.string(),
   priceNote: z.string()
+});
+
+const DilControlFlowSchema = z.strictObject({
+  launchName: z.string(),
+  healthy: z.boolean(),
+  lastTick: z.number(),
+  agents: z.array(
+    z.strictObject({
+      id: z.string(),
+      name: z.string(),
+      role: z.string(),
+      status: z.enum(["Ready", "Watching", "Blocked"])
+    })
+  )
+});
+
+const DilMediaCarouselSchema = z.strictObject({
+  photos: z.array(
+    z.strictObject({
+      id: z.string(),
+      title: z.string(),
+      src: z.string(),
+      source: z.string(),
+      favicon: z.string()
+    })
+  ),
+  audio: z.strictObject({
+    title: z.string(),
+    subtitle: z.string(),
+    src: z.string()
+  }),
+  videoId: z.string()
+});
+
+const DilMapTableSchema = z.strictObject({
+  rows: z.array(
+    z.strictObject({
+      stop: z.string(),
+      eta: z.string(),
+      load: z.string()
+    })
+  )
+});
+
+const DilRichFeedbackSchema = z.strictObject({
+  checks: z.array(z.string()),
+  tags: z.array(z.string())
 });
 
 export const widgetExamples: {
@@ -421,9 +565,9 @@ export const widgetExamples: {
     </Col>
 
     <Col flex="auto">
-      {events.map((item) => (
+      <Show $when="size(events) > 0">
+        <Each $of="events" item="item">
         <Row
-          key={item.id}
           padding={{ x: 3, y: 2 }}
           gap={3}
           radius="xl"
@@ -440,7 +584,11 @@ export const widgetExamples: {
             <Text value={item.time} size="sm" color="tertiary" />
           </Col>
         </Row>
-      ))}
+        </Each>
+        <Show.Else>
+          <Text value="No events scheduled." size="sm" color="secondary" />
+        </Show.Else>
+      </Show>
     </Col>
   </Row>
 </Card>
@@ -575,8 +723,9 @@ export const widgetExamples: {
   </Col>
   <Divider flush />
   <Col gap={3}>
-    {sessions.map((item) => (
-      <Row key={item.id} gap={3}>
+    <Show $when="size(sessions) > 0">
+      <Each $of="sessions" item="item">
+      <Row gap={3}>
         <Col>
           <Text
             value={item.title}
@@ -594,7 +743,11 @@ export const widgetExamples: {
           onClickAction={{ type: "session.view", payload: { id: item.id } }}
         />
       </Row>
-    ))}
+      </Each>
+      <Show.Else>
+        <Text value="No sessions assigned yet." size="sm" color="secondary" />
+      </Show.Else>
+    </Show>
   </Col>
 </Card>
     `.trim(),
@@ -615,7 +768,8 @@ export const widgetExamples: {
       description: "ListView with accent colors.",
       template: `
 <ListView>
-  {items.map((item) => (
+  <Show $when="size(items) > 0">
+    <Each $of="items" item="item">
     <ListViewItem gap={2} align="stretch">
       <Box background={item.accent} radius="full" width={3} />
       <Col gap={0}>
@@ -627,7 +781,13 @@ export const widgetExamples: {
         <Text value={item.note} size="sm" color="secondary" />
       </Col>
     </ListViewItem>
-  ))}
+    </Each>
+    <Show.Else>
+      <ListViewItem>
+        <Text value="Agenda is empty." size="sm" color="secondary" />
+      </ListViewItem>
+    </Show.Else>
+  </Show>
 </ListView>
     `.trim(),
       schema: AgendaSchema,
@@ -690,8 +850,9 @@ export const widgetExamples: {
         onClickAction={{ type: "session.map", payload: { location } }}
       />
     </Row>
-    {speakers.map((item) => (
-      <Row key={item.id} gap={3}>
+    <Show $when="size(speakers) > 0">
+      <Each $of="speakers" item="item">
+      <Row gap={3}>
         <Image src={item.image} />
         <Col>
           <Text
@@ -710,7 +871,11 @@ export const widgetExamples: {
           onClickAction={{ type: "speaker.view", payload: { id: item.id } }}
         />
       </Row>
-    ))}
+      </Each>
+      <Show.Else>
+        <Text value="Speakers will be announced soon." size="sm" color="secondary" />
+      </Show.Else>
+    </Show>
   </Col>
 </Card>
     `.trim(),
@@ -737,9 +902,9 @@ export const widgetExamples: {
       description: "Selectable devices list.",
       template: `
 <ListView>
-  {devices.map((item) => (
+  <Show $when="size(devices) > 0">
+    <Each $of="devices" item="item">
     <ListViewItem
-      key={item.id}
       gap={3}
       onClickAction={{ type: "device.select", payload: { id: item.id } }}
     >
@@ -755,7 +920,13 @@ export const widgetExamples: {
         />
       </Col>
     </ListViewItem>
-  ))}
+    </Each>
+    <Show.Else>
+      <ListViewItem>
+        <Text value="No devices found." size="sm" color="secondary" />
+      </ListViewItem>
+    </Show.Else>
+  </Show>
 </ListView>
     `.trim(),
       schema: DevicesSchema,
@@ -849,23 +1020,17 @@ export const widgetExamples: {
       </Col>
     </Row>
   </Col>
-  <Col gap={2} padding={{ y: 2 }}>
-    <Row>
-      <Text value="Estimated delivery" size="sm" color="secondary" />
-      <Spacer />
-      <Text value="Thursday, Oct 8" size="sm" />
-    </Row>
-    <Row>
-      <Text value="Sold by" size="sm" color="secondary" />
-      <Spacer />
-      <Text value="OpenAI" size="sm" />
-    </Row>
-    <Row>
-      <Text value="Paid" size="sm" color="secondary" />
-      <Spacer />
-      <Text value="$20.00" size="sm" />
-    </Row>
-  </Col>
+  <Show $when="size(details) > 0">
+    <Col gap={2} padding={{ y: 2 }}>
+      <Each $of="details" item="detail">
+        <Row>
+          <Text $value="detail.label" size="sm" color="secondary" />
+          <Spacer />
+          <Text $value="detail.value" size="sm" />
+        </Row>
+      </Each>
+    </Col>
+  </Show>
 
   <Button
     label="View details"
@@ -881,7 +1046,423 @@ export const widgetExamples: {
       product: {
         name: "Blue folding chair",
         image: "https://widgets.chatkit.studio/blue-chair.png"
-      }
+      },
+      details: [
+        { label: "Estimated delivery", value: "Thursday, Oct 8" },
+        { label: "Sold by", value: "OpenAI" },
+        { label: "Paid", value: "$20.00" }
+      ]
+    }
+  },
+  {
+    id: "subscription-plan",
+    title: "Subscription plan",
+    description: "Settings-style plan summary with a right-aligned action.",
+    template: `
+<Card size="lg" padding={6}>
+  <Row align="center" gap={4} wrap="wrap">
+    <Col gap={2} flex={1} minWidth={260}>
+      <Row gap={2}>
+        <Title value={planName} size="sm" />
+        <Text value={price} size="sm" color="tertiary" />
+      </Row>
+      <Text value={description} size="sm" color="secondary" />
+      <Text value={renewal} size="sm" color="secondary" />
+    </Col>
+    <Button
+      label="Adjust plan"
+      variant="outline"
+      size="md"
+      pill={false}
+      onClickAction={{ type: "billing.adjust_plan" }}
+    />
+  </Row>
+</Card>
+    `.trim(),
+    schema: SubscriptionPlanSchema,
+    data: {
+      planName: "Pro",
+      price: "$20 /mo.",
+      description: "Entry-level plan with access to premium models, unlimited Tab completions, and more.",
+      renewal: "Your subscription will auto renew on June 22, 2026."
+    }
+  },
+  {
+    id: "included-usage",
+    title: "Included usage",
+    description: "Account usage table with nested item rows generated from data.",
+    template: `
+<Card size="lg" padding={5} gap={4}>
+  <Col gap={1}>
+    <Title value={title} size="sm" />
+    <Text value={dateRange} size="sm" color="secondary" />
+  </Col>
+
+  <Table columnSizing="equal">
+    <Table.Row header>
+      <Table.Cell><Text value="Item" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+      <Table.Cell><Text value="Tokens" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+      <Table.Cell><Text value="Usage" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+    </Table.Row>
+    <Each $of="rows" item="row">
+      <Table.Row>
+        <Table.Cell>
+          <Row gap={2}>
+            <Show $when="row.indent">
+              <Box width={12} />
+            </Show>
+            <Text
+              value={row.item}
+              size="sm"
+              weight={row.emphasis ? "semibold" : "normal"}
+              color={row.indent ? "secondary" : "primary"}
+            />
+          </Row>
+        </Table.Cell>
+        <Table.Cell>
+          <Text
+            value={row.tokens}
+            size="sm"
+            weight={row.emphasis ? "semibold" : "normal"}
+            color={row.indent ? "secondary" : "primary"}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Text
+            value={row.usage}
+            size="sm"
+            weight={row.emphasis ? "semibold" : "normal"}
+            color={row.indent ? "secondary" : "primary"}
+          />
+        </Table.Cell>
+      </Table.Row>
+    </Each>
+  </Table>
+</Card>
+    `.trim(),
+    schema: IncludedUsageSchema,
+    data: {
+      title: "Included Usage",
+      dateRange: "May 22, 2026 - Jun 22, 2026",
+      rows: [
+        { item: "API", tokens: "0 tokens", usage: "0.0%", emphasis: true },
+        { item: "Auto + Composer", tokens: "187.6K tokens", usage: "0.2%", emphasis: true },
+        { item: "auto", tokens: "187.6K tokens", usage: "0.2%", indent: true }
+      ]
+    }
+  },
+  {
+    id: "billing-usage-invoices",
+    title: "Billing usage and invoices",
+    description: "Two stacked billing panels with month controls and invoice actions.",
+    template: `
+<Basic gap={3} padding={0}>
+  <Card size="lg" padding={5} gap={5}>
+    <Row align="start" gap={3}>
+      <Col gap={2}>
+        <Title value={usageTitle} size="sm" />
+        <Text value={usageDateRange} size="sm" color="secondary" />
+      </Col>
+      <Spacer />
+      <Button
+        label={usageMonth}
+        iconEnd="chevron-right"
+        variant="outline"
+        size="md"
+        pill={false}
+        onClickAction={{ type: "billing.usage_month.select" }}
+      />
+    </Row>
+
+    <Row align="baseline" gap={1}>
+      <Title value={usageAmount} size="xl" weight="normal" />
+      <Text value={usageLimit} size="sm" color="tertiary" />
+    </Row>
+
+    <Table columnSizing="equal">
+      <Table.Row header>
+        <Table.Cell><Text value="Type" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell><Text value="Tokens" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell><Text value="Cost" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell><Text value="Qty" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell align="end"><Text value="Total" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+      </Table.Row>
+      <Each $of="usageRows" item="row">
+        <Table.Row>
+          <Table.Cell><Text value={row.type} size="sm" weight={row.emphasis ? "semibold" : "normal"} /></Table.Cell>
+          <Table.Cell><Text value={row.tokens} size="sm" color="secondary" /></Table.Cell>
+          <Table.Cell><Text value={row.cost} size="sm" color="secondary" /></Table.Cell>
+          <Table.Cell><Text value={row.quantity} size="sm" color="secondary" /></Table.Cell>
+          <Table.Cell align="end"><Text value={row.total} size="sm" /></Table.Cell>
+        </Table.Row>
+      </Each>
+    </Table>
+  </Card>
+
+  <Card size="lg" padding={5} gap={4}>
+    <Row align="center" gap={3}>
+      <Title value={invoiceTitle} size="sm" />
+      <Spacer />
+      <Button
+        label={invoiceMonth}
+        iconEnd="chevron-right"
+        variant="outline"
+        size="md"
+        pill={false}
+        onClickAction={{ type: "billing.invoice_month.select" }}
+      />
+    </Row>
+
+    <Table columnSizing="equal">
+      <Table.Row header>
+        <Table.Cell><Text value="Date" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell><Text value="Description" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell><Text value="Status" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell><Text value="Amount" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+        <Table.Cell align="end"><Text value="Invoice" size="sm" weight="semibold" color="secondary" /></Table.Cell>
+      </Table.Row>
+      <Each $of="invoices" item="invoice">
+        <Table.Row>
+          <Table.Cell><Text value={invoice.date} size="sm" /></Table.Cell>
+          <Table.Cell><Text value={invoice.description} size="sm" color="secondary" /></Table.Cell>
+          <Table.Cell><Text value={invoice.status} size="sm" /></Table.Cell>
+          <Table.Cell><Text value={invoice.amount} size="sm" /></Table.Cell>
+          <Table.Cell align="end">
+            <Pressable
+              padding={0}
+              radius="md"
+              onClickAction={{ type: "billing.invoice.open", payload: { date: invoice.date } }}
+            >
+              <Row gap={1} justify="end" wrap="nowrap">
+                <Icon name="external-link" size="sm" />
+                <Text value={invoice.actionLabel} size="sm" />
+              </Row>
+            </Pressable>
+          </Table.Cell>
+        </Table.Row>
+      </Each>
+    </Table>
+  </Card>
+</Basic>
+    `.trim(),
+    schema: BillingOverviewSchema,
+    data: {
+      usageTitle: "On-Demand Usage",
+      usageMonth: "June 2026",
+      usageDateRange: "May 22, 2026 - Jun 22, 2026",
+      usageAmount: "$0.00",
+      usageLimit: "/ $10.00",
+      usageRows: [
+        {
+          type: "Subtotal:",
+          tokens: "",
+          cost: "",
+          quantity: "",
+          total: "$0.00",
+          emphasis: true
+        }
+      ],
+      invoiceTitle: "Invoices",
+      invoiceMonth: "May 2026",
+      invoices: [
+        {
+          date: "May 22, 2026",
+          description: "",
+          status: "Paid",
+          amount: "0.00 USD",
+          actionLabel: "View"
+        }
+      ]
+    }
+  },
+  {
+    id: "teams-upgrade",
+    title: "Upgrade to teams",
+    description: "Feature matrix with icon tiles and a primary creation action.",
+    template: `
+<Card size="lg" padding={5} gap={4}>
+  <Col gap={2}>
+    <Title value={title} size="md" weight="normal" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+
+  <Box border={{ size: 1, color: "subtle" }} radius="lg" padding={4} gap={4}>
+    <Grid columns="repeat(auto-fit, minmax(200px, 1fr))" gap={4}>
+      <Each $of="features" item="feature">
+        <Row align="start" gap={3}>
+          <Box size={34} radius="lg" background="surface-secondary" align="center" justify="center">
+            <Icon name={feature.icon} size="md" color="secondary" />
+          </Box>
+          <Col gap={0}>
+            <Text value={feature.title} size="sm" weight="semibold" />
+            <Text value={feature.description} size="sm" color="secondary" />
+          </Col>
+        </Row>
+      </Each>
+    </Grid>
+
+    <Button
+      label="Create team"
+      style="primary"
+      size="md"
+      pill={false}
+      onClickAction={{ type: "teams.create" }}
+    />
+  </Box>
+</Card>
+    `.trim(),
+    schema: TeamsUpgradeSchema,
+    data: {
+      title: "Upgrade to Teams",
+      subtitle: "Work with your team and unlock collaborative features",
+      features: [
+        {
+          icon: "profile",
+          title: "Team Management",
+          description: "Invite members, manage roles, and control access"
+        },
+        {
+          icon: "analytics",
+          title: "Usage Analytics",
+          description: "Track team usage and optimize your subscription"
+        },
+        {
+          icon: "keys",
+          title: "Admin Controls",
+          description: "Centralized billing and privacy mode controls"
+        },
+        {
+          icon: "settings-slider",
+          title: "Rules & Commands",
+          description: "Share rules and commands across your team"
+        }
+      ]
+    }
+  },
+  {
+    id: "plugins-directory",
+    title: "Plugins directory",
+    description: "Marketplace-style empty state with tabs, search, and suggested cards.",
+    template: `
+<Card size="lg" padding={5} gap={4}>
+  <Col gap={1}>
+    <Title value={title} size="md" weight="normal" />
+    <Text value={subtitle} size="sm" color="secondary" />
+  </Col>
+
+  <Row align="center" gap={2} wrap="wrap">
+    <SegmentedControl
+      name="plugins.filter"
+      options={tabs}
+      defaultValue={activeTab}
+      variant="ghost"
+      pill
+      onChangeAction={{ type: "plugins.filter.change" }}
+    />
+    <Spacer minSize={12} />
+    <Box width={220}>
+      <Input name="plugins.search" placeholder={searchPlaceholder} size="md" />
+    </Box>
+    <Button
+      label="Add"
+      style="primary"
+      size="md"
+      pill={false}
+      onClickAction={{ type: "plugins.add" }}
+    />
+  </Row>
+
+  <Box border={{ size: 1, color: "subtle" }} radius="lg" padding={5} align="center" gap={3}>
+    <Col align="center" gap={1}>
+      <Text value={emptyTitle} size="sm" weight="semibold" textAlign="center" />
+      <Text value={emptyDescription} size="sm" color="secondary" textAlign="center" />
+    </Col>
+    <Button
+      label="Add Plugin"
+      iconEnd="external-link"
+      style="primary"
+      size="md"
+      pill={false}
+      onClickAction={{ type: "open_url", handler: "client", payload: { url: "https://example.com/plugins" } }}
+    />
+  </Box>
+
+  <Row align="center">
+    <Text value={suggestionsLabel} size="sm" color="secondary" />
+    <Spacer />
+    <Row gap={1}>
+      <Text value={marketplaceLabel} size="sm" color="secondary" />
+      <Icon name="external-link" size="sm" color="secondary" />
+    </Row>
+  </Row>
+
+  <Grid columns="repeat(auto-fit, minmax(160px, 1fr))" gap={3}>
+    <Each $of="plugins" item="plugin">
+      <Box border={{ size: 1, color: "subtle" }} radius="lg" padding={3} gap={3} minHeight={150}>
+        <Box size={26} radius="md" background="surface-secondary" align="center" justify="center">
+          <Icon name={plugin.icon} size="sm" />
+        </Box>
+        <Col gap={1}>
+          <Text value={plugin.name} size="sm" weight="semibold" />
+          <Text value={plugin.description} size="sm" color="secondary" maxLines={2} />
+        </Col>
+        <Row gap={2} align="center">
+          <Button
+            label="Add"
+            variant="outline"
+            size="sm"
+            onClickAction={{ type: "plugins.install", payload: { name: plugin.name } }}
+          />
+          <Button
+            label="View"
+            variant="ghost"
+            size="sm"
+            onClickAction={{ type: "plugins.view", payload: { name: plugin.name } }}
+          />
+        </Row>
+      </Box>
+    </Each>
+  </Grid>
+</Card>
+    `.trim(),
+    schema: PluginsDirectorySchema,
+    data: {
+      title: "Plugins",
+      subtitle: "Extend Cursor with skills, rules, subagents, MCP tools, and hooks",
+      tabs: [
+        { label: "All", value: "all" },
+        { label: "Required", value: "required" },
+        { label: "Optional", value: "optional" }
+      ],
+      activeTab: "all",
+      searchPlaceholder: "Search plugins",
+      emptyTitle: "No Plugins",
+      emptyDescription:
+        "Browse the marketplace or import custom plugins to extend Cursor with Skills, Rules, Agents, Hooks, and MCPs.",
+      suggestionsLabel: "Suggested",
+      marketplaceLabel: "Browse Marketplace",
+      plugins: [
+        {
+          name: "Datadog",
+          icon: "analytics",
+          description: "Use Datadog directly in Cursor through a connected MCP server."
+        },
+        {
+          name: "Slack",
+          icon: "mail",
+          description: "Search channels, summarize threads, and draft replies."
+        },
+        {
+          name: "Figma",
+          icon: "square-image",
+          description: "Bring design context and component references into tasks."
+        },
+        {
+          name: "Linear",
+          icon: "square-code",
+          description: "Create, triage, and update issues without switching tools."
+        }
+      ]
     }
   },
     {
@@ -892,9 +1473,10 @@ export const widgetExamples: {
 <Card size="sm" padding={0}>
   <Image src={bannerImage} alt="K-POP" height={180} fit="cover" flush />
   <Col padding={{ y: 2, x: 3 }}>
-    {tracks.map((item, index) => (
-      <Row key={item.id} align="center" gap={3}>
-        <Caption value={\`\${index + 1}\`} />
+    <Show $when="size(tracks) > 0">
+      <Each $of="tracks" item="item" index="index">
+      <Row align="center" gap={3}>
+        <Caption $value="String(index + 1)" />
         <Image src={item.cover} size={48} />
         <Col flex="auto" gap={0}>
           <Text value={item.title} weight="semibold" />
@@ -909,7 +1491,11 @@ export const widgetExamples: {
           onClickAction={{ type: "music.play", payload: { id: item.id } }}
         />
       </Row>
-    ))}
+      </Each>
+      <Show.Else>
+        <Text value="No tracks available." size="sm" color="secondary" />
+      </Show.Else>
+    </Show>
   </Col>
   <Col padding={{ x: 3, bottom: 3 }}>
     <Button
@@ -952,10 +1538,18 @@ export const widgetExamples: {
       title: "Purchase items",
       description: "Itemized checkout with totals.",
       template: `
+<Scope values={{ itemCountLabel: String(size(items)) + " items" }}>
 <Card size="sm">
+  <Row align="center">
+    <Title value="Checkout" size="sm" />
+    <Spacer />
+    <Caption $value="itemCountLabel" />
+  </Row>
+
   <Col>
-    {items.map((item) => (
-      <Row key={item.title} align="center">
+    <Show $when="size(items) > 0">
+      <Each $of="items" item="item">
+      <Row align="center">
         <Image src={item.image} size={48} />
         <Col>
           <Text
@@ -967,27 +1561,23 @@ export const widgetExamples: {
           <Text value={item.subtitle} size="sm" color="secondary" />
         </Col>
       </Row>
-    ))}
+      </Each>
+      <Show.Else>
+        <Text value="No items in this checkout." size="sm" color="secondary" />
+      </Show.Else>
+    </Show>
   </Col>
 
   <Divider flush />
 
   <Col>
-    <Row>
-      <Text value="Subtotal" size="sm" />
-      <Spacer />
-      <Text value={subTotal} size="sm" />
-    </Row>
-    <Row>
-      <Text value={\`Sales tax (\${taxPct})\`} size="sm" />
-      <Spacer />
-      <Text value={tax} size="sm" />
-    </Row>
-    <Row>
-      <Text value="Total with tax" weight="semibold" size="sm" />
-      <Spacer />
-      <Text value={total} weight="semibold" size="sm" />
-    </Row>
+    <Each $of="totals" item="line">
+      <Row>
+        <Text $value="line.label" weight={line.emphasis ? "semibold" : undefined} size="sm" />
+        <Spacer />
+        <Text $value="line.value" weight={line.emphasis ? "semibold" : undefined} size="sm" />
+      </Row>
+    </Each>
   </Col>
 
   <Divider flush />
@@ -1007,30 +1597,35 @@ export const widgetExamples: {
     />
   </Col>
 </Card>
+</Scope>
     `.trim(),
       schema: PurchaseSchema,
       data: {
         items: [
           {
+            id: "black-sugar-latte",
             image: "https://cdn.openai.com/API/storybook/blacksugar.png",
             title: "Black Sugar Hoick Latte",
             subtitle: "16oz Iced - Boba - $6.50"
           },
           {
+            id: "classic-milk-tea",
             image: "https://cdn.openai.com/API/storybook/classic.png",
             title: "Classic Milk Tea",
             subtitle: "16oz Iced - Double Boba - $6.75"
           },
           {
+            id: "matcha-latte",
             image: "https://cdn.openai.com/API/storybook/matcha.png",
             title: "Matcha Latte",
             subtitle: "16oz Iced - Boba - $6.50"
           }
         ],
-        subTotal: "$19.75",
-        taxPct: "8.75%",
-        tax: "$1.72",
-        total: "$21.47"
+        totals: [
+          { label: "Subtotal", value: "$19.75" },
+          { label: "Sales tax (8.75%)", value: "$1.72" },
+          { label: "Total with tax", value: "$21.47", emphasis: true }
+        ]
       }
     },
     {
@@ -1054,12 +1649,12 @@ export const widgetExamples: {
         weight="normal"
       />
       <Row>
-        {stats.map((item, index) => (
+        <Each $of="stats" item="item">
           <Col flex={1} gap={0}>
             <Text value={item.value} weight="semibold" />
             <Caption value={item.label} color={accent} />
           </Col>
-        ))}
+        </Each>
       </Row>
     </Col>
   </Row>
@@ -1107,12 +1702,12 @@ export const widgetExamples: {
     <Text value={conditionDescription} textAlign="center" />
 
     <Row gap={6}>
-      {forecast.map((day) => (
+      <Each $of="forecast" item="day">
         <Col align="center" gap={0}>
           <Image src={day.conditionImage} size={40} />
           <Text value={day.temperature} />
         </Col>
-      ))}
+      </Each>
     </Row>
   </Col>
 </Card>
@@ -1170,13 +1765,13 @@ export const widgetExamples: {
     <Progress value={percent} label="Milestones completed" />
     <Divider flush />
     <Row gap={3}>
-      {members.map((member) => (
+      <Each $of="members" item="member">
         <Col align="center" gap={1}>
           <Avatar name={member.name} src={member.avatar} status={member.status} />
           <Caption value={member.name} />
           <Text value={member.role} size="xs" color="secondary" />
         </Col>
-      ))}
+      </Each>
     </Row>
   </Col>
 </Card>
@@ -1302,8 +1897,8 @@ export const widgetExamples: {
     </Row>
 
     <Col gap={2}>
-      {segments.map((seg) => (
-        <Row key={seg.id} gap={3} align="start">
+      <Each $of="segments" item="seg">
+        <Row gap={3} align="start">
           <Image src={seg.image} size={52} radius="md" frame />
 
           <Col flex="auto" gap={1}>
@@ -1331,45 +1926,27 @@ export const widgetExamples: {
             </Row>
           </Col>
         </Row>
-      ))}
+      </Each>
     </Col>
 
     <Divider flush />
 
     <Col gap={2}>
-      <Row gap={3} align="center">
-        <Box width={110}>
-          <Text value="Guests" size="sm" color="secondary" />
-        </Box>
-        <Spacer />
-        <Text value={guests} size="sm" weight="semibold" />
-      </Row>
-
-      <Row gap={3} align="center">
-        <Box width={110}>
-          <Text value="Cabin" size="sm" color="secondary" />
-        </Box>
-        <Spacer />
-        <Text value={cabinClass} size="sm" weight="semibold" />
-      </Row>
-
-      <Row gap={3} align="start">
-        <Box width={110}>
-          <Text value="Baggage" size="sm" color="secondary" />
-        </Box>
-        <Col flex="auto" gap={0} align="end">
-          <Text value={baggageSummary} size="sm" textAlign="end" />
-        </Col>
-      </Row>
-
-      <Row gap={3} align="start">
-        <Box width={110}>
-          <Text value="Refundability" size="sm" color="secondary" />
-        </Box>
-        <Col flex="auto" gap={0} align="end">
-          <Text value={refundPolicy} size="sm" textAlign="end" />
-        </Col>
-      </Row>
+      <Each $of="reviewRows" item="row">
+        <Row gap={3} align={row.multiline ? "start" : "center"}>
+          <Box width={110}>
+            <Text $value="row.label" size="sm" color="secondary" />
+          </Box>
+          <Col flex="auto" gap={0} align="end">
+            <Text
+              $value="row.value"
+              size="sm"
+              weight={row.multiline ? undefined : "semibold"}
+              textAlign="end"
+            />
+          </Col>
+        </Row>
+      </Each>
     </Col>
   </Col>
 
@@ -1398,8 +1975,12 @@ export const widgetExamples: {
         dates: "Mar 12 – Mar 20",
         guests: "2",
         cabinClass: "Premium Economy",
-        baggageSummary: "1 checked bag + 1 carry-on per guest",
-        refundPolicy: "Non-refundable • Changes allowed with fee",
+        reviewRows: [
+          { label: "Guests", value: "2" },
+          { label: "Cabin", value: "Premium Economy" },
+          { label: "Baggage", value: "1 checked bag + 1 carry-on per guest", multiline: true },
+          { label: "Refundability", value: "Non-refundable • Changes allowed with fee", multiline: true }
+        ],
         segments: [
           {
             id: "seg-1",
@@ -1426,6 +2007,267 @@ export const widgetExamples: {
         ],
         totalPrice: "$3,184.20",
         priceNote: "Includes taxes and fees • 2 guests"
+      }
+    },
+    {
+      id: "dil-control-flow",
+      title: "DIL control flow",
+      description: "Uses Show, Animate, Each, Scope, local patchState, and RunInterval with `$` expression props.",
+      template: `
+<Card size="md" cardId="launch-control" gap={3}>
+  <Scope values={{ launch: launchName }}>
+    <Row align="center" gap={2}>
+      <PulseIndicator label="Live" />
+      <Col gap={0} flex="auto">
+        <Title $value="launch" size="sm" />
+        <Caption value="Control-flow primitives rendered from guide-style DIL." />
+      </Col>
+      <RunInterval interval={5000} $onTickAction='{ "patchState": set("lastTick", tick.count) }' />
+    </Row>
+    <Caption $value="'Local heartbeat ticks: ' + String(state.lastTick)" />
+
+    <Animate>
+      <Animate.Item $when="healthy">
+        <Box background="surface-secondary" radius="lg" padding={3}>
+          <Row gap={2}>
+            <Icon name="check-circle-filled" color="success" />
+            <Text value="All systems are green." weight="semibold" />
+          </Row>
+        </Box>
+      </Animate.Item>
+      <Animate.Item $when="!healthy">
+        <Box background="red-100" radius="lg" padding={3}>
+          <Text value="Attention required before launch." weight="semibold" color="danger" />
+        </Box>
+      </Animate.Item>
+    </Animate>
+
+    <Show $when="size(agents) > 0">
+      <AnimateGroup $of="agents" item="agent">
+        <Row key={agent.id} gap={3} padding={2} radius="lg" background="surface-secondary" align="center">
+          <Col gap={0} flex="auto">
+            <Text $value="agent.name" weight="semibold" />
+            <Caption $value="agent.role" />
+          </Col>
+          <Badge $label="agent.status" color={agent.status === "Blocked" ? "danger" : "success"} />
+        </Row>
+      </AnimateGroup>
+      <Show.Else>
+        <LoadingIndicator label="Waiting for agents" />
+      </Show.Else>
+    </Show>
+  </Scope>
+</Card>
+      `.trim(),
+      schema: DilControlFlowSchema,
+      data: {
+        launchName: "Orbital launch checklist",
+        healthy: true,
+        lastTick: 0,
+        agents: [
+          { id: "a1", name: "Atlas", role: "Telemetry", status: "Ready" },
+          { id: "a2", name: "Beacon", role: "Comms", status: "Watching" },
+          { id: "a3", name: "Cinder", role: "Safety", status: "Ready" }
+        ]
+      }
+    },
+    {
+      id: "dil-media-carousel",
+      title: "Media carousel",
+      description: "BaseCarousel, Image, Favicon, AudioPlayer, and YouTubeEmbed in one compact media kit.",
+      template: `
+<Card size="md" padding={0}>
+  <BaseCarousel visibleItems={1.15} gap={3} snap="mandatory" flush>
+    <Each $of="photos" item="photo">
+      <BaseCarousel.MediaItem
+        minWidth={260}
+        *media={<Image
+          src={photo.src}
+          alt={photo.title}
+          height={180}
+          fit="cover"
+          frame
+        />}
+      >
+        <Row gap={2}>
+          <Favicon url={photo.favicon} />
+          <Col gap={0}>
+            <Text value={photo.title} weight="semibold" />
+            <Caption value={photo.source} />
+          </Col>
+        </Row>
+      </BaseCarousel.MediaItem>
+    </Each>
+  </BaseCarousel>
+
+  <Col padding={{ x: 4, y: 4 }} gap={3}>
+    <AudioPlayer src={audio.src} title={audio.title} subtitle={audio.subtitle} compact />
+    <YouTubeEmbed videoId={videoId} height={190} title="YouTube embed reference" />
+  </Col>
+</Card>
+      `.trim(),
+      schema: DilMediaCarouselSchema,
+      data: {
+        photos: [
+          {
+            id: "p1",
+            title: "Field robotics lab",
+            src: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+            source: "Unsplash",
+            favicon: "https://www.google.com/s2/favicons?domain=unsplash.com"
+          },
+          {
+            id: "p2",
+            title: "Transit control wall",
+            src: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+            source: "Unsplash",
+            favicon: "https://www.google.com/s2/favicons?domain=unsplash.com"
+          }
+        ],
+        audio: {
+          title: "Dispatch briefing",
+          subtitle: "Compact transport controls",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        },
+      videoId: "M7lc1UVf-VE"
+      }
+    },
+    {
+      id: "dil-route-table-popover",
+      title: "Route operations",
+      description: "Structured Table, SegmentedControl, Popover, and Pressable route action surfaces.",
+      template: `
+<Card size="md" gap={3}>
+  <Row align="center">
+    <Col gap={0}>
+      <Title value="Night route monitor" size="sm" />
+      <Caption value="Dispatch table with route mode controls and action surfaces." />
+    </Col>
+    <Spacer />
+    <Popover>
+      <Popover.Trigger onClickAction={{ type: "route.help" }}>
+        <Badge label="SLA" color="info" />
+      </Popover.Trigger>
+      <Popover.Content side="bottom" align="end" width={240}>
+        <Text value="Late stops dispatch a server action in the future API plan." size="sm" />
+      </Popover.Content>
+    </Popover>
+  </Row>
+
+  <SegmentedControl
+    name="route.mode"
+    defaultValue="live"
+    options={[
+      { label: "Live", value: "live" },
+      { label: "Forecast", value: "forecast" },
+      { label: "Archive", value: "archive" }
+    ]}
+    onChangeAction={{ type: "route.mode.change" }}
+    block
+  />
+
+  <Table columnSizing="equal">
+    <Table.Row header>
+      <Table.Cell><Text value="Stop" weight="semibold" /></Table.Cell>
+      <Table.Cell align="center"><Text value="ETA" weight="semibold" /></Table.Cell>
+      <Table.Cell align="end"><Text value="Load" weight="semibold" /></Table.Cell>
+    </Table.Row>
+    <Each $of="rows" item="row">
+      <Table.Row>
+        <Table.Cell><Text value={row.stop} /></Table.Cell>
+        <Table.Cell align="center"><Badge label={row.eta} color="secondary" /></Table.Cell>
+        <Table.Cell align="end"><Text value={row.load} /></Table.Cell>
+      </Table.Row>
+    </Each>
+  </Table>
+
+  <Pressable
+    padding={3}
+    radius="lg"
+    background="surface-secondary"
+    onClickAction={{ type: "open_url", handler: "client", payload: { url: "https://example.com/routes" } }}
+  >
+    <Row gap={2}>
+      <Icon name="external-link" />
+      <Text value="Open external route board" weight="semibold" />
+    </Row>
+  </Pressable>
+</Card>
+      `.trim(),
+      schema: DilMapTableSchema,
+      data: {
+        rows: [
+          { stop: "Depot", eta: "Now", load: "84%" },
+          { stop: "Market", eta: "+8m", load: "61%" },
+          { stop: "Pier", eta: "+21m", load: "39%" }
+        ]
+      }
+    },
+    {
+      id: "dil-rich-feedback",
+      title: "Rich feedback states",
+      description: "Rich text, Svg, List, OverflowRow, loading blocks, and runtime-only badges.",
+      template: `
+<Card size="md" gap={3}>
+  <Row gap={3}>
+    <Box size={48} radius="xl" background="surface-secondary" align="center" justify="center">
+      <Svg
+        size={28}
+        viewBox="0 0 24 24"
+        paths={[
+          { d: "M12 3l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V7l7-4z" },
+          { d: "M9 12l2 2 4-5" }
+        ]}
+      />
+    </Box>
+    <Col gap={1}>
+      <Title value="Renderer health" size="sm" />
+      <Text value="Now supporting rich DIL primitives with practical web fallbacks." size="sm" color="secondary" />
+    </Col>
+  </Row>
+
+  <Text value="Inline emphasis:" size="sm" color="secondary" />
+  <Flow gap={2}>
+    <Bold value="Bold" />
+    <Italic value="Italic" />
+    <Underline value="Underline" />
+    <Code value="code()" />
+    <Math value="E=mc²" />
+    <Highlight value="Highlight" />
+  </Flow>
+
+  <List marker="check" gap={2}>
+    <Each $of="checks" item="check">
+      <List.Item>
+        <Text $value="check" size="sm" />
+      </List.Item>
+    </Each>
+  </List>
+
+  <OverflowRow rows={1} gap={2}>
+    <Each $of="tags" item="tag">
+      <Badge $label="tag" variant="outline" />
+    </Each>
+  </OverflowRow>
+
+  <Row gap={2}>
+    <CotResolvedIcon />
+    <FootballLocationIndicator label="Neutral venue" />
+    <PulseIndicator label="Streaming" />
+  </Row>
+
+  <LoadingBlock height={36} />
+  <ShimmerText value="Preparing next response..." />
+</Card>
+      `.trim(),
+      schema: DilRichFeedbackSchema,
+      data: {
+        checks: [
+          "Registry aliases include dotted child components.",
+          "Client actions run locally before host callbacks.",
+          "Server actions are documented in PLAN.md."
+        ],
+        tags: ["Animate", "Table", "Map", "Popover", "Svg", "List", "Image"]
       }
     },
     {
@@ -1897,18 +2739,12 @@ export const widgetExamples: {
     </Row>
 
     <Row gap={6} align="center">
-      <Col gap={0}>
-        <Caption value="Uptime" />
-        <Text value={kpis.uptime} weight="semibold" />
-      </Col>
-      <Col gap={0}>
-        <Caption value="p95 latency" />
-        <Text value={kpis.p95} weight="semibold" />
-      </Col>
-      <Col gap={0}>
-        <Caption value="Incidents" />
-        <Text value={kpis.incidents} weight="semibold" />
-      </Col>
+      <Each $of="kpis" item="kpi">
+        <Col gap={0}>
+          <Caption $value="kpi.label" />
+          <Text $value="kpi.value" weight="semibold" />
+        </Col>
+      </Each>
       <Spacer />
       <Tooltip label="Tip" content="Use ToggleGroup for quick, compact filters in a chat widget." />
     </Row>
@@ -1938,7 +2774,11 @@ export const widgetExamples: {
           "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
         title: "Ops metrics review",
         timeframe: "30d",
-        kpis: { uptime: "99.97%", p95: "182ms", incidents: "4" },
+        kpis: [
+          { label: "Uptime", value: "99.97%" },
+          { label: "p95 latency", value: "182ms" },
+          { label: "Incidents", value: "4" }
+        ],
         chartData: [
           { day: "Mon", Uptime: 99.95, Incidents: 1 },
           { day: "Tue", Uptime: 99.99, Incidents: 0 },

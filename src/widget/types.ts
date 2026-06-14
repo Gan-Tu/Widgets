@@ -102,10 +102,13 @@ export type WidgetStatus =
     };
 
 export type ActionConfig = {
-  type: string;
+  type?: string;
   payload?: Record<string, unknown>;
   handler?: "server" | "client";
   loadingBehavior?: "auto" | "none" | "self" | "container";
+  updateState?: unknown;
+  replaceState?: unknown;
+  patchState?: unknown;
 };
 
 export type BlockProps = {
@@ -124,7 +127,8 @@ export type BlockProps = {
 };
 
 export type BaseTextProps = {
-  value: string;
+  value?: string;
+  children?: React.ReactNode;
   textAlign?: TextAlign;
   truncate?: boolean;
   maxLines?: number;
@@ -145,6 +149,7 @@ export type WidgetIcon =
   | "chevron-right"
   | "circle-question"
   | "compass"
+  | "copy"
   | "cube"
   | "document"
   | "dots-horizontal"

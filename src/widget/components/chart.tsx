@@ -4,7 +4,6 @@ import {
   Cell,
   Legend,
   Pie,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -218,9 +217,36 @@ function ChartFrame({
 }: ChartFrameProps & { children: React.ReactNode }) {
   const resolvedHeight = normalizeCssSize(frame.size ?? frame.height ?? 220) ?? "220px";
   const resolvedWidth = normalizeCssSize(frame.size ?? frame.width) ?? "100%";
+  const frameRef = React.useRef<HTMLDivElement | null>(null);
+  const [dimensions, setDimensions] = React.useState<{ width: number; height: number } | null>(null);
+
+  React.useLayoutEffect(() => {
+    const node = frameRef.current;
+    if (!node) return;
+
+    const measure = () => {
+      const rect = node.getBoundingClientRect();
+      setDimensions(
+        rect.width > 0 && rect.height > 0
+          ? { width: Math.max(1, Math.floor(rect.width)), height: Math.max(1, Math.floor(rect.height)) }
+          : null
+      );
+    };
+
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      const frameId = window.requestAnimationFrame(measure);
+      return () => window.cancelAnimationFrame(frameId);
+    }
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
+      ref={frameRef}
       style={{
         flex: frame.flex,
         height: resolvedHeight,
@@ -234,9 +260,9 @@ function ChartFrame({
         aspectRatio: frame.aspectRatio
       }}
     >
-      <ResponsiveContainer width="100%" height="100%">
-        {children}
-      </ResponsiveContainer>
+      {dimensions && React.isValidElement(children)
+        ? React.cloneElement(children, dimensions)
+        : null}
     </div>
   );
 }

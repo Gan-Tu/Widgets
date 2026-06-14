@@ -97,6 +97,23 @@
   color: var(--widget-text-prose);
 }
 
+.widget-root :where(button:not(:disabled), a[href], [role="button"], select:not(:disabled), summary) {
+  cursor: pointer;
+}
+
+.widget-root
+  :where(
+    input[type="checkbox"]:not(:disabled),
+    input[type="radio"]:not(:disabled),
+    input[type="range"]:not(:disabled)
+  ) {
+  cursor: pointer;
+}
+
+.widget-root :where(button:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

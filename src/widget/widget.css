@@ -47,3 +47,20 @@
   --widget-shadow: 0 10px 24px rgba(15, 23, 42, 0.4);
   color: var(--widget-text-prose);
 }
+
+.widget-root :where(button:not(:disabled), a[href], [role="button"], select:not(:disabled), summary) {
+  cursor: pointer;
+}
+
+.widget-root
+  :where(
+    input[type="checkbox"]:not(:disabled),
+    input[type="radio"]:not(:disabled),
+    input[type="range"]:not(:disabled)
+  ) {
+  cursor: pointer;
+}
+
+.widget-root :where(button:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+}

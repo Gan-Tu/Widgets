@@ -43,8 +43,8 @@ export default function App() {
               </p>
             </div>
           </NavLink>
-          <nav className="max-w-full overflow-x-aut px-2">
-            <div className="flex flex-nowrap items-center gap-2 rounded-full bg-white/70 p-1 shadow-sm">
+          <nav className="w-full max-w-full px-0 sm:w-auto sm:overflow-x-auto sm:px-2">
+            <div className="flex flex-wrap items-center justify-center gap-1 rounded-2xl bg-white/70 p-1 shadow-sm sm:min-w-max sm:flex-nowrap sm:justify-start sm:gap-2 sm:rounded-full">
               <NavLink to="/" className={navLinkClass}>
                 Home
               </NavLink>

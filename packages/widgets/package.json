@@ -23,7 +23,7 @@
     "./dist/styles.css"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/build-css.mjs",
+    "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.json && node scripts/fix-esm-imports.mjs && node scripts/build-css.mjs",
     "publish": "node scripts/publish.mjs"
   },
   "peerDependencies": {

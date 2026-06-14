@@ -46,7 +46,8 @@ import {
 import {
   controlGutters,
   controlHeights,
-  resolveColor
+  resolveColor,
+  resolveGap
 } from "../style";
 
 type FormProps = React.PropsWithChildren<{
@@ -90,7 +91,7 @@ const FormInner: React.FC<FormProps> = ({
         flexDirection: direction === "row" ? "row" : "column",
         alignItems: resolveAlign(align),
         justifyContent: resolveJustify(justify),
-        gap: gap ?? "var(--widget-gap)",
+        gap: resolveGap(gap),
         ...style
       }}
     >
@@ -131,6 +132,8 @@ type InputProps = {
   name: string;
   inputType?: "number" | "email" | "text" | "password" | "tel" | "url";
   defaultValue?: string;
+  value?: string;
+  onChangeAction?: ActionConfig;
   variant?: "soft" | "outline";
   size?: ControlSize;
   gutterSize?: keyof typeof controlGutters;
@@ -148,6 +151,8 @@ const Input: React.FC<InputProps> = ({
   name,
   inputType = "text",
   defaultValue,
+  value: controlledValue,
+  onChangeAction,
   variant = "outline",
   size = "md",
   gutterSize,
@@ -160,7 +165,9 @@ const Input: React.FC<InputProps> = ({
   disabled,
   pill
 }) => {
+  const action = useWidgetAction();
   const [value, setValue] = useFieldValue(name, defaultValue);
+  const resolvedValue = controlledValue ?? value;
   const height = controlHeights[size] ?? controlHeights.md;
   const gutterKey =
     gutterSize ?? (controlGutters[size as keyof typeof controlGutters] ? size : "md");
@@ -168,10 +175,15 @@ const Input: React.FC<InputProps> = ({
 
   return (
     <UiInput
+      id={name}
       name={name}
       type={inputType}
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
+      value={resolvedValue}
+      onChange={(event) => {
+        const next = event.target.value;
+        setValue(next);
+        if (onChangeAction && action) action(onChangeAction, { [name]: next, value: next });
+      }}
       placeholder={placeholder}
       required={required}
       pattern={pattern}
@@ -194,6 +206,8 @@ const Input: React.FC<InputProps> = ({
 type TextareaProps = {
   name: string;
   defaultValue?: string;
+  value?: string;
+  onChangeAction?: ActionConfig;
   required?: boolean;
   placeholder?: string;
   autoSelect?: boolean;
@@ -211,6 +225,8 @@ type TextareaProps = {
 const Textarea: React.FC<TextareaProps> = ({
   name,
   defaultValue,
+  value: controlledValue,
+  onChangeAction,
   required,
   placeholder,
   autoSelect,
@@ -220,11 +236,13 @@ const Textarea: React.FC<TextareaProps> = ({
   size = "md",
   gutterSize,
   rows = 3,
-  autoResize,
+  autoResize = true,
   maxRows,
   allowAutofillExtensions
 }) => {
+  const action = useWidgetAction();
   const [value, setValue] = useFieldValue(name, defaultValue);
+  const resolvedValue = controlledValue ?? value;
   const height = controlHeights[size] ?? controlHeights.md;
   const gutterKey =
     gutterSize ?? (controlGutters[size as keyof typeof controlGutters] ? size : "md");
@@ -232,9 +250,14 @@ const Textarea: React.FC<TextareaProps> = ({
 
   return (
     <UiTextarea
+      id={name}
       name={name}
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
+      value={resolvedValue}
+      onChange={(event) => {
+        const next = event.target.value;
+        setValue(next);
+        if (onChangeAction && action) action(onChangeAction, { [name]: next, value: next });
+      }}
       placeholder={placeholder}
       required={required}
       autoComplete={allowAutofillExtensions ? "on" : "off"}
@@ -249,6 +272,7 @@ const Textarea: React.FC<TextareaProps> = ({
         borderColor: variant === "outline" ? "#e2e8f0" : "transparent",
         background: variant === "soft" ? "#f8fafc" : "#ffffff",
         resize: autoResize ? "vertical" : "none",
+        overflow: "auto",
         maxHeight: maxRows ? `${maxRows * 1.5}rem` : undefined
       }}
       onFocus={(event) => autoSelect && event.target.select()}
@@ -297,7 +321,8 @@ const Select: React.FC<SelectProps> = ({
   const handleValueChange = (next: string) => {
     setValue(next);
     if (onChangeAction && action) {
-      action(onChangeAction, { [name]: next });
+      const option = options.find((item) => item.value === next);
+      action(onChangeAction, { [name]: next, value: next, option });
     }
   };
 
@@ -429,7 +454,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const handleClear = () => {
     setValue("");
     if (onChangeAction && action) {
-      action(onChangeAction, { [name]: "" });
+      action(onChangeAction, { [name]: "", value: "", date: undefined });
     }
   };
 
@@ -439,6 +464,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <UiButton
+              id={name}
               type="button"
               variant={buttonVariant as "default" | "secondary" | "outline" | "ghost"}
               disabled={disabled}
@@ -474,7 +500,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 const nextValue = format(next, "yyyy-MM-dd");
                 setValue(nextValue);
                 if (onChangeAction && action) {
-                  action(onChangeAction, { [name]: nextValue });
+                  action(onChangeAction, { [name]: nextValue, value: nextValue, date: next });
                 }
                 setOpen(false);
               }}
@@ -524,7 +550,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     setChecked(next);
     form?.setValue(name, next);
     if (onChangeAction && action) {
-      action(onChangeAction, { [name]: next });
+      action(onChangeAction, { [name]: next, value: next, checked: next });
     }
   };
 
@@ -569,7 +595,8 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   const handleChange = (next: string) => {
     setValue(next);
     if (onChangeAction && action) {
-      action(onChangeAction, { [name]: next });
+      const option = options?.find((item) => item.value === next);
+      action(onChangeAction, { [name]: next, value: next, option });
     }
   };
 

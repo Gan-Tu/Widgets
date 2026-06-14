@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger
@@ -15,13 +16,22 @@ import { componentExamples, iconGalleryExample } from "@/docs/componentExamples"
 import { getAllowedVariants } from "@/docs/typeVariants";
 import { WidgetRenderer } from "@/widget/WidgetRenderer";
 
+const CATEGORY_ORDER = ["Containers", "Control Flow", "Layout"];
+
 const categories = Array.from(
   componentDocs.reduce((map, item) => {
     if (!map.has(item.category)) map.set(item.category, []);
     map.get(item.category)!.push(item);
     return map;
   }, new Map<string, typeof componentDocs>())
-);
+).sort(([categoryA], [categoryB]) => {
+  const indexA = CATEGORY_ORDER.indexOf(categoryA);
+  const indexB = CATEGORY_ORDER.indexOf(categoryB);
+  if (indexA === -1 && indexB === -1) return 0;
+  if (indexA === -1) return 1;
+  if (indexB === -1) return -1;
+  return indexA - indexB;
+});
 
 const rechartsDocsById: Record<string, string> = {
   Chart: "https://recharts.org/en-US/api/ComposedChart",
@@ -34,6 +44,7 @@ const rechartsDocsById: Record<string, string> = {
 export function DocsPage() {
   const [activeId, setActiveId] = React.useState(componentDocs[0]?.id ?? "");
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const contentRef = React.useRef<HTMLElement | null>(null);
 
   const active = componentDocs.find((doc) => doc.id === activeId) ?? componentDocs[0];
   const example = active ? componentExamples[active.id] : undefined;
@@ -58,10 +69,11 @@ export function DocsPage() {
               <button
                 key={item.id}
                 type="button"
+                onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
                   setActiveId(item.id);
                   setMobileNavOpen(false);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  contentRef.current?.scrollTo({ top: 0, behavior: "instant" });
                 }}
                 className={`w-full rounded-lg px-3 py-1.5 text-left text-sm transition cursor-pointer ${
                   activeId === item.id
@@ -79,7 +91,7 @@ export function DocsPage() {
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
+    <div className="grid gap-8 lg:h-[calc(100svh-9rem)] lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:overflow-hidden">
       {/* Mobile navigation: avoids sticky/transparent overlap on small screens */}
       <div className="flex items-center justify-between gap-3 rounded-3xl border border-white/60 bg-white/70 p-4 shadow-sm lg:hidden">
         <div>
@@ -101,6 +113,9 @@ export function DocsPage() {
           <SheetContent side="left" className="p-0">
             <SheetHeader className="border-b border-slate-200 p-5">
               <SheetTitle>Components</SheetTitle>
+              <SheetDescription>
+                Choose a component to view its example, usage, and props.
+              </SheetDescription>
             </SheetHeader>
             <div className="max-h-[calc(100vh-72px)] overflow-y-auto p-5">
               {sidebarContent}
@@ -110,12 +125,14 @@ export function DocsPage() {
       </div>
 
       {/* Desktop navigation */}
-      <aside className="sticky top-24 hidden h-fit rounded-3xl border border-white/60 bg-white/70 p-5 shadow-sm lg:block">
-        {sidebarContent}
+      <aside className="hidden min-h-0 rounded-3xl border border-white/60 bg-white/70 p-5 shadow-sm lg:flex lg:h-full lg:flex-col">
+        <div className="min-h-0 overflow-y-auto pr-1">
+          {sidebarContent}
+        </div>
       </aside>
 
       {active ? (
-        <section className="space-y-6">
+        <section ref={contentRef} className="min-w-0 space-y-6 lg:h-full lg:overflow-y-auto lg:pr-2">
           <div className="rounded-3xl border border-white/60 bg-white/70 p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>

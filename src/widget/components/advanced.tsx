@@ -179,10 +179,11 @@ const ContextMenuWidget: React.FC<ContextMenuProps> = ({ triggerLabel, items }) 
 type TooltipProps = {
   label: string;
   content: string;
+  delayDuration?: number;
 };
 
-const TooltipWidget: React.FC<TooltipProps> = ({ label, content }) => (
-  <TooltipProvider>
+const TooltipWidget: React.FC<TooltipProps> = ({ label, content, delayDuration = 150 }) => (
+  <TooltipProvider delayDuration={delayDuration}>
     <Tooltip>
       <TooltipTrigger asChild>
         <span className="cursor-pointer text-sm text-slate-700 underline decoration-dotted">
@@ -513,6 +514,12 @@ const InputOtpWidget: React.FC<InputOtpProps> = ({
       value={resolved}
       onChange={handleChange}
       disabled={disabled}
+      autoComplete="off"
+      inputMode="numeric"
+      pushPasswordManagerStrategy="none"
+      data-1p-ignore="true"
+      data-form-type="other"
+      data-lpignore="true"
     >
       <InputOTPGroup>
         {slots.map((slotIndex) => {

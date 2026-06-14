@@ -2,6 +2,7 @@ import React from "react";
 
 import { useWidgetTheme } from "../context";
 import type {
+  ActionConfig,
   Alignment,
   BlockProps,
   Border,
@@ -10,6 +11,7 @@ import type {
   Padding,
   ThemeColor
 } from "../types";
+import { useVisibleAction } from "../hooks";
 import {
   applyBorder,
   applyMargin,
@@ -32,6 +34,7 @@ type BoxProps = BlockProps & {
   padding?: number | string | Padding;
   border?: number | Border | Borders;
   background?: string | ThemeColor;
+  onVisibleAction?: ActionConfig;
 };
 
 function buildBlockStyles(props: BoxProps, theme: "light" | "dark") {
@@ -106,16 +109,19 @@ const Box: React.FC<BoxProps> = ({
   wrap = "nowrap",
   flex,
   gap,
+  onVisibleAction,
   ...props
 }) => {
   const theme = useWidgetTheme();
+  const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const style = buildBlockStyles(
-    { direction, align, justify, wrap, flex, gap, ...props },
+    { direction, align, justify, wrap, flex, gap, onVisibleAction, ...props },
     theme
   );
 
   return (
     <div
+      ref={visibleRef}
       style={{
         display: "flex",
         flexDirection: direction === "row" ? "row" : "column",

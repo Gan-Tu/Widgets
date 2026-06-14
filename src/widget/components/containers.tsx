@@ -2,6 +2,7 @@ import React from "react";
 
 import { useWidgetAction, useWidgetForm, useWidgetTheme, WidgetFormProvider, WidgetThemeProvider } from "../context";
 import type { ActionConfig, Alignment, Justification, Padding, ThemeColor, WidgetStatus } from "../types";
+import { useVisibleAction } from "../hooks";
 import { applyPadding, resolveColor, resolveGap, spaceToCss } from "../style";
 import { Button as UiButton } from "../../components/ui/button";
 import { Row, resolveAlign, resolveJustify } from "./layout";
@@ -15,6 +16,7 @@ type BasicProps = {
   justify?: Justification;
   direction?: "row" | "col";
   theme?: "light" | "dark";
+  onVisibleAction?: ActionConfig;
 };
 
 const Basic: React.FC<BasicProps> = ({
@@ -24,10 +26,12 @@ const Basic: React.FC<BasicProps> = ({
   align,
   justify,
   direction = "col",
-  theme
+  theme,
+  onVisibleAction
 }) => {
   const inheritedTheme = useWidgetTheme();
   const resolvedTheme = theme ?? inheritedTheme;
+  const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: direction === "row" ? "row" : "column",
@@ -39,7 +43,7 @@ const Basic: React.FC<BasicProps> = ({
 
   return (
     <WidgetThemeProvider theme={resolvedTheme}>
-      <div className="widget-root" data-theme={resolvedTheme} style={style}>
+      <div ref={visibleRef} className="widget-root" data-theme={resolvedTheme} style={style}>
         {children}
       </div>
     </WidgetThemeProvider>
@@ -85,6 +89,14 @@ type CardProps = {
   collapsed?: boolean;
   confirm?: { label: string; action: ActionConfig };
   cancel?: { label: string; action: ActionConfig };
+  onClickAction?: ActionConfig;
+  onVisibleAction?: ActionConfig;
+  gap?: number | string;
+  height?: number | string;
+  width?: number | string;
+  shadow?: boolean;
+  id?: string;
+  cardId?: string;
   theme?: "light" | "dark";
 };
 
@@ -105,6 +117,14 @@ const CardInner: React.FC<CardProps> = ({
   collapsed = false,
   confirm,
   cancel,
+  onClickAction,
+  onVisibleAction,
+  gap,
+  height,
+  width,
+  shadow = true,
+  id,
+  cardId,
   theme
 }) => {
   const action = useWidgetAction();
@@ -112,15 +132,24 @@ const CardInner: React.FC<CardProps> = ({
   const inheritedTheme = useWidgetTheme();
   const resolvedTheme = theme ?? inheritedTheme;
   const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
+  const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
 
   const style: React.CSSProperties = {
     width: "100%",
     maxWidth: cardWidths[size],
+    height: height === undefined ? undefined : String(typeof height === "number" ? `${height}px` : height),
+    ...(width !== undefined
+      ? {
+          width: typeof width === "number" ? `${width}px` : width,
+          maxWidth: typeof width === "number" ? `${width}px` : width
+        }
+      : null),
     background: resolveColor(background, resolvedTheme),
     border: "1px solid var(--widget-border-default)",
     borderRadius: "var(--widget-radius)",
-    boxShadow: "var(--widget-shadow)",
-    overflow: "hidden"
+    boxShadow: shadow ? "var(--widget-shadow)" : undefined,
+    overflow: "hidden",
+    cursor: onClickAction ? "pointer" : undefined
   };
 
   const paddingValue =
@@ -131,7 +160,10 @@ const CardInner: React.FC<CardProps> = ({
       : spaceToCss(padding?.x ?? padding?.left ?? 4);
 
   const contentStyle: React.CSSProperties = {
-    "--widget-card-padding": paddingValue
+    "--widget-card-padding": paddingValue,
+    display: "flex",
+    flexDirection: "column",
+    gap: resolveGap(gap)
   } as React.CSSProperties;
   applyPadding(contentStyle, padding);
 
@@ -142,7 +174,24 @@ const CardInner: React.FC<CardProps> = ({
 
   return (
     <WidgetThemeProvider theme={resolvedTheme}>
-      <div className="widget-root" data-theme={resolvedTheme} style={style}>
+      <div
+        ref={visibleRef}
+        id={id}
+        data-card-id={cardId ?? id}
+        className="widget-root"
+        data-theme={resolvedTheme}
+        style={style}
+        role={onClickAction ? "button" : undefined}
+        tabIndex={onClickAction ? 0 : undefined}
+        onClick={() => handleAction(onClickAction)}
+        onKeyDown={(event) => {
+          if (!onClickAction) return;
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            handleAction(onClickAction);
+          }
+        }}
+      >
         <div style={contentStyle}>
           {status ? <StatusHeader status={status} /> : null}
           {isCollapsed ? (
@@ -161,7 +210,7 @@ const CardInner: React.FC<CardProps> = ({
           )}
         </div>
         {(confirm || cancel) && (
-          <div className="flex gap-2 border-t border-slate-200 px-4 py-3">
+          <div className="flex gap-2 border-t border-slate-200 px-4 py-3" onClick={(event) => event.stopPropagation()}>
             {cancel ? (
               <UiButton
                 variant="outline"
@@ -199,16 +248,19 @@ type ListViewProps = {
   limit?: number | "auto";
   status?: WidgetStatus;
   theme?: "light" | "dark";
+  onVisibleAction?: ActionConfig;
 };
 
 const ListView: React.FC<ListViewProps> = ({
   children,
   limit = "auto",
   status,
-  theme
+  theme,
+  onVisibleAction
 }) => {
   const inheritedTheme = useWidgetTheme();
   const resolvedTheme = theme ?? inheritedTheme;
+  const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const [expanded, setExpanded] = React.useState(false);
   const items = React.Children.toArray(children);
   const computedLimit = limit === "auto" ? 6 : limit;
@@ -219,6 +271,7 @@ const ListView: React.FC<ListViewProps> = ({
   return (
     <WidgetThemeProvider theme={resolvedTheme}>
       <div
+        ref={visibleRef}
         className="widget-root"
         data-theme={resolvedTheme}
         style={{
@@ -268,6 +321,13 @@ const ListViewItem: React.FC<ListViewItemProps> = ({
       tabIndex={onClickAction ? 0 : undefined}
       onClick={() => {
         if (onClickAction && action) action(onClickAction);
+      }}
+      onKeyDown={(event) => {
+        if (!onClickAction || !action) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          action(onClickAction);
+        }
       }}
       className={`border-b border-slate-100 last:border-b-0 ${onClickAction ? "cursor-pointer" : ""}`}
       style={{ padding: "0.75rem 1rem" }}

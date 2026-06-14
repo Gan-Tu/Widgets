@@ -1,27 +1,87 @@
 import React, { createContext, useContext, useMemo, useState } from "react";
 
+import { isScopedClientAction, runWidgetClientAction } from "./actions";
+import { resolveDeferredActionExpression } from "./renderer/templateEngine";
+import { applyStateAction, hasStateAction } from "./state";
 import type { ActionConfig, ThemeMode } from "./types";
 
 type ActionDispatcher = (action: ActionConfig, formData?: Record<string, unknown>) => void;
+export type WidgetActionResult = {
+  action: ActionConfig;
+  formData?: Record<string, unknown>;
+  clientResult?: Awaited<ReturnType<typeof runWidgetClientAction>>;
+};
 
 const WidgetActionContext = createContext<ActionDispatcher | undefined>(undefined);
 
 export function WidgetActionProvider({
   onAction,
+  state,
+  onStateChange,
   children
 }: {
   onAction?: ActionDispatcher;
+  state?: unknown;
+  onStateChange?: (updater: (previous: unknown) => unknown) => void;
   children: React.ReactNode;
 }) {
+  const stateRef = React.useRef(state);
+  React.useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
   const dispatcher = useMemo<ActionDispatcher>(() => {
     return (action, formData) => {
-      if (!onAction) return;
+      const resolvedExpressionAction = resolveDeferredActionExpression(action, {
+        state: stateRef.current,
+        formData: formData ?? {},
+        ...(formData ?? {})
+      });
+      if (!resolvedExpressionAction) return;
+      const shouldForwardAction = Boolean(
+        resolvedExpressionAction.type || resolvedExpressionAction.payload
+      );
       const payload = formData
-        ? { ...(action.payload ?? {}), ...formData }
-        : action.payload;
-      onAction({ ...action, payload }, formData);
+        ? { ...(resolvedExpressionAction.payload ?? {}), ...formData }
+        : resolvedExpressionAction.payload;
+      const resolvedAction = { ...resolvedExpressionAction, payload };
+      const carriesStateAction = hasStateAction(resolvedAction);
+
+      if (carriesStateAction) {
+        onStateChange?.((previous) => applyStateAction(previous, resolvedAction));
+      }
+
+      if (isScopedClientAction(resolvedAction)) {
+        void runWidgetClientAction(resolvedAction).then((clientResult) => {
+          onAction?.(
+            {
+              type: resolvedAction.type,
+              handler: resolvedAction.handler,
+              loadingBehavior: resolvedAction.loadingBehavior,
+              payload: {
+                ...(resolvedAction.payload ?? {}),
+                clientResult
+              }
+            },
+            formData
+          );
+        });
+        return;
+      }
+
+      if (shouldForwardAction) {
+        onAction?.(
+          {
+            type: resolvedAction.type,
+            payload: resolvedAction.payload,
+            handler: resolvedAction.handler,
+            loadingBehavior: resolvedAction.loadingBehavior
+          },
+          formData
+        );
+      }
     };
-  }, [onAction]);
+  }, [onAction, onStateChange]);
 
   return (
     <WidgetActionContext.Provider value={dispatcher}>

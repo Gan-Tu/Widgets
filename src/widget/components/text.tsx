@@ -159,6 +159,7 @@ const EditableTextField: React.FC<{
 
 const Text: React.FC<TextProps> = ({
   value,
+  children,
   size = "md",
   weight = "normal",
   italic,
@@ -183,12 +184,12 @@ const Text: React.FC<TextProps> = ({
   if (editable && editable.name) {
     return (
       <div style={style}>
-        <EditableTextField value={value} minLines={minLines} {...editable} />
+        <EditableTextField value={value ?? ""} minLines={minLines} {...editable} />
       </div>
     );
   }
 
-  return <p style={style}>{value}</p>;
+  return <p style={style}>{children ?? value}</p>;
 };
 
 type TitleProps = BaseTextProps & {
@@ -199,6 +200,7 @@ type TitleProps = BaseTextProps & {
 
 const Title: React.FC<TitleProps> = ({
   value,
+  children,
   size = "md",
   weight = "medium",
   color = "prose",
@@ -211,7 +213,7 @@ const Title: React.FC<TitleProps> = ({
     color: resolveColor(color, theme),
     ...buildTextStyle(props)
   };
-  return <h3 style={style}>{value}</h3>;
+  return <h3 style={style}>{children ?? value}</h3>;
 };
 
 type CaptionProps = BaseTextProps & {
@@ -222,6 +224,7 @@ type CaptionProps = BaseTextProps & {
 
 const Caption: React.FC<CaptionProps> = ({
   value,
+  children,
   size = "md",
   weight = "normal",
   color = "secondary",
@@ -235,11 +238,16 @@ const Caption: React.FC<CaptionProps> = ({
     color: resolveColor(color, theme),
     ...buildTextStyle(props)
   };
-  return <span style={style}>{value}</span>;
+  return <span style={style}>{children ?? value}</span>;
 };
 
-const Markdown: React.FC<{ value: string; streaming?: boolean }> = ({ value }) => {
+const Markdown: React.FC<{ value?: string; streaming?: boolean; children?: React.ReactNode }> = ({ value, children }) => {
   const theme = useWidgetTheme();
+  const markdown =
+    value ??
+    React.Children.toArray(children)
+      .map((child) => (typeof child === "string" || typeof child === "number" ? String(child) : ""))
+      .join("");
   return (
     <div
       className={
@@ -248,7 +256,7 @@ const Markdown: React.FC<{ value: string; streaming?: boolean }> = ({ value }) =
           : "prose max-w-none text-sm"
       }
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
     </div>
   );
 };

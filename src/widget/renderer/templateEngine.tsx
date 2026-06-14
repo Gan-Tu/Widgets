@@ -3,23 +3,55 @@ import { parseExpression } from "@babel/parser";
 import type * as t from "@babel/types";
 
 import type { ComponentRegistry } from "../registry";
+import { append, has, prepend, read, remove, set } from "../state";
+import type { ActionConfig } from "../types";
 
 type Scope = Record<string, unknown>;
+type JSXChild =
+  | t.JSXText
+  | t.JSXExpressionContainer
+  | t.JSXElement
+  | t.JSXFragment
+  | t.JSXSpreadChild;
 
 /**
  * Lightweight template engine for Widget UI.
- * Supports JSX elements, property bindings, conditionals, and Array.map loops.
+ * Supports JSX elements, property bindings, DIL control flow, conditionals, and Array.map loops.
  */
 const templateCache = new Map<string, t.Expression>();
+export const WIDGET_ACTION_EXPRESSION = "__widgetActionExpression";
+
+type DeferredActionExpression = {
+  [WIDGET_ACTION_EXPRESSION]: string;
+  scope: Scope;
+};
+
+function normalizeDILSyntax(template: string) {
+  return template.replace(/(\s)\*([A-Za-z_$][\w$-]*)=/g, "$1__dilComponentProp_$2=");
+}
 
 export function parseTemplate(template: string) {
-  const cached = templateCache.get(template);
+  const normalizedTemplate = normalizeDILSyntax(template);
+  const cached = templateCache.get(normalizedTemplate);
   if (cached) return cached;
-  const parsed = parseExpression(template, {
+  const parsed = parseExpression(normalizedTemplate, {
     plugins: ["jsx", "typescript"]
   }) as t.Expression;
-  templateCache.set(template, parsed);
+  templateCache.set(normalizedTemplate, parsed);
   return parsed;
+}
+
+function getViewportWidth() {
+  return typeof window === "undefined" ? 1024 : window.innerWidth;
+}
+
+function currentBreakpoint() {
+  const width = getViewportWidth();
+  if (width >= 1280) return "xl";
+  if (width >= 1024) return "lg";
+  if (width >= 768) return "md";
+  if (width >= 640) return "sm";
+  return "base";
 }
 
 function evaluateExpression(
@@ -152,6 +184,69 @@ function evaluateExpression(
       }
     }
     case "CallExpression": {
+      if (node.callee.type === "Identifier") {
+        const args = node.arguments.map((argument) =>
+          argument.type === "SpreadElement" ? undefined : evaluateExpression(argument, scope, registry)
+        );
+        switch (node.callee.name) {
+          case "size": {
+            const target = args[0];
+            if (Array.isArray(target) || typeof target === "string") return target.length;
+            if (target && typeof target === "object") return Object.keys(target).length;
+            return 0;
+          }
+          case "String":
+            return String(args[0] ?? "");
+          case "Number":
+            return Number(args[0]);
+          case "Boolean":
+            return Boolean(args[0]);
+          case "min":
+            return Math.min(...args.map(Number));
+          case "max":
+            return Math.max(...args.map(Number));
+          case "round":
+            return Math.round(Number(args[0]));
+          case "floor":
+            return Math.floor(Number(args[0]));
+          case "ceil":
+            return Math.ceil(Number(args[0]));
+          case "now":
+            return Date.now();
+          case "set":
+            return set(String(args[0] ?? ""), args[1]);
+          case "append":
+            return append(String(args[0] ?? ""), args[1]);
+          case "prepend":
+            return prepend(String(args[0] ?? ""), args[1]);
+          case "remove":
+            return remove(String(args[0] ?? ""));
+          case "has":
+            return has(args[0]);
+          case "read":
+            return read(args[0], String(args[1] ?? ""), args[2]);
+          case "bp":
+            return currentBreakpoint();
+          case "isMobile":
+            return getViewportWidth() < 768;
+          case "isDark":
+            return typeof window !== "undefined" && window.matchMedia
+              ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              : false;
+          case "bind":
+            return { bind: args[0] };
+          case "expr":
+            return args[0];
+          case "isSafeExpr":
+            return true;
+          case "mutateExpr":
+          case "closeExpr":
+            return args[0];
+          default:
+            break;
+        }
+      }
+
       if (
         node.callee.type === "MemberExpression" &&
         node.callee.property.type === "Identifier" &&
@@ -197,6 +292,67 @@ function evaluateExpression(
   }
 }
 
+export function evaluateTemplateExpression(
+  expression: string,
+  scope: Scope,
+  registry: ComponentRegistry = {}
+) {
+  return evaluateExpression(parseTemplate(expression), scope, registry);
+}
+
+function evaluateStringExpression(
+  expression: string,
+  scope: Scope,
+  registry: ComponentRegistry
+) {
+  try {
+    return evaluateTemplateExpression(expression, scope, registry);
+  } catch (error) {
+    console.warn(
+      `[WidgetRenderer] Failed to evaluate expression "${expression}":`,
+      error
+    );
+    return undefined;
+  }
+}
+
+function createDeferredActionExpression(
+  expression: string,
+  scope: Scope
+): DeferredActionExpression {
+  return { [WIDGET_ACTION_EXPRESSION]: expression, scope };
+}
+
+export function resolveDeferredActionExpression(
+  action: unknown,
+  scope: Scope
+): ActionConfig | undefined {
+  if (
+    typeof action === "object" &&
+    action !== null &&
+    WIDGET_ACTION_EXPRESSION in action &&
+    typeof (action as DeferredActionExpression)[WIDGET_ACTION_EXPRESSION] === "string"
+  ) {
+    const deferred = action as DeferredActionExpression;
+    const resolved = evaluateTemplateExpression(
+      deferred[WIDGET_ACTION_EXPRESSION],
+      { ...deferred.scope, ...scope }
+    );
+    return typeof resolved === "object" && resolved !== null
+      ? (resolved as ActionConfig)
+      : undefined;
+  }
+  return action as ActionConfig;
+}
+
+function getJSXComponentName(nameNode: t.JSXElement["openingElement"]["name"]): string {
+  if (nameNode.type === "JSXIdentifier") return nameNode.name;
+  if (nameNode.type === "JSXMemberExpression") {
+    return `${getJSXComponentName(nameNode.object as t.JSXElement["openingElement"]["name"])}.${nameNode.property.name}`;
+  }
+  return "";
+}
+
 function renderFragment(
   node: t.JSXFragment,
   scope: Scope,
@@ -209,7 +365,7 @@ function renderFragment(
 }
 
 function normalizeChild(
-  child: t.JSXText | t.JSXExpressionContainer | t.JSXElement | t.JSXFragment | t.JSXSpreadChild,
+  child: JSXChild,
   scope: Scope,
   registry: ComponentRegistry
 ): React.ReactNode[] {
@@ -218,10 +374,7 @@ function normalizeChild(
   }
   if (child.type === "JSXText") {
     const text = child.value.replace(/\s+/g, " ").trim();
-    if (text) {
-      console.warn("Text nodes are not allowed in Widget UI templates.");
-    }
-    return [];
+    return text ? [text] : [];
   }
   if (child.type === "JSXExpressionContainer") {
     const value = evaluateExpression(child.expression, scope, registry);
@@ -232,7 +385,141 @@ function normalizeChild(
   if (child.type === "JSXFragment") {
     return [renderFragment(child, scope, registry)];
   }
-  return [renderJSX(child, scope, registry)];
+  const value = renderJSX(child, scope, registry);
+  return Array.isArray(value) ? value : [value];
+}
+
+function renderChildren(
+  children: JSXChild[],
+  scope: Scope,
+  registry: ComponentRegistry
+) {
+  return children.flatMap((child) => normalizeChild(child, scope, registry));
+}
+
+function withImplicitKeys(children: React.ReactNode[], prefix: string) {
+  return children.map((child, index) => {
+    if (!React.isValidElement(child) || child.key != null) return child;
+    return React.cloneElement(child, { key: `${prefix}-${index}` });
+  });
+}
+
+function buildProps(
+  node: t.JSXElement,
+  scope: Scope,
+  registry: ComponentRegistry
+) {
+  const props: Record<string, unknown> = {};
+  node.openingElement.attributes.forEach((attr) => {
+    if (attr.type !== "JSXAttribute") return;
+    const rawKey = attr.name.name as string;
+    const isComponentProp = rawKey.startsWith("__dilComponentProp_");
+    const isExpressionProp = rawKey.startsWith("$");
+    const key = isComponentProp
+      ? rawKey.replace("__dilComponentProp_", "")
+      : isExpressionProp
+      ? rawKey.slice(1)
+      : rawKey;
+    const isActionExpressionProp = isExpressionProp && key.endsWith("Action");
+    if (attr.value === null || attr.value === undefined) {
+      props[key] = true;
+      return;
+    }
+    if (attr.value.type === "StringLiteral") {
+      props[key] = isActionExpressionProp
+        ? createDeferredActionExpression(attr.value.value, scope)
+        : isExpressionProp
+        ? evaluateStringExpression(attr.value.value, scope, registry)
+        : attr.value.value;
+      return;
+    }
+    if (attr.value.type === "JSXExpressionContainer") {
+      props[key] = evaluateExpression(attr.value.expression, scope, registry);
+    }
+  });
+  return props;
+}
+
+function renderRepeatedChildren(
+  node: t.JSXElement,
+  props: Record<string, unknown>,
+  scope: Scope,
+  registry: ComponentRegistry,
+  componentName: "Each" | "AnimateGroup"
+) {
+  const items = Array.isArray(props.of) ? props.of : [];
+  const itemName = typeof props.item === "string" ? props.item : "item";
+  const indexName = typeof props.index === "string" ? props.index : "index";
+  const Component = registry[componentName];
+  const rendered = items.map((item, index) => {
+    const childScope = { ...scope, [itemName]: item, [indexName]: index };
+    return React.createElement(
+      React.Fragment,
+      { key: String((item as Record<string, unknown>)?.id ?? index) },
+      ...renderChildren(node.children, childScope, registry)
+    );
+  });
+
+  if (componentName === "Each" || !Component) return rendered;
+  return React.createElement(Component, props, ...rendered);
+}
+
+function isElseElement(child: JSXChild) {
+  return (
+    child.type === "JSXElement" &&
+    getJSXComponentName(child.openingElement.name) === "Show.Else"
+  );
+}
+
+function renderShow(
+  node: t.JSXElement,
+  props: Record<string, unknown>,
+  scope: Scope,
+  registry: ComponentRegistry
+) {
+  const shouldShow = props.when !== false && props.visible !== false;
+  const mainChildren = node.children.filter((child) => !isElseElement(child));
+  const elseNode = node.children.find(isElseElement) as t.JSXElement | undefined;
+  const children = shouldShow
+    ? renderChildren(mainChildren, scope, registry)
+    : elseNode
+    ? renderChildren(elseNode.children, scope, registry)
+    : [];
+  return withImplicitKeys(children, "show");
+}
+
+function renderScoped(
+  node: t.JSXElement,
+  props: Record<string, unknown>,
+  scope: Scope,
+  registry: ComponentRegistry
+) {
+  const values =
+    typeof props.values === "object" && props.values !== null
+      ? (props.values as Scope)
+      : {};
+  const childScope = { ...scope, ...values };
+  return withImplicitKeys(renderChildren(node.children, childScope, registry), "scope");
+}
+
+function renderAnimate(
+  node: t.JSXElement,
+  props: Record<string, unknown>,
+  scope: Scope,
+  registry: ComponentRegistry
+) {
+  const itemNodes = node.children.filter(
+    (child): child is t.JSXElement =>
+      child.type === "JSXElement" &&
+      getJSXComponentName(child.openingElement.name) === "Animate.Item"
+  );
+  const selected = itemNodes.find((itemNode) => {
+    const itemProps = buildProps(itemNode, scope, registry);
+    return itemProps.when !== false;
+  });
+  const children = selected ? renderChildren(selected.children, scope, registry) : [];
+  const Component = registry.Animate ?? React.Fragment;
+  return React.createElement(Component, props, ...children);
 }
 
 function renderJSX(
@@ -240,53 +527,34 @@ function renderJSX(
   scope: Scope,
   registry: ComponentRegistry
 ): React.ReactNode {
-  const nameNode = node.openingElement.name;
-  const componentName =
-    nameNode.type === "JSXIdentifier"
-      ? nameNode.name
-      : nameNode.type === "JSXMemberExpression"
-      ? nameNode.property.name
-      : "";
+  const componentName = getJSXComponentName(node.openingElement.name);
+
+  const props = buildProps(node, scope, registry);
+
+  if (componentName === "Each" || componentName === "AnimateGroup") {
+    return renderRepeatedChildren(node, props, scope, registry, componentName);
+  }
+  if (componentName === "Show") {
+    return renderShow(node, props, scope, registry);
+  }
+  if (componentName === "Scope") {
+    return renderScoped(node, props, scope, registry);
+  }
+  if (componentName === "Animate") {
+    return renderAnimate(node, props, scope, registry);
+  }
+  if (componentName === "Show.Else" || componentName === "Animate.Item") {
+    return null;
+  }
 
   const Component = registry[componentName];
   if (!Component) {
     throw new Error(`Unknown widget component: ${componentName}`);
   }
 
-  const props: Record<string, unknown> = {};
-  node.openingElement.attributes.forEach((attr) => {
-    if (attr.type !== "JSXAttribute") return;
-    const key = attr.name.name as string;
-    if (attr.value === null || attr.value === undefined) {
-      props[key] = true;
-      return;
-    }
-    if (attr.value.type === "StringLiteral") {
-      props[key] = attr.value.value;
-      return;
-    }
-    if (attr.value.type === "JSXExpressionContainer") {
-      props[key] = evaluateExpression(attr.value.expression, scope, registry);
-    }
-  });
+  const children = renderChildren(node.children, scope, registry);
 
-  const children = node.children.flatMap((child) =>
-    normalizeChild(child, scope, registry)
-  );
-
-  const textOnlyComponents = new Set([
-    "Text",
-    "Title",
-    "Caption",
-    "Badge",
-    "Button",
-    "Label",
-    "Markdown"
-  ]);
-  const filteredChildren =
-    textOnlyComponents.has(componentName) ? [] : children;
-
-  return React.createElement(Component, props, ...filteredChildren);
+  return React.createElement(Component, props, ...children);
 }
 
 export function renderTemplate(
