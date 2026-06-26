@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/author-widget.js": {
+      "maxDuration": 300
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
@@ -6,5 +11,4 @@
     }
   ]
 }
-
 
