@@ -1,6 +1,7 @@
-import { parse, parseExpression } from "@babel/parser";
+import { parseExpression } from "@babel/parser";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { widgetComponentNames } from "./widget-component-names.js";
 
 const DEFAULT_MODEL = "gpt-5.5";
 const MAX_PROMPT_LENGTH = 2_000;
@@ -75,7 +76,7 @@ const imageUrlPropsByComponent = new Map([
   ["Image", new Set(["src"])]
 ]);
 
-let widgetRegistryComponentCache;
+const allowedWidgetComponents = new Set(widgetComponentNames);
 
 const outputSchema = {
   type: "object",
@@ -738,59 +739,6 @@ function getAttributeName(attributeName) {
   return attributeName.name;
 }
 
-function getObjectPropertyName(property) {
-  if (property.type !== "ObjectProperty") return undefined;
-  if (property.key.type === "Identifier") return property.key.name;
-  if (property.key.type === "StringLiteral") return property.key.value;
-  return undefined;
-}
-
-function extractWidgetRegistryComponents(source) {
-  const ast = parse(source, {
-    sourceType: "module",
-    plugins: ["typescript", "jsx"]
-  });
-
-  let registryNode;
-  traverseNode(ast, (node) => {
-    if (
-      node.type === "VariableDeclarator" &&
-      node.id?.type === "Identifier" &&
-      node.id.name === "widgetRegistry" &&
-      node.init?.type === "ObjectExpression"
-    ) {
-      registryNode = node.init;
-    }
-  });
-
-  if (!registryNode) {
-    throw new Error("Unable to locate widgetRegistry component map.");
-  }
-
-  const components = new Set();
-  for (const property of registryNode.properties) {
-    const name = getObjectPropertyName(property);
-    if (name) components.add(name);
-  }
-
-  if (components.size === 0) {
-    throw new Error("widgetRegistry did not expose any component names.");
-  }
-
-  return components;
-}
-
-async function getAllowedWidgetComponents() {
-  if (widgetRegistryComponentCache) return widgetRegistryComponentCache;
-
-  const source = await readFile(
-    path.join(process.cwd(), "src", "widget", "registry.ts"),
-    "utf8"
-  );
-  widgetRegistryComponentCache = extractWidgetRegistryComponents(source);
-  return widgetRegistryComponentCache;
-}
-
 function traverseNode(node, visitor, parent = null) {
   if (!node || typeof node !== "object") return;
   if (Array.isArray(node)) {
@@ -1036,7 +984,6 @@ async function generateFinalWidget({
   context,
   availableImages
 }) {
-  const allowedComponents = await getAllowedWidgetComponents();
   const instructions = `
 You are an expert widget designer and developer.
 Return only valid JSON with these keys: template, data, theme, designSpec.
@@ -1080,7 +1027,7 @@ ${widgetAuthoringGuide}
   const parsedOutput = JSON.parse(extractJsonText(outputText));
 
   try {
-    return parseModelOutput(parsedOutput, availableImages, allowedComponents);
+    return parseModelOutput(parsedOutput, availableImages, allowedWidgetComponents);
   } catch (validationError) {
     const repairPayload = await callOpenAIResponses(apiKey, {
       model,
@@ -1114,7 +1061,7 @@ ${widgetAuthoringGuide}
     return parseModelOutput(
       parseJsonOutput(repairPayload),
       availableImages,
-      allowedComponents
+      allowedWidgetComponents
     );
   }
 }
