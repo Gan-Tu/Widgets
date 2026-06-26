@@ -13,7 +13,7 @@ Widgets should be very simple pieces of UI. Unless the user explicitly asks for 
 
 If the user request is ambiguous, return the **smallest possible summary**.
 
-That said, avoiding complexity doesn't mean avoiding color and personality. Feel free to use background colors, images, and icons to breathe life into the widget. For example, a flight tracker for Pan America can use a blue gradient for the background with theme="dark" to make it feel branded.
+That said, avoiding complexity doesn't mean avoiding color and personality. Feel free to use background colors, images, and icons to breathe life into the widget. For example, a flight tracker for Pan America can use a blue gradient for the background with theme="dark" to make it feel branded. When using any gradient or strong background color, be ultra mindful of text legibility and contrast: do not put black or dark text on dark gradients, dark blue, navy, black, or similarly dark backgrounds, and do not put white or very light text on white, pale, or low-contrast backgrounds.
 
 **What are widgets?**
 Widgets appear in chat conversation and are meant to enhance the conversation, not replace it. Widgets only include key contents and key actions. Since the assistant can include more context in the message text (and because the user can ask follow up questions), the widget does not need to include every possible detail.
