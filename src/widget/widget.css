@@ -64,3 +64,15 @@
 .widget-root :where(button:disabled, [aria-disabled="true"]) {
   cursor: not-allowed;
 }
+
+.widget-list {
+  counter-reset: widget-list-item;
+}
+
+.widget-list-item {
+  counter-increment: widget-list-item;
+}
+
+.widget-list-counter::before {
+  content: counter(widget-list-item);
+}

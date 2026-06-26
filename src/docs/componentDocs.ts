@@ -929,11 +929,11 @@ export const componentDocs: ComponentDoc[] = [
     category: "DIL Layout",
     usage: `<List marker="disc"><List.Item><Text value="Step" /></List.Item></List>`,
     props: [
-      { name: "marker", description: "Default marker text or token.", type: "string", default: '"disc"' },
+      { name: "marker", description: "Default marker style token, icon name, or custom marker text.", type: "string", default: '"disc"' },
       { name: "connector", description: "Connector line style.", type: "\"none\" | \"solid\"", default: '"none"' },
       { name: "gap", description: "Gap between items.", type: "number | string" },
       { name: "maxMarkerSize", description: "Reserved marker sizing token.", type: '"md" | "lg" | "xl"', default: '"md"' },
-      { name: "List.Item.marker", description: "Per-item marker override.", type: "ReactNode | string" },
+      { name: "List.Item.marker", description: "Per-item marker style token, icon name, ReactNode, or custom marker text.", type: "ReactNode | string" },
       { name: "List.Item.onVisibleAction", description: "Action fired when item enters the viewport.", type: "ActionConfig" }
     ]
   },

@@ -20,8 +20,10 @@ import type {
   Padding,
   RadiusValue,
   TextSize,
-  ThemeColor
+  ThemeColor,
+  WidgetIcon
 } from "../types";
+import { iconNames } from "../iconNames";
 import {
   applyPadding,
   controlHeights,
@@ -884,6 +886,48 @@ const PopoverContent: React.FC<ChildrenProps & { side?: "top" | "bottom" | "left
 
 type ListContextValue = { marker?: React.ReactNode | string; connector?: "none" | "solid"; maxMarkerSize?: "md" | "lg" | "xl" };
 const ListContext = React.createContext<ListContextValue | undefined>(undefined);
+const listStyleMarkerTokens = new Set(["disc", "circle", "square", "decimal", "none"]);
+const widgetIconMarkerTokens = new Set<string>(iconNames);
+
+function isWidgetIconMarker(value: string): value is WidgetIcon {
+  return widgetIconMarkerTokens.has(value);
+}
+
+function isInternalListMarker(marker: React.ReactNode | string) {
+  if (typeof marker !== "string") return false;
+  const token = marker.trim();
+  return listStyleMarkerTokens.has(token) || isWidgetIconMarker(token);
+}
+
+function renderListMarker(marker: React.ReactNode | string) {
+  if (typeof marker !== "string") return marker;
+
+  const token = marker.trim();
+  if (!token) return null;
+
+  if (listStyleMarkerTokens.has(token)) {
+    switch (token) {
+      case "disc":
+        return <span className="block h-1.5 w-1.5 rounded-full bg-current" />;
+      case "circle":
+        return <span className="block h-2 w-2 rounded-full border border-current" />;
+      case "square":
+        return <span className="block h-1.5 w-1.5 rounded-sm bg-current" />;
+      case "decimal":
+        return <span className="widget-list-counter" />;
+      case "none":
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  if (isWidgetIconMarker(token)) {
+    return <Icon name={token} size="sm" color="secondary" />;
+  }
+
+  return marker;
+}
 
 const List: React.FC<ChildrenProps & { marker?: string; connector?: "none" | "solid"; gap?: number | string; maxMarkerSize?: "md" | "lg" | "xl" }> = ({
   children,
@@ -893,7 +937,7 @@ const List: React.FC<ChildrenProps & { marker?: string; connector?: "none" | "so
   maxMarkerSize = "md"
 }) => (
   <ListContext.Provider value={{ marker, connector, maxMarkerSize }}>
-    <div className="flex flex-col" style={{ gap: resolveGap(gap) }}>{children}</div>
+    <div className="widget-list flex flex-col" style={{ gap: resolveGap(gap) }}>{children}</div>
   </ListContext.Provider>
 );
 
@@ -905,10 +949,14 @@ const ListItem: React.FC<ChildrenProps & { marker?: React.ReactNode | string; on
   const context = React.useContext(ListContext);
   const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const resolvedMarker = marker ?? context?.marker ?? "disc";
+  const renderedMarker = renderListMarker(resolvedMarker);
   return (
-    <div ref={ref} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
-      <span className="flex h-6 items-center justify-center text-sm text-slate-500">
-        {resolvedMarker === "decimal" ? "•" : typeof resolvedMarker === "string" ? resolvedMarker : resolvedMarker}
+    <div ref={ref} className="widget-list-item grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
+      <span
+        aria-hidden={isInternalListMarker(resolvedMarker) ? true : undefined}
+        className="flex h-6 items-center justify-center text-sm text-slate-500"
+      >
+        {renderedMarker}
       </span>
       <div>{children}</div>
     </div>
