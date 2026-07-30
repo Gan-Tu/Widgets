@@ -1,10 +1,10 @@
 # WidgetRenderer
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Gan-Tu/Widgets)
+
 A compact, schema-capable widget renderer for chat UIs. Pass a **Widget UI template string** + optional **Zod schema** + **data**, and it renders a small, opinionated widget with local client actions.
 
 DeepWiki Docs: https://deepwiki.com/Gan-Tu/Widgets
-
-https://github.com/user-attachments/assets/0a1ad957-2e58-4837-b5b1-a44750fc7148
 
 
 ## What’s in this repo
