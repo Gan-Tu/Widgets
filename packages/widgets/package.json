@@ -3,6 +3,10 @@
   "version": "0.7.0",
   "description": "Core widget renderer for chat UI.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gan-Tu/Widgets.git"
+  },
   "type": "module",
   "main": "./dist/widget/index.js",
   "module": "./dist/widget/index.js",
@@ -23,6 +27,10 @@
   "sideEffects": [
     "./dist/styles.css"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.json && node scripts/fix-esm-imports.mjs && node scripts/build-css.mjs",
     "publish": "node scripts/publish.mjs"
