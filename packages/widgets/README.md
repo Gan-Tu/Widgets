@@ -65,4 +65,8 @@ The published renderer intentionally does not accept consumer-supplied custom/cl
 
 ## License
 
-Apache-2.0
+Licensed under [Apache-2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+The license does not grant permission to use project names, package names,
+logos, or other branding except as required for reasonable and customary
+attribution.

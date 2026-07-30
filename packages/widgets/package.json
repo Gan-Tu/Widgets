@@ -17,6 +17,7 @@
   "files": [
     "dist",
     "LICENSE",
+    "NOTICE",
     "README.md"
   ],
   "sideEffects": [

@@ -159,3 +159,15 @@ All widget styling flows through `--widget-*` CSS custom properties declared in 
   --widget-radius: 12px;
 }
 ```
+
+## License and project boundaries
+
+The code and documentation in this repository, including the `@tugan/widgets`
+package and the public demo/generator implementation, are licensed under the
+[Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+The license covers only material distributed in this repository and package.
+It does not grant rights to private infrastructure, credentials, hosted-service
+data, or separately distributed proprietary products. It also does not grant
+permission to use project names, package names, logos, or other branding except
+as required for reasonable and customary attribution.
