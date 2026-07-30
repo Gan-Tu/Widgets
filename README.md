@@ -10,13 +10,15 @@ https://github.com/user-attachments/assets/0a1ad957-2e58-4837-b5b1-a44750fc7148
 ## What’s in this repo
 
 - **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
-- **Component library**: Widget UI / DIL primitives for containers, layout, text, media, forms, data display, control flow, loading states, and client actions
+- **Component library**: 110 registered components — containers, layout, typography, forms, charts, media, control flow, and premium data-display primitives (`Stat`, `Sparkline`, `Timeline`, `Steps`, `KeyValue`, `Callout`, `ChipGroup`, `Rating`, `Tabs`, `EmptyState`), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
-  - `/gallery` — lots of pre-built widgets
-  - `/docs` — component docs + reference
-  - `/playground` — live template + JSON editing
+  - `/gallery` — 31 categorized, searchable pre-built widgets
+  - `/docs` — per-component docs with live examples, prop tables, and deep links
+  - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed)
+- **Authoring guide**: `public/AGENTS.md` — the complete widget-authoring contract embedded into the generation prompt
+- **Example corpus**: `public/WIDGET_EXAMPLES.md` — every gallery widget as a template + data pair, generated from `src/examples/widgetExamples.ts` (regenerate with `node --experimental-strip-types scripts/build-widget-examples-doc.mjs`); an optional download for richer LLM context
 
-Built with **React**, **Tailwind v4**, **shadcn/ui-style primitives**, **Recharts**, and **Motion** (`motion/react`).
+Built with **React**, **Tailwind v4**, **shadcn/ui-style primitives**, **Recharts** (lazy-loaded), and **Motion** (`motion/react`).
 
 ## Install (for use in your app)
 
@@ -65,7 +67,7 @@ export function WidgetMessage() {
 
 - **`template: string`**: Widget UI template (a strict JSX-like language)
 - **`schema?: z.ZodTypeAny`**: optional Zod schema for widget data (validated before render when provided)
-- **`data: unknown`**: widget state/data; when `schema` is provided, it must match the schema
+- **`data: unknown`**: widget state/data; when `schema` is provided, it must match the schema. Keep the reference stable between renders (memoize it) — passing a fresh object each render resets widget-local state
 - **`onAction?: (action, formData?) => void`**: receives declarative actions, optional captured form state, and client-action results
 - **`theme?: "light" | "dark"`**: force theme for the widget subtree
 - **`debug?: boolean`**: render validated data under the widget
@@ -117,7 +119,9 @@ export function WidgetMessage() {
 />
 ```
 
-Server-side actions are intentionally host-owned. See `PLAN.md` for the recommended Express/API integration contract.
+Local widget state is also supported without a server round-trip via `updateState`, `replaceState`, and `patchState` action fields (see `public/AGENTS.md` → "Actions & state").
+
+Server-side actions are intentionally host-owned. See `SERVER_SIDE_ACTION_PLAN.md` for the recommended Express/API integration contract.
 
 ## Where to look in code
 
@@ -134,8 +138,24 @@ The published `WidgetRenderer` is intentionally a fixed DIL/component surface: p
 
 1. Add a component under `src/widget/components/*`
 2. Register it in `src/widget/registry.ts`
-3. Add an example to `src/examples/widgetExamples.ts` (so it shows up in `/gallery`)
+3. Mirror the name in `api/widget-component-names.js` and document it in `public/AGENTS.md` — `npm test` enforces that all three stay in sync
+4. Add an example to `src/examples/widgetExamples.ts` (so it shows up in `/gallery`)
 
-## Notes
+## Testing
 
-- `DatePicker` is implemented as a styled native date input for simplicity (matching the Widget UI API surface).
+```bash
+npm test
+```
+
+Builds the package, then runs the Node test suite: render smoke tests over every gallery example, list-marker rendering, and registry/manifest/AGENTS.md sync checks.
+
+## Theming
+
+All widget styling flows through `--widget-*` CSS custom properties declared in `src/widget/widget.css` (single source of truth — the published `styles.css` imports it). Override any token from your app, e.g.:
+
+```css
+.widget-root {
+  --widget-accent: #0ea5e9;
+  --widget-radius: 12px;
+}
+```

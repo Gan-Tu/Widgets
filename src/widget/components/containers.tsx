@@ -4,9 +4,8 @@ import { useWidgetAction, useWidgetForm, useWidgetTheme, WidgetFormProvider, Wid
 import type { ActionConfig, Alignment, Justification, Padding, ThemeColor, WidgetStatus } from "../types";
 import { useVisibleAction } from "../hooks";
 import { applyPadding, resolveColor, resolveGap, spaceToCss } from "../style";
-import { Button as UiButton } from "../../components/ui/button";
 import { Row, resolveAlign, resolveJustify } from "./layout";
-import { Icon, Image } from "./content";
+import { Icon, Image, PlainButton } from "./content";
 
 type BasicProps = {
   children: React.ReactNode;
@@ -35,6 +34,11 @@ const Basic: React.FC<BasicProps> = ({
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: direction === "row" ? "row" : "column",
+    // Basic is a root container: fill the available width — shrink-to-fit
+    // collapses `repeat(auto-fit, ...)` grids inside to a single column.
+    // Children keep the default `stretch` alignment (a `center` default would
+    // shrink-wrap width-less children and break Row justify layouts).
+    width: "100%",
     alignItems: resolveAlign(align),
     justifyContent: resolveJustify(justify),
     gap: resolveGap(gap)
@@ -50,6 +54,12 @@ const Basic: React.FC<BasicProps> = ({
   );
 };
 
+const statusTextStyle: React.CSSProperties = {
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  color: "var(--widget-text-secondary)"
+};
+
 const StatusHeader: React.FC<{ status: WidgetStatus }> = ({ status }) => {
   if ("favicon" in status) {
     return (
@@ -62,7 +72,7 @@ const StatusHeader: React.FC<{ status: WidgetStatus }> = ({ status }) => {
             radius="full"
           />
         ) : null}
-        <span className="text-xs text-slate-500">{status.text}</span>
+        <span style={statusTextStyle}>{status.text}</span>
       </Row>
     );
   }
@@ -70,8 +80,8 @@ const StatusHeader: React.FC<{ status: WidgetStatus }> = ({ status }) => {
   if ("icon" in status) {
     return (
       <Row align="center" gap={2} padding={{ bottom: 2 }}>
-        {status.icon ? <Icon name={status.icon} size="sm" /> : null}
-        <span className="text-xs text-slate-500">{status.text}</span>
+        {status.icon ? <Icon name={status.icon} size="sm" color="secondary" /> : null}
+        <span style={statusTextStyle}>{status.text}</span>
       </Row>
     );
   }
@@ -145,8 +155,6 @@ const CardInner: React.FC<CardProps> = ({
         }
       : null),
     background: resolveColor(background, resolvedTheme),
-    border: "1px solid var(--widget-border-default)",
-    borderRadius: "var(--widget-radius)",
     boxShadow: shadow ? "var(--widget-shadow)" : undefined,
     overflow: "hidden",
     cursor: onClickAction ? "pointer" : undefined
@@ -178,8 +186,9 @@ const CardInner: React.FC<CardProps> = ({
         ref={visibleRef}
         id={id}
         data-card-id={cardId ?? id}
-        className="widget-root"
+        className="widget-root wg-card"
         data-theme={resolvedTheme}
+        data-clickable={onClickAction ? "true" : undefined}
         style={style}
         role={onClickAction ? "button" : undefined}
         tabIndex={onClickAction ? 0 : undefined}
@@ -195,35 +204,39 @@ const CardInner: React.FC<CardProps> = ({
         <div style={contentStyle}>
           {status ? <StatusHeader status={status} /> : null}
           {isCollapsed ? (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">This widget is collapsed.</span>
-              <button
-                type="button"
-                className="text-xs font-semibold text-slate-600 cursor-pointer"
-                onClick={() => setIsCollapsed(false)}
-              >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "0.875rem", color: "var(--widget-text-secondary)" }}>
+                This widget is collapsed.
+              </span>
+              <PlainButton variant="ghost" size="xs" onClick={() => setIsCollapsed(false)}>
                 Expand
-              </button>
+              </PlainButton>
             </div>
           ) : (
             children
           )}
         </div>
         {(confirm || cancel) && (
-          <div className="flex gap-2 border-t border-slate-200 px-4 py-3" onClick={(event) => event.stopPropagation()}>
+          <div
+            style={{
+              display: "flex",
+              gap: "0.5rem",
+              justifyContent: "flex-end",
+              borderTop: "1px solid var(--widget-border-subtle)",
+              background: "var(--widget-surface-secondary)",
+              padding: "0.75rem 1rem"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
             {cancel ? (
-              <UiButton
-                variant="outline"
-                className="cursor-pointer"
-                onClick={() => handleAction(cancel.action)}
-              >
+              <PlainButton variant="outline" onClick={() => handleAction(cancel.action)}>
                 {cancel.label}
-              </UiButton>
+              </PlainButton>
             ) : null}
             {confirm ? (
-              <UiButton className="cursor-pointer" onClick={() => handleAction(confirm.action)}>
+              <PlainButton onClick={() => handleAction(confirm.action)}>
                 {confirm.label}
-              </UiButton>
+              </PlainButton>
             ) : null}
           </div>
         )}
@@ -272,28 +285,24 @@ const ListView: React.FC<ListViewProps> = ({
     <WidgetThemeProvider theme={resolvedTheme}>
       <div
         ref={visibleRef}
-        className="widget-root"
+        className="widget-root wg-card"
         data-theme={resolvedTheme}
         style={{
-          border: "1px solid var(--widget-border-default)",
-          borderRadius: "var(--widget-radius)",
           background: "var(--widget-surface-elevated)",
-          padding: "0.5rem 0"
+          boxShadow: "var(--widget-shadow)",
+          padding: "0.5rem 0",
+          overflow: "hidden"
         }}
       >
         <div style={{ padding: "0 1rem" }}>
           {status ? <StatusHeader status={status} /> : null}
         </div>
-        <div className="flex flex-col gap-0">{visibleItems}</div>
+        <div style={{ display: "flex", flexDirection: "column" }}>{visibleItems}</div>
         {showMore && (
-          <div className="flex justify-center py-3">
-            <button
-              type="button"
-              className="text-xs font-semibold text-slate-500 cursor-pointer"
-              onClick={() => setExpanded(true)}
-            >
+          <div style={{ display: "flex", justifyContent: "center", padding: "0.5rem 0 0.35rem" }}>
+            <PlainButton variant="ghost" size="sm" onClick={() => setExpanded(true)}>
               Show more
-            </button>
+            </PlainButton>
           </div>
         )}
       </div>
@@ -329,8 +338,11 @@ const ListViewItem: React.FC<ListViewItemProps> = ({
           action(onClickAction);
         }
       }}
-      className={`border-b border-slate-100 last:border-b-0 ${onClickAction ? "cursor-pointer" : ""}`}
-      style={{ padding: "0.75rem 1rem" }}
+      className={onClickAction ? "wg-listitem wg-row-clickable" : "wg-listitem"}
+      style={{
+        padding: "0.75rem 1rem",
+        cursor: onClickAction ? "pointer" : undefined
+      }}
     >
       <Row align={align} gap={gap ?? 3}>
         {children}

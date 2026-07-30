@@ -14,3 +14,4 @@ export * from "./components/transition";
 export * from "./components/extras";
 export * from "./components/advanced";
 export * from "./components/dil";
+export * from "./components/primitives";

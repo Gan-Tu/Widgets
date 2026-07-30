@@ -44,7 +44,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "background", description: "Surface/background color token or CSS string.", type: "string | ThemeColor", default: "surface-elevated" },
       { name: "size", description: "Card size preset.", type: "\"sm\" | \"md\" | \"lg\" | \"full\"", default: '"sm"' },
       { name: "padding", description: "Inner padding.", type: "number | string | Padding", default: "4" },
-      { name: "status", description: "Optional status header.", type: "WidgetStatus" },
+      { name: "status", description: "Optional status header: { text, icon? } with a WidgetIcon, or { text, favicon?, frame? } with an image URL.", type: "WidgetStatus" },
       { name: "collapsed", description: "Collapse the card body with a toggle.", type: "boolean", default: "false" },
       { name: "confirm", description: "Confirm action button config.", type: "{ label: string; action: ActionConfig }" },
       { name: "cancel", description: "Cancel action button config.", type: "{ label: string; action: ActionConfig }" },
@@ -67,7 +67,7 @@ export const componentDocs: ComponentDoc[] = [
     usage: `<ListView>\n  <ListViewItem>...</ListViewItem>\n</ListView>`,
     props: [
       { name: "children", description: "Must be ListViewItem nodes.", type: "ReactNode" },
-      { name: "limit", description: "Number of items to show before \"Show more\".", type: "number | \"auto\"", default: '"auto"' },
+      { name: "limit", description: "Number of items to show before \"Show more\". \"auto\" resolves to 6.", type: "number | \"auto\"", default: '"auto"' },
       { name: "status", description: "Optional status header.", type: "WidgetStatus" },
       { name: "theme", description: "Force light or dark theme.", type: "\"light\" | \"dark\"" }
     ]
@@ -96,7 +96,8 @@ export const componentDocs: ComponentDoc[] = [
       { name: "direction", description: "Flex direction.", type: "\"row\" | \"col\"", default: '"col"' },
       { name: "align", description: "Cross-axis alignment.", type: "Alignment" },
       { name: "justify", description: "Main-axis distribution.", type: "Justification" },
-      { name: "wrap", description: "Wrap behavior.", type: "\"nowrap\" | \"wrap\" | \"wrap-reverse\"" },
+      { name: "wrap", description: "Wrap behavior.", type: "\"nowrap\" | \"wrap\" | \"wrap-reverse\"", default: '"nowrap"' },
+      { name: "flex", description: "CSS flex value applied to the box within its flex parent.", type: "number | string" },
       { name: "gap", description: "Gap between children.", type: "number | string" },
       { name: "padding", description: "Inner padding.", type: "number | string | Padding" },
       { name: "border", description: "Border config.", type: "number | Border | Borders" },
@@ -104,8 +105,12 @@ export const componentDocs: ComponentDoc[] = [
       { name: "width", description: "Explicit width.", type: "number | string" },
       { name: "height", description: "Explicit height.", type: "number | string" },
       { name: "size", description: "Square width/height shorthand.", type: "number | string" },
-      { name: "minWidth / minHeight / minSize", description: "Minimum sizing constraints.", type: "number | string" },
-      { name: "maxWidth / maxHeight / maxSize", description: "Maximum sizing constraints.", type: "number | string" },
+      { name: "minWidth", description: "Minimum width.", type: "number | string" },
+      { name: "minHeight", description: "Minimum height.", type: "number | string" },
+      { name: "minSize", description: "Minimum width and height shorthand.", type: "number | string" },
+      { name: "maxWidth", description: "Maximum width.", type: "number | string" },
+      { name: "maxHeight", description: "Maximum height.", type: "number | string" },
+      { name: "maxSize", description: "Maximum width and height shorthand.", type: "number | string" },
       { name: "aspectRatio", description: "CSS aspect-ratio value.", type: "number | string" },
       { name: "radius", description: "Border radius token.", type: "RadiusValue" },
       { name: "margin", description: "Outer margin.", type: "number | string | Margin" },
@@ -124,9 +129,15 @@ export const componentDocs: ComponentDoc[] = [
       { name: "children", description: "Content inside the row.", type: "ReactNode" },
       { name: "justify", description: "Main-axis distribution.", type: "Justification" },
       { name: "wrap", description: "Wrap behavior.", type: '"nowrap" | "wrap" | "wrap-reverse"' },
-      { name: "padding / margin", description: "Spacing helpers inherited from Box.", type: "number | string | Padding | Margin" },
-      { name: "width / height / size", description: "Sizing helpers inherited from Box.", type: "number | string" },
-      { name: "border / background / radius", description: "Surface styling inherited from Box.", type: "number | Border | Borders | string | ThemeColor | RadiusValue" },
+      { name: "flex", description: "CSS flex value applied within the flex parent.", type: "number | string" },
+      { name: "padding", description: "Inner padding.", type: "number | string | Padding" },
+      { name: "margin", description: "Outer margin.", type: "number | string | Margin" },
+      { name: "width", description: "Explicit width.", type: "number | string" },
+      { name: "height", description: "Explicit height.", type: "number | string" },
+      { name: "size", description: "Square width/height shorthand.", type: "number | string" },
+      { name: "border", description: "Border config.", type: "number | Border | Borders" },
+      { name: "background", description: "Background color.", type: "string | ThemeColor" },
+      { name: "radius", description: "Border radius token.", type: "RadiusValue" },
       { name: "onVisibleAction", description: "Action fired once when the row enters the viewport.", type: "ActionConfig" }
     ]
   },
@@ -142,9 +153,15 @@ export const componentDocs: ComponentDoc[] = [
       { name: "children", description: "Content inside the column.", type: "ReactNode" },
       { name: "justify", description: "Main-axis distribution.", type: "Justification" },
       { name: "wrap", description: "Wrap behavior.", type: '"nowrap" | "wrap" | "wrap-reverse"' },
-      { name: "padding / margin", description: "Spacing helpers inherited from Box.", type: "number | string | Padding | Margin" },
-      { name: "width / height / size", description: "Sizing helpers inherited from Box.", type: "number | string" },
-      { name: "border / background / radius", description: "Surface styling inherited from Box.", type: "number | Border | Borders | string | ThemeColor | RadiusValue" },
+      { name: "flex", description: "CSS flex value applied within the flex parent.", type: "number | string" },
+      { name: "padding", description: "Inner padding.", type: "number | string | Padding" },
+      { name: "margin", description: "Outer margin.", type: "number | string | Margin" },
+      { name: "width", description: "Explicit width.", type: "number | string" },
+      { name: "height", description: "Explicit height.", type: "number | string" },
+      { name: "size", description: "Square width/height shorthand.", type: "number | string" },
+      { name: "border", description: "Border config.", type: "number | Border | Borders" },
+      { name: "background", description: "Background color.", type: "string | ThemeColor" },
+      { name: "radius", description: "Border radius token.", type: "RadiusValue" },
       { name: "onVisibleAction", description: "Action fired once when the column enters the viewport.", type: "ActionConfig" }
     ]
   },
@@ -155,7 +172,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Layout",
     usage: `<Row>\n  <Text value="Left" />\n  <Spacer />\n  <Text value="Right" />\n</Row>`,
     props: [
-      { name: "minSize", description: "Minimum size along the flex axis.", type: "number | string", default: '"auto"' }
+      { name: "minSize", description: "Minimum size along the flex axis, in spacing units (×4px) or a CSS size string. No minimum when omitted.", type: "number | string" }
     ]
   },
   {
@@ -189,8 +206,9 @@ export const componentDocs: ComponentDoc[] = [
       { name: "truncate", description: "Single-line ellipsis truncation.", type: "boolean", default: "false" },
       { name: "maxLines", description: "Line clamp.", type: "number" },
       { name: "width", description: "Explicit text block width.", type: "number | string" },
-      { name: "minLines", description: "Minimum line height reservation, useful for editable text.", type: "number" },
-      { name: "editable", description: "Inline editable input.", type: "EditableTextConfig | false" }
+      { name: "minLines", description: "Minimum line height reservation, useful for editable text. Editable text with minLines > 1 renders a textarea.", type: "number" },
+      { name: "streaming", description: "Mark the text as streaming content.", type: "boolean", default: "false" },
+      { name: "editable", description: "Inline editable input bound to the nearest form: { name, placeholder?, autoFocus?, autoSelect?, autoComplete?, allowAutofillExtensions?, pattern?, required? }. The value prop provides the initial text.", type: "{ name: string; placeholder?: string; autoFocus?: boolean; autoSelect?: boolean; autoComplete?: string; allowAutofillExtensions?: boolean; pattern?: string; required?: boolean } | false", default: "false" }
     ]
   },
   {
@@ -248,10 +266,11 @@ export const componentDocs: ComponentDoc[] = [
     props: [
       { name: "label", description: "Badge text; preferred for portable templates.", type: "string" },
       { name: "children", description: "Optional simple text content when label is omitted.", type: "ReactNode" },
-      { name: "color", description: "Badge color token.", type: "\"secondary\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\"", default: '"secondary"' },
+      { name: "color", description: "Badge color token.", type: "\"secondary\" | \"accent\" | \"success\" | \"danger\" | \"warning\" | \"info\" | \"discovery\"", default: '"secondary"' },
       { name: "variant", description: "Badge style.", type: "\"solid\" | \"soft\" | \"outline\"", default: '"soft"' },
       { name: "size", description: "Badge size.", type: "\"sm\" | \"md\" | \"lg\"", default: '"sm"' },
-      { name: "pill", description: "Fully rounded badge.", type: "boolean", default: "true" }
+      { name: "pill", description: "Fully rounded badge.", type: "boolean", default: "true" },
+      { name: "icon", description: "Optional leading icon.", type: "WidgetIcon" }
     ]
   },
   {
@@ -276,7 +295,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "src", description: "Image source URL.", type: "string" },
       { name: "alt", description: "Alt text.", type: "string" },
       { name: "fit", description: "Object-fit mode.", type: "\"cover\" | \"contain\" | \"fill\" | \"scale-down\" | \"none\"", default: '"cover"' },
-      { name: "position", description: "Object position.", type: "string" },
+      { name: "position", description: "Object position within the frame.", type: '"top left" | "top" | "top right" | "left" | "center" | "right" | "bottom left" | "bottom" | "bottom right"', default: '"center"' },
       { name: "frame", description: "Draw a frame.", type: "boolean", default: "false" },
       { name: "flush", description: "Bleed to card edges.", type: "boolean", default: "false" },
       { name: "size", description: "Square size.", type: "number | string" },
@@ -324,7 +343,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Button",
     name: "Button",
     description: "Action button with optional icon.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Button label="Continue" style="primary" />`,
     props: [
       { name: "submit", description: "Configure as a submit button for the nearest form.", type: "boolean", default: "false" },
@@ -334,21 +353,21 @@ export const componentDocs: ComponentDoc[] = [
       { name: "iconStart", description: "Optional leading icon.", type: "WidgetIcon" },
       { name: "iconEnd", description: "Optional trailing icon.", type: "WidgetIcon" },
       { name: "style", description: "Color style preset.", type: "\"primary\" | \"secondary\"", default: '"secondary"' },
-      { name: "color", description: "Extended color preset.", type: '"primary" | "secondary" | "info" | "discovery" | "success" | "caution" | "warning" | "danger"' },
+      { name: "color", description: "Extended color preset; overrides style.", type: '"primary" | "secondary" | "accent" | "info" | "discovery" | "success" | "caution" | "warning" | "danger"' },
       { name: "iconSize", description: "Icon size token.", type: "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"", default: '"md"' },
       { name: "variant", description: "Visual variant.", type: "ControlVariant", default: '"solid"' },
       { name: "size", description: "Control size.", type: "ControlSize", default: '"lg"' },
       { name: "pill", description: "Pill shape.", type: "boolean", default: "true" },
       { name: "uniform", description: "Make the button square (icon button).", type: "boolean", default: "false" },
       { name: "block", description: "Full width.", type: "boolean", default: "false" },
-      { name: "disabled", description: "Disable interactions.", type: "boolean", default: "false" }
+      { name: "disabled", description: "Disable interactions. When omitted, the button auto-disables if it has neither onClickAction nor submit.", type: "boolean" }
     ]
   },
   {
     id: "Form",
     name: "Form",
     description: "Form state provider and submit wrapper for input controls.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Form onSubmitAction={{ type: "form.submit" }}>\n  <Input name="email" />\n  <Button submit label="Submit" />\n</Form>`,
     props: [
       { name: "children", description: "Form controls and submit buttons.", type: "ReactNode" },
@@ -364,7 +383,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Input",
     name: "Input",
     description: "Single-line input control.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Input name="email" placeholder="you@example.com" />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -389,7 +408,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Textarea",
     name: "Textarea",
     description: "Multi-line input control.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Textarea name="notes" rows={4} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -414,7 +433,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Select",
     name: "Select",
     description: "Dropdown select control.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Select name="volume" options={[{ label: "10", value: "10" }]} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -434,7 +453,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "DatePicker",
     name: "DatePicker",
     description: "Popover date picker with calendar UI, storing dates as ISO (YYYY-MM-DD).",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<DatePicker name="due" placeholder="Due date" />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -457,7 +476,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Checkbox",
     name: "Checkbox",
     description: "Checkbox control.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Checkbox name="tos" label="Agree" />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -472,7 +491,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "RadioGroup",
     name: "RadioGroup",
     description: "Single selection group.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<RadioGroup name="size" options={[{ label: "Small", value: "sm" }]} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -489,7 +508,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Label",
     name: "Label",
     description: "Accessible label bound to an input by field name.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Label value="Email" fieldName="email" />`,
     props: [
       { name: "value", description: "Label text.", type: "string" },
@@ -504,101 +523,129 @@ export const componentDocs: ComponentDoc[] = [
     id: "BarChart",
     name: "BarChart",
     description: "Bar chart (Recharts `BarChart`) with one or more bar series.",
-    category: "Data",
+    category: "Charts",
     usage: `<BarChart data={data} series={[{ dataKey: "Desktop" }]} xAxis={{ dataKey: "day" }} showYAxis />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
       {
         name: "series",
-        description: "Bars to render: { dataKey, label?, color?, stack?, radius? }.",
+        description: "Bars to render: { dataKey, label?, color?, stack?, radius? }. Colors accept theme tokens or CSS colors.",
         type: "BarSeries[]"
       },
       {
         name: "xAxis",
         description: "X-axis config.",
-        type: "XAxisConfig"
+        type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }"
       },
+      { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
+      { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
       { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
       { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
       { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
       { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
       { name: "barGap", description: "Gap between bars within a category.", type: "number" },
       { name: "barCategoryGap", description: "Gap between bar categories.", type: "number" },
-      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+      { name: "height", description: "Chart container height.", type: "number | string", default: "220" },
+      { name: "width", description: "Chart container width.", type: "number | string", default: '"100%"' },
+      { name: "size", description: "Square width/height shorthand; overrides height and width.", type: "number | string" },
+      { name: "aspectRatio", description: "CSS aspect-ratio for the chart frame. Min/max variants (minWidth, maxHeight, …) are also supported.", type: "number | string" },
+      { name: "flex", description: "CSS flex value for the chart frame within a flex parent.", type: "number | string" }
     ]
   },
   {
     id: "LineChart",
     name: "LineChart",
     description: "Line chart (Recharts `LineChart`) with one or more line series.",
-    category: "Data",
+    category: "Charts",
     usage: `<LineChart data={data} series={[{ dataKey: "Mobile" }]} xAxis={{ dataKey: "day" }} />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Lines to render: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }.", type: "LineSeries[]" },
-      { name: "xAxis", description: "X-axis config.", type: "XAxisConfig" },
+      { name: "series", description: "Lines to render: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }. Colors accept theme tokens or CSS colors.", type: "LineSeries[]" },
+      { name: "xAxis", description: "X-axis config.", type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }" },
+      { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
+      { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
       { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
       { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
       { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
       { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
-      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+      { name: "height", description: "Chart container height.", type: "number | string", default: "220" },
+      { name: "width", description: "Chart container width.", type: "number | string", default: '"100%"' },
+      { name: "size", description: "Square width/height shorthand; overrides height and width.", type: "number | string" },
+      { name: "aspectRatio", description: "CSS aspect-ratio for the chart frame. Min/max variants (minWidth, maxHeight, …) are also supported.", type: "number | string" },
+      { name: "flex", description: "CSS flex value for the chart frame within a flex parent.", type: "number | string" }
     ]
   },
   {
     id: "AreaChart",
     name: "AreaChart",
     description: "Area chart (Recharts `AreaChart`) with one or more area series.",
-    category: "Data",
+    category: "Charts",
     usage: `<AreaChart data={data} series={[{ dataKey: "Desktop" }]} xAxis={{ dataKey: "day" }} />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Areas to render: { dataKey, label?, color?, stack?, curveType?, fillOpacity? }.", type: "AreaSeries[]" },
-      { name: "xAxis", description: "X-axis config.", type: "XAxisConfig" },
+      { name: "series", description: "Areas to render: { dataKey, label?, color?, stack?, curveType?, fillOpacity? }. Colors accept theme tokens or CSS colors.", type: "AreaSeries[]" },
+      { name: "xAxis", description: "X-axis config.", type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }" },
+      { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
+      { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
       { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
       { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
       { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
       { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
-      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+      { name: "height", description: "Chart container height.", type: "number | string", default: "220" },
+      { name: "width", description: "Chart container width.", type: "number | string", default: '"100%"' },
+      { name: "size", description: "Square width/height shorthand; overrides height and width.", type: "number | string" },
+      { name: "aspectRatio", description: "CSS aspect-ratio for the chart frame. Min/max variants (minWidth, maxHeight, …) are also supported.", type: "number | string" },
+      { name: "flex", description: "CSS flex value for the chart frame within a flex parent.", type: "number | string" }
     ]
   },
   {
     id: "PieChart",
     name: "PieChart",
     description: "Pie / donut chart (Recharts `PieChart`). Use `innerRadius` to create a donut.",
-    category: "Data",
+    category: "Charts",
     usage: `<PieChart data={data} series={[{ dataKey: "value", nameKey: "name", innerRadius: "60%" }]} />`,
     props: [
-      { name: "data", description: "Tabular dataset. For per-slice colors, add a `fill` field per row.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Pies to render: { dataKey, nameKey?, innerRadius?, outerRadius?, paddingAngle?, cornerRadius?, color? }.", type: "PieSeries[]" },
+      { name: "data", description: "Tabular dataset. For per-slice colors, add a `fill` field per row (theme tokens or CSS colors).", type: "Array<Record<string, string | number>>" },
+      { name: "series", description: "Pies to render: { dataKey, nameKey?, innerRadius?, outerRadius?, paddingAngle?, cornerRadius?, color? }. `color` sets the default slice color (theme token or CSS color); per-row `fill` overrides it.", type: "PieSeries[]" },
       { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
       { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
-      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+      { name: "height", description: "Chart container height.", type: "number | string", default: "220" },
+      { name: "width", description: "Chart container width.", type: "number | string", default: '"100%"' },
+      { name: "size", description: "Square width/height shorthand; overrides height and width.", type: "number | string" },
+      { name: "aspectRatio", description: "CSS aspect-ratio for the chart frame. Min/max variants (minWidth, maxHeight, …) are also supported.", type: "number | string" },
+      { name: "flex", description: "CSS flex value for the chart frame within a flex parent.", type: "number | string" }
     ]
   },
   {
     id: "Chart",
     name: "Chart",
     description: "Mixed cartesian chart combining bars/lines/areas via a `series` array.",
-    category: "Data",
+    category: "Charts",
     usage: `<Chart data={data} series={[{ type: "bar", dataKey: "Desktop" }, { type: "line", dataKey: "Mobile" }]} xAxis={{ dataKey: "day" }} />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Mixed series: { type: 'bar' | 'line' | 'area', ... }.", type: "ComposedSeries[]" },
-      { name: "xAxis", description: "X-axis config.", type: "XAxisConfig" },
+      { name: "series", description: "Mixed series: { type: 'bar' | 'line' | 'area', ... }. Colors accept theme tokens or CSS colors.", type: "ComposedSeries[]" },
+      { name: "xAxis", description: "X-axis config.", type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }" },
+      { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
+      { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
       { name: "showYAxis", description: "Show y-axis labels.", type: "boolean", default: "false" },
       { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
       { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
       { name: "showGrid", description: "Show cartesian grid.", type: "boolean", default: "true" },
       { name: "barGap", description: "Gap between bars within a category.", type: "number" },
       { name: "barCategoryGap", description: "Gap between bar categories.", type: "number" },
-      { name: "height", description: "Explicit height for the chart container.", type: "number | string", default: "220" }
+      { name: "height", description: "Chart container height.", type: "number | string", default: "220" },
+      { name: "width", description: "Chart container width.", type: "number | string", default: '"100%"' },
+      { name: "size", description: "Square width/height shorthand; overrides height and width.", type: "number | string" },
+      { name: "aspectRatio", description: "CSS aspect-ratio for the chart frame. Min/max variants (minWidth, maxHeight, …) are also supported.", type: "number | string" },
+      { name: "flex", description: "CSS flex value for the chart frame within a flex parent.", type: "number | string" }
     ]
   },
   {
     id: "Transition",
     name: "Transition",
     description: "Animate swapping child components.",
-    category: "Other",
+    category: "Control flow & state",
     usage: `<Transition>\n  <Card key={state} />\n</Transition>`,
     props: [
       { name: "children", description: "Single child element to animate.", type: "ReactElement" }
@@ -608,31 +655,36 @@ export const componentDocs: ComponentDoc[] = [
     id: "Avatar",
     name: "Avatar",
     description: "Profile image or initials (custom extension).",
-    category: "Other",
+    category: "Content",
     usage: `<Avatar name="Alex" src={image} status="online" />`,
     props: [
-      { name: "name", description: "Name for initials.", type: "string" },
+      { name: "name", description: "Name for initials; also used as the image alt text.", type: "string" },
       { name: "src", description: "Image source URL.", type: "string" },
-      { name: "status", description: "Status dot.", type: "\"online\" | \"offline\" | \"away\"" }
+      { name: "size", description: "Avatar size in px or a CSS size string.", type: "number | string", default: "40" },
+      { name: "radius", description: "Corner radius token.", type: "RadiusValue", default: '"full"' },
+      { name: "status", description: "Status dot.", type: "\"online\" | \"offline\" | \"away\" | \"busy\"" }
     ]
   },
   {
     id: "Progress",
     name: "Progress",
     description: "Progress bar (custom extension).",
-    category: "Other",
+    category: "Data display",
     usage: `<Progress value={78} label="Milestones" />`,
     props: [
-      { name: "value", description: "Progress value.", type: "number" },
+      { name: "value", description: "Progress value; clamped to [0, max].", type: "number" },
       { name: "max", description: "Maximum value.", type: "number", default: "100" },
-      { name: "label", description: "Optional label.", type: "string" }
+      { name: "label", description: "Optional label shown above the track.", type: "string" },
+      { name: "color", description: "Fill color token or CSS color.", type: "string | ThemeColor" },
+      { name: "size", description: "Track thickness.", type: "\"sm\" | \"md\" | \"lg\"", default: '"md"' },
+      { name: "showValue", description: "Show the rounded percentage next to the label.", type: "boolean", default: "true" }
     ]
   },
   {
     id: "Accordion",
     name: "Accordion",
     description: "Expandable list of items.",
-    category: "Layout",
+    category: "Disclosure & overlays",
     usage: `<Accordion items={[{ id: "a", title: "Title", content: "Body" }]} />`,
     props: [
       { name: "items", description: "Accordion items.", type: "Array<{ id: string; title: string; content: string }>" },
@@ -644,7 +696,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Collapsible",
     name: "Collapsible",
     description: "Toggleable content block.",
-    category: "Layout",
+    category: "Disclosure & overlays",
     usage: `<Collapsible title="Details" content="Hidden text" />`,
     props: [
       { name: "title", description: "Trigger label.", type: "string" },
@@ -656,21 +708,31 @@ export const componentDocs: ComponentDoc[] = [
     id: "Menubar",
     name: "Menubar",
     description: "Top-level menu bar.",
-    category: "Navigation",
-    usage: `<Menubar menus={[{ id: "file", label: "File", items: [{ id: "new", label: "New" }] }]} />`,
+    category: "Disclosure & overlays",
+    usage: `<Menubar menus={[{ id: "file", label: "File", items: [{ id: "new", label: "New", action: { type: "file.new" } }] }]} />`,
     props: [
-      { name: "menus", description: "Menu definitions.", type: "Array<{ id: string; label: string; items: MenuItem[] }>" }
+      { name: "menus", description: "Menu definitions; each menu renders a trigger with a dropdown of items.", type: "Array<{ id: string; label: string; items: MenuItem[] }>" },
+      { name: "MenuItem.id", description: "Stable item id.", type: "string" },
+      { name: "MenuItem.label", description: "Item label.", type: "string" },
+      { name: "MenuItem.action", description: "Action dispatched when the item is selected.", type: "{ type: string; payload?: Record<string, unknown> }" },
+      { name: "MenuItem.disabled", description: "Disable the item.", type: "boolean" },
+      { name: "MenuItem.type", description: "Set to \"separator\" to render a divider instead of a selectable item.", type: '"item" | "separator"', default: '"item"' }
     ]
   },
   {
     id: "ContextMenu",
     name: "ContextMenu",
     description: "Right-click menu for a target.",
-    category: "Navigation",
-    usage: `<ContextMenu triggerLabel="Right click me" items={[{ id: "copy", label: "Copy" }]} />`,
+    category: "Disclosure & overlays",
+    usage: `<ContextMenu triggerLabel="Right click me" items={[{ id: "copy", label: "Copy", action: { type: "item.copy" } }]} />`,
     props: [
       { name: "triggerLabel", description: "Text shown for the trigger.", type: "string" },
-      { name: "items", description: "Menu items.", type: "MenuItem[]" }
+      { name: "items", description: "Menu items.", type: "MenuItem[]" },
+      { name: "MenuItem.id", description: "Stable item id.", type: "string" },
+      { name: "MenuItem.label", description: "Item label.", type: "string" },
+      { name: "MenuItem.action", description: "Action dispatched when the item is selected.", type: "{ type: string; payload?: Record<string, unknown> }" },
+      { name: "MenuItem.disabled", description: "Disable the item.", type: "boolean" },
+      { name: "MenuItem.type", description: "Set to \"separator\" to render a divider instead of a selectable item.", type: '"item" | "separator"', default: '"item"' }
     ]
   },
   {
@@ -689,7 +751,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Toggle",
     name: "Toggle",
     description: "Binary toggle button.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Toggle name="subscribe" label="Subscribe" />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -703,7 +765,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "ToggleGroup",
     name: "ToggleGroup",
     description: "Group of toggle buttons.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<ToggleGroup name="view" type="single" options={[{ label: "Grid", value: "grid" }]} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -719,7 +781,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Slider",
     name: "Slider",
     description: "Continuous range slider.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Slider name="volume" defaultValue={45} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -735,7 +797,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Sheet",
     name: "Sheet",
     description: "Side panel overlay.",
-    category: "Overlays",
+    category: "Disclosure & overlays",
     usage: `<Sheet triggerLabel="Open" title="Details" content="Sheet body" />`,
     props: [
       { name: "triggerLabel", description: "Trigger button label.", type: "string" },
@@ -749,7 +811,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Drawer",
     name: "Drawer",
     description: "Bottom drawer overlay.",
-    category: "Overlays",
+    category: "Disclosure & overlays",
     usage: `<Drawer triggerLabel="Open" title="Drawer" content="Drawer body" />`,
     props: [
       { name: "triggerLabel", description: "Trigger button label.", type: "string" },
@@ -762,7 +824,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Combobox",
     name: "Combobox",
     description: "Searchable select menu.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<Combobox name="assignee" options={[{ label: "Alex", value: "alex" }]} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -779,7 +841,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "InputOTP",
     name: "InputOTP",
     description: "One-time passcode input.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<InputOTP name="code" length={6} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -805,11 +867,11 @@ export const componentDocs: ComponentDoc[] = [
     id: "DataTable",
     name: "DataTable",
     description: "Tabular data display.",
-    category: "Data",
+    category: "Data display",
     usage: `<DataTable columns={[{ key: "name", label: "Name" }]} rows={[{ name: "Alex" }]} />`,
     props: [
-      { name: "columns", description: "Column definitions.", type: "Array<{ key: string; label: string }>" },
-      { name: "rows", description: "Row data.", type: "Array<Record<string, string | number>>" },
+      { name: "columns", description: "Column definitions; align controls header and cell text alignment.", type: "Array<{ key: string; label: string; align?: \"start\" | \"center\" | \"end\" }>" },
+      { name: "rows", description: "Row data; missing cells render an em dash.", type: "Array<Record<string, string | number>>" },
       { name: "caption", description: "Table caption.", type: "string" }
     ]
   },
@@ -839,7 +901,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "BaseCarousel",
     name: "BaseCarousel",
     description: "Horizontally scrollable carousel with snap behavior and item/media child components.",
-    category: "DIL Layout",
+    category: "Media",
     usage: `<BaseCarousel visibleItems={2}>\n  <BaseCarousel.Item><Text value="Item" /></BaseCarousel.Item>\n</BaseCarousel>`,
     props: [
       { name: "children", description: "Carousel items.", type: "ReactNode" },
@@ -862,7 +924,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "CardCarousel",
     name: "CardCarousel / CardLinkItem",
     description: "Card-oriented carousel wrappers for horizontally scrollable related content and links.",
-    category: "DIL Layout",
+    category: "Media",
     usage: `<CardCarousel><CardLinkItem href="https://example.com"><Text value="Open" /></CardLinkItem></CardCarousel>`,
     props: [
       { name: "visibleItems", description: "Approximate number of cards visible.", type: "number | Record<string, number>" },
@@ -877,7 +939,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Grid",
     name: "Grid",
     description: "CSS grid layout with optional Grid.Item spans.",
-    category: "DIL Layout",
+    category: "Layout",
     usage: `<Grid columns={2}><Grid.Item><Text value="A" /></Grid.Item></Grid>`,
     props: [
       { name: "columns", description: "Column count or CSS grid-template-columns string.", type: "number | string", default: "2" },
@@ -895,7 +957,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Flow",
     name: "Flow / Flow.Item",
     description: "Wrapping or grid-like flow layout with optional item spans.",
-    category: "DIL Layout",
+    category: "Layout",
     usage: `<Flow columns={3}><Flow.Item span={2}><Text value="Wide" /></Flow.Item></Flow>`,
     props: [
       { name: "columns", description: "Column count or CSS grid-template-columns value.", type: "number | string" },
@@ -913,7 +975,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "OverflowRow",
     name: "OverflowRow",
     description: "Wrapping row that clips after a fixed number of visual rows.",
-    category: "DIL Layout",
+    category: "Layout",
     usage: `<OverflowRow rows={2}><Badge label="One" /><Badge label="Two" /></OverflowRow>`,
     props: [
       { name: "children", description: "Inline/wrapping children.", type: "ReactNode" },
@@ -926,7 +988,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "List",
     name: "List",
     description: "Sequenced list/timeline container with List.Item children.",
-    category: "DIL Layout",
+    category: "Layout",
     usage: `<List marker="disc"><List.Item><Text value="Step" /></List.Item></List>`,
     props: [
       { name: "marker", description: "Default marker style token, icon name, or custom marker text.", type: "string", default: '"disc"' },
@@ -941,7 +1003,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Pressable",
     name: "Pressable",
     description: "Keyboard-accessible clickable container that dispatches onClickAction.",
-    category: "DIL Layout",
+    category: "Control flow & state",
     usage: `<Pressable onClickAction={{ type: "copy", handler: "client", payload: { value: "Hi" } }}><Text value="Copy" /></Pressable>`,
     props: [
       { name: "onClickAction", description: "Action dispatched on click, Enter, or Space.", type: "ActionConfig" },
@@ -956,7 +1018,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Popover",
     name: "Popover",
     description: "Anchored overlay with Popover.Trigger and Popover.Content children.",
-    category: "DIL Layout",
+    category: "Disclosure & overlays",
     usage: `<Popover><Popover.Trigger><Badge label="Info" /></Popover.Trigger><Popover.Content><Text value="Details" /></Popover.Content></Popover>`,
     props: [
       { name: "open", description: "Controlled open state.", type: "boolean" },
@@ -972,7 +1034,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Table",
     name: "Table",
     description: "Structured DIL table using Table.Row, Table.Cell, and Table.Section children.",
-    category: "Data",
+    category: "Data display",
     usage: `<Table><Table.Row><Table.Cell><Text value="Metric" /></Table.Cell></Table.Row></Table>`,
     props: [
       { name: "columnSizing", description: "Column sizing mode.", type: "\"auto\" | \"equal\"", default: '"auto"' },
@@ -989,7 +1051,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Each",
     name: "Each / Show / Scope",
     description: "DIL-style control-flow helpers powered by `$` expression props.",
-    category: "Control Flow",
+    category: "Control flow & state",
     usage: `<Each $of="state.items" item="item"><Text $value="item.label" /></Each>`,
     props: [
       { name: "$of", description: "Array expression to iterate.", type: "Expression<unknown[]>" },
@@ -1009,7 +1071,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Animate",
     name: "Animate / AnimateGroup",
     description: "Small Motion-powered wrappers for conditional and repeated children.",
-    category: "Motion",
+    category: "Control flow & state",
     usage: `<Animate><Animate.Item $when="state.ready"><Text value="Ready" /></Animate.Item></Animate>`,
     props: [
       { name: "children", description: "Animate.Item branches or repeated children.", type: "ReactNode" },
@@ -1073,7 +1135,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "SegmentedControl",
     name: "SegmentedControl",
     description: "Compact segmented option selector.",
-    category: "Controls",
+    category: "Forms & controls",
     usage: `<SegmentedControl name="view" options={[{ label: "List", value: "list" }]} />`,
     props: [
       { name: "name", description: "Form field name.", type: "string" },
@@ -1194,7 +1256,7 @@ export const componentDocs: ComponentDoc[] = [
     id: "Inline",
     name: "Inline",
     description: "Inline flex helper for composing rich text primitives inside a sentence.",
-    category: "Typography",
+    category: "Layout",
     usage: `<Inline gap={1} wrap="wrap"><Bold value="Bold" /><Code value="code()" /><Highlight value="Marked" /></Inline>`,
     props: [
       { name: "children", description: "Inline primitive children.", type: "ReactNode" },
@@ -1202,6 +1264,153 @@ export const componentDocs: ComponentDoc[] = [
       { name: "align", description: "Cross-axis alignment for grouped inline children.", type: "Alignment", default: '"center"' },
       { name: "wrap", description: "Whether grouped inline children may wrap in constrained cards.", type: '"nowrap" | "wrap" | "wrap-reverse"', default: '"wrap"' },
       { name: "onVisibleAction", description: "Action fired once when the inline group enters the viewport.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "Stat",
+    name: "Stat",
+    description: "Single metric with an optional trend delta, icon, and helper text.",
+    category: "Data display",
+    usage: `<Stat label="Revenue" value="$48.2k" delta="+12.4%" deltaLabel="vs last month" />`,
+    props: [
+      { name: "label", description: "Metric label shown above the value.", type: "string" },
+      { name: "value", description: "Metric value.", type: "string | number" },
+      { name: "delta", description: "Change indicator rendered next to a trend arrow. The trend is inferred from its numeric sign.", type: "string | number" },
+      { name: "deltaLabel", description: "Context text shown after the delta (e.g. \"vs last month\").", type: "string" },
+      { name: "trend", description: "Force the delta direction instead of inferring it from the sign.", type: '"up" | "down" | "flat"' },
+      { name: "upIsPositive", description: "Semantic direction: is \"up\" good (default) or bad (e.g. costs, churn)? Controls the delta color.", type: "boolean", default: "true" },
+      { name: "icon", description: "Optional icon shown before the label.", type: "WidgetIcon" },
+      { name: "helpText", description: "Helper text shown below the value when no deltaLabel is set.", type: "string" },
+      { name: "align", description: "Horizontal alignment of the stat block.", type: "TextAlign", default: '"start"' },
+      { name: "size", description: "Value text size.", type: "\"sm\" | \"md\" | \"lg\"", default: '"md"' }
+    ]
+  },
+  {
+    id: "Sparkline",
+    name: "Sparkline",
+    description: "Dependency-free inline trend line with an optional gradient fill.",
+    category: "Data display",
+    usage: `<Sparkline data={[4, 8, 6, 12, 10, 16]} height={36} />`,
+    props: [
+      { name: "data", description: "Numeric series to plot. Renders nothing with fewer than 2 points.", type: "number[]" },
+      { name: "color", description: "Line color token or CSS color.", type: "string | ThemeColor", default: "accent" },
+      { name: "width", description: "Sparkline width.", type: "number | string", default: '"100%"' },
+      { name: "height", description: "Sparkline height.", type: "number | string", default: "36" },
+      { name: "fill", description: "Draw a gradient area fill under the line.", type: "boolean", default: "true" },
+      { name: "strokeWidth", description: "Line stroke width.", type: "number", default: "2" }
+    ]
+  },
+  {
+    id: "KeyValue",
+    name: "KeyValue",
+    description: "Aligned label/value pairs for detail views.",
+    category: "Data display",
+    usage: `<KeyValue divider rows={[{ label: "Total", value: "$236.90", emphasis: true }]} />`,
+    props: [
+      { name: "rows", description: "Label/value rows. emphasis renders the value bolder; color tints the value.", type: "Array<{ label: string; value: string | number; icon?: WidgetIcon; emphasis?: boolean; color?: string | ThemeColor }>" },
+      { name: "gap", description: "Gap between rows (ignored when divider is set).", type: "number | string", default: "2" },
+      { name: "divider", description: "Draw a hairline divider between rows.", type: "boolean", default: "false" },
+      { name: "labelWidth", description: "Fixed label column width.", type: "number | string" }
+    ]
+  },
+  {
+    id: "Timeline",
+    name: "Timeline",
+    description: "Vertical sequence of events with a connector rail.",
+    category: "Data display",
+    usage: `<Timeline items={[{ title: "Shipped", time: "9:41 AM", state: "done" }, { title: "Out for delivery", state: "active" }]} />`,
+    props: [
+      { name: "items", description: "Timeline events in order. state defaults to \"done\"; \"active\" highlights the dot, \"upcoming\" dims the entry. color overrides the dot tone.", type: "Array<{ title: string; description?: string; time?: string; icon?: WidgetIcon; color?: \"neutral\" | \"accent\" | \"info\" | \"success\" | \"warning\" | \"danger\" | \"discovery\"; state?: \"done\" | \"active\" | \"upcoming\" }>" },
+      { name: "gap", description: "Extra gap between entries.", type: "number | string", default: "0" }
+    ]
+  },
+  {
+    id: "Steps",
+    name: "Steps",
+    description: "Horizontal progress indicator for multi-step flows.",
+    category: "Data display",
+    usage: `<Steps current={1} items={[{ label: "Cart" }, { label: "Shipping" }, { label: "Payment" }]} />`,
+    props: [
+      { name: "items", description: "Step definitions in order.", type: "Array<{ label: string; description?: string }>" },
+      { name: "current", description: "Zero-based index of the active step. Earlier steps render as done, later ones as upcoming.", type: "number", default: "0" },
+      { name: "color", description: "Tone for done/active step bars.", type: '"neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery"', default: '"accent"' }
+    ]
+  },
+  {
+    id: "Callout",
+    name: "Callout",
+    description: "Inline banner for info, success, warning, or danger messages.",
+    category: "Feedback",
+    usage: `<Callout color="warning" title="Usage limit" description="You are at 92% of the plan quota." />`,
+    props: [
+      { name: "title", description: "Callout heading.", type: "string" },
+      { name: "description", description: "Supporting text.", type: "string" },
+      { name: "children", description: "Optional extra content rendered below the description.", type: "ReactNode" },
+      { name: "color", description: "Banner tone.", type: '"neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery"', default: '"info"' },
+      { name: "icon", description: "Leading icon; defaults to a tone-appropriate icon. Pass \"none\" to hide it.", type: 'WidgetIcon | "none"' },
+      { name: "action", description: "Optional trailing action button.", type: "{ label: string; action: ActionConfig }" }
+    ]
+  },
+  {
+    id: "EmptyState",
+    name: "EmptyState",
+    description: "Friendly placeholder for empty lists and no-result states.",
+    category: "Feedback",
+    usage: `<EmptyState icon="inbox" title="No notifications" description="You're all caught up." />`,
+    props: [
+      { name: "icon", description: "Icon shown in the badge above the title.", type: "WidgetIcon", default: '"inbox"' },
+      { name: "title", description: "Empty-state heading.", type: "string" },
+      { name: "description", description: "Supporting text (max-width constrained).", type: "string" },
+      { name: "action", description: "Optional call-to-action button.", type: "{ label: string; action: ActionConfig }" },
+      { name: "padding", description: "Padding around the block, in spacing units (×4px).", type: "number | string", default: "6" }
+    ]
+  },
+  {
+    id: "Rating",
+    name: "Rating",
+    description: "Star rating with fractional fill.",
+    category: "Content",
+    usage: `<Rating value={4.3} showValue count={128} />`,
+    props: [
+      { name: "value", description: "Rating value; supports fractions and is clamped to [0, max].", type: "number" },
+      { name: "max", description: "Number of stars.", type: "number", default: "5" },
+      { name: "size", description: "Star size.", type: "\"sm\" | \"md\" | \"lg\"", default: '"md"' },
+      { name: "color", description: "Filled-star color token or CSS color.", type: "string | ThemeColor", default: "#f59e0b" },
+      { name: "showValue", description: "Show the numeric value after the stars.", type: "boolean", default: "false" },
+      { name: "count", description: "Review count shown in parentheses.", type: "number | string" }
+    ]
+  },
+  {
+    id: "ChipGroup",
+    name: "ChipGroup",
+    description: "Wrapping set of selectable chips with single or multiple selection.",
+    category: "Forms & controls",
+    usage: `<ChipGroup name="topics" type="multiple" options={[{ label: "Design", value: "design" }]} />`,
+    props: [
+      { name: "name", description: "Form field name; the selection is written to the nearest form.", type: "string" },
+      { name: "options", description: "Chip options.", type: "Array<{ label: string; value: string; icon?: WidgetIcon; disabled?: boolean }>" },
+      { name: "type", description: "Selection mode. Single mode allows deselecting the active chip.", type: "\"single\" | \"multiple\"", default: '"single"' },
+      { name: "defaultValue", description: "Initial value (single mode).", type: "string" },
+      { name: "defaultValues", description: "Initial values (multiple mode).", type: "string[]" },
+      { name: "onChangeAction", description: "Action dispatched with the next selection on change.", type: "ActionConfig" },
+      { name: "size", description: "Chip size.", type: "\"sm\" | \"md\"", default: '"md"' },
+      { name: "disabled", description: "Disable all chips.", type: "boolean" }
+    ]
+  },
+  {
+    id: "Tabs",
+    name: "Tabs",
+    description: "Lightweight in-widget tab switcher; panels register by id via Tabs.Panel.",
+    category: "Disclosure & overlays",
+    usage: `<Tabs tabs={[{ id: "a", label: "Tab A" }, { id: "b", label: "Tab B" }]}>\n  <Tabs.Panel id="a"><Text value="Panel A" /></Tabs.Panel>\n  <Tabs.Panel id="b"><Text value="Panel B" /></Tabs.Panel>\n</Tabs>`,
+    props: [
+      { name: "tabs", description: "Tab definitions rendered in the tab list.", type: "Array<{ id: string; label: string; icon?: WidgetIcon }>" },
+      { name: "defaultTab", description: "Initially active tab id; defaults to the first tab.", type: "string" },
+      { name: "name", description: "Form field name; the active tab id is written to the nearest form.", type: "string" },
+      { name: "onChangeAction", description: "Action dispatched with the selected tab id on change.", type: "ActionConfig" },
+      { name: "children", description: "Tabs.Panel nodes (one per tab).", type: "ReactNode" },
+      { name: "Tabs.Panel.id", description: "Panel id; the panel renders only while it matches the active tab.", type: "string" },
+      { name: "Tabs.Panel.children", description: "Panel content.", type: "ReactNode" }
     ]
   }
 ];

@@ -9,7 +9,14 @@ type AvatarProps = {
   name: string;
   size?: number | string;
   radius?: RadiusValue;
-  status?: "online" | "offline" | "away";
+  status?: "online" | "offline" | "away" | "busy";
+};
+
+const avatarStatusColors: Record<string, string> = {
+  online: "var(--widget-success)",
+  away: "var(--widget-warning)",
+  busy: "var(--widget-danger)",
+  offline: "var(--widget-text-tertiary)"
 };
 
 const Avatar: React.FC<AvatarProps> = ({
@@ -26,35 +33,34 @@ const Avatar: React.FC<AvatarProps> = ({
     .join("")
     .toUpperCase();
   const dimension = sizeToCss(size);
-  const statusColor =
-    status === "online" ? "#22c55e" : status === "away" ? "#f59e0b" : "#94a3b8";
+  const numericSize = typeof size === "number" ? size : 40;
+  const statusSize = Math.max(8, Math.round(numericSize * 0.28));
 
   return (
-    <div style={{ position: "relative", width: dimension, height: dimension }}>
+    <div style={{ position: "relative", width: dimension, height: dimension, flexShrink: 0 }}>
       {src ? (
         <img
           src={src}
           alt={name}
+          loading="lazy"
+          decoding="async"
           style={{
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            borderRadius: resolveRadius(radius)
+            borderRadius: resolveRadius(radius),
+            boxShadow: "inset 0 0 0 1px var(--widget-border-subtle)"
           }}
         />
       ) : (
         <div
+          className="wg-avatar-fallback"
           style={{
             width: "100%",
             height: "100%",
             borderRadius: resolveRadius(radius),
-            background: "#e2e8f0",
-            color: "#334155",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 600,
-            fontSize: "0.9rem"
+            fontSize: `${Math.max(10, Math.round(numericSize * 0.38))}px`,
+            letterSpacing: "0.02em"
           }}
         >
           {initials}
@@ -64,13 +70,13 @@ const Avatar: React.FC<AvatarProps> = ({
         <span
           style={{
             position: "absolute",
-            right: "-2px",
-            bottom: "-2px",
-            width: "10px",
-            height: "10px",
-            background: statusColor,
+            right: "-1px",
+            bottom: "-1px",
+            width: `${statusSize}px`,
+            height: `${statusSize}px`,
+            background: avatarStatusColors[status] ?? avatarStatusColors.offline,
             borderRadius: "999px",
-            border: "2px solid white"
+            border: "2px solid var(--widget-surface-elevated)"
           }}
         />
       ) : null}
@@ -84,22 +90,26 @@ type ProgressProps = {
   label?: string;
   color?: string | ThemeColor;
   size?: "sm" | "md" | "lg";
+  showValue?: boolean;
 };
 
 const Progress: React.FC<ProgressProps> = ({
   value,
   max = 100,
   label,
-  color = "#0f172a",
-  size = "md"
+  color,
+  size = "md",
+  showValue = true
 }) => {
   const theme = useWidgetTheme();
-  const clamped = Math.min(Math.max(value, 0), max);
-  const percentage = (clamped / max) * 100;
-  const height = size === "sm" ? 6 : size === "lg" ? 12 : 8;
+  const safeMax = typeof max === "number" && max > 0 ? max : 0;
+  const clamped = Math.min(Math.max(value, 0), safeMax || 0);
+  // Guard 0/0 ("0 of 0 items"): NaN% would render a full bar plus "NaN%" text.
+  const percentage = safeMax > 0 ? (clamped / safeMax) * 100 : 0;
+  const height = size === "sm" ? 5 : size === "lg" ? 10 : 7;
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ width: "100%" }} role="progressbar" aria-valuenow={clamped} aria-valuemin={0} aria-valuemax={max}>
       {label ? (
         <div
           style={{
@@ -107,28 +117,20 @@ const Progress: React.FC<ProgressProps> = ({
             justifyContent: "space-between",
             marginBottom: "0.35rem",
             fontSize: "0.75rem",
+            fontWeight: 500,
             color: "var(--widget-text-secondary)"
           }}
         >
           <span>{label}</span>
-          <span>{Math.round(percentage)}%</span>
+          {showValue ? <span className="wg-tabular">{Math.round(percentage)}%</span> : null}
         </div>
       ) : null}
-      <div
-        style={{
-          height,
-          borderRadius: "999px",
-          background: "var(--widget-surface-secondary)",
-          overflow: "hidden"
-        }}
-      >
+      <div className="wg-progress-track" style={{ height }}>
         <div
+          className="wg-progress-fill"
           style={{
-            height: "100%",
             width: `${percentage}%`,
-            background: resolveColor(color, theme) ?? "#0f172a",
-            borderRadius: "999px",
-            transition: "width 0.2s ease"
+            background: color ? resolveColor(color, theme) : undefined
           }}
         />
       </div>

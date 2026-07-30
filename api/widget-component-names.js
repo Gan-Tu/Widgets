@@ -97,5 +97,16 @@ export const widgetComponentNames = [
   "LoadingDot",
   "LoadingIndicator",
   "PulseIndicator",
-  "DataTable"
+  "DataTable",
+  "Callout",
+  "ChipGroup",
+  "EmptyState",
+  "KeyValue",
+  "Rating",
+  "Sparkline",
+  "Stat",
+  "Steps",
+  "Tabs",
+  "Tabs.Panel",
+  "Timeline"
 ];

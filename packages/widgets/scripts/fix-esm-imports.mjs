@@ -34,6 +34,9 @@ function resolveSpecifier(filePath, specifier) {
 
 const fromPattern = /(from\s*["'])(\.{1,2}\/[^"']+)(["'])/g;
 const importPattern = /(import\s*["'])(\.{1,2}\/[^"']+)(["'])/g;
+// Dynamic imports (React.lazy chunks) need the same treatment or Node ESM
+// consumers hit ERR_MODULE_NOT_FOUND on the extensionless specifier.
+const dynamicImportPattern = /(import\s*\(\s*["'])(\.{1,2}\/[^"']+)(["']\s*\))/g;
 
 for (const filePath of walk(distDir)) {
   const source = readFileSync(filePath, "utf8");
@@ -42,6 +45,9 @@ for (const filePath of walk(distDir)) {
       return `${prefix}${resolveSpecifier(filePath, specifier)}${suffix}`;
     })
     .replace(importPattern, (_match, prefix, specifier, suffix) => {
+      return `${prefix}${resolveSpecifier(filePath, specifier)}${suffix}`;
+    })
+    .replace(dynamicImportPattern, (_match, prefix, specifier, suffix) => {
       return `${prefix}${resolveSpecifier(filePath, specifier)}${suffix}`;
     });
 

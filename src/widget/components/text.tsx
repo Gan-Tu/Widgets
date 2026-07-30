@@ -1,6 +1,4 @@
 import React from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 import { getFormValue, useWidgetForm, useWidgetTheme } from "../context";
 import type {
@@ -11,7 +9,7 @@ import type {
   ThemeColor,
   TitleSize
 } from "../types";
-import { resolveColor } from "../style";
+import { resolveColor, resolveWeight } from "../style";
 
 const textSizeMap: Record<TextSize, string> = {
   xs: "0.75rem",
@@ -38,26 +36,32 @@ const titleSizeMap: Record<TitleSize, string> = {
   "5xl": "3.5rem"
 };
 
+
 function buildTextStyle({
   textAlign,
   truncate,
   maxLines,
-  minLines
+  minLines,
+  lineHeight = 1.5
 }: {
   textAlign?: TextAlign;
   truncate?: boolean;
   maxLines?: number;
   minLines?: number;
+  lineHeight?: number;
 }) {
   const style: React.CSSProperties = {
     textAlign: textAlign === "start" ? "left" : textAlign === "end" ? "right" : textAlign,
-    lineHeight: 1.4
+    lineHeight
   };
 
   if (truncate) {
     style.whiteSpace = "nowrap";
     style.overflow = "hidden";
     style.textOverflow = "ellipsis";
+    // overflow/text-overflow don't apply to inline elements, so inline
+    // renderers (Caption's <span>) need a block context for the ellipsis.
+    style.display = "block";
   }
 
   if (maxLines !== undefined) {
@@ -68,7 +72,7 @@ function buildTextStyle({
   }
 
   if (minLines !== undefined) {
-    style.minHeight = `${minLines * 1.4}em`;
+    style.minHeight = `${minLines * lineHeight}em`;
   }
 
   return style;
@@ -146,8 +150,7 @@ const EditableTextField: React.FC<{
     required,
     pattern,
     "data-allow-autofill": allowAutofillExtensions ? "true" : undefined,
-    className:
-      "w-full rounded-md border border-transparent bg-transparent px-0 py-0 text-inherit outline-none focus:border-slate-200 focus:bg-white focus:px-2 focus:py-1"
+    className: "wg-editable"
   };
 
   if (minLines && minLines > 1) {
@@ -173,7 +176,7 @@ const Text: React.FC<TextProps> = ({
   const theme = useWidgetTheme();
   const style: React.CSSProperties = {
     fontSize: textSizeMap[size],
-    fontWeight: weight,
+    fontWeight: resolveWeight(weight),
     fontStyle: italic ? "italic" : undefined,
     textDecoration: lineThrough ? "line-through" : undefined,
     width,
@@ -198,20 +201,33 @@ type TitleProps = BaseTextProps & {
   color?: string | ThemeColor;
 };
 
+const titleTrackingMap: Record<TitleSize, string> = {
+  sm: "-0.006em",
+  md: "-0.01em",
+  lg: "-0.014em",
+  xl: "-0.017em",
+  "2xl": "-0.02em",
+  "3xl": "-0.022em",
+  "4xl": "-0.024em",
+  "5xl": "-0.026em"
+};
+
 const Title: React.FC<TitleProps> = ({
   value,
   children,
   size = "md",
-  weight = "medium",
-  color = "prose",
+  weight = "semibold",
+  color = "emphasis",
   ...props
 }) => {
   const theme = useWidgetTheme();
   const style: React.CSSProperties = {
     fontSize: titleSizeMap[size],
-    fontWeight: weight,
+    fontWeight: resolveWeight(weight),
+    letterSpacing: titleTrackingMap[size],
     color: resolveColor(color, theme),
-    ...buildTextStyle(props)
+    ...buildTextStyle({ ...props, lineHeight: 1.25 }),
+    textWrap: "balance"
   };
   return <h3 style={style}>{children ?? value}</h3>;
 };
@@ -233,13 +249,28 @@ const Caption: React.FC<CaptionProps> = ({
   const theme = useWidgetTheme();
   const style: React.CSSProperties = {
     fontSize: captionSizeMap[size],
-    fontWeight: weight,
+    fontWeight: resolveWeight(weight),
     letterSpacing: "0.01em",
     color: resolveColor(color, theme),
-    ...buildTextStyle(props)
+    ...buildTextStyle({ ...props, lineHeight: 1.4 })
   };
   return <span style={style}>{children ?? value}</span>;
 };
+
+// react-markdown (plus its remark/rehype pipeline) is heavy; load it on demand
+// so widgets without Markdown never pay for it. The fallback shows the raw
+// text, which keeps content readable during the (brief) load.
+const LazyMarkdownContent = React.lazy(() =>
+  Promise.all([import("react-markdown"), import("remark-gfm")]).then(
+    ([reactMarkdown, remarkGfm]) => ({
+      default: ({ markdown }: { markdown: string }) => (
+        <reactMarkdown.default remarkPlugins={[remarkGfm.default]}>
+          {markdown}
+        </reactMarkdown.default>
+      )
+    })
+  )
+);
 
 const Markdown: React.FC<{ value?: string; streaming?: boolean; children?: React.ReactNode }> = ({ value, children }) => {
   const theme = useWidgetTheme();
@@ -256,7 +287,11 @@ const Markdown: React.FC<{ value?: string; streaming?: boolean; children?: React
           : "prose max-w-none text-sm"
       }
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+      <React.Suspense
+        fallback={<p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{markdown}</p>}
+      >
+        <LazyMarkdownContent markdown={markdown} />
+      </React.Suspense>
     </div>
   );
 };

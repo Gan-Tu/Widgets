@@ -18,7 +18,7 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     <div
       ref={ref}
       className={cn(
-        "inline-block animate-spin rounded-full border-slate-200 border-t-slate-900",
+        "inline-block animate-spin rounded-full border-[var(--widget-border-default)] border-t-[var(--widget-text-primary)]",
         sizeMap[size],
         className
       )}

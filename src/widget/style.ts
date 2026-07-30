@@ -17,7 +17,8 @@ const textColorTokens: Record<string, string> = {
   tertiary: "var(--widget-text-tertiary)",
   success: "var(--widget-text-success)",
   warning: "var(--widget-text-warning)",
-  danger: "var(--widget-text-danger)"
+  danger: "var(--widget-text-danger)",
+  info: "var(--widget-text-info)"
 };
 
 const surfaceTokens: Record<string, string> = {
@@ -81,6 +82,31 @@ export function sizeToCss(value?: number | string) {
     return `${value}px`;
   }
   return value;
+}
+
+/**
+ * Like sizeToCss, but also converts bare numeric strings ("240" → "240px"),
+ * which model-authored templates produce. Shared by the chart facade and
+ * implementation so the loading skeleton and the real frame always agree.
+ */
+export function normalizeCssSize(value?: number | string) {
+  if (value === undefined) return undefined;
+  if (typeof value === "number") return `${value}px`;
+  if (/^\d+(\.\d+)?$/.test(value)) return `${value}px`;
+  return value;
+}
+
+// CSS font-weight only accepts keywords/numbers — "medium"/"semibold" must map
+// to numerics or browsers silently ignore the declaration.
+const fontWeightMap: Record<string, number> = {
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700
+};
+
+export function resolveWeight(weight?: "normal" | "medium" | "semibold" | "bold") {
+  return weight ? fontWeightMap[weight] ?? 400 : undefined;
 }
 
 export function resolveThemeColor(
@@ -173,10 +199,30 @@ function borderToCss(border: Border | number | undefined, theme: ThemeMode) {
 
 export function applyBorder(
   style: CSSProperties,
-  border?: number | Border | Borders,
+  border?: number | string | boolean | Border | Borders,
   theme: ThemeMode = "light"
 ) {
-  if (border === undefined) return;
+  if (border === undefined || border === null) return;
+  // Guard against model-authored `border` / `border={true}` / `border="true"`.
+  if (typeof border === "boolean" || border === "true" || border === "false") {
+    if (border === true || border === "true") {
+      style.borderWidth = "1px";
+      style.borderStyle = "solid";
+      style.borderColor = resolveColor("default", theme);
+    }
+    return;
+  }
+  if (typeof border === "string") {
+    // `border="1"` (quoted number) → treat as a width; anything else is
+    // passed through as a CSS border shorthand ("1px solid #ccc").
+    if (/^\d+(\.\d+)?$/.test(border.trim())) {
+      border = Number(border);
+    } else {
+      style.border = border;
+      return;
+    }
+  }
+  if (typeof border !== "number" && typeof border !== "object") return;
   if (typeof border === "number" || "size" in (border as Border)) {
     const resolved = borderToCss(border as Border | number, theme);
     if (!resolved) return;

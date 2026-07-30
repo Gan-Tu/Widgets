@@ -16,7 +16,7 @@ const IconGallerySchema = z.strictObject({
 
 export const iconGalleryExample: ComponentExample = {
   template: `
-<Card size="xl">
+<Card size="full">
   <Col gap={1}>
     <Row align="center">
       <Title value="Icon gallery" size="sm" />
@@ -386,8 +386,8 @@ export const componentExamples: Record<string, ComponentExample> = {
         title="Launch path"
         size={28}
         paths={[
-          { d: "M4 16C8 6 16 4 20 4c0 4-2 12-12 16", stroke: "#2563eb", strokeWidth: 2 },
-          { d: "M9 15l-4 4", stroke: "#16a34a", strokeWidth: 2 }
+          { d: "M4 16C8 6 16 4 20 4c0 4-2 12-12 16", stroke: "var(--widget-accent)", strokeWidth: 2 },
+          { d: "M9 15l-4 4", stroke: "var(--widget-success)", strokeWidth: 2 }
         ]}
       />
     </Box>
@@ -750,7 +750,7 @@ export const componentExamples: Record<string, ComponentExample> = {
   Response: {
     template: `
 <Response gap={3}>
-  <Card size="sm" status={{ label: "Live", tone: "success" }}>
+  <Card size="sm" status={{ text: "Live", icon: "check-circle" }}>
     <Row gap={3}>
       <Hermes title="Hermes runtime" subtitle="Wrapper blocks render normal children." />
       <Spacer />
@@ -1088,7 +1088,7 @@ export const componentExamples: Record<string, ComponentExample> = {
 <Card size="md" gap={3}>
   <Title value="AudioPlayer" size="sm" />
   <AudioPlayer
-    src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"
+    src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
     title="Dispatch briefing"
     subtitle="Native audio controls with compact transport."
     preload="metadata"
@@ -1119,12 +1119,12 @@ export const componentExamples: Record<string, ComponentExample> = {
   <Map
     height={220}
     markers={[
-      { latitude: 37.7749, longitude: -122.4194, label: "HQ", color: "#2563eb" },
-      { latitude: 37.784, longitude: -122.407, label: "Pickup", color: "#16a34a", style: "dot" },
-      { latitude: 37.761, longitude: -122.427, label: "Dropoff", color: "#dc2626" }
+      { latitude: 37.7749, longitude: -122.4194, label: "HQ", color: "var(--widget-accent)" },
+      { latitude: 37.784, longitude: -122.407, label: "Pickup", color: "var(--widget-success)", style: "dot" },
+      { latitude: 37.761, longitude: -122.427, label: "Dropoff", color: "var(--widget-danger)" }
     ]}
     routes={[
-      { color: "#2563eb", coordinates: [[-122.4194, 37.7749], [-122.414, 37.781], [-122.407, 37.784]] }
+      { color: "var(--widget-accent)", coordinates: [[-122.4194, 37.7749], [-122.414, 37.781], [-122.407, 37.784]] }
     ]}
   />
 </Card>
@@ -1267,6 +1267,233 @@ export const componentExamples: Record<string, ComponentExample> = {
       <Highlight value="Marked" />
     </Inline>
   </Text>
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Stat: {
+    template: `
+<Card size="md">
+  <Row gap={6}>
+    <Stat label="Revenue" value="$48.2k" delta="+12.4%" deltaLabel="vs last month" icon="trending-up" />
+    <Stat label="Churn" value="1.8%" delta="-0.4%" upIsPositive={false} deltaLabel="vs last month" />
+    <Stat label="NPS" value={62} helpText="Rolling 30 days" />
+  </Row>
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Sparkline: {
+    template: `
+<Card size="sm">
+  <Col gap={2}>
+    <Row align="baseline" gap={2}>
+      <Title value="Weekly active users" size="sm" />
+      <Spacer />
+      <Text value="4,812" weight="semibold" />
+    </Row>
+    <Sparkline data={points} height={44} />
+    <Caption value="Last 12 weeks" size="sm" />
+  </Col>
+</Card>
+    `.trim(),
+    schema: z.strictObject({
+      points: z.array(z.number())
+    }),
+    data: {
+      points: [2840, 3120, 2980, 3390, 3610, 3480, 3920, 4110, 3980, 4370, 4590, 4812]
+    }
+  },
+  Callout: {
+    template: `
+<Card size="md" gap={2}>
+  <Callout
+    color="info"
+    title="Scheduled maintenance"
+    description="Dashboards may be briefly unavailable on Sunday 02:00-03:00 UTC."
+  />
+  <Callout
+    color="warning"
+    title="Approaching plan limit"
+    description="You have used 92% of this month's render quota."
+    action={{ label: "Upgrade", action: { type: "plan.upgrade" } }}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Timeline: {
+    template: `
+<Card size="md" gap={3}>
+  <Title value="Delivery status" size="sm" />
+  <Timeline items={events} />
+</Card>
+    `.trim(),
+    schema: z.strictObject({
+      events: z.array(
+        z.strictObject({
+          title: z.string(),
+          description: z.string().optional(),
+          time: z.string().optional(),
+          icon: z.enum(iconNames).optional(),
+          state: z.enum(["done", "active", "upcoming"]).optional()
+        })
+      )
+    }),
+    data: {
+      events: [
+        {
+          title: "Order placed",
+          description: "Confirmation sent to alex@example.com.",
+          time: "9:41 AM",
+          icon: "receipt",
+          state: "done"
+        },
+        {
+          title: "Packed",
+          description: "Left the fulfillment center.",
+          time: "1:05 PM",
+          state: "done"
+        },
+        {
+          title: "Out for delivery",
+          description: "Courier is 3 stops away.",
+          time: "Now",
+          icon: "truck",
+          state: "active"
+        },
+        { title: "Delivered", state: "upcoming" }
+      ]
+    }
+  },
+  Rating: {
+    template: `
+<Card size="sm" gap={3}>
+  <Col gap={1}>
+    <Text value="Sunrise Trail Cafe" weight="semibold" />
+    <Rating value={4.3} showValue count={128} />
+  </Col>
+  <Rating value={3.5} size="lg" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ChipGroup: {
+    template: `
+<Card size="md" gap={2}>
+  <Text value="Filter by topic" weight="semibold" size="sm" />
+  <ChipGroup
+    name="topics"
+    type="multiple"
+    defaultValues={["design"]}
+    options={[
+      { label: "Design", value: "design", icon: "palette" },
+      { label: "Engineering", value: "engineering", icon: "code" },
+      { label: "Research", value: "research" },
+      { label: "Launch", value: "launch", icon: "rocket" },
+      { label: "Archived", value: "archived", disabled: true }
+    ]}
+    onChangeAction={{ type: "topics.change" }}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  KeyValue: {
+    template: `
+<Card size="sm" gap={3}>
+  <Title value="Order #10482" size="sm" />
+  <KeyValue divider rows={rows} />
+</Card>
+    `.trim(),
+    schema: z.strictObject({
+      rows: z.array(
+        z.strictObject({
+          label: z.string(),
+          value: z.union([z.string(), z.number()]),
+          icon: z.enum(iconNames).optional(),
+          emphasis: z.boolean().optional(),
+          color: z.string().optional()
+        })
+      )
+    }),
+    data: {
+      rows: [
+        { label: "Placed", value: "Jul 28, 2026", icon: "calendar-check" },
+        { label: "Items", value: 3 },
+        { label: "Status", value: "Shipped", color: "success" },
+        { label: "Total", value: "$236.90", emphasis: true }
+      ]
+    }
+  },
+  Steps: {
+    template: `
+<Card size="md" gap={3}>
+  <Steps
+    current={1}
+    items={[
+      { label: "Cart" },
+      { label: "Shipping" },
+      { label: "Payment" },
+      { label: "Review" }
+    ]}
+  />
+  <Caption value="Step 2 of 4 — Shipping" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  EmptyState: {
+    template: `
+<Card size="sm">
+  <EmptyState
+    icon="inbox"
+    title="No notifications"
+    description="You're all caught up. New alerts will appear here."
+    action={{ label: "Refresh", action: { type: "notifications.refresh" } }}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Tabs: {
+    template: `
+<Card size="md">
+  <Tabs
+    defaultTab="overview"
+    tabs={[
+      { id: "overview", label: "Overview", icon: "info" },
+      { id: "activity", label: "Activity", icon: "activity" },
+      { id: "settings", label: "Settings", icon: "settings" }
+    ]}
+    onChangeAction={{ type: "tab.change" }}
+  >
+    <Tabs.Panel id="overview">
+      <Col gap={1}>
+        <Text value="Project overview" weight="semibold" />
+        <Caption value="Panels mount only while their id matches the active tab." />
+      </Col>
+    </Tabs.Panel>
+    <Tabs.Panel id="activity">
+      <Col gap={1}>
+        <Text value="12 events this week" weight="semibold" />
+        <Caption value="Deploys, reviews, and comments show up here." />
+      </Col>
+    </Tabs.Panel>
+    <Tabs.Panel id="settings">
+      <Col gap={1}>
+        <Text value="Notifications: enabled" weight="semibold" />
+        <Caption value="Switch tabs to swap panel content." />
+      </Col>
+    </Tabs.Panel>
+  </Tabs>
 </Card>
     `.trim(),
     schema: EmptySchema,

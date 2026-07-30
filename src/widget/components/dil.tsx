@@ -10,8 +10,15 @@ import {
   Volume2
 } from "lucide-react";
 
-import { useWidgetAction, useWidgetForm, useWidgetTheme, getFormValue } from "../context";
-import { useActionHandler, useVisibleAction } from "../hooks";
+import {
+  buildChangePayload,
+  useWidgetAction,
+  useWidgetForm,
+  useWidgetTheme,
+  getFormValue,
+  WidgetThemeProvider
+} from "../context";
+import { useActionHandler, useResizeObserver, useVisibleAction } from "../hooks";
 import type {
   ActionConfig,
   Alignment,
@@ -54,15 +61,37 @@ function textSizeToCss(size: TextSize | undefined) {
   return map[size ?? "md"];
 }
 
-const Response: React.FC<ChildrenProps & { gap?: number | string; padding?: number | string | Padding; theme?: "light" | "dark" }> = ({
-  children,
-  gap,
-  padding
-}) => (
-  <Col gap={gap ?? 3} padding={padding}>
-    {children}
-  </Col>
-);
+const Response: React.FC<
+  ChildrenProps & {
+    gap?: number | string;
+    padding?: number | string | Padding;
+    theme?: "light" | "dark";
+    onVisibleAction?: ActionConfig;
+  }
+> = ({ children, gap, padding, theme, onVisibleAction }) => {
+  const inheritedTheme = useWidgetTheme();
+  const resolvedTheme = theme ?? inheritedTheme;
+  const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  const style: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    // Root container parity with Basic: fill the width so auto-fit grids
+    // inside don't collapse in shrink-to-fit hosts.
+    width: "100%",
+    gap: resolveGap(gap ?? 3)
+  };
+  applyPadding(style, padding);
+
+  // Response is a valid template root, so it must establish the .widget-root
+  // scope (tokens, font, cursor/focus rules) and the theme like Basic does.
+  return (
+    <WidgetThemeProvider theme={resolvedTheme}>
+      <div ref={visibleRef} className="widget-root" data-theme={resolvedTheme} style={style}>
+        {children}
+      </div>
+    </WidgetThemeProvider>
+  );
+};
 
 const Debug: React.FC<ChildrenProps & { value?: unknown; label?: string; onVisibleAction?: ActionConfig }> = ({
   children,
@@ -74,9 +103,16 @@ const Debug: React.FC<ChildrenProps & { value?: unknown; label?: string; onVisib
   return (
     <div
       ref={ref}
-      className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 font-mono text-xs text-slate-600"
+      className="rounded-lg border border-dashed p-3 font-mono text-xs"
+      style={{
+        borderColor: "var(--widget-border-strong)",
+        background: "var(--widget-surface-secondary)",
+        color: "var(--widget-text-secondary)"
+      }}
     >
-      <div className="mb-2 font-semibold text-slate-500">{label}</div>
+      <div className="mb-2 font-semibold" style={{ color: "var(--widget-text-secondary)" }}>
+        {label}
+      </div>
       {value !== undefined ? JSON.stringify(value, null, 2) : children}
     </div>
   );
@@ -145,13 +181,23 @@ const Underline: React.FC<React.ComponentProps<typeof Emphasis>> = (props) => (
 );
 
 const Code: React.FC<React.ComponentProps<typeof Emphasis>> = ({ value, children }) => (
-  <code className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[0.86em] text-slate-800">
+  <code
+    className="rounded-md px-1.5 py-0.5 text-[0.86em]"
+    style={{
+      fontFamily: "var(--widget-font-mono)",
+      background: "var(--widget-surface-tertiary)",
+      color: "var(--widget-text-primary)",
+      border: "1px solid var(--widget-border-subtle)"
+    }}
+  >
     {value ?? children}
   </code>
 );
 
 const MathText: React.FC<React.ComponentProps<typeof Emphasis>> = ({ value, children }) => (
-  <span className="font-serif italic text-slate-800">{value ?? children}</span>
+  <span className="font-serif italic" style={{ color: "var(--widget-text-primary)" }}>
+    {value ?? children}
+  </span>
 );
 
 const Highlight: React.FC<React.ComponentProps<typeof Emphasis> & { color?: string | ThemeColor }> = ({
@@ -176,7 +222,7 @@ const Highlight: React.FC<React.ComponentProps<typeof Emphasis> & { color?: stri
 
 const ShimmerText: React.FC<{ value: string; size?: TextSize }> = ({ value, size = "md" }) => (
   <span
-    className="bg-[linear-gradient(100deg,#64748b_20%,#f8fafc_40%,#64748b_60%)] bg-[length:200%_100%] bg-clip-text font-medium text-transparent animate-pulse"
+    className="bg-[linear-gradient(100deg,var(--widget-text-tertiary)_20%,var(--widget-text-emphasis)_40%,var(--widget-text-tertiary)_60%)] bg-[length:200%_100%] bg-clip-text font-medium text-transparent animate-pulse"
     style={{ fontSize: textSizeToCss(size) }}
   >
     {value}
@@ -215,7 +261,7 @@ const LoadingBlock: React.FC<{ height?: number | string; width?: number | string
   radius = "md"
 }) => (
   <div
-    className="animate-pulse bg-slate-100"
+    className="wg-skeleton"
     style={{ height: toCssSize(height), width: toCssSize(width), borderRadius: resolveRadius(radius) }}
   />
 );
@@ -337,20 +383,24 @@ const AudioPlayer: React.FC<{
       <Row gap={3}>
         <button
           type="button"
-          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-white"
+          className="wg-interactive flex h-9 w-9 cursor-pointer items-center justify-center rounded-full"
+          style={{ background: "var(--widget-accent)", color: "var(--widget-on-accent)" }}
           onClick={toggle}
           aria-label={playing ? "Pause audio" : "Play audio"}
         >
           {playing ? <Pause size={16} /> : <Play size={16} />}
         </button>
-        <Col gap={0} flex={1}>
-          <Text value={title} weight="semibold" />
-          {subtitle ? <Caption value={subtitle} /> : null}
+        {/* Player text is a control label, not a heading — keep it compact and
+            single-line so it doesn't compete with the widget's own Title. */}
+        <Col gap={0} flex={1} minWidth={0}>
+          <Text value={title} size="sm" weight="semibold" truncate />
+          {subtitle ? <Caption value={subtitle} size="sm" truncate /> : null}
         </Col>
-        <Volume2 size={16} className="text-slate-500" />
+        <Volume2 size={16} style={{ color: "var(--widget-text-secondary)" }} />
         {downloadUrl ?? src ? (
           <a
-            className="cursor-pointer text-slate-500 hover:text-slate-900"
+            className="wg-interactive cursor-pointer"
+            style={{ color: "var(--widget-text-secondary)" }}
             href={downloadUrl ?? src}
             download={downloadFilename ?? title}
             aria-label="Download audio"
@@ -421,8 +471,8 @@ const YouTubeEmbed: React.FC<{ videoId?: string; src?: string; title?: string; h
     <iframe
       src={embedSrc}
       title={title}
-      className="w-full rounded-xl border border-slate-200"
-      style={{ height: toCssSize(height) }}
+      className="w-full rounded-xl border"
+      style={{ height: toCssSize(height), borderColor: "var(--widget-border-default)" }}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
     />
@@ -467,13 +517,15 @@ const Map: React.FC<{
       }}
     >
       <div className="absolute inset-0 opacity-60" style={{ backgroundImage: "linear-gradient(90deg, rgba(148,163,184,.22) 1px, transparent 1px), linear-gradient(rgba(148,163,184,.22) 1px, transparent 1px)", backgroundSize: "34px 34px" }} />
-      <svg className="absolute inset-0 h-full w-full">
+      {/* viewBox 0-100 + preserveAspectRatio="none" keeps route coordinates in the
+          same percentage space markers use, so routes and pins stay aligned. */}
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
         {routes.map((route, index) => (
           <polyline
             key={index}
             points={route.coordinates.map(([longitude, latitude]) => `${xFor(longitude)},${yFor(latitude)}`).join(" ")}
             fill="none"
-            stroke={route.color ?? "#2563eb"}
+            stroke={route.color ?? "var(--widget-accent)"}
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -532,10 +584,32 @@ const BaseCarousel: React.FC<ChildrenProps & {
         </div>
         {showArrows ? (
           <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10 flex items-center justify-between px-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-            <button type="button" className="pointer-events-auto flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white/90 shadow-sm" onClick={() => scrollBy(-1)} aria-label="Previous item">
+            <button
+              type="button"
+              className="wg-interactive pointer-events-auto flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border backdrop-blur"
+              style={{
+                borderColor: "var(--widget-border-default)",
+                background: "var(--widget-surface-elevated)",
+                color: "var(--widget-text-primary)",
+                boxShadow: "var(--widget-shadow-sm)"
+              }}
+              onClick={() => scrollBy(-1)}
+              aria-label="Previous item"
+            >
               <ChevronLeft size={15} />
             </button>
-            <button type="button" className="pointer-events-auto flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white/90 shadow-sm" onClick={() => scrollBy(1)} aria-label="Next item">
+            <button
+              type="button"
+              className="wg-interactive pointer-events-auto flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border backdrop-blur"
+              style={{
+                borderColor: "var(--widget-border-default)",
+                background: "var(--widget-surface-elevated)",
+                color: "var(--widget-text-primary)",
+                boxShadow: "var(--widget-shadow-sm)"
+              }}
+              onClick={() => scrollBy(1)}
+              aria-label="Next item"
+            >
               <ChevronRight size={15} />
             </button>
           </div>
@@ -640,6 +714,13 @@ const CardLinkItem: React.FC<ChildrenProps & { href?: string; onClickAction?: Ac
   );
 };
 
+// Models often quote numeric props (`columns="3"`), which would emit invalid
+// CSS like `grid-template-columns: 3`; coerce bare numeric strings.
+function toTrackCount(value: number | string | undefined) {
+  if (typeof value === "string" && /^\d+$/.test(value.trim())) return Number(value);
+  return value;
+}
+
 const Grid: React.FC<ChildrenProps & {
   columns?: number | string;
   gap?: number | string;
@@ -647,9 +728,17 @@ const Grid: React.FC<ChildrenProps & {
   onVisibleAction?: ActionConfig;
 }> = ({ children, columns = 2, gap = 2, padding, onVisibleAction }) => {
   const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  const resolvedColumns = toTrackCount(columns);
   const style: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: typeof columns === "number" ? `repeat(${columns}, minmax(0, 1fr))` : columns,
+    gridTemplateColumns:
+      typeof resolvedColumns === "number"
+        ? `repeat(${resolvedColumns}, minmax(0, 1fr))`
+        : resolvedColumns,
+    // Fill the parent: `repeat(auto-fit, ...)` templates collapse to one
+    // column when the grid is sized by its contents (e.g. inside centered
+    // flex parents).
+    width: "100%",
     gap: resolveGap(gap)
   };
   applyPadding(style, padding);
@@ -694,18 +783,20 @@ const Flow: React.FC<ChildrenProps & {
   onVisibleAction
 }) => {
   const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  const resolvedColumns = toTrackCount(columns);
+  const resolvedRows = toTrackCount(rows);
   const style: React.CSSProperties =
     layout === "grid" || columns || rows
       ? {
           display: "grid",
           gridTemplateColumns:
-            typeof columns === "number"
-              ? `repeat(${columns}, minmax(0, 1fr))`
-              : columns,
+            typeof resolvedColumns === "number"
+              ? `repeat(${resolvedColumns}, minmax(0, 1fr))`
+              : resolvedColumns,
           gridTemplateRows:
-            typeof rows === "number"
-              ? `repeat(${rows}, minmax(0, auto))`
-              : rows,
+            typeof resolvedRows === "number"
+              ? `repeat(${resolvedRows}, minmax(0, auto))`
+              : resolvedRows,
           gap: resolveGap(gap)
         }
       : { display: "flex", flexWrap: layout === "fixed" ? "nowrap" : "wrap", gap: resolveGap(gap) };
@@ -733,6 +824,8 @@ const FlowItem: React.FC<ChildrenProps & { span?: number; basis?: number | strin
   );
 };
 
+const OVERFLOW_ROW_FALLBACK_HEIGHT = 36; // ~2.25rem per row: SSR / pre-measure clamp
+
 const OverflowRow: React.FC<ChildrenProps & { rows?: number; gap?: number | string; onVisibleAction?: ActionConfig }> = ({
   children,
   rows = 1,
@@ -740,11 +833,48 @@ const OverflowRow: React.FC<ChildrenProps & { rows?: number; gap?: number | stri
   onVisibleAction
 }) => {
   const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  // Start from a per-row estimate so server-rendered / pre-measure output is
+  // still clamped, then clip at the measured bottom edge of the last allowed
+  // row — a fixed guess alone slices through taller children (badges, chips)
+  // and lets the next row peek through half-cut.
+  const [maxHeight, setMaxHeight] = React.useState<number>(
+    rows * OVERFLOW_ROW_FALLBACK_HEIGHT
+  );
+
+  useResizeObserver(ref, (node) => {
+    const kids = Array.from(node.children) as HTMLElement[];
+    if (kids.length === 0) return;
+    const rowTops: number[] = [];
+    for (const kid of kids) {
+      const top = kid.offsetTop;
+      if (!rowTops.some((existing) => Math.abs(existing - top) < 2)) {
+        rowTops.push(top);
+      }
+    }
+    rowTops.sort((a, b) => a - b);
+    if (rowTops.length <= rows) {
+      // Everything fits: clamp exactly at the content's own height.
+      const contentBottom = Math.max(
+        ...kids.map((kid) => kid.offsetTop + kid.offsetHeight)
+      );
+      setMaxHeight(contentBottom);
+      return;
+    }
+    const firstHiddenTop = rowTops[rows];
+    let lastVisibleBottom = 0;
+    for (const kid of kids) {
+      if (kid.offsetTop < firstHiddenTop - 1) {
+        lastVisibleBottom = Math.max(lastVisibleBottom, kid.offsetTop + kid.offsetHeight);
+      }
+    }
+    if (lastVisibleBottom > 0) setMaxHeight(lastVisibleBottom);
+  });
+
   return (
     <div
       ref={ref}
-      className="flex flex-wrap overflow-hidden"
-      style={{ gap: resolveGap(gap), maxHeight: `${rows * 2.25}rem` }}
+      className="relative flex flex-wrap overflow-hidden"
+      style={{ gap: resolveGap(gap), maxHeight }}
     >
       {children}
     </div>
@@ -876,8 +1006,13 @@ const PopoverContent: React.FC<ChildrenProps & { side?: "top" | "bottom" | "left
   };
   return (
     <span
-      className="absolute z-50 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl"
-      style={position}
+      className="absolute z-50 block rounded-xl border p-3 text-left"
+      style={{
+        ...position,
+        borderColor: "var(--widget-border-default)",
+        background: "var(--widget-surface-elevated)",
+        boxShadow: "var(--widget-shadow-lg)"
+      }}
     >
       {children}
     </span>
@@ -954,7 +1089,8 @@ const ListItem: React.FC<ChildrenProps & { marker?: React.ReactNode | string; on
     <div ref={ref} className="widget-list-item grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
       <span
         aria-hidden={isInternalListMarker(resolvedMarker) ? true : undefined}
-        className="flex h-6 items-center justify-center text-sm text-slate-500"
+        className="flex h-6 items-center justify-center text-sm"
+        style={{ color: "var(--widget-text-tertiary)" }}
       >
         {renderedMarker}
       </span>
@@ -1022,7 +1158,10 @@ const Table: React.FC<ChildrenProps & { columnSizing?: "auto" | "equal"; rowDivi
 const TableRow: React.FC<ChildrenProps & { header?: boolean; label?: string }> = ({ children, header, label }) => {
   const cells = React.Children.toArray(children);
   return (
-    <tr className="border-b border-slate-100 last:border-0">
+    <tr
+      className="border-b last:border-0"
+      style={{ borderColor: "var(--widget-border-subtle)" }}
+    >
       {label ? (
         <TableCell header={header}>
           <Text value={label} weight={header ? "semibold" : "normal"} />
@@ -1125,7 +1264,9 @@ const SegmentedControl: React.FC<{
             onClick={() => {
               setLocalValue(option.value);
               if (name && form) form.setValue(name, option.value);
-              if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: option.value, value: option.value, option });
+              if (onChangeAction && action) {
+                action(onChangeAction, buildChangePayload(name, option.value, { option }));
+              }
             }}
           >
             {option.label}

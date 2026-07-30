@@ -332,16 +332,41 @@ function validateGenerateRequest(body) {
   };
 }
 
+let cachedEnvFileKey;
+
 async function getOpenAIKey() {
   if (process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY;
+  // Cache only a found key: a missing key stays uncached so adding it to
+  // .env.local takes effect without a dev-server restart.
+  if (cachedEnvFileKey) return cachedEnvFileKey;
 
   try {
     const envFile = await readFile(path.join(process.cwd(), ".env.local"), "utf8");
     const match = envFile.match(/^OPENAI_API_KEY=(.*)$/m);
-    return match?.[1]?.trim().replace(/^["']|["']$/g, "");
+    cachedEnvFileKey = match?.[1]?.trim().replace(/^["']|["']$/g, "");
+    return cachedEnvFileKey;
   } catch {
     return undefined;
   }
+}
+
+// The authoring guide is static in production; cache the read so each
+// generation request doesn't repeat a ~55KB disk read + decode. In dev the
+// file is under active iteration (vite pins this module for the server's
+// lifetime), so read fresh to keep the edit → generate loop honest.
+let widgetAuthoringGuidePromise;
+
+function getWidgetAuthoringGuide() {
+  const guidePath = path.join(process.cwd(), "public", "AGENTS.md");
+  if (process.env.NODE_ENV !== "production") {
+    return readFile(guidePath, "utf8");
+  }
+  widgetAuthoringGuidePromise ??= readFile(guidePath, "utf8").catch((error) => {
+    // Don't cache a transient failure.
+    widgetAuthoringGuidePromise = undefined;
+    throw error;
+  });
+  return widgetAuthoringGuidePromise;
 }
 
 async function callOpenAIResponses(apiKey, body) {
@@ -706,8 +731,10 @@ function compactResearchNotes(notes) {
 }
 
 function sanitizeTemplateCompatibility(template) {
+  // Note: boolean `border` props (bare, `={true}`, `={false}`) are handled by
+  // the renderer itself (applyBorder in src/widget/style.ts), so no text-level
+  // rewrite is needed — text rewrites risk corrupting prose in string values.
   return template
-    .replace(/\sborder(?:=\{(?:true|false)\}|="(?:true|false)")?(?=[\s/>])/g, "")
     .replace(/\s\$(\w+)=\{([^{}]+)\}/g, ' $$$1="$2"')
     .replace(/\s<(Badge)([^>]*)\svalue=/g, " <$1$2 label=")
     .replace(/\s<(Button)([^>]*)\svalue=/g, " <$1$2 label=")
@@ -1089,10 +1116,7 @@ async function runGeneration(request, progress) {
     throw createHttpError("OPENAI_API_KEY is not configured.", 500);
   }
 
-  const widgetAuthoringGuide = await readFile(
-    path.join(process.cwd(), "public", "AGENTS.md"),
-    "utf8"
-  );
+  const widgetAuthoringGuide = await getWidgetAuthoringGuide();
 
   let referenceImageNotes = "";
   if (request.referenceImages.length > 0) {

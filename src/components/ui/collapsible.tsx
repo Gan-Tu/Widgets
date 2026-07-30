@@ -12,7 +12,7 @@ const CollapsibleTrigger = React.forwardRef<
   <CollapsiblePrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center text-sm font-medium text-slate-700",
+      "inline-flex items-center justify-center text-sm font-medium text-[var(--widget-text-primary)]",
       className
     )}
     {...props}
@@ -26,7 +26,7 @@ const CollapsibleContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CollapsiblePrimitive.Content
     ref={ref}
-    className={cn("text-sm text-slate-600", className)}
+    className={cn("text-sm text-[var(--widget-text-secondary)]", className)}
     {...props}
   />
 ));

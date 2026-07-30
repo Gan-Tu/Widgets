@@ -3,6 +3,39 @@ import React from "react";
 import { useWidgetAction } from "./context";
 import type { ActionConfig } from "./types";
 
+/** useLayoutEffect that no-ops (via useEffect) on the server, avoiding the SSR warning. */
+export const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+
+/**
+ * Observe an element's size: runs `onMeasure` once on mount (before paint)
+ * and again on every resize. In environments without ResizeObserver, a single
+ * requestAnimationFrame retry gives late layout (fonts, images) one more shot.
+ */
+export function useResizeObserver<T extends HTMLElement>(
+  ref: React.RefObject<T | null>,
+  onMeasure: (node: T) => void
+) {
+  const callbackRef = React.useRef(onMeasure);
+  callbackRef.current = onMeasure;
+
+  useIsomorphicLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const measure = () => callbackRef.current(node);
+
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      if (typeof window === "undefined") return;
+      const frameId = window.requestAnimationFrame(measure);
+      return () => window.cancelAnimationFrame(frameId);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [ref]);
+}
+
 export function useVisibleAction<T extends HTMLElement>(
   actionConfig?: ActionConfig,
   threshold = 0.5

@@ -41,13 +41,49 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
     return schema.safeParse(data);
   }, [schema, data]);
 
-  const [localState, setLocalState] = React.useState<unknown>(data);
+  const [localState, setLocalState] = React.useState<unknown>(
+    parseResult.success ? parseResult.data : data
+  );
+  const [lastAppliedData, setLastAppliedData] = React.useState<unknown>(
+    parseResult.success ? parseResult.data : undefined
+  );
 
-  React.useEffect(() => {
-    if (parseResult.success) {
-      setLocalState(parseResult.data);
+  // Derive state synchronously when new data arrives so the template never
+  // renders against a stale shape (an effect-based sync produces one render
+  // where a new template sees the previous widget's data).
+  const incomingData = parseResult.success && parseResult.data !== lastAppliedData;
+  if (incomingData) {
+    setLastAppliedData(parseResult.data);
+    setLocalState(parseResult.data);
+  }
+  // Render THIS pass against the fresh data too: the render-phase setState
+  // re-invokes the component, and using the new data here means the re-run's
+  // memo is a cache hit instead of a second full renderTemplate walk.
+  const stateForRender = incomingData ? parseResult.data : localState;
+
+  const renderResult = React.useMemo<
+    { ok: true; node: React.ReactNode } | { ok: false; message: string }
+  >(() => {
+    const scope =
+      typeof stateForRender === "object" && stateForRender !== null
+        ? (() => {
+            const record = stateForRender as Record<string, unknown>;
+            // Historically we exposed the full validated state as `data`, but that can clobber
+            // widgets that legitimately have a `data` field (common for chart datasets).
+            // Keep backwards-compat by only injecting `data` when it doesn't already exist.
+            return "data" in record
+              ? { ...record, state: record }
+              : { ...record, data: record, state: record };
+          })()
+        : { value: stateForRender, state: stateForRender };
+
+    try {
+      return { ok: true, node: renderTemplate(template.trim(), scope, widgetRegistry) };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      return { ok: false, message: message || "Unknown error" };
     }
-  }, [parseResult]);
+  }, [stateForRender, template]);
 
   if (!parseResult.success) {
     const message = parseResult.error.issues
@@ -56,30 +92,11 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
     return <ErrorPanel title="Schema validation failed" message={message} />;
   }
 
-  const scope =
-    typeof localState === "object" && localState !== null
-      ? (() => {
-          const record = localState as Record<string, unknown>;
-          // Historically we exposed the full validated state as `data`, but that can clobber
-          // widgets that legitimately have a `data` field (common for chart datasets).
-          // Keep backwards-compat by only injecting `data` when it doesn't already exist.
-          return "data" in record
-            ? { ...record, state: record }
-            : { ...record, data: record, state: record };
-        })()
-      : { value: localState, state: localState };
-
-  let rendered: React.ReactNode;
-  try {
-    rendered = renderTemplate(template.trim(), scope, widgetRegistry);
-  } catch (error) {
-    return (
-      <ErrorPanel
-        title="Template error"
-        message={error instanceof Error ? error.message : "Unknown error"}
-      />
-    );
+  if (!renderResult.ok) {
+    return <ErrorPanel title="Template error" message={renderResult.message} />;
   }
+
+  const rendered = renderResult.node;
 
   return (
     <WidgetThemeProvider theme={theme}>

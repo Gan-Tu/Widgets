@@ -29,12 +29,12 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 rounded-t-2xl border border-slate-200 bg-white p-6 shadow-lg",
+        "fixed inset-x-0 bottom-0 z-50 mt-24 rounded-t-2xl border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-6 shadow-lg",
         className
       )}
       {...props}
     >
-      <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-slate-200" />
+      <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[var(--widget-surface-tertiary)]" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
@@ -57,7 +57,7 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold text-slate-900", className)}
+    className={cn("text-lg font-semibold text-[var(--widget-text-emphasis)]", className)}
     {...props}
   />
 ));
@@ -69,7 +69,7 @@ const DrawerDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-slate-600", className)}
+    className={cn("text-sm text-[var(--widget-text-secondary)]", className)}
     {...props}
   />
 ));

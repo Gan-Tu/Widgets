@@ -1,7 +1,6 @@
 import React from "react";
 
 import { Checkbox as UiCheckbox } from "../../components/ui/checkbox";
-import { Input as UiInput } from "../../components/ui/input";
 import { Label as UiLabel } from "../../components/ui/label";
 import { Button as UiButton } from "../../components/ui/button";
 import { RadioGroup as UiRadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
@@ -15,12 +14,12 @@ import {
   SelectTrigger,
   SelectValue
 } from "../../components/ui/select";
-import { Textarea as UiTextarea } from "../../components/ui/textarea";
 import { cn } from "../../lib/utils";
 import { format, isValid, parseISO, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import {
+  buildChangePayload,
   getFormValue,
   useWidgetAction,
   useWidgetForm,
@@ -47,7 +46,8 @@ import {
   controlGutters,
   controlHeights,
   resolveColor,
-  resolveGap
+  resolveGap,
+  resolveWeight
 } from "../style";
 
 type FormProps = React.PropsWithChildren<{
@@ -169,20 +169,20 @@ const Input: React.FC<InputProps> = ({
   const [value, setValue] = useFieldValue(name, defaultValue);
   const resolvedValue = controlledValue ?? value;
   const height = controlHeights[size] ?? controlHeights.md;
-  const gutterKey =
-    gutterSize ?? (controlGutters[size as keyof typeof controlGutters] ? size : "md");
-  const paddingX = controlGutters[gutterKey as keyof typeof controlGutters] ?? "12px";
+  const paddingX = controlGutters[gutterSize ?? size] ?? controlGutters.md;
 
   return (
-    <UiInput
+    <input
       id={name}
       name={name}
       type={inputType}
+      className="wg-input"
+      data-variant={variant}
       value={resolvedValue}
       onChange={(event) => {
         const next = event.target.value;
         setValue(next);
-        if (onChangeAction && action) action(onChangeAction, { [name]: next, value: next });
+        if (onChangeAction && action) action(onChangeAction, buildChangePayload(name, next));
       }}
       placeholder={placeholder}
       required={required}
@@ -194,9 +194,7 @@ const Input: React.FC<InputProps> = ({
         height,
         paddingLeft: paddingX,
         paddingRight: paddingX,
-        borderRadius: pill ? "999px" : "10px",
-        borderColor: variant === "outline" ? "#e2e8f0" : "transparent",
-        background: variant === "soft" ? "#f8fafc" : "#ffffff"
+        borderRadius: pill ? "999px" : "var(--widget-radius-control)"
       }}
       onFocus={(event) => autoSelect && event.target.select()}
     />
@@ -244,19 +242,19 @@ const Textarea: React.FC<TextareaProps> = ({
   const [value, setValue] = useFieldValue(name, defaultValue);
   const resolvedValue = controlledValue ?? value;
   const height = controlHeights[size] ?? controlHeights.md;
-  const gutterKey =
-    gutterSize ?? (controlGutters[size as keyof typeof controlGutters] ? size : "md");
-  const paddingX = controlGutters[gutterKey as keyof typeof controlGutters] ?? "12px";
+  const paddingX = controlGutters[gutterSize ?? size] ?? controlGutters.md;
 
   return (
-    <UiTextarea
+    <textarea
       id={name}
       name={name}
+      className="wg-input"
+      data-variant={variant}
       value={resolvedValue}
       onChange={(event) => {
         const next = event.target.value;
         setValue(next);
-        if (onChangeAction && action) action(onChangeAction, { [name]: next, value: next });
+        if (onChangeAction && action) action(onChangeAction, buildChangePayload(name, next));
       }}
       placeholder={placeholder}
       required={required}
@@ -266,11 +264,12 @@ const Textarea: React.FC<TextareaProps> = ({
       rows={rows}
       style={{
         minHeight: height,
+        lineHeight: 1.5,
         paddingLeft: paddingX,
         paddingRight: paddingX,
+        paddingTop: "0.5rem",
+        paddingBottom: "0.5rem",
         borderRadius: "12px",
-        borderColor: variant === "outline" ? "#e2e8f0" : "transparent",
-        background: variant === "soft" ? "#f8fafc" : "#ffffff",
         resize: autoResize ? "vertical" : "none",
         overflow: "auto",
         maxHeight: maxRows ? `${maxRows * 1.5}rem` : undefined
@@ -322,19 +321,19 @@ const Select: React.FC<SelectProps> = ({
     setValue(next);
     if (onChangeAction && action) {
       const option = options.find((item) => item.value === next);
-      action(onChangeAction, { [name]: next, value: next, option });
+      action(onChangeAction, buildChangePayload(name, next, { option }));
     }
   };
 
   return (
     <UiSelect value={value} onValueChange={handleValueChange} disabled={disabled}>
       <SelectTrigger
+        className="wg-input"
+        data-variant={variant}
         style={{
           height,
-          borderRadius: pill ? "999px" : "10px",
-          width: block ? "100%" : undefined,
-          borderColor: variant === "outline" ? "#e2e8f0" : "transparent",
-          background: variant === "ghost" ? "transparent" : "#ffffff"
+          borderRadius: pill ? "999px" : "var(--widget-radius-control)",
+          width: block ? "100%" : undefined
         }}
       >
         <SelectValue placeholder={placeholder} />
@@ -355,7 +354,12 @@ const Select: React.FC<SelectProps> = ({
             <div className="flex flex-col gap-0.5">
               <SelectItemText>{option.label}</SelectItemText>
               {option.description ? (
-                <span className="text-xs text-slate-500">{option.description}</span>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--widget-text-secondary)" }}
+                >
+                  {option.description}
+                </span>
               ) : null}
             </div>
           </SelectItem>
@@ -413,9 +417,16 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const variantClasses =
     variant === "ghost"
       ? "border-transparent bg-transparent shadow-none"
-      : variant === "soft"
-      ? "bg-slate-50 border-slate-200"
-      : "bg-white border-slate-200";
+      : "";
+  const variantStyle: React.CSSProperties =
+    variant === "ghost"
+      ? {}
+      : {
+          background:
+            variant === "soft" ? "var(--widget-surface-secondary)" : "var(--widget-surface)",
+          borderColor: "var(--widget-border-default)",
+          color: "var(--widget-text-primary)"
+        };
 
   const buttonVariant =
     variant === "ghost"
@@ -454,7 +465,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const handleClear = () => {
     setValue("");
     if (onChangeAction && action) {
-      action(onChangeAction, { [name]: "", value: "", date: undefined });
+      action(onChangeAction, buildChangePayload(name, "", { date: undefined }));
     }
   };
 
@@ -475,15 +486,23 @@ const DatePicker: React.FC<DatePickerProps> = ({
               style={{
                 height,
                 width: block ? "100%" : width,
-                borderRadius: pill ? "999px" : "10px"
+                borderRadius: pill ? "999px" : "var(--widget-radius-control)",
+                ...variantStyle
               }}
             >
-              <span className={cn(!resolvedDate && "text-slate-400")}>
+              <span
+                style={
+                  resolvedDate ? undefined : { color: "var(--widget-text-tertiary)" }
+                }
+              >
                 {resolvedDate
                   ? format(resolvedDate, "PPP")
                   : (placeholder ?? "Pick a date")}
               </span>
-              <CalendarIcon className="h-4 w-4 text-slate-500" />
+              <CalendarIcon
+                className="h-4 w-4"
+                style={{ color: "var(--widget-text-secondary)" }}
+              />
             </UiButton>
           </PopoverTrigger>
           <PopoverContent
@@ -500,7 +519,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 const nextValue = format(next, "yyyy-MM-dd");
                 setValue(nextValue);
                 if (onChangeAction && action) {
-                  action(onChangeAction, { [name]: nextValue, value: nextValue, date: next });
+                  action(onChangeAction, buildChangePayload(name, nextValue, { date: next }));
                 }
                 setOpen(false);
               }}
@@ -550,12 +569,15 @@ const Checkbox: React.FC<CheckboxProps> = ({
     setChecked(next);
     form?.setValue(name, next);
     if (onChangeAction && action) {
-      action(onChangeAction, { [name]: next, value: next, checked: next });
+      action(onChangeAction, buildChangePayload(name, next, { checked: next }));
     }
   };
 
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-700">
+    <label
+      className="flex items-center gap-2 text-sm"
+      style={{ color: "var(--widget-text-primary)" }}
+    >
       <UiCheckbox
         name={name}
         checked={resolvedChecked}
@@ -596,7 +618,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
     setValue(next);
     if (onChangeAction && action) {
       const option = options?.find((item) => item.value === next);
-      action(onChangeAction, { [name]: next, value: next, option });
+      action(onChangeAction, buildChangePayload(name, next, { option }));
     }
   };
 
@@ -610,7 +632,11 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
       required={required}
     >
       {options?.map((option) => (
-        <label key={option.value} className="flex items-center gap-2 text-sm text-slate-700">
+        <label
+          key={option.value}
+          className="flex items-center gap-2 text-sm"
+          style={{ color: "var(--widget-text-primary)" }}
+        >
           <RadioGroupItem value={option.value} disabled={disabled || option.disabled} />
           {option.label}
         </label>
@@ -639,7 +665,7 @@ const Label: React.FC<LabelProps> = ({
   const theme = useWidgetTheme();
   const style: React.CSSProperties = {
     fontSize: size === "xs" ? "0.7rem" : size === "lg" ? "0.95rem" : "0.8rem",
-    fontWeight: weight,
+    fontWeight: resolveWeight(weight),
     textAlign: textAlign === "start" ? "left" : textAlign === "end" ? "right" : textAlign,
     color: resolveColor(color, theme)
   };

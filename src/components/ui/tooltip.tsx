@@ -17,7 +17,7 @@ const TooltipContent = React.forwardRef<
       sideOffset={sideOffset}
       className={cn(
         // Render in a portal to avoid being trapped under stacking contexts in widget previews.
-        "z-[100] overflow-hidden rounded-md border border-slate-200 bg-slate-900 px-3 py-1.5 text-xs text-white shadow-md",
+        "z-[100] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-text-emphasis)] px-3 py-1.5 text-xs text-[var(--widget-surface)] shadow-md",
         className
       )}
       {...props}

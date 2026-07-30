@@ -1,54 +1,212 @@
 import {
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  Archive,
+  ArrowDown,
+  ArrowDownRight,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ArrowUpRight,
   Atom,
+  Award,
   BadgeCheck,
+  Ban,
   BarChart3,
+  Battery,
+  Beer,
+  Bell,
+  BellRing,
+  Bike,
   Book,
   BookOpen,
+  Bookmark,
   Box,
   Briefcase,
+  Bug,
+  Building2,
+  Bus,
+  Cake,
   Calendar,
+  CalendarCheck,
+  CalendarDays,
+  Camera,
+  Car,
   Check,
   CheckCircle,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Circle,
+  Clipboard,
+  Clock,
+  Cloud,
+  CloudMoon,
+  CloudRain,
+  CloudSnow,
+  CloudSun,
+  Code,
+  Coffee,
+  Coins,
   Compass,
   Copy,
+  CreditCard,
+  Crown,
+  Cpu,
+  Database,
+  DollarSign,
+  Download,
+  Droplet,
+  Dumbbell,
   ExternalLink,
+  Eye,
+  EyeOff,
   File,
   FileText,
+  Film,
+  Filter,
+  Flag,
+  Flame,
   FlaskConical,
+  Folder,
+  Frown,
+  Gamepad2,
+  Gauge,
+  Gem,
+  Gift,
   Globe,
+  GraduationCap,
+  HeartPulse,
+  Headphones,
+  Heart,
   HelpCircle,
+  History,
+  Home,
+  Hotel,
+  Hourglass,
   Image as ImageIcon,
   Images,
+  Inbox,
   Info,
   Key,
+  Landmark,
+  Layers,
+  Leaf,
   LifeBuoy,
   Lightbulb,
+  LineChart,
+  Link,
+  Lock,
+  Luggage,
   Mail,
   Map,
   MapPin,
+  Maximize2,
+  Megaphone,
+  Menu,
+  MessageCircle,
+  Mic,
+  Minimize2,
+  Minus,
   Monitor,
+  Moon,
   MoreHorizontal,
+  MoreVertical,
+  Mountain,
+  Music,
+  Navigation,
+  Newspaper,
   Notebook,
   NotebookPen,
+  Package,
+  Paperclip,
+  PartyPopper,
+  Pause,
+  Palette,
   Pen,
   PenLine,
   Pencil,
+  Percent,
   Phone,
+  PieChart,
+  Pill,
+  Pin,
+  Plane,
   Play,
+  Plug,
   Plus,
+  PlusCircle,
+  Power,
+  Printer,
+  Puzzle,
+  QrCode,
+  Receipt,
   RefreshCcw,
+  Repeat,
+  Rocket,
+  Route,
+  Save,
   Search,
+  Send,
+  Server,
+  Settings,
+  Share2,
+  Shield,
+  ShieldCheck,
+  Ship,
+  ShoppingBag,
+  ShoppingCart,
+  Shuffle,
+  SkipBack,
+  SkipForward,
   SlidersHorizontal,
   Smartphone,
+  Smile,
+  Snowflake,
   Sparkles,
   SquareCode,
   Star,
+  Stethoscope,
+  Store,
+  Sun,
+  Sunrise,
+  Sunset,
+  Tag,
+  Target,
+  Tent,
+  Terminal,
+  Thermometer,
+  ThumbsDown,
+  ThumbsUp,
+  Ticket,
+  Timer,
+  TrainFront,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+  Truck,
   Type,
+  Umbrella,
+  Unlock,
+  Upload,
   User,
+  UserPlus,
   UserSquare,
+  Users,
+  Utensils,
+  Video,
+  Volume2,
+  Wallet,
+  Waves,
+  Wifi,
+  Wind,
+  Wine,
+  Wrench,
+  X,
+  XCircle,
   Zap
 } from "lucide-react";
 import React from "react";
@@ -63,27 +221,32 @@ import {
 } from "../style";
 import type { ActionConfig, Border, IconSize, RadiusValue, ThemeColor, WidgetIcon } from "../types";
 
+type BadgeColor =
+  | "secondary"
+  | "accent"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "discovery";
+
 type BadgeProps = {
   label?: string;
   children?: React.ReactNode;
-  color?: "secondary" | "success" | "danger" | "warning" | "info" | "discovery";
+  color?: BadgeColor;
   variant?: "solid" | "soft" | "outline";
   size?: "sm" | "md" | "lg";
   pill?: boolean;
+  icon?: WidgetIcon;
 };
 
-const badgePalette: Record<string, { fg: string; bg: string; border: string }> = {
-  secondary: {
-    fg: "var(--widget-text-secondary)",
-    bg: "var(--widget-surface-secondary)",
-    border: "var(--widget-border-subtle)"
-  },
-  success: { fg: "#166534", bg: "#dcfce7", border: "#86efac" },
-  danger: { fg: "#991b1b", bg: "#fee2e2", border: "#fecaca" },
-  warning: { fg: "#92400e", bg: "#fef3c7", border: "#fde68a" },
-  info: { fg: "#1d4ed8", bg: "#dbeafe", border: "#bfdbfe" },
-  discovery: { fg: "#4338ca", bg: "#e0e7ff", border: "#c7d2fe" }
+const badgeSizeStyles: Record<string, React.CSSProperties> = {
+  sm: { fontSize: "0.7rem", padding: "0.22rem 0.55rem" },
+  md: { fontSize: "0.8rem", padding: "0.28rem 0.65rem" },
+  lg: { fontSize: "0.875rem", padding: "0.34rem 0.8rem" }
 };
+
+const badgeIconSizes: Record<string, IconSize> = { sm: "xs", md: "sm", lg: "sm" };
 
 const Badge: React.FC<BadgeProps> = ({
   label,
@@ -91,42 +254,39 @@ const Badge: React.FC<BadgeProps> = ({
   color = "secondary",
   variant = "soft",
   size = "sm",
-  pill = true
+  pill = true,
+  icon
 }) => {
-  const palette = badgePalette[color] ?? badgePalette.secondary;
-  const sizeStyles: Record<string, React.CSSProperties> = {
-    sm: { fontSize: "0.7rem", padding: "0.15rem 0.5rem" },
-    md: { fontSize: "0.8rem", padding: "0.2rem 0.6rem" },
-    lg: { fontSize: "0.9rem", padding: "0.3rem 0.8rem" }
-  };
-
   const style: React.CSSProperties = {
-    borderRadius: pill ? "999px" : "8px",
-    fontWeight: 600,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.25rem",
-    border: "1px solid transparent",
-    ...sizeStyles[size]
+    borderRadius: pill ? "999px" : "7px",
+    ...badgeSizeStyles[size]
   };
 
-  if (variant === "solid") {
-    style.background = palette.fg;
-    style.color = "#fff";
-  } else if (variant === "outline") {
-    style.background = "transparent";
-    style.color = palette.fg;
-    style.borderColor = palette.border;
-  } else {
-    style.background = palette.bg;
-    style.color = palette.fg;
-    style.borderColor = palette.bg;
-  }
-
-  return <span style={style}>{children ?? label}</span>;
+  return (
+    <span className="wg-badge" data-variant={variant} data-color={color} style={style}>
+      {icon ? <Icon name={icon} size={badgeIconSizes[size]} color="currentColor" /> : null}
+      {children ?? label}
+    </span>
+  );
 };
 
-const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: string }>> = {
+type LucideIconComponent = React.ComponentType<{
+  size?: number;
+  color?: string;
+  fill?: string;
+  strokeWidth?: number;
+}>;
+
+/** Renders a lucide icon with its shape filled by the current color. */
+function withFill(Component: LucideIconComponent): LucideIconComponent {
+  const FilledIcon: LucideIconComponent = (props) => (
+    <Component {...props} fill={props.color ?? "currentColor"} />
+  );
+  return FilledIcon;
+}
+
+const iconMap: Record<WidgetIcon, LucideIconComponent> = {
+  // Core
   analytics: BarChart3,
   atom: Atom,
   bolt: Zap,
@@ -142,7 +302,7 @@ const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: s
   "circle-question": HelpCircle,
   compass: Compass,
   copy: Copy,
-  cube: Box as unknown as React.ComponentType<{ size?: number; color?: string }>,
+  cube: Box as unknown as LucideIconComponent,
   document: FileText,
   "dots-horizontal": MoreHorizontal,
   "empty-circle": Circle,
@@ -151,7 +311,7 @@ const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: s
   lab: FlaskConical,
   images: Images,
   info: Info,
-  lifesaver: LifeBuoy as unknown as React.ComponentType<{ size?: number; color?: string }>,
+  lifesaver: LifeBuoy as unknown as LucideIconComponent,
   lightbulb: Lightbulb,
   mail: Mail,
   "map-pin": MapPin,
@@ -165,7 +325,7 @@ const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: s
   profile: User,
   "profile-card": UserSquare,
   star: Star,
-  "star-filled": Star,
+  "star-filled": withFill(Star),
   search: Search,
   sparkle: Sparkles,
   "sparkle-double": Sparkles,
@@ -182,7 +342,182 @@ const iconMap: Record<WidgetIcon, React.ComponentType<{ size?: number; color?: s
   play: Play,
   mobile: Smartphone,
   desktop: Monitor,
-  "external-link": ExternalLink
+  "external-link": ExternalLink,
+  // Arrows & navigation
+  "arrow-up": ArrowUp,
+  "arrow-down": ArrowDown,
+  "arrow-left": ArrowLeft,
+  "arrow-right": ArrowRight,
+  "arrow-up-right": ArrowUpRight,
+  "arrow-down-right": ArrowDownRight,
+  "chevron-up": ChevronUp,
+  "chevron-down": ChevronDown,
+  menu: Menu,
+  // Data & trends
+  "trending-up": TrendingUp,
+  "trending-down": TrendingDown,
+  activity: Activity,
+  "pie-chart": PieChart,
+  "line-chart": LineChart,
+  gauge: Gauge,
+  target: Target,
+  layers: Layers,
+  filter: Filter,
+  database: Database,
+  // Time
+  clock: Clock,
+  timer: Timer,
+  hourglass: Hourglass,
+  history: History,
+  "calendar-days": CalendarDays,
+  "calendar-check": CalendarCheck,
+  // Commerce & money
+  "shopping-cart": ShoppingCart,
+  "shopping-bag": ShoppingBag,
+  "credit-card": CreditCard,
+  wallet: Wallet,
+  dollar: DollarSign,
+  coins: Coins,
+  receipt: Receipt,
+  tag: Tag,
+  ticket: Ticket,
+  percent: Percent,
+  gift: Gift,
+  package: Package,
+  truck: Truck,
+  store: Store,
+  // Places & travel
+  home: Home,
+  building: Building2,
+  landmark: Landmark,
+  hotel: Hotel,
+  plane: Plane,
+  car: Car,
+  train: TrainFront,
+  bus: Bus,
+  bike: Bike,
+  route: Route,
+  navigation: Navigation,
+  luggage: Luggage,
+  tent: Tent,
+  ship: Ship,
+  // Food & drink
+  utensils: Utensils,
+  coffee: Coffee,
+  wine: Wine,
+  beer: Beer,
+  cake: Cake,
+  // Weather & nature
+  sun: Sun,
+  moon: Moon,
+  sunrise: Sunrise,
+  sunset: Sunset,
+  cloud: Cloud,
+  "cloud-sun": CloudSun,
+  "cloud-moon": CloudMoon,
+  "cloud-rain": CloudRain,
+  "cloud-snow": CloudSnow,
+  wind: Wind,
+  droplet: Droplet,
+  thermometer: Thermometer,
+  umbrella: Umbrella,
+  snowflake: Snowflake,
+  leaf: Leaf,
+  flame: Flame,
+  mountain: Mountain,
+  waves: Waves,
+  // Communication
+  message: MessageCircle,
+  send: Send,
+  bell: Bell,
+  "bell-ring": BellRing,
+  share: Share2,
+  link: Link,
+  paperclip: Paperclip,
+  inbox: Inbox,
+  // Media
+  camera: Camera,
+  video: Video,
+  film: Film,
+  music: Music,
+  mic: Mic,
+  volume: Volume2,
+  headphones: Headphones,
+  pause: Pause,
+  "skip-forward": SkipForward,
+  "skip-back": SkipBack,
+  // Files & actions
+  download: Download,
+  upload: Upload,
+  trash: Trash2,
+  save: Save,
+  clipboard: Clipboard,
+  printer: Printer,
+  folder: Folder,
+  archive: Archive,
+  eye: Eye,
+  "eye-off": EyeOff,
+  bookmark: Bookmark,
+  flag: Flag,
+  pin: Pin,
+  // People & sentiment
+  users: Users,
+  "user-plus": UserPlus,
+  smile: Smile,
+  frown: Frown,
+  "thumbs-up": ThumbsUp,
+  "thumbs-down": ThumbsDown,
+  heart: Heart,
+  "heart-filled": withFill(Heart),
+  "heart-pulse": HeartPulse,
+  // Health & fitness
+  dumbbell: Dumbbell,
+  pill: Pill,
+  stethoscope: Stethoscope,
+  // Security & system
+  lock: Lock,
+  unlock: Unlock,
+  shield: Shield,
+  "shield-check": ShieldCheck,
+  wifi: Wifi,
+  battery: Battery,
+  power: Power,
+  plug: Plug,
+  cpu: Cpu,
+  server: Server,
+  // Status & symbols
+  "alert-triangle": AlertTriangle,
+  "alert-circle": AlertCircle,
+  x: X,
+  "x-circle": XCircle,
+  minus: Minus,
+  "plus-circle": PlusCircle,
+  ban: Ban,
+  award: Award,
+  trophy: Trophy,
+  crown: Crown,
+  rocket: Rocket,
+  gem: Gem,
+  "party-popper": PartyPopper,
+  // Dev & tools
+  terminal: Terminal,
+  code: Code,
+  bug: Bug,
+  wrench: Wrench,
+  palette: Palette,
+  settings: Settings,
+  "qr-code": QrCode,
+  // Misc
+  "graduation-cap": GraduationCap,
+  megaphone: Megaphone,
+  newspaper: Newspaper,
+  puzzle: Puzzle,
+  gamepad: Gamepad2,
+  maximize: Maximize2,
+  minimize: Minimize2,
+  repeat: Repeat,
+  shuffle: Shuffle,
+  "dots-vertical": MoreVertical
 };
 
 const iconSizes: Record<IconSize, number> = {
@@ -294,6 +629,8 @@ const Image: React.FC<ImageProps> = ({
     <img
       src={src}
       alt={alt ?? ""}
+      loading="lazy"
+      decoding="async"
       style={style}
       role={onClickAction ? "button" : undefined}
       tabIndex={onClickAction ? 0 : undefined}
@@ -311,6 +648,17 @@ const Image: React.FC<ImageProps> = ({
   );
 };
 
+type ButtonColor =
+  | "primary"
+  | "secondary"
+  | "accent"
+  | "info"
+  | "discovery"
+  | "success"
+  | "caution"
+  | "warning"
+  | "danger";
+
 type ButtonProps = {
   submit?: boolean;
   label?: string;
@@ -319,7 +667,7 @@ type ButtonProps = {
   iconStart?: WidgetIcon;
   iconEnd?: WidgetIcon;
   style?: "primary" | "secondary";
-  color?: "primary" | "secondary" | "info" | "discovery" | "success" | "caution" | "warning" | "danger";
+  color?: ButtonColor;
   iconSize?: "sm" | "md" | "lg" | "xl" | "2xl";
   variant?: "solid" | "soft" | "outline" | "ghost";
   size?: keyof typeof controlHeights;
@@ -329,16 +677,81 @@ type ButtonProps = {
   disabled?: boolean;
 };
 
-const buttonPalette: Record<string, { fg: string; bg: string; border: string }> = {
-  primary: { fg: "#ffffff", bg: "#0f172a", border: "#0f172a" },
-  secondary: { fg: "#0f172a", bg: "#f1f5f9", border: "#e2e8f0" },
-  info: { fg: "#ffffff", bg: "#2563eb", border: "#2563eb" },
-  discovery: { fg: "#ffffff", bg: "#4f46e5", border: "#4f46e5" },
-  success: { fg: "#ffffff", bg: "#16a34a", border: "#16a34a" },
-  caution: { fg: "#111827", bg: "#facc15", border: "#facc15" },
-  warning: { fg: "#111827", bg: "#f59e0b", border: "#f59e0b" },
-  danger: { fg: "#ffffff", bg: "#dc2626", border: "#dc2626" }
+const buttonFontSizes: Record<string, string> = {
+  "3xs": "0.75rem",
+  "2xs": "0.75rem",
+  xs: "0.78rem",
+  sm: "0.8125rem",
+  md: "0.84375rem",
+  lg: "0.875rem",
+  xl: "0.9375rem",
+  "2xl": "0.9375rem",
+  "3xl": "1rem"
 };
+
+const buttonPaddingX: Record<string, string> = {
+  "3xs": "0.5rem",
+  "2xs": "0.55rem",
+  xs: "0.65rem",
+  sm: "0.75rem",
+  md: "0.9rem",
+  lg: "1.1rem",
+  xl: "1.25rem",
+  "2xl": "1.4rem",
+  "3xl": "1.5rem"
+};
+
+type PlainButtonProps = {
+  children?: React.ReactNode;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  variant?: "solid" | "soft" | "outline" | "ghost";
+  color?: ButtonColor;
+  size?: keyof typeof controlHeights;
+  pill?: boolean;
+  block?: boolean;
+  disabled?: boolean;
+  submit?: boolean;
+  /** Layout overrides (flexShrink, margins) merged over the size styles. */
+  style?: React.CSSProperties;
+};
+
+/**
+ * Internal button for chrome the widget system renders itself (card footers,
+ * "Show more", Callout/EmptyState actions). Same wg-btn styling and size
+ * tokens as `Button`, but takes a plain onClick instead of an ActionConfig.
+ * Not registered in the template registry.
+ */
+const PlainButton: React.FC<PlainButtonProps> = ({
+  children,
+  onClick,
+  variant = "solid",
+  color = "primary",
+  size = "lg",
+  pill = true,
+  block = false,
+  disabled = false,
+  submit = false,
+  style
+}) => (
+  <button
+    type={submit ? "submit" : "button"}
+    className="wg-btn"
+    data-variant={variant}
+    data-color={color}
+    disabled={disabled}
+    onClick={onClick}
+    style={{
+      height: controlHeights[size] ?? controlHeights.lg,
+      padding: `0 ${buttonPaddingX[size] ?? "1.1rem"}`,
+      width: block ? "100%" : undefined,
+      borderRadius: pill ? "999px" : "var(--widget-radius-control)",
+      fontSize: buttonFontSizes[size] ?? "0.875rem",
+      ...style
+    }}
+  >
+    {children}
+  </button>
+);
 
 const Button: React.FC<ButtonProps> = ({
   submit = false,
@@ -359,46 +772,16 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   const action = useWidgetAction();
   const isDisabled = disabled ?? (!onClickAction && !submit);
-  const resolvedColor = buttonPalette[color ?? stylePreset] ?? buttonPalette.secondary;
+  const resolvedColor = color ?? stylePreset;
   const height = controlHeights[size] ?? controlHeights.lg;
-  const paddingX = uniform ? "0px" : "1.1rem";
 
   const style: React.CSSProperties = {
     height,
-    padding: `0 ${paddingX}`,
-    borderRadius: pill ? "999px" : "12px",
-    width: block ? "100%" : undefined,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "0.4rem",
-    fontWeight: 600,
-    fontSize: "0.9rem",
-    whiteSpace: "nowrap",
-    cursor: isDisabled ? "not-allowed" : "pointer",
-    opacity: isDisabled ? 0.6 : 1,
-    background: variant === "solid" ? resolvedColor.bg : "transparent",
-    color:
-      variant === "solid"
-        ? resolvedColor.fg
-        : variant === "ghost"
-        ? resolvedColor.fg
-        : resolvedColor.fg,
-    borderColor:
-      variant === "outline"
-        ? resolvedColor.border
-        : variant === "solid"
-        ? resolvedColor.bg
-        : "transparent"
+    padding: `0 ${uniform ? "0px" : buttonPaddingX[size] ?? "1.1rem"}`,
+    width: uniform ? height : block ? "100%" : undefined,
+    borderRadius: pill ? "999px" : "var(--widget-radius-control)",
+    fontSize: buttonFontSizes[size] ?? "0.875rem"
   };
-
-  if (variant === "soft") {
-    style.background = resolvedColor.bg;
-    style.color = resolvedColor.fg;
-    style.borderColor = resolvedColor.bg;
-  }
 
   const iconToken = (iconSize === "2xl" ? "2xl" : iconSize) as IconSize;
 
@@ -410,13 +793,21 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-    <button type={submit ? "submit" : "button"} style={style} onClick={handleClick} disabled={isDisabled}>
-      {iconStart && <Icon name={iconStart} size={iconToken} color={resolvedColor.fg} />}
+    <button
+      type={submit ? "submit" : "button"}
+      className="wg-btn"
+      data-variant={variant}
+      data-color={resolvedColor}
+      style={style}
+      onClick={handleClick}
+      disabled={isDisabled}
+    >
+      {iconStart && <Icon name={iconStart} size={iconToken} color="currentColor" />}
       {(children ?? label) && <span>{children ?? label}</span>}
-      {iconEnd && <Icon name={iconEnd} size={iconToken} color={resolvedColor.fg} />}
+      {iconEnd && <Icon name={iconEnd} size={iconToken} color="currentColor" />}
     </button>
   );
 };
 
-export { Badge, Button, Icon, Image };
-export type { BadgeProps, ButtonProps, ImageProps };
+export { Badge, Button, Icon, Image, PlainButton };
+export type { BadgeProps, ButtonProps, ImageProps, PlainButtonProps };

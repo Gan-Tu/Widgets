@@ -18,6 +18,12 @@ type JSXChild =
  * Lightweight template engine for Widget UI.
  * Supports JSX elements, property bindings, DIL control flow, conditionals, and Array.map loops.
  */
+// Bounded LRU: live editors (e.g. the playground) insert a new AST per keystroke,
+// so an unbounded cache grows without limit over a session. The cache is shared
+// by full widget templates AND per-attribute sub-expressions, so the limit must
+// comfortably exceed the docs + gallery working set (~160 templates + ~60
+// expressions) or a single browsing session thrashes it.
+const TEMPLATE_CACHE_LIMIT = 600;
 const templateCache = new Map<string, t.Expression>();
 export const WIDGET_ACTION_EXPRESSION = "__widgetActionExpression";
 
@@ -31,13 +37,28 @@ function normalizeDILSyntax(template: string) {
 }
 
 export function parseTemplate(template: string) {
-  const normalizedTemplate = normalizeDILSyntax(template);
-  const cached = templateCache.get(normalizedTemplate);
-  if (cached) return cached;
-  const parsed = parseExpression(normalizedTemplate, {
+  // Key the cache on the raw template so warm hits skip the normalization
+  // regex scan entirely (parseTemplate runs once per template plus once per
+  // $prop expression on every render).
+  const cached = templateCache.get(template);
+  if (cached) {
+    // Refresh recency only near capacity: parseTemplate is called once per
+    // $prop per render, and a Map delete+set per hit is pure overhead until
+    // eviction pressure actually exists.
+    if (templateCache.size > TEMPLATE_CACHE_LIMIT * 0.8) {
+      templateCache.delete(template);
+      templateCache.set(template, cached);
+    }
+    return cached;
+  }
+  const parsed = parseExpression(normalizeDILSyntax(template), {
     plugins: ["jsx", "typescript"]
   }) as t.Expression;
-  templateCache.set(normalizedTemplate, parsed);
+  if (templateCache.size >= TEMPLATE_CACHE_LIMIT) {
+    const oldest = templateCache.keys().next().value;
+    if (oldest !== undefined) templateCache.delete(oldest);
+  }
+  templateCache.set(template, parsed);
   return parsed;
 }
 
@@ -471,13 +492,21 @@ function isElseElement(child: JSXChild) {
   );
 }
 
+// `when`/`visible` use plain truthiness when the attribute is present, and
+// default to showing when it's absent. Presence is checked with `in` on the
+// built props: buildProps assigns the key for every JSX attribute (including
+// `$`- and `*`-prefixed forms, and expressions that evaluate to undefined),
+// so `"when" in props` is exactly attribute-presence — a value check alone
+// would wrongly treat `$when="item.popular"` on items without the field as
+// "show".
 function renderShow(
   node: t.JSXElement,
   props: Record<string, unknown>,
   scope: Scope,
   registry: ComponentRegistry
 ) {
-  const shouldShow = props.when !== false && props.visible !== false;
+  const shouldShow =
+    "when" in props || "visible" in props ? Boolean(props.when ?? props.visible) : true;
   const mainChildren = node.children.filter((child) => !isElseElement(child));
   const elseNode = node.children.find(isElseElement) as t.JSXElement | undefined;
   const children = shouldShow
@@ -515,7 +544,7 @@ function renderAnimate(
   );
   const selected = itemNodes.find((itemNode) => {
     const itemProps = buildProps(itemNode, scope, registry);
-    return itemProps.when !== false;
+    return "when" in itemProps ? Boolean(itemProps.when) : true;
   });
   const children = selected ? renderChildren(selected.children, scope, registry) : [];
   const Component = registry.Animate ?? React.Fragment;

@@ -1,5 +1,7 @@
 import type React from "react";
 
+import type { IconName } from "./iconNames";
+
 export type ThemeMode = "light" | "dark";
 
 export type ThemeColor = {
@@ -134,62 +136,6 @@ export type BaseTextProps = {
   maxLines?: number;
 };
 
-export type WidgetIcon =
-  | "analytics"
-  | "atom"
-  | "bolt"
-  | "book-open"
-  | "book-closed"
-  | "calendar"
-  | "chart"
-  | "check"
-  | "check-circle"
-  | "check-circle-filled"
-  | "chevron-left"
-  | "chevron-right"
-  | "circle-question"
-  | "compass"
-  | "copy"
-  | "cube"
-  | "document"
-  | "dots-horizontal"
-  | "empty-circle"
-  | "globe"
-  | "keys"
-  | "lab"
-  | "images"
-  | "info"
-  | "lifesaver"
-  | "lightbulb"
-  | "mail"
-  | "map-pin"
-  | "maps"
-  | "name"
-  | "notebook"
-  | "notebook-pencil"
-  | "page-blank"
-  | "phone"
-  | "plus"
-  | "profile"
-  | "profile-card"
-  | "star"
-  | "star-filled"
-  | "search"
-  | "sparkle"
-  | "sparkle-double"
-  | "square-code"
-  | "square-image"
-  | "square-text"
-  | "suitcase"
-  | "settings-slider"
-  | "user"
-  | "write"
-  | "write-alt"
-  | "write-alt2"
-  | "reload"
-  | "play"
-  | "mobile"
-  | "desktop"
-  | "external-link";
+export type WidgetIcon = IconName;
 
 export type WidgetRoot = React.FC<{ children?: React.ReactNode }>;

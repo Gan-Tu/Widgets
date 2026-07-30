@@ -18,14 +18,14 @@ const ContextMenuSubTrigger = React.forwardRef<
   <ContextMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm text-slate-700 outline-none focus:bg-slate-100 data-[state=open]:bg-slate-100",
+      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm text-[var(--widget-text-primary)] outline-none focus:bg-[var(--widget-surface-hover)] data-[state=open]:bg-[var(--widget-surface-hover)]",
       inset && "pl-8",
       className
     )}
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
+    <ChevronRight className="ml-auto h-4 w-4 text-[var(--widget-text-tertiary)]" />
   </ContextMenuPrimitive.SubTrigger>
 ));
 ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
@@ -37,7 +37,7 @@ const ContextMenuSubContent = React.forwardRef<
   <ContextMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-[12rem] overflow-hidden rounded-md border border-slate-200 bg-white p-1 text-slate-700 shadow-md",
+      "z-50 min-w-[12rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-1 text-[var(--widget-text-primary)] shadow-md",
       className
     )}
     {...props}
@@ -53,7 +53,7 @@ const ContextMenuContent = React.forwardRef<
     <ContextMenuPrimitive.Content
       ref={ref}
       className={cn(
-        "z-50 min-w-[12rem] overflow-hidden rounded-md border border-slate-200 bg-white p-1 text-slate-700 shadow-md",
+        "z-50 min-w-[12rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-1 text-[var(--widget-text-primary)] shadow-md",
         className
       )}
       {...props}
@@ -69,7 +69,7 @@ const ContextMenuItem = React.forwardRef<
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -85,7 +85,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
   <ContextMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -108,14 +108,14 @@ const ContextMenuRadioItem = React.forwardRef<
   <ContextMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <ContextMenuPrimitive.ItemIndicator>
-        <Circle className="h-2 w-2 fill-slate-700" />
+        <Circle className="h-2 w-2 fill-[var(--widget-text-primary)]" />
       </ContextMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -129,7 +129,7 @@ const ContextMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <ContextMenuPrimitive.Label
     ref={ref}
-    className={cn("px-2 py-1.5 text-xs font-semibold text-slate-500", inset && "pl-8", className)}
+    className={cn("px-2 py-1.5 text-xs font-semibold text-[var(--widget-text-secondary)]", inset && "pl-8", className)}
     {...props}
   />
 ));
@@ -141,14 +141,14 @@ const ContextMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.Separator
     ref={ref}
-    className={cn("my-1 h-px bg-slate-200", className)}
+    className={cn("my-1 h-px bg-[var(--widget-border-default)]", className)}
     {...props}
   />
 ));
 ContextMenuSeparator.displayName = "ContextMenuSeparator";
 
 const ContextMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => (
-  <span className={cn("ml-auto text-xs tracking-widest text-slate-400", className)} {...props} />
+  <span className={cn("ml-auto text-xs tracking-widest text-[var(--widget-text-tertiary)]", className)} {...props} />
 );
 ContextMenuShortcut.displayName = "ContextMenuShortcut";
 

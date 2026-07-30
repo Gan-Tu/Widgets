@@ -15,7 +15,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # test:widgets uses --experimental-strip-types (Node >= 22.6)
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -24,5 +25,5 @@ jobs:
       - name: Build demo app
         run: npm run build
 
-      - name: Build widget package
-        run: npm run build:widgets
+      - name: Build widget package and run tests
+        run: npm run test:widgets

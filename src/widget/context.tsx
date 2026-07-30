@@ -169,6 +169,22 @@ export function useWidgetForm() {
   return useContext(WidgetFormContext);
 }
 
+/**
+ * Uniform change-action payload: the new value is exposed under the control's
+ * `name` (falling back to "value" for unnamed controls) AND a uniform `value`
+ * key, plus any control-specific extras (`checked`, `option`, `date`, ...).
+ * Every onChangeAction dispatch goes through here so the contract has one owner.
+ */
+export function buildChangePayload(
+  name: string | undefined,
+  value: unknown,
+  extras?: Record<string, unknown>
+): Record<string, unknown> {
+  // Extras spread FIRST: when a control is named after an extra (a DatePicker
+  // literally named "date"), the control's own value must win the collision.
+  return { ...extras, [name ?? "value"]: value, value };
+}
+
 export function getFormValue(values: Record<string, unknown>, name: string) {
   const segments = name.split(".");
   let cursor: unknown = values;

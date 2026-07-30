@@ -78,6 +78,19 @@ import {
   Spinner,
   DataTable
 } from "./components/advanced";
+import {
+  Callout,
+  ChipGroup,
+  EmptyState,
+  KeyValue,
+  Rating,
+  Sparkline,
+  Stat,
+  Steps,
+  TabPanel,
+  Tabs,
+  Timeline
+} from "./components/primitives";
 
 export type ComponentRegistry = Record<string, React.ComponentType<any>>;
 
@@ -181,5 +194,17 @@ export const widgetRegistry: ComponentRegistry = {
   LoadingDot,
   LoadingIndicator,
   PulseIndicator,
-  DataTable
+  DataTable,
+  // Premium primitives
+  Callout,
+  ChipGroup,
+  EmptyState,
+  KeyValue,
+  Rating,
+  Sparkline,
+  Stat,
+  Steps,
+  Tabs,
+  "Tabs.Panel": TabPanel,
+  Timeline
 };

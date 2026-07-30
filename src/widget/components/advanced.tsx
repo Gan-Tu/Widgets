@@ -52,7 +52,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { Button as UiButton } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 
-import { getFormValue, useWidgetAction, useWidgetForm } from "../context";
+import { buildChangePayload, getFormValue, useWidgetAction, useWidgetForm } from "../context";
 
 type AccordionProps = {
   items: { id: string; title: string; content: string }[];
@@ -82,16 +82,22 @@ type CollapsibleProps = {
 };
 
 const CollapsibleWidget: React.FC<CollapsibleProps> = ({ title, content, defaultOpen }) => (
-  <Collapsible defaultOpen={defaultOpen} className="w-full rounded-lg border border-slate-200 p-3">
+  <Collapsible
+    defaultOpen={defaultOpen}
+    className="w-full rounded-xl border p-3"
+    style={{ borderColor: "var(--widget-border-default)" }}
+  >
     <div className="flex items-center justify-between">
-      <span className="text-sm font-medium text-slate-700">{title}</span>
+      <span className="text-sm font-medium" style={{ color: "var(--widget-text-primary)" }}>
+        {title}
+      </span>
       <CollapsibleTrigger asChild>
         <UiButton size="sm" variant="outline">
           Toggle
         </UiButton>
       </CollapsibleTrigger>
     </div>
-    <CollapsibleContent className="mt-3 text-sm text-slate-600">
+    <CollapsibleContent className="mt-3 text-sm" style={{ color: "var(--widget-text-secondary)" }}>
       {content}
     </CollapsibleContent>
   </Collapsible>
@@ -151,7 +157,13 @@ const ContextMenuWidget: React.FC<ContextMenuProps> = ({ triggerLabel, items }) 
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="rounded-md border border-dashed border-slate-200 p-3 text-sm text-slate-600">
+        <div
+          className="rounded-lg border border-dashed p-3 text-sm"
+          style={{
+            borderColor: "var(--widget-border-strong)",
+            color: "var(--widget-text-secondary)"
+          }}
+        >
           {triggerLabel}
         </div>
       </ContextMenuTrigger>
@@ -186,7 +198,13 @@ const TooltipWidget: React.FC<TooltipProps> = ({ label, content, delayDuration =
   <TooltipProvider delayDuration={delayDuration}>
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="cursor-pointer text-sm text-slate-700 underline decoration-dotted">
+        <span
+          className="cursor-pointer text-sm underline decoration-dotted underline-offset-2"
+          style={{
+            color: "var(--widget-text-primary)",
+            textDecorationColor: "var(--widget-text-tertiary)"
+          }}
+        >
           {label}
         </span>
       </TooltipTrigger>
@@ -219,7 +237,9 @@ const ToggleWidget: React.FC<ToggleProps> = ({
   const handlePressedChange = (next: boolean) => {
     setPressed(next);
     if (name && form) form.setValue(name, next);
-    if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: next });
+    if (onChangeAction && action) {
+      action(onChangeAction, buildChangePayload(name, next, { pressed: next }));
+    }
   };
 
   return (
@@ -265,13 +285,17 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
   const handleSingleChange = (next: string) => {
     setValue(next);
     if (name && form) form.setValue(name, next);
-    if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: next });
+    if (onChangeAction && action) {
+      action(onChangeAction, buildChangePayload(name, next));
+    }
   };
 
   const handleMultipleChange = (next: string[]) => {
     setValue(next);
     if (name && form) form.setValue(name, next);
-    if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: next });
+    if (onChangeAction && action) {
+      action(onChangeAction, buildChangePayload(name, next));
+    }
   };
 
   if (type === "multiple") {
@@ -337,7 +361,9 @@ const SliderWidget: React.FC<SliderProps> = ({
   const handleValueChange = (next: number[]) => {
     setValue(next);
     if (name && form) form.setValue(name, next);
-    if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: next });
+    if (onChangeAction && action) {
+      action(onChangeAction, buildChangePayload(name, next));
+    }
   };
 
   return (
@@ -376,7 +402,11 @@ const SheetWidget: React.FC<SheetProps> = ({
         {title ? <SheetTitle>{title}</SheetTitle> : null}
         {description ? <SheetDescription>{description}</SheetDescription> : null}
       </SheetHeader>
-      {content ? <div className="mt-4 text-sm text-slate-600">{content}</div> : null}
+      {content ? (
+        <div className="mt-4 px-4 text-sm" style={{ color: "var(--widget-text-secondary)" }}>
+          {content}
+        </div>
+      ) : null}
     </SheetContent>
   </Sheet>
 );
@@ -398,7 +428,11 @@ const DrawerWidget: React.FC<DrawerProps> = ({ triggerLabel, title, description,
         {title ? <DrawerTitle>{title}</DrawerTitle> : null}
         {description ? <DrawerDescription>{description}</DrawerDescription> : null}
       </DrawerHeader>
-      {content ? <div className="mt-4 text-sm text-slate-600">{content}</div> : null}
+      {content ? (
+        <div className="mt-2 px-4 pb-4 text-sm" style={{ color: "var(--widget-text-secondary)" }}>
+          {content}
+        </div>
+      ) : null}
     </DrawerContent>
   </Drawer>
 );
@@ -437,7 +471,9 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
     const resolved = next === selected ? "" : next;
     setValue(resolved);
     if (name && form) form.setValue(name, resolved);
-    if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: resolved });
+    if (onChangeAction && action) {
+      action(onChangeAction, buildChangePayload(name, resolved));
+    }
     setOpen(false);
   };
 
@@ -503,7 +539,9 @@ const InputOtpWidget: React.FC<InputOtpProps> = ({
   const handleChange = (next: string) => {
     setValue(next);
     if (name && form) form.setValue(name, next);
-    if (onChangeAction && action) action(onChangeAction, { [name ?? "value"]: next });
+    if (onChangeAction && action) {
+      action(onChangeAction, buildChangePayload(name, next));
+    }
   };
 
   const slots = Array.from({ length }, (_, index) => index);
@@ -539,7 +577,10 @@ const InputOtpWidget: React.FC<InputOtpProps> = ({
 type SpinnerProps = { size?: "xs" | "sm" | "md" | "lg"; label?: string };
 
 const SpinnerWidget: React.FC<SpinnerProps> = ({ size = "md", label }) => (
-  <div className="flex items-center gap-2 text-sm text-slate-600">
+  <div
+    className="flex items-center gap-2 text-sm"
+    style={{ color: "var(--widget-text-secondary)" }}
+  >
     <UiSpinner size={size} />
     {label ? <span>{label}</span> : null}
   </div>
@@ -553,7 +594,11 @@ type DataTableProps = {
 
 const DataTableWidget: React.FC<DataTableProps> = ({ columns, rows, caption }) => (
   <Table>
-    {caption ? <caption className="mt-2 text-xs text-slate-500">{caption}</caption> : null}
+    {caption ? (
+      <caption className="mt-2 text-xs" style={{ color: "var(--widget-text-secondary)" }}>
+        {caption}
+      </caption>
+    ) : null}
     <TableHeader>
       <TableRow>
         {columns.map((column) => (

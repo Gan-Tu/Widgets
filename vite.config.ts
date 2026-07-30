@@ -27,11 +27,20 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Rollup's CJS interop helper is imported by nearly every vendor
+          // chunk. Left unassigned it can get hoisted into a heavy chunk
+          // (e.g. @babel/parser), putting 300KB on the critical path just to
+          // reach a ~50-byte helper. Pin it with react, which everything
+          // already depends on.
+          if (id.includes("commonjsHelpers") || id.includes("commonjs-dynamic-modules")) {
+            return "vendor-react";
+          }
           if (!id.includes("node_modules")) return;
 
           // Keep the biggest/most common libraries in predictable shared chunks.
           if (id.includes("/node_modules/react/")) return "vendor-react";
           if (id.includes("/node_modules/react-dom/")) return "vendor-react";
+          if (id.includes("/node_modules/scheduler/")) return "vendor-react";
           if (id.includes("react-router")) return "vendor-router";
           if (id.includes("motion")) return "vendor-motion";
           if (id.includes("zod")) return "vendor-zod";

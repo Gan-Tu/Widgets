@@ -1,241 +1,331 @@
+import { useState } from "react";
 import {
-    ArrowRight,
-    Code2,
-    LayoutGrid,
-    ShieldCheck,
-    Sparkles
+  ArrowRight,
+  Braces,
+  Check,
+  ChevronRight,
+  Copy,
+  PackageOpen,
+  Palette,
+  Sparkles
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { WidgetRenderer } from "@/widget";
-import { z } from "zod";
 
-const HeroSchema = z.strictObject({
-  title: z.string(),
-  subtitle: z.string(),
-  tag: z.string()
-});
+const cardClass =
+  "rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(16,20,28,0.04),0_8px_24px_-12px_rgba(16,20,28,0.08)]";
 
 const heroTemplate = `
-<Card size="sm">
-  <Col gap={2}>
-    <Badge label={tag} color="info" />
-    <Title value={title} size="lg" />
-    <Text value={subtitle} size="sm" color="secondary" />
-    <Button label="Learn more" variant="outline" />
-  </Col>
+<Card size="md">
+  <Row justify="between" align="center">
+    <Col gap={0}>
+      <Title value="Revenue" size="sm" />
+      <Caption value="Last 30 days" />
+    </Col>
+    <Badge label="+12.4%" color="success" icon="trending-up" />
+  </Row>
+  <Row gap={6}>
+    <Stat label="MRR" value="$48.2K" delta="+8.1%" size="md" />
+    <Stat label="Active users" value="12,480" delta="+3.2%" size="md" />
+  </Row>
+  <Sparkline data={trend} height={44} />
+  <Divider />
+  <ChipGroup name="range" defaultValue="30d" options={ranges} />
 </Card>
 `.trim();
 
 const heroData = {
-  title: "WidgetRenderer",
-  subtitle: "Render compact, schema-driven widgets inside any chat UI.",
-  tag: "Schema-first"
+  trend: [8, 10, 9, 12, 14, 13, 16, 18, 17, 21, 24, 23, 27, 30],
+  ranges: [
+    { label: "7 days", value: "7d" },
+    { label: "30 days", value: "30d" },
+    { label: "90 days", value: "90d" }
+  ]
 };
 
-export function HomePage() {
+const heroChips = ["110 components", "200+ icons", "Zero-config theming"];
+
+const features = [
+  {
+    icon: Braces,
+    title: "LLM-friendly by design",
+    body: "A constrained, JSX-like template DSL with schema-validated data. Models compose from a fixed component registry — predictable output, never arbitrary code."
+  },
+  {
+    icon: Palette,
+    title: "Premium out of the box",
+    body: "Design tokens, light and dark themes, and motion presets tuned for chat-scale UI. Every component ships polished, so there is no restyling pass."
+  },
+  {
+    icon: PackageOpen,
+    title: "Embed anywhere",
+    body: "Install @tugan/widgets, drop the renderer into any React app, and route taps, submits, and selections back through the actions bridge."
+  }
+];
+
+const nextSteps = [
+  {
+    to: "/gallery",
+    title: "Browse the gallery",
+    description: "39 ready-made examples to copy and adapt"
+  },
+  {
+    to: "/docs",
+    title: "Read the docs",
+    description: "Component APIs and the template DSL"
+  },
+  {
+    to: "/playground",
+    title: "Open the playground",
+    description: "Edit templates and data with live output"
+  }
+];
+
+const quickStartCode = `npm install @tugan/widgets
+
+import "@tugan/widgets/styles.css";
+import { WidgetRenderer } from "@tugan/widgets";
+
+<WidgetRenderer
+  template={template} // model-written template string
+  data={data} // your app's JSON
+  onAction={(action) => handleAction(action)}
+/>`;
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // Clipboard unavailable (permissions / insecure context) — fail quietly.
+    }
+  };
+
   return (
-    <div className="space-y-16">
-      <section className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/55 p-8 shadow-sm backdrop-blur md:p-10">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_480px_at_12%_10%,rgba(99,102,241,0.16),transparent_60%),radial-gradient(740px_420px_at_100%_24%,rgba(14,165,233,0.14),transparent_62%)]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-size-[44px_44px] opacity-[0.55] mask-[radial-gradient(ellipse_at_center,black_55%,transparent_72%)]"
-        />
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={copied ? "Copied" : "Copy code"}
+      className="absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+    >
+      {copied ? (
+        <Check className="h-4 w-4 text-emerald-400" aria-hidden />
+      ) : (
+        <Copy className="h-4 w-4" aria-hidden />
+      )}
+    </button>
+  );
+}
 
-        <div className="relative grid gap-10 md:grid-cols-[1.12fr_0.88fr] md:items-center">
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm"
-            >
-              <Sparkles className="h-4 w-4" />
-              Schema-first widgets for conversational UIs
-            </motion.div>
+export function HomePage() {
+  const reduceMotion = useReducedMotion();
 
-            <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.05 }}
-              className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl"
-            >
-              A compact widget renderer that feels native to chat.
-            </motion.h1>
+  // Entrance animation for above-the-fold content. Delays are staggered and
+  // capped at 0.2s total; disabled entirely under prefers-reduced-motion.
+  const fadeUp = (delay = 0) =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 12 },
+          animate: { opacity: 1, y: 0 },
+          transition: {
+            duration: 0.45,
+            ease: "easeOut" as const,
+            delay: Math.min(delay, 0.2)
+          }
+        };
 
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="max-w-[56ch] text-base leading-relaxed text-slate-600 md:text-lg"
-            >
-              Import <span className="font-semibold text-slate-800">WidgetRenderer</span>,
-              pass a template + Zod schema + data, and ship polished widgets with
-              predictable behavior and beautiful defaults.
-            </motion.p>
+  // Scroll-in animation for below-the-fold sections.
+  const fadeIn = (delay = 0) =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 14 },
+          whileInView: { opacity: 1, y: 0 },
+          // Inset only the bottom edge: elements already scrolled past the
+          // top (deep links, scroll restoration) must still trigger.
+          viewport: { once: true, margin: "0px 0px -48px 0px" },
+          transition: {
+            duration: 0.45,
+            ease: "easeOut" as const,
+            delay: Math.min(delay, 0.2)
+          }
+        };
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="flex flex-wrap items-center gap-3"
-            >
-              <Button asChild className="gap-2 cursor-pointer" variant="default" size="lg">
-                <Link to="/gallery">
-                  View gallery <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild className="cursor-pointer" variant="outline" size="lg">
-                <Link to="/playground">Open playground</Link>
-              </Button>
-              <Link
-                to="/docs"
-                className="cursor-pointer text-sm font-semibold text-slate-600 transition hover:text-slate-900"
-              >
-                Read docs
-              </Link>
-            </motion.div>
+  return (
+    <div className="space-y-16 md:space-y-24">
+      <section className="grid items-center gap-12 pt-2 md:pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+        <div className="max-w-xl space-y-6">
+          <motion.p
+            {...fadeUp(0)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-indigo-700"
+          >
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            Open-source generative UI
+          </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-wrap items-center gap-2 text-xs text-slate-500"
-            >
-              <span className="rounded-full bg-slate-900/5 px-3 py-1 font-semibold">
-                10+ examples
-              </span>
-              <span className="rounded-full bg-slate-900/5 px-3 py-1 font-semibold">
-                Tailwind v4 + shadcn
-              </span>
-              <span className="rounded-full bg-slate-900/5 px-3 py-1 font-semibold">
-                Motion-ready
-              </span>
-            </motion.div>
-          </div>
+          <motion.h1
+            {...fadeUp(0.05)}
+            className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl md:leading-[1.08]"
+          >
+            Composable widgets for AI-generated UIs
+          </motion.h1>
+
+          <motion.p
+            {...fadeUp(0.1)}
+            className="text-base leading-relaxed text-slate-600 md:text-lg"
+          >
+            Your model writes a compact, JSX-like template; your app supplies
+            the data. WidgetRenderer validates both and renders a polished,
+            interactive widget — cards, charts, forms, and timelines that feel
+            native to your product.
+          </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="flex justify-center md:justify-end"
+            {...fadeUp(0.15)}
+            className="flex flex-wrap items-center gap-3"
           >
-            <div className="relative">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-3 rounded-[28px] bg-linear-to-b from-white/70 to-white/0 blur-xl"
-              />
-              <div className="relative rounded-[28px] border border-white/60 bg-white/60 p-4 shadow-sm backdrop-blur">
-                <WidgetRenderer template={heroTemplate} schema={HeroSchema} data={heroData} />
-              </div>
-            </div>
+            <Link
+              to="/playground"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500"
+            >
+              Open playground
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              to="/docs"
+              className="inline-flex cursor-pointer items-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900"
+            >
+              Read the docs
+            </Link>
           </motion.div>
+
+          <motion.ul
+            {...fadeUp(0.2)}
+            className="flex flex-wrap items-center gap-2"
+          >
+            {heroChips.map((chip) => (
+              <li
+                key={chip}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-white px-3 py-1 text-xs font-medium text-slate-600"
+              >
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                  aria-hidden
+                />
+                {chip}
+              </li>
+            ))}
+          </motion.ul>
+        </div>
+
+        <motion.div
+          {...fadeUp(0.12)}
+          className="mx-auto w-full max-w-[470px] lg:mx-0 lg:justify-self-end"
+        >
+          <div className={`${cardClass} p-2`}>
+            <div className="flex items-center justify-between px-2.5 pb-2 pt-1.5">
+              <div className="flex items-center gap-1.5" aria-hidden>
+                <span className="h-2 w-2 rounded-full bg-slate-200" />
+                <span className="h-2 w-2 rounded-full bg-slate-200" />
+                <span className="h-2 w-2 rounded-full bg-slate-200" />
+              </div>
+              <span className="font-mono text-[10px] text-slate-400">
+                &lt;WidgetRenderer /&gt;
+              </span>
+            </div>
+            <div className="rounded-xl bg-slate-50/70 p-3">
+              <WidgetRenderer template={heroTemplate} data={heroData} />
+            </div>
+          </div>
+          <p className="mt-3 text-center text-xs text-slate-400">
+            Live render — one template string, one data object.
+          </p>
+        </motion.div>
+      </section>
+
+      <section className="space-y-6">
+        <motion.div {...fadeIn(0)} className="max-w-2xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Why widgets
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600 md:text-base">
+            A renderer built for the messy reality of model output — strict
+            enough to trust, expressive enough to ship.
+          </p>
+        </motion.div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {features.map((feature, index) => (
+            <motion.article
+              key={feature.title}
+              {...fadeIn(index * 0.07)}
+              className={`${cardClass} p-6`}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <feature.icon className="h-5 w-5" aria-hidden />
+              </div>
+              <h3 className="mt-4 text-base font-semibold text-slate-900">
+                {feature.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                {feature.body}
+              </p>
+            </motion.article>
+          ))}
         </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
-        {[
-          {
-            icon: ShieldCheck,
-            title: "Schema-driven",
-            body: "Validate data with Zod so templates stay predictable and safe to render."
-          },
-          {
-            icon: LayoutGrid,
-            title: "Opinionated defaults",
-            body: "Tuned spacing, radii, typography, and surfaces that look great in chat."
-          },
-          {
-            icon: Code2,
-            title: "Composable primitives",
-            body: "Build compact flows using layout, list, content, and form components."
-          }
-        ].map((item, index) => (
-          <motion.div
-            key={item.title}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.05 + index * 0.03 }}
-          >
-            <Card className="h-full rounded-3xl border border-white/60 bg-white/60 p-6 shadow-sm backdrop-blur">
-              <div className="flex items-start gap-4">
-                <div className="rounded-2xl border border-white/60 bg-white/70 p-3 text-slate-900 shadow-sm">
-                  <item.icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.body}</p>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <Card className="rounded-3xl border border-white/60 bg-white/60 p-8 shadow-sm backdrop-blur">
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                Quick start
-              </h2>
-              <p className="text-sm text-slate-600">
-                Install the package, import styles, then render with template + schema + data.
-              </p>
-            </div>
-            <span className="hidden rounded-full bg-slate-900/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:inline">
-              60 seconds
-            </span>
-          </div>
-
-          <pre className="mt-5 overflow-x-auto rounded-2xl bg-slate-950 p-5 text-xs leading-relaxed text-slate-100">
-{`import "@tugan/widgets/styles.css";
-import { WidgetRenderer } from "@tugan/widgets";
-import WidgetSchema from "./schema";
-
-export function WidgetMessage() {
-  return (
-    <WidgetRenderer
-      template={templateString}
-      schema={WidgetSchema}
-      data={widgetData}
-      onAction={(action) => console.log(action)}
-    />
-  );
-}`}
-          </pre>
-        </Card>
-
-        <Card className="rounded-3xl border border-white/60 bg-white/60 p-8 shadow-sm backdrop-blur">
-          <h3 className="text-base font-semibold text-slate-900">Next steps</h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Explore examples, inspect component docs, or iterate live.
+      <section className="grid gap-4 lg:grid-cols-[1fr_340px] lg:items-start">
+        <motion.div {...fadeIn(0)} className={`${cardClass} p-6 md:p-8`}>
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Quick start
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            Install the package, import the stylesheet, and render a template
+            with your data.
           </p>
-          <div className="mt-5 grid gap-2">
-            <Button asChild className="justify-between cursor-pointer" variant="secondary">
-              <Link to="/gallery">
-                Gallery <ArrowRight className="h-4 w-4 opacity-60" />
-              </Link>
-            </Button>
-            <Button asChild className="justify-between cursor-pointer" variant="secondary">
-              <Link to="/docs">
-                Docs <ArrowRight className="h-4 w-4 opacity-60" />
-              </Link>
-            </Button>
-            <Button asChild className="justify-between cursor-pointer" variant="secondary">
-              <Link to="/playground">
-                Playground <ArrowRight className="h-4 w-4 opacity-60" />
-              </Link>
-            </Button>
+          <div className="relative mt-5">
+            <pre className="overflow-x-auto rounded-2xl bg-slate-950 p-5 pr-14 font-mono text-[13px] leading-relaxed text-slate-100">
+              <code>{quickStartCode}</code>
+            </pre>
+            <CopyButton text={quickStartCode} />
           </div>
-        </Card>
+        </motion.div>
+
+        <motion.div {...fadeIn(0.07)} className={`${cardClass} p-4 md:p-5`}>
+          <h3 className="px-3 pt-1 text-base font-semibold text-slate-900">
+            Next steps
+          </h3>
+          <nav className="mt-2 flex flex-col" aria-label="Next steps">
+            {nextSteps.map((step) => (
+              <Link
+                key={step.to}
+                to={step.to}
+                className="group flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-slate-50"
+              >
+                <span>
+                  <span className="block text-sm font-medium text-slate-900">
+                    {step.title}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-slate-500">
+                    {step.description}
+                  </span>
+                </span>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-slate-500"
+                  aria-hidden
+                />
+              </Link>
+            ))}
+          </nav>
+        </motion.div>
       </section>
     </div>
   );
