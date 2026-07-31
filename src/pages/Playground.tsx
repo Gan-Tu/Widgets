@@ -177,6 +177,14 @@ const previewWidthClasses = {
 
 type PreviewWidth = keyof typeof previewWidthClasses;
 
+/**
+ * "side" puts the preview beside the editors (the default two-column split).
+ * "below" stacks it under them and turns the editors horizontal, trading
+ * editor height for preview width — the layout for inspecting a wide widget.
+ * Both only diverge at `lg`; narrow viewports stack everything either way.
+ */
+type PreviewPlacement = "side" | "below";
+
 type SegmentedOption<T extends string> = { value: T; label: string };
 
 function SegmentedControl<T extends string>({
@@ -251,6 +259,8 @@ export function PlaygroundPage() {
 
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [previewWidth, setPreviewWidth] = React.useState<PreviewWidth>("default");
+  const [previewPlacement, setPreviewPlacement] =
+    React.useState<PreviewPlacement>("side");
   const [renderError, setRenderError] = React.useState<string | null>(null);
   const [lastAction, setLastAction] = React.useState<ActionConfig | null>(null);
 
@@ -654,6 +664,15 @@ export function PlaygroundPage() {
               { value: "full", label: "Full" }
             ]}
           />
+          <SegmentedControl
+            label="Preview placement"
+            value={previewPlacement}
+            onChange={setPreviewPlacement}
+            options={[
+              { value: "side", label: "Beside" },
+              { value: "below", label: "Below" }
+            ]}
+          />
           <button
             type="button"
             onClick={resetPlayground}
@@ -750,7 +769,13 @@ export function PlaygroundPage() {
         ) : null}
       </form>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div
+        className={cn(
+          "grid items-start gap-6",
+          previewPlacement === "side" &&
+            "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+        )}
+      >
         <section className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <h2 className="text-sm font-semibold text-slate-800">Editors</h2>
@@ -771,7 +796,14 @@ export function PlaygroundPage() {
             </select>
           </div>
 
-          <div className="mt-4 space-y-5">
+          <div
+            className={cn(
+              "mt-4",
+              previewPlacement === "below"
+                ? "space-y-5 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0"
+                : "space-y-5"
+            )}
+          >
             <div>
               <div className="flex items-center justify-between gap-2">
                 <label
@@ -814,7 +846,12 @@ export function PlaygroundPage() {
               <Textarea
                 id="playground-data"
                 spellCheck={false}
-                className="mt-2 min-h-[240px] rounded-xl font-mono text-[13px] leading-relaxed"
+                className={cn(
+                  "mt-2 min-h-[240px] rounded-xl font-mono text-[13px] leading-relaxed",
+                  // Side by side, the shorter data box would leave a ragged
+                  // bottom edge next to the template — match their heights.
+                  previewPlacement === "below" && "lg:min-h-[320px]"
+                )}
                 value={jsonInput}
                 onChange={(event) => {
                   setJsonInput(event.target.value);
@@ -825,7 +862,14 @@ export function PlaygroundPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm lg:sticky lg:top-20">
+        <section
+          className={cn(
+            "rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm",
+            // Sticky only helps when the preview sits beside a tall editor
+            // column; stacked below, it would pin over the page as you scroll.
+            previewPlacement === "side" && "lg:sticky lg:top-20"
+          )}
+        >
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <h2 className="text-sm font-semibold text-slate-800">Preview</h2>
             {lastAction && lastActionJson ? (
@@ -874,9 +918,18 @@ export function PlaygroundPage() {
             ) : (
               <div className={cn("mx-auto", previewWidthClasses[previewWidth])}>
                 <div
-                  className={
-                    theme === "dark" ? "rounded-xl bg-[#0c101a] p-6" : undefined
-                  }
+                  className={cn(
+                    // Beside the editors a widget that caps its own width
+                    // (Card size="lg" stops at 560px) would sit flush left;
+                    // auto margins center it.
+                    "[&>*]:mx-auto",
+                    // Below the editors the whole point is seeing the widget at
+                    // full size, so drop that self-imposed cap and let it fill
+                    // the preview. The cap is an inline style on the widget
+                    // root, so only `!important` beats it.
+                    previewPlacement === "below" && "[&>*]:max-w-none!",
+                    theme === "dark" && "rounded-xl bg-[#0c101a] p-6"
+                  )}
                 >
                   <PlaygroundErrorBoundary
                     key={previewKey}
