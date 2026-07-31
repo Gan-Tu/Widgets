@@ -117,6 +117,23 @@ export function resolveThemeColor(
   return theme === "dark" ? color.dark : color.light;
 }
 
+// Colors that don't match a token fall through to raw CSS, and templates are
+// model-authored — so an unrecognized value like `url(https://attacker/pixel)`
+// would turn a widget into a beacon that leaks the viewer's IP. Allow the value
+// through only if it's a plain color literal or an allowlisted color function.
+const SAFE_CSS_COLOR_CHARS = /^[#a-z0-9\s%.,()/_-]+$/i;
+const SAFE_CSS_COLOR_FUNCTIONS =
+  /^(rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color|color-mix|var)$/i;
+
+function isSafeCssColor(raw: string) {
+  // Excludes quotes, semicolons, and backslash escapes outright.
+  if (!SAFE_CSS_COLOR_CHARS.test(raw)) return false;
+  const functionNames = raw.match(/([a-z-]+)\s*\(/gi) ?? [];
+  return functionNames.every((name) =>
+    SAFE_CSS_COLOR_FUNCTIONS.test(name.replace(/\s*\($/, ""))
+  );
+}
+
 export function resolveColor(
   color: string | ThemeColor | undefined,
   theme: ThemeMode
@@ -133,7 +150,7 @@ export function resolveColor(
 
   if (raw in primitiveColorMap) return primitiveColorMap[raw];
 
-  return raw;
+  return isSafeCssColor(raw) ? raw : undefined;
 }
 
 export function resolveRadius(value?: RadiusValue) {

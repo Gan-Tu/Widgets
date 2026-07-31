@@ -1,4 +1,5 @@
 import type { ActionConfig } from "./types";
+import { safeHttpUrl } from "./url";
 
 type ClientActionResult =
   | { handled: true; name: string; result?: unknown }
@@ -58,18 +59,8 @@ async function copyText(value: unknown) {
     : ({ handled: false, name: "copy", reason: "copy command failed" } as const);
 }
 
-function assertHttpUrl(value: unknown) {
-  if (typeof value !== "string") return undefined;
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:" ? url : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 function openHttpUrl(urlValue: unknown): ClientActionResult {
-  const url = assertHttpUrl(urlValue);
+  const url = safeHttpUrl(urlValue);
   if (!url) {
     return { handled: false, name: "open_url", reason: "open_url requires an http(s) payload.url" };
   }

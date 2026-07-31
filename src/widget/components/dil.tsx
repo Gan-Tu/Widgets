@@ -19,6 +19,7 @@ import {
   WidgetThemeProvider
 } from "../context";
 import { useActionHandler, useResizeObserver, useVisibleAction } from "../hooks";
+import { safeHttpHref } from "../url";
 import type {
   ActionConfig,
   Alignment,
@@ -378,6 +379,11 @@ const AudioPlayer: React.FC<{
     }
   };
 
+  // A `download` link renders under the host's origin, so an unconstrained
+  // href would let a template hand the user a `data:`/`blob:` file that looks
+  // like it came from the app. Only offer the download for real http(s) URLs.
+  const downloadHref = safeHttpHref(downloadUrl ?? src);
+
   return (
     <Box border={{ size: 1, color: "subtle" }} radius="lg" padding={3} background="surface-secondary" gap={2}>
       <Row gap={3}>
@@ -397,11 +403,11 @@ const AudioPlayer: React.FC<{
           {subtitle ? <Caption value={subtitle} size="sm" truncate /> : null}
         </Col>
         <Volume2 size={16} style={{ color: "var(--widget-text-secondary)" }} />
-        {downloadUrl ?? src ? (
+        {downloadHref ? (
           <a
             className="wg-interactive cursor-pointer"
             style={{ color: "var(--widget-text-secondary)" }}
-            href={downloadUrl ?? src}
+            href={downloadHref}
             download={downloadFilename ?? title}
             aria-label="Download audio"
           >
@@ -460,13 +466,58 @@ const Svg: React.FC<{
   </svg>
 );
 
+// Templates are authored by a model, so `src` is untrusted input. An
+// unconstrained iframe src lets a widget composite an arbitrary third-party
+// page inside the host app — a ready-made phishing/clickjacking surface — so
+// resolve every form down to an embed URL on a YouTube origin, or render
+// nothing. Watch and youtu.be links are converted rather than rejected because
+// models emit them constantly.
+const YOUTUBE_EMBED_HOSTS = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "youtube-nocookie.com",
+  "www.youtube-nocookie.com"
+]);
+
+function toEmbedUrl(videoId: string) {
+  return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}`;
+}
+
+function resolveYouTubeEmbedSrc(src?: string, videoId?: string) {
+  if (!src) return videoId ? toEmbedUrl(videoId) : "";
+
+  let url: URL;
+  try {
+    url = new URL(src);
+  } catch {
+    return "";
+  }
+
+  if (url.protocol !== "https:") return "";
+
+  if (url.hostname === "youtu.be" || url.hostname === "www.youtu.be") {
+    const shortId = url.pathname.slice(1);
+    return shortId ? toEmbedUrl(shortId) : "";
+  }
+
+  if (!YOUTUBE_EMBED_HOSTS.has(url.hostname)) return "";
+
+  // Already an embed URL: keep it as-is so player params (start, autoplay,
+  // the nocookie origin) survive.
+  if (url.pathname.startsWith("/embed/")) return url.toString();
+
+  const watchId = url.searchParams.get("v");
+  return watchId ? toEmbedUrl(watchId) : "";
+}
+
 const YouTubeEmbed: React.FC<{ videoId?: string; src?: string; title?: string; height?: number | string }> = ({
   videoId,
   src,
   title = "YouTube video",
   height = 220
 }) => {
-  const embedSrc = src ?? (videoId ? `https://www.youtube.com/embed/${encodeURIComponent(videoId)}` : "");
+  const embedSrc = resolveYouTubeEmbedSrc(src, videoId);
+  if (!embedSrc) return null;
   return (
     <iframe
       src={embedSrc}
@@ -474,6 +525,10 @@ const YouTubeEmbed: React.FC<{ videoId?: string; src?: string; title?: string; h
       className="w-full rounded-xl border"
       style={{ height: toCssSize(height), borderColor: "var(--widget-border-default)" }}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      // allow-same-origin is safe here only because the frame is always a
+      // cross-origin YouTube document; the pair would be an escape hatch if the
+      // host allowlist ever admitted a same-origin URL.
+      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
       allowFullScreen
     />
   );
@@ -705,8 +760,11 @@ const CardLinkItem: React.FC<ChildrenProps & { href?: string; onClickAction?: Ac
       </button>
     );
   }
-  return href ? (
-    <a href={href} target="_blank" rel="noreferrer" className="block cursor-pointer text-inherit no-underline" style={style}>
+  // Untrusted template input: fall back to a plain (non-navigating) item
+  // rather than emitting a link to a `data:`/`blob:` target.
+  const safeHref = safeHttpHref(href);
+  return safeHref ? (
+    <a href={safeHref} target="_blank" rel="noreferrer" className="block cursor-pointer text-inherit no-underline" style={style}>
       {children}
     </a>
   ) : (

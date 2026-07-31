@@ -76,6 +76,36 @@ const imageUrlPropsByComponent = new Map([
   ["Image", new Set(["src"])]
 ]);
 
+// Props that become an iframe src in the renderer. An arbitrary origin here
+// would composite a third-party page inside the host app, so hold them to a
+// host allowlist. The renderer enforces this too (it's the guarantee that
+// matters for npm consumers); rejecting here just gives the repair pass a
+// chance to fix the template instead of silently dropping the embed.
+const embedUrlPropsByComponent = new Map([["YouTubeEmbed", new Set(["src"])]]);
+
+const allowedEmbedHosts = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "youtube-nocookie.com",
+  "www.youtube-nocookie.com",
+  "youtu.be",
+  "www.youtu.be"
+]);
+
+function validateEmbedUrl(url, location) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`Embed URL in ${location} is not a valid URL: ${url}`);
+  }
+  if (parsed.protocol !== "https:" || !allowedEmbedHosts.has(parsed.hostname)) {
+    throw new Error(
+      `Embed URL in ${location} must be an https YouTube URL: ${url}`
+    );
+  }
+}
+
 const allowedWidgetComponents = new Set(widgetComponentNames);
 
 const outputSchema = {
@@ -181,23 +211,60 @@ function sendStreamLine(res, event) {
   res.write(`${JSON.stringify(event)}\n`);
 }
 
+function getHeaderValue(value) {
+  return Array.isArray(value) ? value[value.length - 1] : value;
+}
+
+// Rate limiting is only as trustworthy as the client identity behind it, so
+// prefer headers the platform sets (and overwrites) over anything the caller
+// can put on the wire. `x-forwarded-for` is a caller-appendable list: the
+// *first* entry is the untrusted end, so a client sending a random
+// `X-Forwarded-For` would mint itself a fresh bucket per request. The last
+// entry is the hop our own proxy appended, which is the closest thing to a
+// real peer address when nothing better exists.
 function getClientKey(req) {
-  const forwardedFor = req.headers["x-forwarded-for"];
-  const firstForwardedIp = Array.isArray(forwardedFor)
-    ? forwardedFor[0]
-    : forwardedFor?.split(",")[0]?.trim();
+  const vercelForwardedFor = getHeaderValue(req.headers["x-vercel-forwarded-for"]);
+  const realIp = getHeaderValue(req.headers["x-real-ip"]);
+  const forwardedFor = getHeaderValue(req.headers["x-forwarded-for"]);
+  const lastForwardedIp = forwardedFor?.split(",").pop()?.trim();
 
   return (
-    firstForwardedIp ||
-    req.headers["x-real-ip"] ||
+    vercelForwardedFor?.trim() ||
+    realIp?.trim() ||
+    lastForwardedIp ||
     req.socket?.remoteAddress ||
     "anonymous"
   );
 }
 
+// Expired buckets are dead weight: without a sweep the map grows once per
+// distinct client for the lifetime of the instance. Sweeping on write keeps it
+// proportional to *active* clients, and the hard cap bounds the worst case if a
+// burst outpaces expiry.
+const MAX_TRACKED_BUCKETS = 10_000;
+
+function pruneBuckets(now) {
+  for (const [key, bucket] of buckets) {
+    if (now >= bucket.resetAt) buckets.delete(key);
+  }
+  if (buckets.size <= MAX_TRACKED_BUCKETS) return;
+  // Still over the cap after dropping everything expired: evict oldest-first
+  // (Map preserves insertion order) rather than let the map grow without bound.
+  const excess = buckets.size - MAX_TRACKED_BUCKETS;
+  let removed = 0;
+  for (const key of buckets.keys()) {
+    buckets.delete(key);
+    removed += 1;
+    if (removed >= excess) break;
+  }
+}
+
 function checkRateLimit(req) {
   const key = String(getClientKey(req));
   const now = Date.now();
+  // Prune before reading: eviction can drop this key, and a bucket fetched
+  // beforehand would then be mutated after it left the map.
+  if (buckets.size >= MAX_TRACKED_BUCKETS) pruneBuckets(now);
   const bucket = buckets.get(key);
 
   if (!bucket || now >= bucket.resetAt) {
@@ -246,7 +313,22 @@ function readBody(req) {
   });
 }
 
+// Requiring a JSON content type is a CSRF control, not a nicety: the three
+// content types a cross-origin form/fetch can send without a preflight
+// (urlencoded, multipart, text/plain) all fail this check, so a third-party
+// page can no longer make a visitor's browser spend our OpenAI quota. Same-site
+// callers already send this header.
+function assertJsonContentType(req) {
+  const contentType = getHeaderValue(req.headers["content-type"]) || "";
+  const mediaType = contentType.split(";")[0].trim().toLowerCase();
+  if (mediaType !== "application/json") {
+    throw createHttpError("Content-Type must be application/json.", 415);
+  }
+}
+
 async function readJsonBody(req) {
+  assertJsonContentType(req);
+
   const rawBody = await readBody(req);
   if (!rawBody) return {};
 
@@ -369,6 +451,23 @@ function getWidgetAuthoringGuide() {
   return widgetAuthoringGuidePromise;
 }
 
+// Upstream error text can carry org/project identifiers, quota details, and
+// key state — none of which belongs in a response to an anonymous caller. Log
+// it for operators and hand back a generic message. The status is remapped too:
+// an OpenAI 401 is a server misconfiguration, not a client auth failure, and
+// echoing it would tell the caller how to probe our credentials. 429 passes
+// through because it's genuine, actionable backpressure.
+function createUpstreamError(status, upstreamMessage) {
+  console.error(
+    `OpenAI request failed (${status}):`,
+    upstreamMessage || "(no message)"
+  );
+  if (status === 429) {
+    return createHttpError("The widget service is busy. Please retry shortly.", 429);
+  }
+  return createHttpError("The widget service is temporarily unavailable.", 502);
+}
+
 async function callOpenAIResponses(apiKey, body) {
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -385,17 +484,12 @@ async function callOpenAIResponses(apiKey, body) {
     payload = rawText ? JSON.parse(rawText) : null;
   } catch {
     if (!response.ok) {
-      throw createHttpError(
-        `OpenAI request failed (${response.status}).`,
-        response.status
-      );
+      throw createUpstreamError(response.status, rawText);
     }
     throw new Error("OpenAI returned an invalid JSON response.");
   }
   if (!response.ok) {
-    const message =
-      payload?.error?.message || `OpenAI request failed (${response.status}).`;
-    throw createHttpError(message, response.status);
+    throw createUpstreamError(response.status, payload?.error?.message);
   }
 
   return payload;
@@ -804,10 +898,41 @@ function isHttpUrl(value) {
   return typeof value === "string" && /^https?:\/\//i.test(value);
 }
 
-function isImageLikeKey(key) {
+function isImageLikeKey(key, imageBoundKeys) {
+  if (imageBoundKeys?.has(key)) return true;
   return /(?:image|photo|avatar|cover|poster|thumbnail|thumb|logo|favicon|banner|picture|src)$/i.test(
     key
   );
+}
+
+// An image prop can be bound to data instead of inlined (`<Image $src="item.u" />`),
+// and the name-based heuristic above misses keys like `u`. Record the field each
+// image prop reads from so the data walk knows those values are image URLs and
+// holds them to the same "must come from image search" rule.
+function collectImagePropKey(attribute, imageBoundKeys) {
+  const value = attribute.value;
+  if (!value) return;
+
+  // `$src="item.u"` — a string holding a template expression.
+  if (value.type === "StringLiteral") {
+    const match = value.value.match(/([A-Za-z_$][\w$]*)\s*$/);
+    if (match) imageBoundKeys.add(match[1]);
+    return;
+  }
+
+  // `src={item.u}` — a real expression node.
+  if (value.type === "JSXExpressionContainer") {
+    const expression = value.expression;
+    if (expression.type === "Identifier") {
+      imageBoundKeys.add(expression.name);
+    } else if (
+      expression.type === "MemberExpression" &&
+      !expression.computed &&
+      expression.property?.type === "Identifier"
+    ) {
+      imageBoundKeys.add(expression.property.name);
+    }
+  }
 }
 
 function looksLikeImageUrl(value) {
@@ -831,14 +956,24 @@ function validateAllowedImageUrl(url, allowedImageUrls, location) {
   }
 }
 
-function validateDataImageUrls(value, allowedImageUrls, pathParts = []) {
+function validateDataImageUrls(
+  value,
+  allowedImageUrls,
+  imageBoundKeys,
+  pathParts = []
+) {
   if (typeof value === "string") {
     if (/^data:image\//i.test(value)) {
       throw new Error("Uploaded image data URLs cannot appear in widget data.");
     }
 
-    const key = pathParts.at(-1) || "";
-    if (isHttpUrl(value) && (isImageLikeKey(key) || looksLikeImageUrl(value))) {
+    // Skip array indices when naming the field: for `covers: ["https://…"]`
+    // the meaningful key is `covers`, not `0`.
+    const key = [...pathParts].reverse().find((part) => !/^\d+$/.test(part)) || "";
+    if (
+      isHttpUrl(value) &&
+      (isImageLikeKey(key, imageBoundKeys) || looksLikeImageUrl(value))
+    ) {
       validateAllowedImageUrl(value, allowedImageUrls, `data.${pathParts.join(".")}`);
     }
     return;
@@ -848,7 +983,7 @@ function validateDataImageUrls(value, allowedImageUrls, pathParts = []) {
 
   if (Array.isArray(value)) {
     value.forEach((item, index) =>
-      validateDataImageUrls(value[index], allowedImageUrls, [
+      validateDataImageUrls(value[index], allowedImageUrls, imageBoundKeys, [
         ...pathParts,
         String(index)
       ])
@@ -857,7 +992,10 @@ function validateDataImageUrls(value, allowedImageUrls, pathParts = []) {
   }
 
   for (const [key, child] of Object.entries(value)) {
-    validateDataImageUrls(child, allowedImageUrls, [...pathParts, key]);
+    validateDataImageUrls(child, allowedImageUrls, imageBoundKeys, [
+      ...pathParts,
+      key
+    ]);
   }
 }
 
@@ -865,6 +1003,8 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
   if (/data:image\//i.test(template)) {
     throw new Error("Uploaded image data URLs cannot appear in the widget template.");
   }
+
+  const imageBoundKeys = new Set();
 
   const ast = parseExpression(normalizeDILSyntax(template), {
     plugins: ["jsx", "typescript"]
@@ -910,14 +1050,27 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
           throw new Error(`Unsupported callback prop: ${propName}.`);
         }
 
+        const isExpressionProp = normalizedName.startsWith("$");
         const imageProps = imageUrlPropsByComponent.get(componentName);
+        if (imageProps?.has(propName)) {
+          if (!isExpressionProp && attribute.value?.type === "StringLiteral") {
+            validateAllowedImageUrl(
+              attribute.value.value,
+              allowedImageUrls,
+              `${componentName}.${propName}`
+            );
+          } else {
+            collectImagePropKey(attribute, imageBoundKeys);
+          }
+        }
+
         if (
-          imageProps?.has(propName) &&
-          attribute.value?.type === "StringLiteral"
+          embedUrlPropsByComponent.get(componentName)?.has(propName) &&
+          attribute.value?.type === "StringLiteral" &&
+          !isExpressionProp
         ) {
-          validateAllowedImageUrl(
+          validateEmbedUrl(
             attribute.value.value,
-            allowedImageUrls,
             `${componentName}.${propName}`
           );
         }
@@ -968,6 +1121,8 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
       throw new Error("Only renderer-supported helper calls and .map() are allowed.");
     }
   });
+
+  return imageBoundKeys;
 }
 
 function parseModelOutput(output, availableImages, allowedComponents) {
@@ -986,8 +1141,12 @@ function parseModelOutput(output, availableImages, allowedComponents) {
 
   const sanitizedTemplate = sanitizeTemplateCompatibility(template.trim());
   const allowedImageUrls = new Set(availableImages.map((image) => image.url));
-  validateTemplate(sanitizedTemplate, allowedImageUrls, allowedComponents);
-  validateDataImageUrls(data, allowedImageUrls);
+  const imageBoundKeys = validateTemplate(
+    sanitizedTemplate,
+    allowedImageUrls,
+    allowedComponents
+  );
+  validateDataImageUrls(data, allowedImageUrls, imageBoundKeys);
 
   if (containsDataUrl(data)) {
     throw new Error("Uploaded image data URLs cannot appear in generated data.");
