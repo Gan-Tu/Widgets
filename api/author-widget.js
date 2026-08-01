@@ -432,23 +432,32 @@ async function getOpenAIKey() {
   }
 }
 
-// The authoring guide is static in production; cache the read so each
-// generation request doesn't repeat a ~55KB disk read + decode. In dev the
-// file is under active iteration (vite pins this module for the server's
-// lifetime), so read fresh to keep the edit → generate loop honest.
-let widgetAuthoringGuidePromise;
+// The authoring context is static in production; cache the read so each
+// generation request doesn't repeat the guide and example corpus disk reads.
+// In dev the files are under active iteration (vite pins this module for the
+// server's lifetime), so read fresh to keep the edit → generate loop honest.
+let widgetAuthoringContextPromise;
 
-function getWidgetAuthoringGuide() {
+function getWidgetAuthoringContext() {
   const guidePath = path.join(process.cwd(), "public", "AGENTS.md");
+  const examplesPath = path.join(process.cwd(), "public", "WIDGET_EXAMPLES.md");
+  const readContext = async () => {
+    const [guide, examples] = await Promise.all([
+      readFile(guidePath, "utf8"),
+      readFile(examplesPath, "utf8")
+    ]);
+    return `${guide}\n\n${examples}`;
+  };
+
   if (process.env.NODE_ENV !== "production") {
-    return readFile(guidePath, "utf8");
+    return readContext();
   }
-  widgetAuthoringGuidePromise ??= readFile(guidePath, "utf8").catch((error) => {
+  widgetAuthoringContextPromise ??= readContext().catch((error) => {
     // Don't cache a transient failure.
-    widgetAuthoringGuidePromise = undefined;
+    widgetAuthoringContextPromise = undefined;
     throw error;
   });
-  return widgetAuthoringGuidePromise;
+  return widgetAuthoringContextPromise;
 }
 
 // Upstream error text can carry org/project identifiers, quota details, and
@@ -1166,7 +1175,7 @@ function parseModelOutput(output, availableImages, allowedComponents) {
 async function generateFinalWidget({
   apiKey,
   model,
-  widgetAuthoringGuide,
+  widgetAuthoringContext,
   context,
   availableImages
 }) {
@@ -1190,7 +1199,7 @@ Important generation rules:
 - Do not include secrets, payment identifiers, or unique private identifiers.
 - For payment details, prefer labels like Saved method or Card ending 4242.
 
-${widgetAuthoringGuide}
+${widgetAuthoringContext}
 `.trim();
 
   const body = {
@@ -1225,7 +1234,7 @@ Keep the original user intent.
 Use only image URLs from availableImages.
 Remove unsupported components, class names, inline styles, arbitrary JavaScript, callbacks, and uploaded data URLs.
 
-${widgetAuthoringGuide}
+${widgetAuthoringContext}
 `.trim(),
       input: JSON.stringify({
         context,
@@ -1275,7 +1284,7 @@ async function runGeneration(request, progress) {
     throw createHttpError("OPENAI_API_KEY is not configured.", 500);
   }
 
-  const widgetAuthoringGuide = await getWidgetAuthoringGuide();
+  const widgetAuthoringContext = await getWidgetAuthoringContext();
 
   let referenceImageNotes = "";
   if (request.referenceImages.length > 0) {
@@ -1399,7 +1408,7 @@ async function runGeneration(request, progress) {
       generateFinalWidget({
         apiKey,
         model: request.model,
-        widgetAuthoringGuide,
+        widgetAuthoringContext,
         context: finalContext,
         availableImages
       }),
