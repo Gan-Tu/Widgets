@@ -727,104 +727,79 @@ WIDGET DATA:
   "loadingElapsed": "0:41",
   "orbs": [
     {
-      "variant": "S1",
-      "label": "Radiate"
+      "variant": "S1"
     },
     {
-      "variant": "S2",
-      "label": "Sweep"
+      "variant": "S2"
     },
     {
-      "variant": "S3",
-      "label": "Comet"
+      "variant": "S3"
     },
     {
-      "variant": "S4",
-      "label": "Column"
+      "variant": "S4"
     },
     {
-      "variant": "S5",
-      "label": "Scatter"
+      "variant": "S5"
     },
     {
-      "variant": "G1",
-      "label": "Wave"
+      "variant": "G1"
     },
     {
-      "variant": "G2",
-      "label": "Counter"
+      "variant": "G2"
     },
     {
-      "variant": "G3",
-      "label": "Cascade"
+      "variant": "G3"
     },
     {
-      "variant": "G4",
-      "label": "Breathe"
+      "variant": "G4"
     },
     {
-      "variant": "G5",
-      "label": "Idle"
+      "variant": "G5"
     },
     {
-      "variant": "C1",
-      "label": "Chase"
+      "variant": "C1"
     },
     {
-      "variant": "C2",
-      "label": "Swell"
+      "variant": "C2"
     },
     {
-      "variant": "C3",
-      "label": "Twin"
+      "variant": "C3"
     },
     {
-      "variant": "C4",
-      "label": "Blink"
+      "variant": "C4"
     },
     {
-      "variant": "C5",
-      "label": "Twinkle"
+      "variant": "C5"
     },
     {
-      "variant": "B1",
-      "label": "Focus"
+      "variant": "B1"
     },
     {
-      "variant": "B2",
-      "label": "Scan"
+      "variant": "B2"
     },
     {
-      "variant": "B3",
-      "label": "Ripple"
+      "variant": "B3"
     },
     {
-      "variant": "B4",
-      "label": "Meet"
+      "variant": "B4"
     },
     {
-      "variant": "B5",
-      "label": "Rotate"
+      "variant": "B5"
     },
     {
-      "variant": "M1",
-      "label": "Fold"
+      "variant": "M1"
     },
     {
-      "variant": "M2",
-      "label": "Gather"
+      "variant": "M2"
     },
     {
-      "variant": "M3",
-      "label": "Unfold"
+      "variant": "M3"
     },
     {
-      "variant": "M4",
-      "label": "Gears"
+      "variant": "M4"
     },
     {
-      "variant": "M5",
-      "label": "Disperse"
+      "variant": "M5"
     }
   ]
 }

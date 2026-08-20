@@ -8,6 +8,23 @@ export const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
 
 /**
+ * Dispatch an action with extra payload keys via the dispatcher's second
+ * argument: the dispatcher merges the payload itself AND exposes it to
+ * deferred $-action expressions — a local pre-merge does neither for
+ * deferred actions.
+ */
+export function useActionInvoker() {
+  const dispatch = useWidgetAction();
+  return React.useCallback(
+    (action: ActionConfig | undefined, payload: Record<string, unknown> = {}) => {
+      if (!action || !dispatch) return;
+      dispatch(action, payload);
+    },
+    [dispatch]
+  );
+}
+
+/**
  * Observe an element's size: runs `onMeasure` once on mount (before paint)
  * and again on every resize. In environments without ResizeObserver, a single
  * requestAnimationFrame retry gives late layout (fonts, images) one more shot.

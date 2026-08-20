@@ -2,11 +2,9 @@ import React from "react";
 import { Star } from "lucide-react";
 
 import { buildChangePayload, getFormValue, useWidgetAction, useWidgetForm, useWidgetTheme } from "../context";
-import type { ActionConfig, TextAlign, ThemeColor, WidgetIcon } from "../types";
+import type { ActionConfig, TextAlign, ThemeColor, Tone, WidgetIcon } from "../types";
 import { resolveColor, resolveGap, sizeToCss, spaceToCss } from "../style";
 import { Icon, PlainButton } from "./content";
-
-type Tone = "neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery";
 
 const toneSoftBg: Record<Tone, string> = {
   neutral: "var(--widget-surface-tertiary)",

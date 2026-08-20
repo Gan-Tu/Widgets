@@ -1,12 +1,12 @@
 import React from "react";
 
 import { buildChangePayload, useWidgetAction, useWidgetForm } from "../context";
-import type { ActionConfig, WidgetIcon } from "../types";
+import { useActionInvoker as useWorkspaceAction } from "../hooks";
+import type { ActionConfig, Tone as WorkspaceTone, WidgetIcon } from "../types";
 import { safeHttpHref } from "../url";
 import { Icon } from "./content";
 import { Sparkline } from "./primitives";
 
-type WorkspaceTone = "neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery";
 type TableValue = string | number | boolean | string[] | null | undefined;
 type WorkspaceColumn = {
   key: string;
@@ -15,19 +15,7 @@ type WorkspaceColumn = {
   align?: "start" | "center" | "end";
 };
 
-function useWorkspaceAction() {
-  const dispatch = useWidgetAction();
-  return React.useCallback(
-    (action: ActionConfig | undefined, payload: Record<string, unknown> = {}) => {
-      if (!action || !dispatch) return;
-      // Second-argument form: the dispatcher merges the payload itself AND
-      // exposes it to deferred $-action expressions — a local pre-merge does
-      // neither for deferred actions.
-      dispatch(action, payload);
-    },
-    [dispatch]
-  );
-}
+const EMPTY: never[] = [];
 
 function valueText(value: unknown): string {
   if (Array.isArray(value)) return value.map(String).join(", ");
@@ -238,8 +226,8 @@ type DiffTableProps = {
 const DiffTable: React.FC<DiffTableProps> = ({
   title = "Proposed changes",
   description = "Select changed rows to include",
-  columns = [],
-  rows = [],
+  columns = EMPTY,
+  rows = EMPTY,
   applyLabel = "Apply changes",
   applyAction
 }) => {
@@ -258,15 +246,25 @@ const DiffTable: React.FC<DiffTableProps> = ({
       return next;
     });
   };
-  const additions = rows.filter((row, index) => row.type === "add" && selected.has(index)).length;
-  const removals = rows.filter((row, index) => row.type === "remove" && selected.has(index)).length;
+  const { additions, removals } = React.useMemo(() => {
+    let added = 0;
+    let removed = 0;
+    rows.forEach((row, index) => {
+      if (!selected.has(index)) return;
+      if (row.type === "add") added += 1;
+      else if (row.type === "remove") removed += 1;
+    });
+    return { additions: added, removals: removed };
+  }, [rows, selected]);
+  const tableRows = React.useMemo(() => rows.map((row) => row.values), [rows]);
+  const rowTypes = React.useMemo(() => rows.map((row) => row.type ?? "context"), [rows]);
   return (
     <div className="wg-diff-table">
       <div className="wg-table-heading"><span><strong>{title}</strong><small>{description}</small></span></div>
       <WorkspaceTable
         columns={columns}
-        rows={rows.map((row) => row.values)}
-        rowTypes={rows.map((row) => row.type ?? "context")}
+        rows={tableRows}
+        rowTypes={rowTypes}
         selected={selected}
         onRowClick={toggle}
       />
@@ -292,8 +290,8 @@ type RecordsTableProps = {
 };
 
 const RecordsTable: React.FC<RecordsTableProps> = ({
-  columns = [],
-  rows = [],
+  columns = EMPTY,
+  rows = EMPTY,
   caption,
   selectable = false,
   defaultSortKey,
@@ -312,10 +310,22 @@ const RecordsTable: React.FC<RecordsTableProps> = ({
       .sort((a, b) => valueText(a.row[sortKey]).localeCompare(valueText(b.row[sortKey]), undefined, { numeric: true }) * (direction === "asc" ? 1 : -1));
   }, [direction, rows, sortKey]);
   const displayColumns = selectable ? [{ key: "__selection", label: "", align: "center" as const }, ...columns] : columns;
-  const displayRows = sorted.map(({ row, index }) => ({ ...row, __selection: selected.has(index) ? "✓" : "" }));
-  const displaySelected = selectable
-    ? new Set(sorted.flatMap(({ index }, displayIndex) => (selected.has(index) ? [displayIndex] : [])))
-    : undefined;
+  // Without selection there is nothing to annotate, so skip the per-row clone
+  // entirely; with it, recompute only when the sort or selection changes.
+  const displayRows = React.useMemo(
+    () =>
+      selectable
+        ? sorted.map(({ row, index }) => ({ ...row, __selection: selected.has(index) ? "✓" : "" }))
+        : sorted.map(({ row }) => row),
+    [selectable, selected, sorted]
+  );
+  const displaySelected = React.useMemo(
+    () =>
+      selectable
+        ? new Set(sorted.flatMap(({ index }, displayIndex) => (selected.has(index) ? [displayIndex] : [])))
+        : undefined,
+    [selectable, selected, sorted]
+  );
   const toggleSelection = (displayIndex: number) => {
     const sourceIndex = sorted[displayIndex]?.index;
     if (sourceIndex === undefined) return;
@@ -390,7 +400,7 @@ const FilterTable: React.FC<FilterTableProps> = ({
             type="button"
             data-active={active === filter.value || undefined}
             data-tone={filter.tone ?? "neutral"}
-            onClick={() => { setActive(filter.value); invoke(onFilterAction, { filter: filter.value, value: filter.value }); }}
+            onClick={() => { setActive(filter.value); invoke(onFilterAction, buildChangePayload("filter", filter.value)); }}
             key={filter.value}
           >{filter.label}{filter.count !== undefined ? <span>{filter.count}</span> : null}</button>
         ))}

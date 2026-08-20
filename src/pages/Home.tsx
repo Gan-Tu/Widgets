@@ -13,6 +13,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
 import { WidgetRenderer } from "@/widget";
+import { widgetRegistry } from "@/widget/registry";
 
 const cardClass =
   "rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(16,20,28,0.04),0_8px_24px_-12px_rgba(16,20,28,0.08)]";
@@ -45,7 +46,13 @@ const heroData = {
   ]
 };
 
-const heroChips = ["142 components", "200+ icons", "Zero-config theming"];
+// The registry is already in this chunk via WidgetRenderer, so deriving the
+// count is free — and it can never drift the way a hand-bumped literal did.
+const heroChips = [
+  `${Object.keys(widgetRegistry).length} components`,
+  "200+ icons",
+  "Zero-config theming"
+];
 
 const features = [
   {

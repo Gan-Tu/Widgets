@@ -138,4 +138,7 @@ export type BaseTextProps = {
 
 export type WidgetIcon = IconName;
 
+/** The design system's status tone vocabulary — one owner, shared by every component. */
+export type Tone = "neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery";
+
 export type WidgetRoot = React.FC<{ children?: React.ReactNode }>;

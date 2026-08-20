@@ -879,7 +879,7 @@
 .wg-orb[data-variant="G3"] > span:nth-child(n + 4):nth-child(-n + 6) { animation-delay: -0.35s; }
 .wg-orb[data-variant="G3"] > span:nth-child(n + 7) { animation-delay: -0.7s; }
 /* G4 — the whole globe breathes while it turns */
-.wg-orb[data-variant="G4"] { animation: wg-orb-roll 3.2s linear infinite; --wg-orb-dur: 1.3s; }
+.wg-orb[data-variant="G4"] { animation: wg-agent-spin 3.2s linear infinite; --wg-orb-dur: 1.3s; }
 .wg-orb[data-variant="G4"] > span { animation-name: wg-orb-breathe; }
 @keyframes wg-orb-breathe { from { opacity: 0.3; transform: scale(0.55); } to { opacity: 1; transform: scale(1.05); } }
 /* G5 — idling: a slow, shallow ripple */
@@ -912,7 +912,7 @@
 .wg-orb[data-variant="B1"] > span:nth-child(4) { --wg-orb-bx: 22%; --wg-orb-by: 22%; }
 @keyframes wg-orb-b1 { from { transform: translate(calc(var(--wg-orb-bx) * 2.4), calc(var(--wg-orb-by) * 2.4)) scale(0.8); } to { transform: translate(0, 0) scale(1); } }
 /* B2 — a pair sweeps around the lens */
-.wg-orb[data-variant="B2"] { animation: wg-orb-roll 1.7s linear infinite; }
+.wg-orb[data-variant="B2"] { animation: wg-agent-spin 1.7s linear infinite; }
 .wg-orb[data-variant="B2"] > span:nth-child(1) { transform: translateX(-26%); }
 .wg-orb[data-variant="B2"] > span:nth-child(2) { transform: translateX(26%); }
 .wg-orb[data-variant="B2"] > span:nth-child(3) { width: 24%; height: 24%; margin: -12% 0 0 -12%; }
@@ -928,7 +928,7 @@
 .wg-orb[data-variant="B4"] > span:nth-child(3) { width: 26%; height: 26%; margin: -13% 0 0 -13%; animation: none; opacity: 0.6; }
 @keyframes wg-orb-b4 { from { transform: translateY(calc(var(--wg-orb-by, 0%) * 1.9)); } to { transform: translateY(0); } }
 /* B5 — three lobes rotate one stop at a time */
-.wg-orb[data-variant="B5"] { animation: wg-orb-roll 2.7s steps(3) infinite; }
+.wg-orb[data-variant="B5"] { animation: wg-agent-spin 2.7s steps(3) infinite; }
 .wg-orb[data-variant="B5"] > span { width: 40%; height: 40%; margin: -20% 0 0 -20%; }
 .wg-orb[data-variant="B5"] > span:nth-child(1) { transform: rotate(0deg) translateY(-24%); }
 .wg-orb[data-variant="B5"] > span:nth-child(2) { transform: rotate(120deg) translateY(-24%); }
@@ -956,15 +956,15 @@
 .wg-orb[data-variant="M3"] { animation: wg-orb-quarter 3.2s var(--widget-ease) infinite; }
 @keyframes wg-orb-quarter { 0%, 15% { transform: rotate(0deg); } 25%, 40% { transform: rotate(90deg); } 50%, 65% { transform: rotate(180deg); } 75%, 90% { transform: rotate(270deg); } 100% { transform: rotate(360deg); } }
 /* M4 — alternate dots trade radii, like meshing gears */
-.wg-orb[data-variant="M4"] { animation: wg-orb-roll 9s linear infinite; }
+.wg-orb[data-variant="M4"] { animation: wg-agent-spin 9s linear infinite; }
 .wg-orb[data-variant="M4"] > span:nth-child(odd) { animation: wg-orb-fold 1.5s ease-in-out infinite alternate; }
-.wg-orb[data-variant="M4"] > span:nth-child(even) { animation: wg-orb-unfold 1.5s ease-in-out infinite alternate; }
-@keyframes wg-orb-unfold { from { transform: rotate(calc(var(--wg-orb-i) * 45deg)) translateY(calc(var(--wg-orb-size) * -0.24)); } to { transform: rotate(calc(var(--wg-orb-i) * 45deg)) translateY(calc(var(--wg-orb-size) * -0.37)); } }
+/* The even dots run the same fold in the opposite phase — ease-in-out is
+   symmetric, so alternate-reverse is frame-identical to a mirrored keyframe. */
+.wg-orb[data-variant="M4"] > span:nth-child(even) { animation: wg-orb-fold 1.5s ease-in-out infinite alternate-reverse; }
 /* M5 — the ring disperses outward and re-forms */
 .wg-orb[data-variant="M5"] > span { animation: wg-orb-disperse 1.9s ease-in-out infinite; animation-delay: calc(var(--wg-orb-i) * -90ms); }
 @keyframes wg-orb-disperse { 0%, 100% { opacity: 1; transform: rotate(calc(var(--wg-orb-i) * 45deg)) translateY(calc(var(--wg-orb-size) * -0.34)); } 50% { opacity: 0.2; transform: rotate(calc(var(--wg-orb-i) * 45deg)) translateY(calc(var(--wg-orb-size) * -0.47)); } }
 
-@keyframes wg-orb-roll { to { transform: rotate(360deg); } }
 
 .wg-loading-state {
   display: flex;
@@ -1066,7 +1066,9 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-image-grid { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--widget-border-strong) 1px, transparent 1px); background-size: 11px 11px; mask-image: radial-gradient(circle at center, black, transparent 72%); opacity: 0.72; animation: wg-image-grid 3.4s ease-in-out infinite alternate; }
 @keyframes wg-image-grid { to { opacity: 0.3; } }
 .wg-image-glow { position: absolute; z-index: -1; width: 62%; aspect-ratio: 1; left: 18%; top: 15%; border-radius: 42% 58% 61% 39% / 55% 38% 62% 45%; background: color-mix(in srgb, var(--widget-accent) 22%, transparent); filter: blur(20px); animation: wg-image-morph 4s ease-in-out infinite alternate; }
-@keyframes wg-image-morph { to { transform: translate(12%, -8%) rotate(18deg) scale(1.16); border-radius: 58% 42% 37% 63% / 42% 64% 36% 58%; } }
+/* Transform-only so the blurred layer composites instead of repainting every
+   frame; behind blur(20px) the radius morph was imperceptible anyway. */
+@keyframes wg-image-morph { to { transform: translate(12%, -8%) rotate(18deg) scale(1.16); } }
 .wg-image-resolution { position: absolute; right: 0.6rem; top: 0.6rem; border: 1px solid var(--widget-border-subtle); border-radius: 999px; background: color-mix(in srgb, var(--widget-surface-elevated) 88%, transparent); color: var(--widget-text-secondary); padding: 0.2rem 0.45rem; font-family: var(--widget-font-mono); font-size: 0.625rem; font-variant-numeric: tabular-nums; backdrop-filter: blur(8px); }
 .wg-image-progress { position: absolute; overflow: hidden; left: 0.6rem; right: 0.6rem; bottom: 0.6rem; height: 4px; border-radius: 99px; background: color-mix(in srgb, var(--widget-text-emphasis) 12%, transparent); }
 .wg-image-progress i { display: block; height: 100%; border-radius: inherit; background: var(--widget-accent); transition: width 400ms var(--widget-ease); }
@@ -1324,10 +1326,12 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
 .wg-record-status[data-tone="danger"] { background: var(--widget-danger-soft-bg); color: var(--widget-danger-soft-fg); }
 .wg-record-status[data-tone="warning"] { background: var(--widget-warning-soft-bg); color: var(--widget-warning-soft-fg); }
 .wg-record-status[data-tone="info"] { background: var(--widget-info-soft-bg); color: var(--widget-info-soft-fg); }
-.widget-root[data-theme="dark"] .wg-record-status[data-tone="success"] { background: color-mix(in srgb, var(--widget-success) 14%, transparent); color: var(--widget-success); }
-.widget-root[data-theme="dark"] .wg-record-status[data-tone="danger"] { background: color-mix(in srgb, var(--widget-danger) 14%, transparent); color: var(--widget-danger); }
-.widget-root[data-theme="dark"] .wg-record-status[data-tone="warning"] { background: color-mix(in srgb, var(--widget-warning) 14%, transparent); color: var(--widget-warning); }
-.widget-root[data-theme="dark"] .wg-record-status[data-tone="info"] { background: color-mix(in srgb, var(--widget-info) 14%, transparent); color: var(--widget-info); }
+/* Dark keeps the token-driven soft background (already 14% of the tone) and
+   only swaps the foreground to the vivid tone for contrast. */
+.widget-root[data-theme="dark"] .wg-record-status[data-tone="success"] { color: var(--widget-success); }
+.widget-root[data-theme="dark"] .wg-record-status[data-tone="danger"] { color: var(--widget-danger); }
+.widget-root[data-theme="dark"] .wg-record-status[data-tone="warning"] { color: var(--widget-warning); }
+.widget-root[data-theme="dark"] .wg-record-status[data-tone="info"] { color: var(--widget-info); }
 
 .wg-diff-table,
 .wg-records-table,
@@ -1426,8 +1430,8 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
 .wg-flow-node[data-kind="branch"] > span:first-child { background: var(--widget-warning-soft-bg); color: var(--widget-warning-soft-fg); }
 .wg-flow-node[data-kind="result"] > span:first-child { background: var(--widget-success-soft-bg); color: var(--widget-success-soft-fg); }
 .widget-root[data-theme="dark"] .wg-flow-node[data-kind="condition"] > span:first-child,
-.widget-root[data-theme="dark"] .wg-flow-node[data-kind="branch"] > span:first-child { background: color-mix(in srgb, var(--widget-warning) 14%, transparent); color: var(--widget-warning); }
-.widget-root[data-theme="dark"] .wg-flow-node[data-kind="result"] > span:first-child { background: color-mix(in srgb, var(--widget-success) 14%, transparent); color: var(--widget-success); }
+.widget-root[data-theme="dark"] .wg-flow-node[data-kind="branch"] > span:first-child { color: var(--widget-warning); }
+.widget-root[data-theme="dark"] .wg-flow-node[data-kind="result"] > span:first-child { color: var(--widget-success); }
 .wg-flow-node > span:nth-child(2) { display: flex; min-width: 0; flex-direction: column; gap: 0.08rem; }
 .wg-flow-node strong { overflow: hidden; color: var(--widget-text-primary); font-size: 0.78rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .wg-flow-node small { color: var(--widget-text-tertiary); font-size: 0.6875rem; }

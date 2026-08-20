@@ -1,13 +1,15 @@
 import React from "react";
 
-import { buildChangePayload, useWidgetAction, useWidgetForm, useWidgetTheme } from "../context";
+import { buildChangePayload, useWidgetForm, useWidgetTheme, useWidgetAction } from "../context";
+import { useActionInvoker } from "../hooks";
 import { resolveColor, sizeToCss } from "../style";
 import type { ActionConfig, ThemeColor, WidgetIcon } from "../types";
 import { safeHttpHref } from "../url";
 import { Icon } from "./content";
 
 type AgentStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
-type AgentTone = "neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery";
+
+const EMPTY: never[] = [];
 
 const statusIcon: Record<AgentStatus, WidgetIcon> = {
   pending: "empty-circle",
@@ -17,31 +19,15 @@ const statusIcon: Record<AgentStatus, WidgetIcon> = {
   cancelled: "ban"
 };
 
-function useActionInvoker() {
-  const dispatch = useWidgetAction();
-  return React.useCallback(
-    (action: ActionConfig | undefined, payload: Record<string, unknown> = {}) => {
-      if (!action || !dispatch) return;
-      // Second-argument form: the dispatcher merges the payload itself AND
-      // exposes it to deferred $-action expressions — a local pre-merge does
-      // neither for deferred actions.
-      dispatch(action, payload);
-    },
-    [dispatch]
-  );
-}
-
 function AgentButton({
   label,
   icon,
-  tone = "neutral",
   primary = false,
   disabled = false,
   onClick
 }: {
   label: string;
   icon?: WidgetIcon;
-  tone?: AgentTone;
   primary?: boolean;
   disabled?: boolean;
   onClick?: () => void;
@@ -50,7 +36,6 @@ function AgentButton({
     <button
       type="button"
       className="wg-agent-button"
-      data-tone={tone}
       data-primary={primary || undefined}
       disabled={disabled}
       onClick={onClick}
@@ -61,11 +46,10 @@ function AgentButton({
   );
 }
 
-function StatusMark({ status, label }: { status: AgentStatus; label?: string }) {
+function StatusMark({ status }: { status: AgentStatus }) {
   return (
     <span className="wg-agent-status" data-status={status}>
       <Icon name={statusIcon[status]} size="xs" color="currentColor" />
-      {label ? <span>{label}</span> : null}
     </span>
   );
 }
@@ -181,7 +165,7 @@ const ThinkingReasoning: React.FC<ThinkingReasoningProps> = ({
   );
 };
 
-const Thinking: React.FC<ThinkingReasoningProps> = (props) => <ThinkingReasoning {...props} />;
+const Thinking = ThinkingReasoning;
 
 type OrbVariant =
   | "S1" | "S2" | "S3" | "S4" | "S5"
@@ -200,12 +184,10 @@ type OrbProps = {
 const Orb: React.FC<OrbProps> = ({ variant = "S1", size = 20, color, label }) => {
   const theme = useWidgetTheme();
   const family = variant.slice(0, 1);
-  const phase = Number(variant.slice(1)) || 1;
   const resolved = (color ? resolveColor(color, theme) : undefined) ?? "var(--widget-accent)";
   const style = {
     "--wg-orb-size": sizeToCss(size),
-    "--wg-orb-color": resolved,
-    "--wg-orb-phase": phase
+    "--wg-orb-color": resolved
   } as React.CSSProperties;
 
   return (
@@ -220,7 +202,7 @@ const Orb: React.FC<OrbProps> = ({ variant = "S1", size = 20, color, label }) =>
   );
 };
 
-const Orbs: React.FC<OrbProps> = (props) => <Orb {...props} />;
+const Orbs = Orb;
 
 type LoadingStateProps = {
   label?: string;
@@ -361,13 +343,18 @@ const StreamingText: React.FC<StreamingTextProps> = ({
     }
     setVisible(Math.min(1, safeText.length));
     if (safeText.length <= 1) return;
+    // Keep chars/sec exact but never tick faster than a display frame: a
+    // sub-16ms interval only burns renders that can never be painted.
+    const base = Math.max(8, speed);
+    const multiplier = Math.ceil(16 / base);
+    const step = 2 * multiplier;
     const interval = window.setInterval(() => {
       setVisible((current) => {
-        const next = Math.min(safeText.length, current + 2);
+        const next = Math.min(safeText.length, current + step);
         if (next >= safeText.length) window.clearInterval(interval);
         return next;
       });
-    }, Math.max(8, speed));
+    }, base * multiplier);
     return () => window.clearInterval(interval);
   }, [safeText, speed, streaming]);
 
@@ -431,17 +418,37 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   showLineNumbers = true,
   copyable = true,
   streaming = false,
-  highlightLines = [],
+  highlightLines = EMPTY,
   onCopyAction
 }) => {
   const invoke = useActionInvoker();
   const [copied, setCopied] = React.useState(false);
-  const lines = String(code ?? "").split("\n");
+  const lines = React.useMemo(() => String(code ?? "").split("\n"), [code]);
   const copy = () => {
     invoke(onCopyAction ?? { type: "copy", handler: "client", payload: { value: code } });
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1200);
   };
+  // The body is static per (code, options); memoizing it lets React skip the
+  // whole n-line subtree when only the copy-feedback state toggles.
+  const body = React.useMemo(
+    () => (
+      <div className="wg-code-body">
+        {lines.map((line, index) => (
+          <div
+            className="wg-code-line"
+            data-highlighted={highlightLines.includes(index + 1) || undefined}
+            style={{ animationDelay: `${Math.min(index * 45, 450)}ms` }}
+            key={index}
+          >
+            {showLineNumbers ? <span className="wg-code-number">{index + 1}</span> : null}
+            <code>{line || "\u00a0"}</code>
+          </div>
+        ))}
+      </div>
+    ),
+    [lines, highlightLines, showLineNumbers]
+  );
   return (
     <div className="wg-code-block" data-streaming={streaming || undefined}>
       <div className="wg-code-header">
@@ -457,19 +464,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           </button>
         ) : null}
       </div>
-      <div className="wg-code-body">
-        {lines.map((line, index) => (
-          <div
-            className="wg-code-line"
-            data-highlighted={highlightLines.includes(index + 1) || undefined}
-            style={{ animationDelay: `${Math.min(index * 45, 450)}ms` }}
-            key={index}
-          >
-            {showLineNumbers ? <span className="wg-code-number">{index + 1}</span> : null}
-            <code>{line || "\u00a0"}</code>
-          </div>
-        ))}
-      </div>
+      {body}
     </div>
   );
 };
@@ -817,8 +812,8 @@ const AgentInput: React.FC<AgentInputProps> = ({
   models = [],
   defaultModel,
   attachments = [],
-  commands = [],
-  skills = [],
+  commands = EMPTY,
+  skills = EMPTY,
   selectedSkills = [],
   submitAction,
   attachAction,
@@ -876,14 +871,17 @@ const AgentInput: React.FC<AgentInputProps> = ({
   const chooseCommand = (item: AgentCommand) => {
     const next = value.replace(/(^|\s)\/[^\s]*$/, (_match, lead: string) => `${lead}/${item.value} `);
     setValue(next);
+    // Record the sync key before writing so the form-sync effect doesn't
+    // repeat this exact write on the next commit.
+    lastFormSyncRef.current = `${name} ${next}`;
     form?.setValue(name, next);
     if (onChangeAction && dispatch) dispatch(onChangeAction, buildChangePayload(name, next));
     setMenu(null);
-    invoke(commandAction, { command: item.value, value: item.value });
+    invoke(commandAction, buildChangePayload("command", item.value));
   };
   const chooseSkill = (item: AgentSkill) => {
     setMenu(null);
-    invoke(skillAction, { skill: item.value, value: item.value });
+    invoke(skillAction, buildChangePayload("skill", item.value));
   };
 
   return (
@@ -976,7 +974,7 @@ const AgentInput: React.FC<AgentInputProps> = ({
             <button
               type="button"
               data-active={enhancing || undefined}
-              onClick={() => enhancing ? invoke(cancelEnhanceAction) : invoke(enhanceAction, { [name]: value, value })}
+              onClick={() => enhancing ? invoke(cancelEnhanceAction) : invoke(enhanceAction, buildChangePayload(name, value))}
               aria-label={enhancing ? "Cancel prompt enhancement" : "Enhance prompt"}
               disabled={enhancing && !cancelEnhanceAction}
             >
@@ -1005,7 +1003,7 @@ const AgentInput: React.FC<AgentInputProps> = ({
   );
 };
 
-const PromptInput: React.FC<AgentInputProps> = (props) => <AgentInput {...props} />;
+const PromptInput = AgentInput;
 
 type ApprovalOption = { label: string; value: string; description?: string };
 type ApprovalQuestion = {
@@ -1170,11 +1168,10 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
           {viewAction ? <AgentButton label="View plan" onClick={() => invoke(viewAction)} /> : null}
           {skipAction || rejectAction ? <AgentButton label={rejectLabel} onClick={() => invoke(skipAction ?? rejectAction, { value: answer, answers: answerMap })} /> : null}
           {variant === "questions" && questionIndex < questionList.length - 1 ? (
-            <AgentButton label="Next" tone="accent" primary disabled={!answer || (Array.isArray(answer) && answer.length === 0)} onClick={() => goToQuestion(questionIndex + 1)} />
+            <AgentButton label="Next" primary disabled={!answer || (Array.isArray(answer) && answer.length === 0)} onClick={() => goToQuestion(questionIndex + 1)} />
           ) : (
             <AgentButton
               label={approveLabel}
-              tone="accent"
               primary
               disabled={!approveAction || (variant === "questions" && (!answer || (Array.isArray(answer) && answer.length === 0)))}
               onClick={() => invoke(approveAction, { value: answer, answers: answerMap })}
@@ -1225,7 +1222,7 @@ const Chat: React.FC<ChatProps> = ({
               role="tab"
               aria-selected={activeTab === tab.id}
               data-active={activeTab === tab.id || undefined}
-              onClick={() => { setActiveTab(tab.id); invoke(onTabChangeAction, { tab: tab.id, value: tab.id }); }}
+              onClick={() => { setActiveTab(tab.id); invoke(onTabChangeAction, buildChangePayload("tab", tab.id)); }}
               key={tab.id}
             >{tab.label}</button>
           ))}
@@ -1280,7 +1277,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
       {open && sources.length > 0 ? (
         <div className="wg-prompt-sources">
           {sources.map((source) => (
-            <button type="button" onClick={() => invoke(sourceAction, { source: source.id, value: source.id })} key={source.id}>
+            <button type="button" onClick={() => invoke(sourceAction, buildChangePayload("source", source.id))} key={source.id}>
               <Icon name={source.icon ?? "database"} size="sm" color="tertiary" />
               <span><strong>{source.label}</strong>{source.description ? <small>{source.description}</small> : null}</span>
               {source.connected ? <em>Connected</em> : null}
@@ -1350,7 +1347,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
         <span className="wg-confidence"><i><b style={{ width: `${Math.max(0, Math.min(normalized, 1)) * 100}%` }} /></i>{label}</span>
         <div>
           {alternativesAction ? <AgentButton label="Alternatives" onClick={() => invoke(alternativesAction)} /> : null}
-          <AgentButton label={acceptLabel} tone="accent" primary disabled={!acceptAction} onClick={() => invoke(acceptAction)} />
+          <AgentButton label={acceptLabel} primary disabled={!acceptAction} onClick={() => invoke(acceptAction)} />
         </div>
       </div>
     </div>

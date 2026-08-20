@@ -35,14 +35,42 @@ const borderTokens: Record<string, string> = {
   strong: "var(--widget-border-strong)"
 };
 
-// Status tones without a text-token entry. success/warning/danger/info
-// intentionally resolve to their readable text variants above; accent and
-// discovery have no text variant, so without this map they fell through to
-// the raw string and produced an invalid CSS color (an invisible Orb).
-const statusToneTokens: Record<string, string> = {
-  accent: "var(--widget-accent)",
-  discovery: "var(--widget-discovery)"
-};
+// Token names that map one-to-one onto a --widget-<name> custom property.
+// Without this, a bare name like "discovery" or "accent-soft" falls through
+// isSafeCssColor and lands in inline CSS as an invalid color (an invisible
+// Orb). Names with a text-token entry above (success, warning, danger, info)
+// intentionally keep resolving to their readable text variants first.
+const varBackedTokens = new Set([
+  "accent",
+  "accent-strong",
+  "accent-soft",
+  "accent-soft-strong",
+  "accent-border",
+  "on-accent",
+  "success",
+  "warning",
+  "danger",
+  "info",
+  "discovery",
+  "success-soft-bg",
+  "success-soft-fg",
+  "success-soft-border",
+  "warning-soft-bg",
+  "warning-soft-fg",
+  "warning-soft-border",
+  "danger-soft-bg",
+  "danger-soft-fg",
+  "danger-soft-border",
+  "info-soft-bg",
+  "info-soft-fg",
+  "info-soft-border",
+  "discovery-soft-bg",
+  "discovery-soft-fg",
+  "discovery-soft-border",
+  "surface-hover",
+  "surface-active",
+  "bg"
+]);
 
 const radiusMap: Record<RadiusValue, string> = {
   "2xs": "4px",
@@ -153,7 +181,7 @@ export function resolveColor(
   if (raw in textColorTokens) return textColorTokens[raw];
   if (raw in surfaceTokens) return surfaceTokens[raw];
   if (raw in borderTokens) return borderTokens[raw];
-  if (raw in statusToneTokens) return statusToneTokens[raw];
+  if (varBackedTokens.has(raw)) return `var(--widget-${raw})`;
 
   if (raw === "alpha-70") return "var(--widget-alpha-70)";
   if (raw === "alpha-10") return "var(--widget-alpha-10)";
