@@ -73,7 +73,8 @@ const supportedFunctionCalls = new Set([
 const imageUrlPropsByComponent = new Map([
   ["Avatar", new Set(["src"])],
   ["Favicon", new Set(["src", "url"])],
-  ["Image", new Set(["src"])]
+  ["Image", new Set(["src"])],
+  ["ImageGeneration", new Set(["image"])]
 ]);
 
 // Props that become an iframe src in the renderer. An arbitrary origin here

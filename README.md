@@ -10,15 +10,17 @@ DeepWiki Docs: https://deepwiki.com/Gan-Tu/Widgets
 ## What’s in this repo
 
 - **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
-- **Component library**: 110 registered components — containers, layout, typography, forms, charts, media, control flow, and premium data-display primitives (`Stat`, `Sparkline`, `Timeline`, `Steps`, `KeyValue`, `Callout`, `ChipGroup`, `Rating`, `Tabs`, `EmptyState`), all themed by CSS design tokens with full light/dark support
+- **Component library**: 142 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
-  - `/gallery` — 31 categorized, searchable pre-built widgets
+  - `/gallery` — 47 categorized, searchable pre-built widgets
   - `/docs` — per-component docs with live examples, prop tables, and deep links
   - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed)
 - **Authoring guide**: `public/AGENTS.md` — the complete widget-authoring contract embedded into the generation prompt
 - **Example corpus**: `public/WIDGET_EXAMPLES.md` — every gallery widget as a template + data pair, generated from `src/examples/widgetExamples.ts` (regenerate with `node --experimental-strip-types scripts/build-widget-examples-doc.mjs`); an optional download for richer LLM context
 
 Built with **React**, **Tailwind v4**, **shadcn/ui-style primitives**, **Recharts** (lazy-loaded), and **Motion** (`motion/react`).
+
+The agent-native and workspace primitives are independent implementations inspired by interaction concepts in the current [AIcss](https://www.aicss.dev/) and [Beautiful UI](https://www.beautifului.dev/) catalogs. No source code or assets from either project are copied.
 
 ## Install (for use in your app)
 

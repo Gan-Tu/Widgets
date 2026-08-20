@@ -49,7 +49,9 @@ export function WidgetMessage() {
 
 ## DIL support
 
-The renderer supports the documented DIL component surface to the extent it can run in a standalone React package: layout, media, rich text, forms, charts, table rows/cells, popovers, carousels, loading states, control flow, and dotted child components such as `Table.Row`, `BaseCarousel.Item`, `Popover.Trigger`, and `Show.Else`.
+The renderer exposes 142 registered component names across layout, media, rich text, forms, charts, table rows/cells, popovers, carousels, loading states, control flow, agent activity/input, and workspace data/navigation. Dotted child components such as `Table.Row`, `BaseCarousel.Item`, `Popover.Trigger`, and `Show.Else` are supported.
+
+The agent-native and workspace primitives are independent implementations inspired by interaction concepts in the current [AIcss](https://www.aicss.dev/) and [Beautiful UI](https://www.beautifului.dev/) catalogs. No source code or assets from either project are copied.
 
 Guide-style `$` expression props are supported:
 

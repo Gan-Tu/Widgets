@@ -10,6 +10,8 @@ Widgets appear inside a chat conversation and enhance it — they never replace 
 
 The language looks like JSX but is much more constrained. Don't assume JSX semantics; follow this guide exactly. Prefer explicit props (`value`, `label`) for text even where children work. Do not include code comments or citations in templates.
 
+The agent and workspace primitives below are independent Widgets implementations inspired by interaction concepts in the current AIcss and Beautiful UI catalogs. No source code, assets, or source-specific styling from either project is copied.
+
 ## Output contract
 
 Return a single JSON object with exactly these keys:
@@ -128,6 +130,8 @@ Widgets are interactive through **action objects** attached to `onClickAction` /
 ```
 
 An action may combine forms: apply a state change *and* notify the host. Form controls automatically merge their values into `payload` on submit/change.
+
+`ActionConfig` means one of these declarative action objects. Every `*Action` prop in this guide accepts an `ActionConfig`, never a callback or function. Interactive primitives may add context such as `id`, `item`, `row`, `index`, `value`, `count`, or current form values to the action payload before dispatch.
 
 ### Client actions (`handler: "client"`)
 
@@ -333,6 +337,8 @@ Tokens adapt automatically — a widget built from tokens needs zero extra work 
 
 Props marked `?` are optional; defaults in parentheses.
 
+Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other component in this reference — including names such as `ApprovalCard`, `RecommendationCard`, and `FineTuneCard` — must be nested inside one of those four roots.
+
 ### Containers (valid roots)
 
 - `Card` — the standard widget container. `size?` ("sm" 360 | "md" 440 | "lg" 560 | "full"), `padding?` (4), `gap?`, `background?` ("surface-elevated"), `shadow?` (true), `theme?` ("light"|"dark"), `status?` ({ text, icon? } | { text, favicon?, frame? }) — small muted header line, `confirm?`/`cancel?` ({ label, action }) — footer action bar, `asForm?` (footer actions submit form values), `onClickAction?` (whole card clickable, gains hover lift), `onVisibleAction?`, `collapsed?`, `id?`, `cardId?`, `height?`, `width?`.
@@ -421,6 +427,50 @@ Chart guidance: hide the legend for single-series charts (`showLegend={false}`);
 - `LoadingDot` — pulsing dot (`size?` 8, `color?`); `LoadingIndicator` — three dots + `label?`.
 - `PulseIndicator` — live-status ping. `color?` ("success"), `label?`.
 - `ShimmerText` — animated placeholder text. `value`, `size?`.
+
+### Agent activity & responses (not roots)
+
+Shared shapes: `AgentStatus` is `"pending"|"running"|"completed"|"failed"|"cancelled"`. A citation source is `{ id?: string|number, label, host?, url? }`. All action fields below are declarative `ActionConfig` objects.
+
+- `ThinkingState` — compact active-status line. `label?` ("Thinking"), `active?` (true), `elapsed?` (string|number), `icon?`.
+- `ThinkingReasoning` (alias `Thinking`) — expandable reasoning trace. `label?`, `summary?`, `steps?` (`{ label, detail?, status?: AgentStatus }[]`), `active?`, `elapsed?`, `defaultOpen?`, `collapsible?` (true), `onToggleAction?`.
+- `Orb` (alias `Orbs`) — animated agent presence mark. `variant?` (`"S1"…"S5"|"G1"…"G5"|"C1"…"C5"|"B1"…"B5"|"M1"…"M5"`), `size?` (number|string), `color?`, `label?`.
+- `LoadingState` — richer working state. `label?`, `elapsed?`, `variant?` (`"drive"|"dots"|"orbit"|"surfer"`).
+- `TextResponse` — styled prose response. `value?`/children, `compact?`.
+- `InlineCitations` — response text with numbered `[n]` markers and a source list. `text`, `sources?` (citation source[]).
+- `StreamingText` — progressively reveals `text`. `streaming?` (true), `speed?` (10 ms), `sources?` (citation source[]), `actions?`/`followUps?` (`{ label, action: ActionConfig, icon? }[]`).
+- `CodeBlock` — multiline code with header and copy affordance. `code`, `language?` ("text"), `file?`, `showLineNumbers?` (true), `copyable?` (true), `streaming?`, `highlightLines?` (1-based number[]), `onCopyAction?` (defaults to the local `copy` client action).
+- `FileDiff` — line-oriented file diff. `file`, `rows?` (`{ oldLine?, newLine?, type?: "context"|"add"|"remove", text }[]`), `language?`, `compact?`.
+- `ImageGeneration` — generation progress or final image. `prompt?`, `resolution?`, `aspectRatio?` (`"square"|"portrait"|"landscape"|string), `progress?` (0–100), `status?`, `image?` (http/https URL), `alt?`.
+
+### Agent tasks, input & decisions (not roots)
+
+Task items use `{ id?, label, detail?, status?: AgentStatus, progress?, children?: { label, detail?, status?: AgentStatus }[] }`.
+
+- `TaskList` — collapsible task summary. `title?`, `items?` (task items), `defaultOpen?` (true), `collapsible?` (true), `onItemClickAction?`.
+- `TaskRows` — expanded task rows including child steps. `items?` (task items), `variant?` (`"capsules"|"list"`), `onItemClickAction?`.
+- `ToolChips` — collapsible tool activity. `summary?`, `items?` (`{ id?, type?: "thinking"|"write"|"command"|"read"|"message"|"search", label, detail?, status?: AgentStatus, additions?, deletions? }[]`), `defaultOpen?`, `onItemClickAction?`.
+- `AgentInput` (alias `PromptInput`) — agent composer with attachments, slash commands, skills, prompt enhancement, and model selection. `name?`, `placeholder?`, `defaultValue?`, `models?` (`{ value, label }[]`), `defaultModel?`, `attachments?` (`{ id?, name, type?, size? }[]`), `commands?`/`skills?` (`{ value, label, description?, icon? }[]`), `selectedSkills?` (string[]), `submitAction?`, `attachAction?`, `removeAttachmentAction?`, `commandAction?`, `skillAction?`, `enhanceAction?`, `cancelEnhanceAction?`, `onChangeAction?`, `enhancing?`, `disabled?`, `rows?`.
+- `PromptBar` — source-aware agent composer; accepts every `AgentInput` prop plus `sources?` (`{ id, label, description?, icon?, connected? }[]`), `selectedSources?` (string[]), `variant?` (`"rounded"|"pill"`), `sourceAction?`.
+- `ApprovalCard` — question, command, or plan decision surface. `variant?` (`"questions"|"command"|"plan"`), `title`, `description?`, `options?` (`{ label, value, description? }[]`), `questions?` (`{ id, title, description?, options?, multiple?, allowOther?, otherPlaceholder? }[]`), `defaultValue?`, `allowOther?`, `otherPlaceholder?`, `autoAdvance?`, `command?`, `planItems?` (string[]), `approveLabel?`, `rejectLabel?`, `approveAction?`, `rejectAction?`, `skipAction?`, `viewAction?`, `onQuestionChangeAction?`, `countdown?` (display only).
+- `Chat` — tabbed message transcript with composer. `tabs?` (`{ id, label }[]`), `defaultTab?`, `messages?` (`{ id?, role?: "user"|"assistant"|"tool"|"reasoning", content, label?, detail?, duration? }[]`), `placeholder?`, `sendAction?`, `onTabChangeAction?`.
+- `RecommendationCard` — recommendation with confidence and alternatives. `title`, `description?`, `confidence?` (0–1 or percent), `confidenceLabel?`, `alternatives?` (`{ label, description?, status?, action?: ActionConfig }[]`), `acceptLabel?`, `acceptAction?`, `alternativesAction?`.
+
+### Workspace data, navigation & editing (not roots)
+
+Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `WorkspaceColumn` is `{ key, label, type?: "text"|"tags"|"status"|"link"|"number", align?: "start"|"center"|"end" }`. Workspace tones are `"neutral"|"accent"|"info"|"success"|"warning"|"danger"|"discovery"`.
+
+- `ContextCards` — source excerpts. `title?`, `count?`, `items?` (`{ id?, title, excerpt, characters?, source?: { label, type?, url? } }[]`), `onItemClickAction?`.
+- `ComparisonTable` — plan/feature matrix. `label?`, `plans?` (string[]), `features?` (`{ label, values: (boolean|string|number)[] }[]`), `highlightPlan?` (zero-based index).
+- `DiffTable` — selectable record changes. `title?`, `description?`, `columns?` (WorkspaceColumn[]), `rows?` (`{ id?, type?: "add"|"remove"|"context", values: Record<string, TableValue>, selected? }[]`), `applyLabel?`, `applyAction?`.
+- `RecordsTable` — sortable, optionally selectable records. `columns?` (WorkspaceColumn[]), `rows?` (`Record<string, TableValue>[]`), `caption?`, `selectable?`, `defaultSortKey?`, `defaultSortDirection?` (`"asc"|"desc"`), `onRowClickAction?`, `onSelectionChangeAction?`.
+- `FilterTable` — local filter chips above records. `filters?` (`{ label, value, count?, tone? }[]`), `defaultFilter?`, `statusKey?`, `columns?` (WorkspaceColumn[]), `rows?` (`Record<string, TableValue>[]`), `onFilterAction?`, `onRowClickAction?`.
+- `SidebarNav` — compact workspace navigation. `workspace`, `workspaceIcon?`, `sections?` (`{ label?, items: { id, label, icon?, badge?, active? }[] }[]`), `compact?`, `footerAction?` (`{ label, action: ActionConfig }`), `onNavigateAction?`.
+- `Search` — local search/results surface. `name?`, `placeholder?`, `defaultQuery?`, `items?` (`{ id?, label, description?, keywords?, icon?, action?: ActionConfig }[]`), `emptyText?`, `onSelectAction?`, `onChangeAction?`.
+- `Flowchart` — ordered workflow nodes and connectors; distinct from layout `Flow`. `nodes?` (`{ id, label, description?, kind?: "trigger"|"action"|"condition"|"branch"|"result", icon? }[]`), `edges?` (`{ from, to, label?, tone? }[]`), `onNodeClickAction?`.
+- `InsightCards` — paged insight carousel. `title?`, `items?` (`{ id?, title, description?, metrics?: { label, value, delta?, color?, data?: number[] }[], action?: { label, action: ActionConfig } }[]`), `defaultIndex?`, `onChangeAction?`.
+- `FineTuneCard` — model/settings editor. `title`, `badge?`, `fields?` (`{ name, label, type?: "number"|"text"|"select"|"range", value?, min?, max?, step?, unit?, options?: { label, value }[] }[]`), `applyLabel?`, `applyAction?`, `onChangeAction?`.
+- `SelectionActions` — highlighted text with rewrite actions. `text`, `selection?`, `placeholder?`, `actions?` (`{ label, value?, icon?, action?: ActionConfig }[]`), `submitAction?`.
 
 ### Disclosure & overlays
 

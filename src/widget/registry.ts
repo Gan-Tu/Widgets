@@ -91,6 +91,42 @@ import {
   Tabs,
   Timeline
 } from "./components/primitives";
+import {
+  AgentInput,
+  ApprovalCard,
+  Chat,
+  CodeBlock,
+  FileDiff,
+  ImageGeneration,
+  InlineCitations,
+  LoadingState,
+  Orb,
+  Orbs,
+  PromptBar,
+  PromptInput,
+  RecommendationCard,
+  StreamingText,
+  TaskList,
+  TaskRows,
+  TextResponse,
+  Thinking,
+  ThinkingReasoning,
+  ThinkingState,
+  ToolChips
+} from "./components/agent";
+import {
+  ComparisonTable,
+  ContextCards,
+  DiffTable,
+  FilterTable,
+  FineTuneCard,
+  Flowchart,
+  InsightCards,
+  RecordsTable,
+  Search,
+  SelectionActions,
+  SidebarNav
+} from "./components/workspace";
 
 export type ComponentRegistry = Record<string, React.ComponentType<any>>;
 
@@ -206,5 +242,38 @@ export const widgetRegistry: ComponentRegistry = {
   Steps,
   Tabs,
   "Tabs.Panel": TabPanel,
-  Timeline
+  Timeline,
+  // Agent-native interface primitives
+  AgentInput,
+  PromptInput,
+  ApprovalCard,
+  Chat,
+  CodeBlock,
+  FileDiff,
+  ImageGeneration,
+  InlineCitations,
+  LoadingState,
+  Orb,
+  Orbs,
+  PromptBar,
+  RecommendationCard,
+  StreamingText,
+  TaskList,
+  TaskRows,
+  TextResponse,
+  Thinking,
+  ThinkingReasoning,
+  ThinkingState,
+  ToolChips,
+  ComparisonTable,
+  ContextCards,
+  DiffTable,
+  FilterTable,
+  FineTuneCard,
+  Flowchart,
+  InsightCards,
+  RecordsTable,
+  Search,
+  SelectionActions,
+  SidebarNav
 };

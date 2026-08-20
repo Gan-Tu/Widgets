@@ -1498,5 +1498,571 @@ export const componentExamples: Record<string, ComponentExample> = {
     `.trim(),
     schema: EmptySchema,
     data: emptyData
+  },
+  ThinkingState: {
+    template: `
+<Card size="sm">
+  <ThinkingState label="Analyzing workspace" elapsed="3s" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ThinkingReasoning: {
+    template: `
+<Card size="md">
+  <ThinkingReasoning
+    summary="Thought for 4s"
+    elapsed="4s"
+    defaultOpen
+    steps={[
+      { label: "Inspect the component registry", status: "completed" },
+      { label: "Match public prop contracts", detail: "32 additions found", status: "completed" },
+      { label: "Validate live examples", status: "running" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Thinking: {
+    template: `
+<Card size="md">
+  <Thinking
+    active
+    steps={[
+      { label: "Read the request", status: "completed" },
+      { label: "Compare implementation paths", status: "running" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Orb: {
+    template: `
+<Card size="sm">
+  <Row gap={4} align="center">
+    <Orb variant="S3" size={24} label="Working" />
+    <Orb variant="C3" size={24} label="Streaming" />
+    <Orb variant="M2" size={24} label="Shaping" />
+  </Row>
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Orbs: {
+    template: `
+<Card size="sm">
+  <Orbs variant="G4" size={26} color="discovery" label="Syncing sources" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  LoadingState: {
+    template: `
+<Card size="sm">
+  <LoadingState label="Searching sources" variant="orbit" elapsed="8s" />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  TextResponse: {
+    template: `
+<Card size="md">
+  <TextResponse value="The release is ready. All focused checks passed and the generated package contains the expected files." />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  StreamingText: {
+    template: `
+<Card size="md">
+  <StreamingText
+    text="I found three relevant sources and summarized the strongest evidence."
+    speed={24}
+    sources={[{ label: "Product guide", host: "docs.example.com" }]}
+    actions={[{ label: "Copy summary", icon: "copy", action: { type: "summary.copy" } }]}
+    followUps={[{ label: "Show the evidence", action: { type: "evidence.show" } }]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  InlineCitations: {
+    template: `
+<Card size="md">
+  <InlineCitations
+    text="Activation increased after onboarding was simplified.[1] Support volume also declined.[2]"
+    sources={[
+      { id: 1, label: "Activation analysis", host: "analytics.example.com", url: "https://example.com/activation" },
+      { id: 2, label: "Support report", host: "support.example.com", url: "https://example.com/support" }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  CodeBlock: {
+    template: `
+<CodeBlock
+  code={code}
+  language="typescript"
+  file="src/total.ts"
+  highlightLines={[2]}
+  onCopyAction={{ type: "code.copy" }}
+/>
+    `.trim(),
+    schema: z.strictObject({ code: z.string() }),
+    data: {
+      code: "const items = [18, 24];\nconst total = items.reduce((sum, item) => sum + item, 0);\nconsole.log(total);"
+    }
+  },
+  FileDiff: {
+    template: `
+<FileDiff
+  file="src/config.ts"
+  language="typescript"
+  rows={[
+    { oldLine: 1, newLine: 1, type: "context", text: "export const config = {" },
+    { oldLine: 2, type: "remove", text: "  model: 'standard'," },
+    { newLine: 2, type: "add", text: "  model: 'reasoning'," },
+    { oldLine: 3, newLine: 3, type: "context", text: "};" }
+  ]}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ImageGeneration: {
+    template: `
+<ImageGeneration
+  prompt="A glass observatory above a misty forest at sunrise"
+  resolution="1536 × 1024"
+  aspectRatio="landscape"
+  progress={64}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  TaskList: {
+    template: `
+<TaskList
+  title="Release checklist"
+  onItemClickAction={{ type: "task.open" }}
+  items={[
+    { id: "types", label: "Validate prop types", status: "completed" },
+    { id: "examples", label: "Render live examples", detail: "In progress", status: "running", progress: 68 },
+    { id: "publish", label: "Publish package", status: "pending" }
+  ]}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  TaskRows: {
+    template: `
+<Card size="md">
+  <TaskRows
+    variant="list"
+    onItemClickAction={{ type: "task.select" }}
+    items={[
+      {
+        id: "docs",
+        label: "Update documentation",
+        status: "running",
+        progress: 75,
+        children: [
+          { label: "Add prop reference", status: "completed" },
+          { label: "Verify examples", status: "running" }
+        ]
+      }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ToolChips: {
+    template: `
+<Card size="md">
+  <ToolChips
+    summary="3 tool calls"
+    onItemClickAction={{ type: "tool.open" }}
+    items={[
+      { type: "search", label: "Searched component registry", status: "completed" },
+      { type: "read", label: "Read agent.tsx", status: "completed" },
+      { type: "write", label: "Updated documentation", status: "running", additions: 32, deletions: 0 }
+    ]}
+  />
+</Card>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  AgentInput: {
+    template: `
+<AgentInput
+  placeholder="Ask the workspace"
+  defaultValue="Summarize the latest release"
+  models={[
+    { value: "fast", label: "Fast" },
+    { value: "reasoning", label: "Reasoning" }
+  ]}
+  defaultModel="reasoning"
+  attachments={[{ id: "brief", name: "release-brief.pdf", type: "application/pdf", size: "1.2 MB" }]}
+  commands={[
+    { value: "summarize", label: "Summarize", description: "Create a concise summary", icon: "sparkle" },
+    { value: "review", label: "Review", description: "Find risks and gaps", icon: "search" }
+  ]}
+  skills={[
+    { value: "research", label: "Deep research", description: "Search connected sources", icon: "search" },
+    { value: "writing", label: "Writing", description: "Polish the final response", icon: "write" }
+  ]}
+  selectedSkills={["research"]}
+  attachAction={{ type: "prompt.attach" }}
+  removeAttachmentAction={{ type: "prompt.attachment.remove" }}
+  commandAction={{ type: "prompt.command" }}
+  skillAction={{ type: "prompt.skill" }}
+  enhanceAction={{ type: "prompt.enhance" }}
+  submitAction={{ type: "prompt.submit" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  PromptInput: {
+    template: `
+<PromptInput
+  placeholder="Describe the change"
+  defaultValue="Make the dashboard easier to scan"
+  enhancing
+  cancelEnhanceAction={{ type: "prompt.enhance.cancel" }}
+  submitAction={{ type: "prompt.submit" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ApprovalCard: {
+    template: `
+<ApprovalCard
+  title="Confirm deployment"
+  questions={[
+    {
+      id: "window",
+      title: "Choose a deployment window",
+      description: "The update takes about five minutes.",
+      options: [
+        { label: "Deploy now", value: "now", description: "Start immediately" },
+        { label: "Tonight", value: "tonight", description: "Use the maintenance window" }
+      ],
+      allowOther: true,
+      otherPlaceholder: "Suggest another time"
+    },
+    {
+      id: "checks",
+      title: "Which checks should run?",
+      options: [
+        { label: "Smoke tests", value: "smoke" },
+        { label: "Full regression", value: "regression" }
+      ],
+      multiple: true,
+      allowOther: false
+    }
+  ]}
+  autoAdvance
+  approveLabel="Continue"
+  approveAction={{ type: "deployment.approve" }}
+  skipAction={{ type: "deployment.skip" }}
+  onQuestionChangeAction={{ type: "deployment.question" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Chat: {
+    template: `
+<Chat
+  tabs={[{ id: "thread", label: "Thread" }, { id: "activity", label: "Activity" }]}
+  messages={[
+    { role: "user", content: "Can you audit the release?" },
+    { role: "reasoning", label: "Reasoning", duration: "3s", content: "I will inspect the package and focused tests." },
+    { role: "assistant", content: "The release looks healthy. Two known lint findings remain unrelated." }
+  ]}
+  onTabChangeAction={{ type: "chat.tab" }}
+  sendAction={{ type: "chat.send" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  PromptBar: {
+    template: `
+<PromptBar
+  placeholder="Ask with context"
+  variant="rounded"
+  sources={[
+    { id: "docs", label: "Product docs", description: "12 indexed pages", icon: "document", connected: true },
+    { id: "issues", label: "Issues", description: "Open project issues", icon: "clipboard" }
+  ]}
+  selectedSources={["docs"]}
+  sourceAction={{ type: "source.select" }}
+  submitAction={{ type: "prompt.submit" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  RecommendationCard: {
+    template: `
+<RecommendationCard
+  title="Ship the cached query plan"
+  description="It removes the largest repeated request without changing result quality."
+  confidence={0.91}
+  alternatives={[
+    { label: "Keep the current plan", description: "No behavior change", status: "Low risk", action: { type: "recommendation.choose-current" } }
+  ]}
+  alternativesAction={{ type: "recommendation.more" }}
+  acceptAction={{ type: "recommendation.accept" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ComparisonTable: {
+    template: `
+<ComparisonTable
+  label="Workspace plan comparison"
+  plans={["Starter", "Pro", "Enterprise"]}
+  highlightPlan={1}
+  features={[
+    { label: "Agent runs", values: ["100/mo", "Unlimited", "Unlimited"] },
+    { label: "Shared workspaces", values: [false, true, true] },
+    { label: "Audit log", values: [false, false, true] }
+  ]}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  ContextCards: {
+    template: `
+<ContextCards
+  title="Retrieved context"
+  onItemClickAction={{ type: "context.open" }}
+  items={[
+    {
+      id: "release",
+      title: "Release notes",
+      excerpt: "Agent interfaces and workspace primitives are now available to widget templates.",
+      characters: 1840,
+      source: { label: "RELEASE.md", type: "MD" }
+    },
+    {
+      id: "guide",
+      title: "Authoring guide",
+      excerpt: "Use registered component names and dispatch actions through ActionConfig objects.",
+      characters: 932,
+      source: { label: "AGENTS.md", type: "MD" }
+    }
+  ]}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  DiffTable: {
+    template: `
+<DiffTable
+  title="Proposed catalog changes"
+  columns={[
+    { key: "field", label: "Field" },
+    { key: "value", label: "Value" },
+    { key: "status", label: "Status", type: "status" }
+  ]}
+  rows={[
+    { type: "remove", values: { field: "Model", value: "Standard", status: "Removed" } },
+    { type: "add", values: { field: "Model", value: "Reasoning", status: "Added" } },
+    { type: "context", values: { field: "Region", value: "US West", status: "Unchanged" } }
+  ]}
+  applyAction={{ type: "changes.apply" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  FilterTable: {
+    template: `
+<FilterTable
+  filters={[
+    { label: "All", value: "all", count: 3 },
+    { label: "Running", value: "running", count: 1, tone: "info" },
+    { label: "Complete", value: "complete", count: 2, tone: "success" }
+  ]}
+  columns={[
+    { key: "task", label: "Task" },
+    { key: "owner", label: "Owner" },
+    { key: "status", label: "Status", type: "status" }
+  ]}
+  rows={[
+    { task: "Audit registry", owner: "Mira", status: "complete" },
+    { task: "Render examples", owner: "Gan", status: "running" },
+    { task: "Publish docs", owner: "Lee", status: "complete" }
+  ]}
+  onFilterAction={{ type: "records.filter" }}
+  onRowClickAction={{ type: "record.open" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  FineTuneCard: {
+    template: `
+<FineTuneCard
+  title="Generation settings"
+  badge="Fine tune"
+  fields={[
+    { name: "temperature", label: "Temperature", type: "range", value: 0.7, min: 0, max: 1, step: 0.1 },
+    { name: "tokens", label: "Max tokens", type: "number", value: 1200, min: 100, max: 4000 },
+    { name: "style", label: "Response style", type: "select", value: "concise", options: [{ label: "Concise", value: "concise" }, { label: "Detailed", value: "detailed" }] }
+  ]}
+  onChangeAction={{ type: "settings.change" }}
+  applyAction={{ type: "settings.apply" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Flowchart: {
+    template: `
+<Flowchart
+  nodes={[
+    { id: "ticket", label: "Ticket received", description: "New support request", kind: "trigger" },
+    { id: "classify", label: "Classify request", description: "Detect topic and urgency", kind: "action" },
+    { id: "route", label: "Route to team", description: "Assign the best queue", kind: "result" }
+  ]}
+  edges={[
+    { from: "ticket", to: "classify", label: "analyze", tone: "info" },
+    { from: "classify", to: "route", label: "then", tone: "success" }
+  ]}
+  onNodeClickAction={{ type: "workflow.node" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  InsightCards: {
+    template: `
+<InsightCards
+  title="Activation insights"
+  items={[
+    {
+      id: "activation",
+      title: "Activation improved after onboarding changed",
+      description: "The largest lift came from teams with fewer than ten seats.",
+      metrics: [
+        { label: "Activation", value: "68%", delta: "+8%", color: "success", data: [42, 47, 51, 58, 61, 68] },
+        { label: "Time to value", value: "2.1d", delta: "−0.8d", data: [4.1, 3.7, 3.4, 2.9, 2.6, 2.1] }
+      ],
+      action: { label: "Open analysis", action: { type: "insight.open" } }
+    },
+    {
+      id: "retention",
+      title: "Week-four retention is stable",
+      metrics: [{ label: "Retention", value: "54%", delta: "+1%", data: [50, 52, 51, 53, 54] }]
+    }
+  ]}
+  onChangeAction={{ type: "insight.change" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  RecordsTable: {
+    template: `
+<RecordsTable
+  selectable
+  defaultSortKey="name"
+  caption="Active workspace members"
+  columns={[
+    { key: "name", label: "Name" },
+    { key: "role", label: "Role" },
+    { key: "status", label: "Status", type: "status" }
+  ]}
+  rows={[
+    { name: "Ada", role: "Owner", status: "Active" },
+    { name: "Lin", role: "Editor", status: "Active" },
+    { name: "Sam", role: "Viewer", status: "Invited" }
+  ]}
+  onRowClickAction={{ type: "member.open" }}
+  onSelectionChangeAction={{ type: "members.select" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  Search: {
+    template: `
+<Search
+  placeholder="Search workspace"
+  items={[
+    { id: "guide", label: "Authoring guide", description: "Widget syntax and actions", keywords: "docs templates", icon: "document" },
+    { id: "release", label: "Release notes", description: "Recent component additions", keywords: "changelog", icon: "sparkle" },
+    { id: "settings", label: "Workspace settings", description: "Members and preferences", icon: "settings" }
+  ]}
+  onSelectAction={{ type: "search.open" }}
+  onChangeAction={{ type: "search.change" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  SelectionActions: {
+    template: `
+<SelectionActions
+  text="The launch note is clear, but this sentence could be more concise for readers."
+  selection="this sentence could be more concise"
+  actions={[
+    { label: "Shorten", value: "shorten", icon: "sparkle" },
+    { label: "Clarify", value: "clarify" }
+  ]}
+  submitAction={{ type: "selection.edit" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
+  },
+  SidebarNav: {
+    template: `
+<SidebarNav
+  workspace="Research Lab"
+  workspaceIcon="cube"
+  sections={[
+    {
+      label: "Workspace",
+      items: [
+        { id: "threads", label: "Threads", icon: "message", badge: 4, active: true },
+        { id: "sources", label: "Sources", icon: "database" },
+        { id: "reports", label: "Reports", icon: "document" }
+      ]
+    }
+  ]}
+  footerAction={{ label: "Workspace settings", action: { type: "workspace.settings" } }}
+  onNavigateAction={{ type: "workspace.navigate" }}
+/>
+    `.trim(),
+    schema: EmptySchema,
+    data: emptyData
   }
 };

@@ -15,3 +15,5 @@ export * from "./components/extras";
 export * from "./components/advanced";
 export * from "./components/dil";
 export * from "./components/primitives";
+export * from "./components/agent";
+export * from "./components/workspace";

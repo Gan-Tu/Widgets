@@ -70,6 +70,14 @@ test("links reject non-http(s) targets", () => {
       !audio.includes("download="),
       `AudioPlayer offered a download for ${href}:\n${audio}`
     );
+
+    const context = render(
+      `<Card><ContextCards items={[{ title: "Source", excerpt: "Summary", source: { label: "Reference", url: "${href}" } }]} /></Card>`
+    );
+    assert.ok(
+      !context.includes("<a "),
+      `ContextCards emitted a source link for ${href}:\n${context}`
+    );
   }
 
   // Legitimate https targets still render.
@@ -86,9 +94,41 @@ test("links reject non-http(s) targets", () => {
   const relative = render('<Card><CardLinkItem href="/docs">x</CardLinkItem></Card>');
   assert.ok(relative.includes('href="/docs"'), relative);
 
+  const contextLink = render(
+    '<Card><ContextCards items={[{ title: "Source", excerpt: "Summary", source: { label: "Reference", url: "https://example.com/reference" } }]} /></Card>'
+  );
+  assert.ok(contextLink.includes('href="https://example.com/reference"'), contextLink);
+
   // Protocol-relative is not same-origin and must not get the shortcut.
   const protocolRelative = render('<Card><CardLinkItem href="//attacker.example/x">x</CardLinkItem></Card>');
   assert.ok(!protocolRelative.includes("attacker.example"), protocolRelative);
+});
+
+test("ImageGeneration only renders safe image sources", () => {
+  const hostile = [
+    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><script>alert(1)</script></svg>",
+    "blob:https://example.com/generated",
+    "javascript:alert(1)",
+    "//attacker.example/generated.png"
+  ];
+
+  for (const image of hostile) {
+    const html = render(
+      `<Card><ImageGeneration image="${image}" prompt="Generated preview" /></Card>`
+    );
+    assert.ok(!html.includes("<img"), `ImageGeneration emitted an image for ${image}:\n${html}`);
+  }
+
+  const remote = render(
+    '<Card><ImageGeneration image="https://images.example.com/generated.png" alt="Generated landscape" /></Card>'
+  );
+  assert.ok(remote.includes('src="https://images.example.com/generated.png"'), remote);
+  assert.ok(remote.includes('alt="Generated landscape"'), remote);
+
+  const relative = render(
+    '<Card><ImageGeneration image="/generated/preview.png" alt="Generated preview" /></Card>'
+  );
+  assert.ok(relative.includes('src="/generated/preview.png"'), relative);
 });
 
 test("color props cannot smuggle a network fetch into inline CSS", () => {

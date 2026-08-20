@@ -45,7 +45,7 @@ const heroData = {
   ]
 };
 
-const heroChips = ["110 components", "200+ icons", "Zero-config theming"];
+const heroChips = ["142 components", "200+ icons", "Zero-config theming"];
 
 const features = [
   {
@@ -69,7 +69,7 @@ const nextSteps = [
   {
     to: "/gallery",
     title: "Browse the gallery",
-    description: "39 ready-made examples to copy and adapt"
+    description: "52 ready-made examples to copy and adapt"
   },
   {
     to: "/docs",

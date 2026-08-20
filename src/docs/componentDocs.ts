@@ -14,6 +14,47 @@ type ComponentDoc = {
   props: PropDoc[];
 };
 
+const thinkingReasoningProps: PropDoc[] = [
+  { name: "label", description: "Heading shown while reasoning is active.", type: "string", default: '"Thinking"' },
+  { name: "summary", description: "Completed-state heading; overrides the elapsed-time summary.", type: "string" },
+  { name: "steps", description: "Reasoning steps displayed on the connected rail.", type: 'Array<{ label: string; detail?: string; status?: "pending" | "running" | "completed" | "failed" | "cancelled" }>' },
+  { name: "active", description: "Keep the reasoning body open and shimmer the heading.", type: "boolean", default: "false" },
+  { name: "elapsed", description: "Elapsed-time value used by the default completed summary.", type: "string | number" },
+  { name: "defaultOpen", description: "Initial expanded state; defaults to the active state.", type: "boolean" },
+  { name: "collapsible", description: "Allow completed reasoning to be expanded and collapsed.", type: "boolean", default: "true" },
+  { name: "onToggleAction", description: "Action dispatched with { open } after a user toggle.", type: "ActionConfig" }
+];
+
+const orbProps: PropDoc[] = [
+  { name: "variant", description: "Animation family and phase. S=lattice, G=globe, C=ring, B=lens, and M=morph.", type: '"S1" | "S2" | "S3" | "S4" | "S5" | "G1" | "G2" | "G3" | "G4" | "G5" | "C1" | "C2" | "C3" | "C4" | "C5" | "B1" | "B2" | "B3" | "B4" | "B5" | "M1" | "M2" | "M3" | "M4" | "M5"', default: '"S1"' },
+  { name: "size", description: "Orb diameter in pixels or as a CSS size.", type: "number | string", default: "20" },
+  { name: "color", description: "Orb color token or CSS color.", type: "string | ThemeColor", default: "accent" },
+  { name: "label", description: "Optional visible status label and accessible name.", type: "string" }
+];
+
+const agentInputProps: PropDoc[] = [
+  { name: "name", description: "Form field and submitted payload key.", type: "string", default: '"prompt"' },
+  { name: "placeholder", description: "Textarea placeholder.", type: "string", default: '"Ask AI Agent"' },
+  { name: "defaultValue", description: "Initial prompt text.", type: "string", default: '""' },
+  { name: "models", description: "Optional model picker choices.", type: "Array<{ value: string; label: string }>" },
+  { name: "defaultModel", description: "Initially selected model value; defaults to the first model.", type: "string" },
+  { name: "attachments", description: "Attached files displayed as removable chips.", type: "Array<{ id?: string | number; name: string; type?: string; size?: string }>" },
+  { name: "commands", description: "Slash commands filtered when the prompt ends with /query.", type: "Array<{ value: string; label: string; description?: string; icon?: WidgetIcon }>" },
+  { name: "skills", description: "Skills displayed in the toolbar picker.", type: "Array<{ value: string; label: string; description?: string; icon?: WidgetIcon }>" },
+  { name: "selectedSkills", description: "Selected skill ids displayed as @skill chips.", type: "string[]" },
+  { name: "submitAction", description: "Action dispatched with the prompt value and selected model.", type: "ActionConfig" },
+  { name: "attachAction", description: "Action dispatched from the attachment button.", type: "ActionConfig" },
+  { name: "removeAttachmentAction", description: "Action dispatched with an attachment and id when its remove button is pressed.", type: "ActionConfig" },
+  { name: "commandAction", description: "Action dispatched with a selected slash-command value.", type: "ActionConfig" },
+  { name: "skillAction", description: "Action dispatched with a selected skill value.", type: "ActionConfig" },
+  { name: "enhanceAction", description: "Action dispatched with the current prompt from the enhance button.", type: "ActionConfig" },
+  { name: "cancelEnhanceAction", description: "Action dispatched by the enhancement cancel control.", type: "ActionConfig" },
+  { name: "onChangeAction", description: "Action dispatched whenever the prompt changes.", type: "ActionConfig" },
+  { name: "enhancing", description: "Show the active enhancement state and cancellation control.", type: "boolean", default: "false" },
+  { name: "disabled", description: "Disable prompt entry and submission.", type: "boolean", default: "false" },
+  { name: "rows", description: "Visible textarea rows.", type: "number", default: "2" }
+];
+
 export const componentDocs: ComponentDoc[] = [
   {
     id: "Basic",
@@ -1411,6 +1452,435 @@ export const componentDocs: ComponentDoc[] = [
       { name: "children", description: "Tabs.Panel nodes (one per tab).", type: "ReactNode" },
       { name: "Tabs.Panel.id", description: "Panel id; the panel renders only while it matches the active tab.", type: "string" },
       { name: "Tabs.Panel.children", description: "Panel content.", type: "ReactNode" }
+    ]
+  },
+  {
+    id: "ThinkingState",
+    name: "Thinking State",
+    description: "Compact live-status label with an icon, shimmer, and optional elapsed value.",
+    category: "Agent status & reasoning",
+    usage: `<ThinkingState label="Analyzing" elapsed="3s" />`,
+    props: [
+      { name: "label", description: "Status text.", type: "string", default: '"Thinking"' },
+      { name: "active", description: "Apply the active shimmer treatment.", type: "boolean", default: "true" },
+      { name: "elapsed", description: "Optional elapsed-time text or number.", type: "string | number" },
+      { name: "icon", description: "Leading status icon.", type: "WidgetIcon", default: '"sparkle"' }
+    ]
+  },
+  {
+    id: "ThinkingReasoning",
+    name: "Thinking Reasoning",
+    description: "Expandable reasoning trace with status-aware steps and an active or completed heading.",
+    category: "Agent status & reasoning",
+    usage: `<ThinkingReasoning summary="Thought for 4s" steps={[{ label: "Inspect inputs", status: "completed" }]} />`,
+    props: thinkingReasoningProps
+  },
+  {
+    id: "Thinking",
+    name: "Thinking",
+    description: "Alias of ThinkingReasoning for concise agent templates.",
+    category: "Agent status & reasoning",
+    usage: `<Thinking active steps={[{ label: "Compare options", status: "running" }]} />`,
+    props: thinkingReasoningProps
+  },
+  {
+    id: "Orb",
+    name: "Orb",
+    description: "Animated agent activity glyph with 25 lattice, globe, ring, lens, and morph variants.",
+    category: "Agent status & reasoning",
+    usage: `<Orb variant="C3" size={24} label="Streaming" />`,
+    props: orbProps
+  },
+  {
+    id: "Orbs",
+    name: "Orbs",
+    description: "Alias of Orb for compatibility with plural component naming.",
+    category: "Agent status & reasoning",
+    usage: `<Orbs variant="G4" label="Syncing" />`,
+    props: orbProps
+  },
+  {
+    id: "LoadingState",
+    name: "Loading State",
+    description: "Labeled agent loading row backed by a purpose-specific orb animation.",
+    category: "Agent status & reasoning",
+    usage: `<LoadingState label="Searching sources" variant="orbit" elapsed="8s" />`,
+    props: [
+      { name: "label", description: "Loading-state text.", type: "string", default: '"Working"' },
+      { name: "elapsed", description: "Optional elapsed-time text or number.", type: "string | number" },
+      { name: "variant", description: "Visual loading treatment.", type: '"drive" | "dots" | "orbit" | "surfer"', default: '"drive"' }
+    ]
+  },
+  {
+    id: "TextResponse",
+    name: "Text Response",
+    description: "Prose surface for a completed assistant response.",
+    category: "Agent responses",
+    usage: `<TextResponse value="The deployment completed successfully." />`,
+    props: [
+      { name: "value", description: "Response text; preferred for portable templates.", type: "string" },
+      { name: "children", description: "Optional response content when value is omitted.", type: "ReactNode" },
+      { name: "compact", description: "Use tighter response spacing.", type: "boolean", default: "false" }
+    ]
+  },
+  {
+    id: "StreamingText",
+    name: "Streaming Text",
+    description: "Typewriter response with a caret, source disclosure, actions, and follow-up prompts.",
+    category: "Agent responses",
+    usage: `<StreamingText text="Here is the result." speed={24} />`,
+    props: [
+      { name: "text", description: "Complete text progressively revealed by the component.", type: "string" },
+      { name: "streaming", description: "Animate text reveal; false renders the full value immediately.", type: "boolean", default: "true" },
+      { name: "speed", description: "Milliseconds between two-character reveal steps, clamped to at least 8ms.", type: "number", default: "10" },
+      { name: "sources", description: "Sources displayed in a collapsible source list.", type: "Array<{ id?: string | number; label: string; host?: string; url?: string }>" },
+      { name: "actions", description: "Actions shown below the response.", type: "Array<{ label: string; action: ActionConfig; icon?: WidgetIcon }>" },
+      { name: "followUps", description: "Suggested follow-up actions.", type: "Array<{ label: string; action: ActionConfig; icon?: WidgetIcon }>" }
+    ]
+  },
+  {
+    id: "InlineCitations",
+    name: "Inline Citations",
+    description: "Response text that resolves numeric citation markers into a compact source list.",
+    category: "Agent responses",
+    usage: `<InlineCitations text="Revenue grew 18%.[1]" sources={[{ label: "Q2 report", host: "example.com" }]} />`,
+    props: [
+      { name: "text", description: "Text containing citation markers such as [1].", type: "string" },
+      { name: "sources", description: "Ordered citation sources; ids override displayed source numbers.", type: "Array<{ id?: string | number; label: string; host?: string; url?: string }>" }
+    ]
+  },
+  {
+    id: "CodeBlock",
+    name: "Code Block",
+    description: "Scrollable code output with metadata, line numbers, highlighting, and copy feedback.",
+    category: "Agent responses",
+    usage: `<CodeBlock code="npm run build" language="shell" />`,
+    props: [
+      { name: "code", description: "Code string to render.", type: "string" },
+      { name: "language", description: "Language label shown in the header.", type: "string", default: '"text"' },
+      { name: "file", description: "Optional filename shown as the primary header label.", type: "string" },
+      { name: "showLineNumbers", description: "Show the numbered gutter.", type: "boolean", default: "true" },
+      { name: "copyable", description: "Show the copy control.", type: "boolean", default: "true" },
+      { name: "streaming", description: "Apply streaming-line presentation.", type: "boolean", default: "false" },
+      { name: "highlightLines", description: "One-based line numbers to emphasize.", type: "number[]" },
+      { name: "onCopyAction", description: "Custom copy action; defaults to the built-in client copy handler.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "FileDiff",
+    name: "File Diff",
+    description: "Inline source diff with old/new gutters and computed addition and removal totals.",
+    category: "Agent responses",
+    usage: `<FileDiff file="src/app.ts" rows={[{ oldLine: 1, newLine: 1, type: "context", text: "export const ready = true;" }]} />`,
+    props: [
+      { name: "file", description: "Changed file path or name.", type: "string" },
+      { name: "rows", description: "Diff rows with optional old and new line numbers.", type: 'Array<{ oldLine?: number; newLine?: number; type?: "context" | "add" | "remove"; text: string }>' },
+      { name: "language", description: "Optional language label shown beside the filename.", type: "string" },
+      { name: "compact", description: "Use the compact diff density.", type: "boolean", default: "false" }
+    ]
+  },
+  {
+    id: "ImageGeneration",
+    name: "Image Generation",
+    description: "Animated generation canvas that can transition to a finished image.",
+    category: "Agent responses",
+    usage: `<ImageGeneration prompt="A glass observatory at sunrise" aspectRatio="landscape" progress={64} />`,
+    props: [
+      { name: "prompt", description: "Prompt caption shown beneath the canvas.", type: "string", default: '"Generating a new image"' },
+      { name: "resolution", description: "Resolution badge text.", type: "string", default: '"1024 × 1024"' },
+      { name: "aspectRatio", description: "Named aspect preset or any CSS aspect-ratio value.", type: '"square" | "portrait" | "landscape" | string', default: '"square"' },
+      { name: "progress", description: "Optional completion percentage, clamped to 0–100.", type: "number" },
+      { name: "status", description: "Generation status label.", type: "string", default: '"Generating image"' },
+      { name: "image", description: "Completed image URL; only safe HTTP(S) URLs render.", type: "string" },
+      { name: "alt", description: "Alternative text for a completed image.", type: "string", default: '"Generated image"' }
+    ]
+  },
+  {
+    id: "TaskList",
+    name: "Task List",
+    description: "Collapsible agent to-do list with progress, nested task data, and status-aware rows.",
+    category: "Agent tasks & tools",
+    usage: `<TaskList items={[{ label: "Run tests", status: "running", progress: 60 }]} />`,
+    props: [
+      { name: "title", description: "List heading.", type: "string", default: '"To-dos"' },
+      { name: "items", description: "Agent tasks displayed in order.", type: 'Array<{ id?: string | number; label: string; detail?: string; status?: "pending" | "running" | "completed" | "failed" | "cancelled"; progress?: number; children?: Array<{ label: string; detail?: string; status?: "pending" | "running" | "completed" | "failed" | "cancelled" }> }>' },
+      { name: "defaultOpen", description: "Initial expanded state.", type: "boolean", default: "true" },
+      { name: "collapsible", description: "Allow the heading to collapse the task rows.", type: "boolean", default: "true" },
+      { name: "onItemClickAction", description: "Action dispatched with the selected task and id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "TaskRows",
+    name: "Task Rows",
+    description: "Compact task capsules or expanded rows with optional child steps.",
+    category: "Agent tasks & tools",
+    usage: `<TaskRows variant="list" items={[{ label: "Publish", status: "completed" }]} />`,
+    props: [
+      { name: "items", description: "Agent tasks, including optional nested children for list mode.", type: 'Array<{ id?: string | number; label: string; detail?: string; status?: "pending" | "running" | "completed" | "failed" | "cancelled"; progress?: number; children?: Array<{ label: string; detail?: string; status?: "pending" | "running" | "completed" | "failed" | "cancelled" }> }>' },
+      { name: "variant", description: "Task row presentation.", type: '"capsules" | "list"', default: '"capsules"' },
+      { name: "onItemClickAction", description: "Action dispatched with the selected task and id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "ToolChips",
+    name: "Tool Chips",
+    description: "Collapsible activity summary for reads, writes, commands, searches, and other tool calls.",
+    category: "Agent tasks & tools",
+    usage: `<ToolChips items={[{ type: "write", label: "Updated app.ts", status: "completed", additions: 12 }]} />`,
+    props: [
+      { name: "summary", description: "Custom summary label; defaults to the item count.", type: "string" },
+      { name: "items", description: "Tool activity entries.", type: 'Array<{ id?: string | number; type?: "thinking" | "write" | "command" | "read" | "message" | "search"; label: string; detail?: string; status?: "pending" | "running" | "completed" | "failed" | "cancelled"; additions?: number; deletions?: number }>' },
+      { name: "defaultOpen", description: "Initial expanded state.", type: "boolean", default: "true" },
+      { name: "onItemClickAction", description: "Action dispatched with the selected tool item and id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "AgentInput",
+    name: "Agent Input",
+    description: "Agent prompt composer with attachment, enhancement, model selection, and submit actions.",
+    category: "Agent interfaces",
+    usage: `<AgentInput placeholder="Ask the workspace" models={[{ value: "fast", label: "Fast" }]} submitAction={{ type: "agent.submit" }} />`,
+    props: agentInputProps
+  },
+  {
+    id: "PromptInput",
+    name: "Prompt Input",
+    description: "Alias of AgentInput for prompt-focused templates.",
+    category: "Agent interfaces",
+    usage: `<PromptInput defaultValue="Summarize this report" submitAction={{ type: "prompt.submit" }} />`,
+    props: agentInputProps
+  },
+  {
+    id: "ApprovalCard",
+    name: "Approval Card",
+    description: "Human-in-the-loop approval surface for questions, shell commands, and execution plans.",
+    category: "Agent interfaces",
+    usage: `<ApprovalCard variant="command" title="Run migration?" command="npm run migrate" approveAction={{ type: "command.run" }} />`,
+    props: [
+      { name: "variant", description: "Approval content mode.", type: '"questions" | "command" | "plan"', default: '"questions"' },
+      { name: "title", description: "Approval heading.", type: "string" },
+      { name: "description", description: "Supporting explanation.", type: "string" },
+      { name: "options", description: "Radio options for question mode.", type: "Array<{ label: string; value: string; description?: string }>" },
+      { name: "questions", description: "Multi-step question definitions; when present these replace the single title/options question.", type: 'Array<{ id: string; title: string; description?: string; options?: Array<{ label: string; value: string; description?: string }>; multiple?: boolean; allowOther?: boolean; otherPlaceholder?: string }>' },
+      { name: "defaultValue", description: "Initially selected question option.", type: "string", default: '""' },
+      { name: "allowOther", description: "Show a free-text answer in question mode.", type: "boolean", default: "true" },
+      { name: "otherPlaceholder", description: "Free-text answer placeholder.", type: "string", default: '"Type something…"' },
+      { name: "autoAdvance", description: "Advance after selecting a single-choice answer when another question remains.", type: "boolean", default: "false" },
+      { name: "command", description: "Shell command shown in command mode.", type: "string" },
+      { name: "planItems", description: "Ordered steps shown in plan mode.", type: "string[]" },
+      { name: "approveLabel", description: "Primary action label.", type: "string", default: '"Approve"' },
+      { name: "rejectLabel", description: "Secondary rejection or skip label.", type: "string", default: '"Skip"' },
+      { name: "approveAction", description: "Primary action, dispatched with the selected or free-text answer.", type: "ActionConfig" },
+      { name: "rejectAction", description: "Fallback secondary action.", type: "ActionConfig" },
+      { name: "skipAction", description: "Preferred skip action; takes precedence over rejectAction.", type: "ActionConfig" },
+      { name: "viewAction", description: "Optional action for opening full plan details.", type: "ActionConfig" },
+      { name: "onQuestionChangeAction", description: "Action dispatched with the next question index and id.", type: "ActionConfig" },
+      { name: "countdown", description: "Optional auto-approval countdown text in seconds.", type: "number" }
+    ]
+  },
+  {
+    id: "Chat",
+    name: "Chat",
+    description: "Tabbed agent conversation containing user, assistant, reasoning, and tool messages plus a composer.",
+    category: "Agent interfaces",
+    usage: `<Chat messages={[{ role: "assistant", content: "How can I help?" }]} sendAction={{ type: "chat.send" }} />`,
+    props: [
+      { name: "tabs", description: "Optional conversation tabs.", type: "Array<{ id: string; label: string }>" },
+      { name: "defaultTab", description: "Initially selected tab id; defaults to the first tab.", type: "string" },
+      { name: "messages", description: "Conversation messages in display order.", type: 'Array<{ id?: string | number; role?: "user" | "assistant" | "tool" | "reasoning"; content: string; label?: string; detail?: string; duration?: string }>' },
+      { name: "placeholder", description: "Composer placeholder.", type: "string", default: '"Write a message…"' },
+      { name: "sendAction", description: "Action used by the embedded prompt composer.", type: "ActionConfig" },
+      { name: "onTabChangeAction", description: "Action dispatched with the selected tab id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "PromptBar",
+    name: "Prompt Bar",
+    description: "Agent composer with selectable context sources and visible selected-source chips.",
+    category: "Agent interfaces",
+    usage: `<PromptBar sources={[{ id: "docs", label: "Product docs", connected: true }]} selectedSources={["docs"]} submitAction={{ type: "prompt.submit" }} />`,
+    props: [
+      ...agentInputProps,
+      { name: "sources", description: "Context sources displayed by the source picker.", type: "Array<{ id: string; label: string; description?: string; icon?: WidgetIcon; connected?: boolean }>" },
+      { name: "selectedSources", description: "Source ids shown as selected chips.", type: "string[]" },
+      { name: "variant", description: "Outer composer shape.", type: '"rounded" | "pill"', default: '"rounded"' },
+      { name: "sourceAction", description: "Action dispatched with the selected source id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "RecommendationCard",
+    name: "Recommendation Card",
+    description: "Agent recommendation with confidence, alternative choices, and acceptance actions.",
+    category: "Agent interfaces",
+    usage: `<RecommendationCard title="Ship the cached query plan" confidence={0.91} acceptAction={{ type: "recommendation.accept" }} />`,
+    props: [
+      { name: "title", description: "Recommendation heading.", type: "string" },
+      { name: "description", description: "Supporting rationale.", type: "string" },
+      { name: "confidence", description: "Confidence from 0–1 or as a percentage from 0–100.", type: "number", default: "0.85" },
+      { name: "confidenceLabel", description: "Custom confidence label; otherwise inferred from confidence.", type: "string" },
+      { name: "alternatives", description: "Alternative recommendations with optional direct actions.", type: "Array<{ label: string; description?: string; status?: string; action?: ActionConfig }>" },
+      { name: "acceptLabel", description: "Primary action label.", type: "string", default: '"Accept"' },
+      { name: "acceptAction", description: "Primary acceptance action.", type: "ActionConfig" },
+      { name: "alternativesAction", description: "Action for requesting or opening alternatives.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "ComparisonTable",
+    name: "Comparison Table",
+    description: "Accessible feature-by-plan comparison matrix with boolean and scalar values.",
+    category: "Agent workspaces",
+    usage: `<ComparisonTable plans={["Starter", "Pro"]} features={[{ label: "Audit log", values: [false, true] }]} />`,
+    props: [
+      { name: "label", description: "Accessible region label.", type: "string", default: '"Feature comparison"' },
+      { name: "plans", description: "Plan or option names used as column headings.", type: "string[]" },
+      { name: "features", description: "Feature rows; values align by index with plans.", type: "Array<{ label: string; values: Array<boolean | string | number> }>" },
+      { name: "highlightPlan", description: "Zero-based plan column to emphasize.", type: "number" }
+    ]
+  },
+  {
+    id: "ContextCards",
+    name: "Context Cards",
+    description: "Stack of retrieved context chunks with excerpts, source metadata, and selection actions.",
+    category: "Agent workspaces",
+    usage: `<ContextCards items={[{ title: "Release notes", excerpt: "The renderer now supports agent workspaces.", source: { label: "docs.md", type: "MD" } }]} />`,
+    props: [
+      { name: "title", description: "Collection heading.", type: "string", default: '"All chunks"' },
+      { name: "count", description: "Displayed result count; defaults to the item length.", type: "number | string" },
+      { name: "items", description: "Retrieved context chunks.", type: "Array<{ id?: string | number; title: string; excerpt: string; characters?: number | string; source?: { label: string; type?: string; url?: string } }>" },
+      { name: "onItemClickAction", description: "Action dispatched with the selected chunk and id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "DiffTable",
+    name: "Diff Table",
+    description: "Selectable tabular change set with addition/removal totals and a bulk apply action.",
+    category: "Agent workspaces",
+    usage: `<DiffTable columns={[{ key: "name", label: "Name" }]} rows={[{ type: "add", values: { name: "New record" } }]} applyAction={{ type: "changes.apply" }} />`,
+    props: [
+      { name: "title", description: "Change-set heading.", type: "string", default: '"Proposed changes"' },
+      { name: "description", description: "Supporting selection guidance.", type: "string", default: '"Select changed rows to include"' },
+      { name: "columns", description: "Table column definitions.", type: 'Array<{ key: string; label: string; type?: "text" | "tags" | "status" | "link" | "number"; align?: "start" | "center" | "end" }>' },
+      { name: "rows", description: "Change rows and their cell values; non-context rows start selected unless selected is false.", type: 'Array<{ id?: string | number; type?: "add" | "remove" | "context"; values: Record<string, string | number | boolean | string[] | null | undefined>; selected?: boolean }>' },
+      { name: "applyLabel", description: "Bulk action label.", type: "string", default: '"Apply changes"' },
+      { name: "applyAction", description: "Action dispatched with selected row indexes and count.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "FilterTable",
+    name: "Filter Table",
+    description: "Data table with local status-filter chips and row/filter actions.",
+    category: "Agent workspaces",
+    usage: `<FilterTable filters={[{ label: "All", value: "all" }, { label: "Open", value: "open" }]} columns={[{ key: "task", label: "Task" }]} rows={[{ task: "Review", status: "open" }]} />`,
+    props: [
+      { name: "filters", description: "Filter chip definitions.", type: 'Array<{ label: string; value: string; count?: number; tone?: "neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery" }>' },
+      { name: "defaultFilter", description: "Initially active filter value.", type: "string", default: '"all"' },
+      { name: "statusKey", description: "Row field compared with non-all filter values.", type: "string", default: '"status"' },
+      { name: "columns", description: "Table column definitions.", type: 'Array<{ key: string; label: string; type?: "text" | "tags" | "status" | "link" | "number"; align?: "start" | "center" | "end" }>' },
+      { name: "rows", description: "Table row objects.", type: "Array<Record<string, string | number | boolean | string[] | null | undefined>>" },
+      { name: "onFilterAction", description: "Action dispatched with the selected filter value.", type: "ActionConfig" },
+      { name: "onRowClickAction", description: "Action dispatched with the selected visible row and index.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "FineTuneCard",
+    name: "Fine Tune Card",
+    description: "Compact parameter editor for numeric, text, select, and range controls.",
+    category: "Agent workspaces",
+    usage: `<FineTuneCard title="Generation settings" fields={[{ name: "temperature", label: "Temperature", type: "range", value: 0.7, min: 0, max: 1, step: 0.1 }]} />`,
+    props: [
+      { name: "title", description: "Editor heading.", type: "string" },
+      { name: "badge", description: "Heading badge text.", type: "string", default: '"Adjust"' },
+      { name: "fields", description: "Editable parameter definitions.", type: 'Array<{ name: string; label: string; type?: "number" | "text" | "select" | "range"; value?: string | number; min?: number; max?: number; step?: number; unit?: string; options?: Array<{ label: string; value: string }> }>' },
+      { name: "applyLabel", description: "Apply button label.", type: "string", default: '"Apply"' },
+      { name: "applyAction", description: "Action dispatched with the complete values object.", type: "ActionConfig" },
+      { name: "onChangeAction", description: "Action dispatched when an individual field changes.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "Flowchart",
+    name: "Flowchart",
+    description: "Vertical agent workflow diagram with typed nodes and labeled connections.",
+    category: "Agent workspaces",
+    usage: `<Flowchart nodes={[{ id: "start", label: "Ticket received", kind: "trigger" }, { id: "route", label: "Route request", kind: "action" }]} edges={[{ from: "start", to: "route", label: "then" }]} />`,
+    props: [
+      { name: "nodes", description: "Workflow nodes rendered in order.", type: 'Array<{ id: string; label: string; description?: string; kind?: "trigger" | "action" | "condition" | "branch" | "result"; icon?: WidgetIcon }>' },
+      { name: "edges", description: "Connections between node ids; incoming edges label the connector before a node.", type: 'Array<{ from: string; to: string; label?: string; tone?: "neutral" | "accent" | "info" | "success" | "warning" | "danger" | "discovery" }>' },
+      { name: "onNodeClickAction", description: "Action dispatched with the selected node and id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "InsightCards",
+    name: "Insight Cards",
+    description: "Paged insight viewer with metrics, sparklines, navigation, and per-insight actions.",
+    category: "Agent workspaces",
+    usage: `<InsightCards items={[{ title: "Activation improved", metrics: [{ label: "Rate", value: "68%", delta: "+8%", data: [42, 51, 68] }] }]} />`,
+    props: [
+      { name: "title", description: "Collection heading.", type: "string", default: '"Insights"' },
+      { name: "items", description: "Paged insight cards and their metric series.", type: "Array<{ id?: string | number; title: string; description?: string; metrics?: Array<{ label: string; value: string; delta?: string; color?: string; data?: number[] }>; action?: { label: string; action: ActionConfig } }>" },
+      { name: "defaultIndex", description: "Initially visible insight index, clamped to the available items.", type: "number", default: "0" },
+      { name: "onChangeAction", description: "Action dispatched with the newly selected insight index and id.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "RecordsTable",
+    name: "Records Table",
+    description: "Sortable records grid with optional row selection and action payloads.",
+    category: "Agent workspaces",
+    usage: `<RecordsTable selectable defaultSortKey="name" columns={[{ key: "name", label: "Name" }]} rows={[{ name: "Ada" }, { name: "Lin" }]} />`,
+    props: [
+      { name: "columns", description: "Table column definitions.", type: 'Array<{ key: string; label: string; type?: "text" | "tags" | "status" | "link" | "number"; align?: "start" | "center" | "end" }>' },
+      { name: "rows", description: "Record objects keyed by column keys.", type: "Array<Record<string, string | number | boolean | string[] | null | undefined>>" },
+      { name: "caption", description: "Footer caption beside the record count.", type: "string" },
+      { name: "selectable", description: "Enable click-to-select rows and add a selection column.", type: "boolean", default: "false" },
+      { name: "defaultSortKey", description: "Column key used for initial sorting.", type: "string" },
+      { name: "defaultSortDirection", description: "Initial sort direction.", type: '"asc" | "desc"', default: '"asc"' },
+      { name: "onRowClickAction", description: "Action dispatched with the source row and index.", type: "ActionConfig" },
+      { name: "onSelectionChangeAction", description: "Action dispatched with selected source indexes and count.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "Search",
+    name: "Search",
+    description: "Local search field and result list with form integration and selection actions.",
+    category: "Agent workspaces",
+    usage: `<Search placeholder="Search knowledge" items={[{ id: "guide", label: "Authoring guide", description: "Widget syntax" }]} />`,
+    props: [
+      { name: "name", description: "Form field and change-payload key.", type: "string", default: '"search"' },
+      { name: "placeholder", description: "Search input placeholder.", type: "string", default: '"Search…"' },
+      { name: "defaultQuery", description: "Initial local search query.", type: "string", default: '""' },
+      { name: "items", description: "Searchable result items; keywords participate in matching but are not displayed.", type: "Array<{ id?: string | number; label: string; description?: string; keywords?: string; icon?: WidgetIcon; action?: ActionConfig }>" },
+      { name: "emptyText", description: "Message shown when no items match.", type: "string", default: '"No matches"' },
+      { name: "onSelectAction", description: "Fallback action for result items without their own action.", type: "ActionConfig" },
+      { name: "onChangeAction", description: "Action dispatched whenever the query changes.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "SelectionActions",
+    name: "Selection Actions",
+    description: "Highlighted text selection paired with quick edit actions and a free-form instruction.",
+    category: "Agent workspaces",
+    usage: `<SelectionActions text="Make this launch note more concise." selection="more concise" actions={[{ label: "Rewrite", value: "rewrite" }]} submitAction={{ type: "selection.edit" }} />`,
+    props: [
+      { name: "text", description: "Complete source text.", type: "string" },
+      { name: "selection", description: "Substring to highlight; defaults to the complete text when absent or unmatched.", type: "string" },
+      { name: "placeholder", description: "Free-form instruction placeholder.", type: "string", default: '"Describe edits"' },
+      { name: "actions", description: "Quick actions; each may override the shared submit action.", type: "Array<{ label: string; value?: string; icon?: WidgetIcon; action?: ActionConfig }>" },
+      { name: "submitAction", description: "Shared quick-action fallback and free-form submit action.", type: "ActionConfig" }
+    ]
+  },
+  {
+    id: "SidebarNav",
+    name: "Sidebar Navigation",
+    description: "Workspace navigation with grouped items, badges, active state, and an optional footer action.",
+    category: "Agent workspaces",
+    usage: `<SidebarNav workspace="Research" sections={[{ label: "Workspace", items: [{ id: "threads", label: "Threads", active: true }] }]} />`,
+    props: [
+      { name: "workspace", description: "Workspace name and navigation accessible label.", type: "string" },
+      { name: "workspaceIcon", description: "Workspace badge icon.", type: "WidgetIcon", default: '"cube"' },
+      { name: "sections", description: "Grouped navigation items.", type: "Array<{ label?: string; items: Array<{ id: string; label: string; icon?: WidgetIcon; badge?: string | number; active?: boolean }> }>" },
+      { name: "compact", description: "Use compact sidebar spacing.", type: "boolean", default: "false" },
+      { name: "footerAction", description: "Optional persistent footer button.", type: "{ label: string; action: ActionConfig }" },
+      { name: "onNavigateAction", description: "Action dispatched with the selected navigation item and id.", type: "ActionConfig" }
     ]
   }
 ];

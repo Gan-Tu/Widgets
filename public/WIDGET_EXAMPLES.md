@@ -4,7 +4,7 @@ The complete gallery corpus — every demo widget from the gallery as a `templat
 
 > Generated from `src/examples/widgetExamples.ts` by `scripts/build-widget-examples-doc.mjs` — do not edit by hand.
 
-39 widgets across 9 categories.
+52 widgets across 10 categories.
 
 ## Featured
 
@@ -634,6 +634,1292 @@ WIDGET DATA:
     31,
     25,
     29
+  ]
+}
+```
+
+## Agent UI
+
+### Thinking & reasoning
+
+A finished reasoning trace that expands into steps, then a cited answer. (id: `agent-thinking`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={3}>
+  <Thinking summary={summary} steps={steps} defaultOpen />
+  <Divider />
+  <TextResponse value={response} />
+  <InlineCitations text={citationText} sources={citationSources} />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "summary": "Thought for 9s",
+  "steps": [
+    {
+      "label": "Reading the auth middleware",
+      "detail": "src/middleware/auth.ts · 120 lines",
+      "status": "completed"
+    },
+    {
+      "label": "Tracing where the session secret is loaded",
+      "detail": "Confirmed it never reaches the client",
+      "status": "completed"
+    },
+    {
+      "label": "Checking existing coverage",
+      "detail": "auth.test.ts covers expiry but not tampering",
+      "status": "completed"
+    }
+  ],
+  "response": "The middleware accepts any signing algorithm, so a forged token could pass verification. Pinning the algorithm and validating the issuer closes the gap without touching call sites.",
+  "citationText": "Algorithm confusion is a known JWT pitfall [1], and the fix matches the library's own hardening guide [2].",
+  "citationSources": [
+    {
+      "id": 1,
+      "label": "JWT algorithm confusion",
+      "host": "owasp.org",
+      "url": "https://owasp.org"
+    },
+    {
+      "id": 2,
+      "label": "jsonwebtoken hardening notes",
+      "host": "github.com",
+      "url": "https://github.com"
+    }
+  ]
+}
+```
+
+### Working states
+
+Shimmering thinking line, a staged loading surface, and all 25 orb variants. (id: `agent-working`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <ThinkingState label={thinkingLabel} elapsed={thinkingElapsed} active />
+  <LoadingState label={loadingLabel} elapsed={loadingElapsed} variant="drive" />
+  <Grid columns="repeat(5, minmax(0, 1fr))" gap={3}>
+    <Each $of="orbs" item="orb">
+      <Col key={orb.variant} align="center" gap={2} padding={{ y: 1 }}>
+        <Orbs variant={orb.variant} size={22} />
+        <Caption $value="orb.variant" size="sm" />
+      </Col>
+    </Each>
+  </Grid>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "thinkingLabel": "Reading the migration plan",
+  "thinkingElapsed": "6s",
+  "loadingLabel": "Summarizing 28 pull requests",
+  "loadingElapsed": "0:41",
+  "orbs": [
+    {
+      "variant": "S1",
+      "label": "Radiate"
+    },
+    {
+      "variant": "S2",
+      "label": "Sweep"
+    },
+    {
+      "variant": "S3",
+      "label": "Comet"
+    },
+    {
+      "variant": "S4",
+      "label": "Column"
+    },
+    {
+      "variant": "S5",
+      "label": "Scatter"
+    },
+    {
+      "variant": "G1",
+      "label": "Wave"
+    },
+    {
+      "variant": "G2",
+      "label": "Counter"
+    },
+    {
+      "variant": "G3",
+      "label": "Cascade"
+    },
+    {
+      "variant": "G4",
+      "label": "Breathe"
+    },
+    {
+      "variant": "G5",
+      "label": "Idle"
+    },
+    {
+      "variant": "C1",
+      "label": "Chase"
+    },
+    {
+      "variant": "C2",
+      "label": "Swell"
+    },
+    {
+      "variant": "C3",
+      "label": "Twin"
+    },
+    {
+      "variant": "C4",
+      "label": "Blink"
+    },
+    {
+      "variant": "C5",
+      "label": "Twinkle"
+    },
+    {
+      "variant": "B1",
+      "label": "Focus"
+    },
+    {
+      "variant": "B2",
+      "label": "Scan"
+    },
+    {
+      "variant": "B3",
+      "label": "Ripple"
+    },
+    {
+      "variant": "B4",
+      "label": "Meet"
+    },
+    {
+      "variant": "B5",
+      "label": "Rotate"
+    },
+    {
+      "variant": "M1",
+      "label": "Fold"
+    },
+    {
+      "variant": "M2",
+      "label": "Gather"
+    },
+    {
+      "variant": "M3",
+      "label": "Unfold"
+    },
+    {
+      "variant": "M4",
+      "label": "Gears"
+    },
+    {
+      "variant": "M5",
+      "label": "Disperse"
+    }
+  ]
+}
+```
+
+### Streaming answer
+
+Progressive text with a blinking caret, collapsible sources, and follow-ups. (id: `agent-response`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={3}>
+  <StreamingText text={text} speed={14} sources={sources} followUps={followUps} />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "text": "Your release notes for v2.4 are ready. The 28 merged pull requests group into three areas: checkout performance, the new webhook retry policy, and a long tail of dependency bumps. Nothing in the batch changes a public API, so this can ship as a minor version.",
+  "sources": [
+    {
+      "id": 1,
+      "label": "Merged pull requests · v2.4 milestone",
+      "host": "github.com",
+      "url": "https://github.com"
+    },
+    {
+      "id": 2,
+      "label": "Webhook retry design note",
+      "host": "docs.example.com",
+      "url": "https://docs.example.com"
+    }
+  ],
+  "followUps": [
+    {
+      "label": "Draft the announcement post",
+      "icon": "write",
+      "action": {
+        "type": "agent.followup.announce"
+      }
+    },
+    {
+      "label": "Show the dependency bumps only",
+      "icon": "filter",
+      "action": {
+        "type": "agent.followup.deps"
+      }
+    }
+  ]
+}
+```
+
+### Tasks & tool calls
+
+Live task rows with child steps beside collapsible tool activity. (id: `agent-tasks`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={3}>
+  <TaskRows items={tasks} variant="list" onItemClickAction={{ type: "agent.task.open" }} />
+  <ToolChips summary={toolSummary} items={tools} defaultOpen onItemClickAction={{ type: "agent.tool.open" }} />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "tasks": [
+    {
+      "id": "audit",
+      "label": "Verified vendor records",
+      "detail": "12 suppliers",
+      "status": "completed"
+    },
+    {
+      "id": "reorder",
+      "label": "Build reorder task list",
+      "detail": "7 SKUs",
+      "status": "running",
+      "progress": 64,
+      "children": [
+        {
+          "label": "Reading POS export",
+          "detail": "3 files",
+          "status": "completed"
+        },
+        {
+          "label": "Scoring stockout risk",
+          "detail": "s60",
+          "status": "running"
+        }
+      ]
+    },
+    {
+      "id": "emails",
+      "label": "Draft supplier emails",
+      "detail": "2 messages",
+      "status": "pending"
+    }
+  ],
+  "toolSummary": "4 tool calls, 2 messages",
+  "tools": [
+    {
+      "id": "read",
+      "type": "read",
+      "label": "Read POS export",
+      "detail": "pos-march.csv",
+      "status": "completed"
+    },
+    {
+      "id": "search",
+      "type": "search",
+      "label": "Search supplier catalog",
+      "detail": "7 matches",
+      "status": "completed"
+    },
+    {
+      "id": "write",
+      "type": "write",
+      "label": "Write reorder schedule",
+      "detail": "ReorderSchedule.tsx",
+      "status": "running",
+      "additions": 204,
+      "deletions": 12
+    },
+    {
+      "id": "send",
+      "type": "message",
+      "label": "Draft supplier emails",
+      "detail": "2 drafts",
+      "status": "pending"
+    }
+  ]
+}
+```
+
+### Agent workbench
+
+A dark work log with reasoning and plan, plus streamed code and a diff. (id: `agent-workbench` · theme: `dark`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="lg" gap={3}>
+  <Tabs tabs={[
+    { id: "work", label: "Work log", icon: "clipboard" },
+    { id: "artifacts", label: "Artifacts", icon: "square-code" }
+  ]}>
+    <Tabs.Panel id="work">
+      <Col gap={3}>
+        <ThinkingReasoning summary={traceSummary} steps={traceSteps} defaultOpen />
+        <TaskList title={planTitle} items={tasks} defaultOpen onItemClickAction={{ type: "agent.task.open" }} />
+      </Col>
+    </Tabs.Panel>
+    <Tabs.Panel id="artifacts">
+      <Col gap={3}>
+        <CodeBlock code={code} language="tsx" file={codeFile} streaming highlightLines={highlightLines} />
+        <FileDiff file={diffFile} language="tsx" rows={diffRows} />
+      </Col>
+    </Tabs.Panel>
+  </Tabs>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "traceSummary": "Verification trace",
+  "traceSteps": [
+    {
+      "label": "Audited component exports",
+      "detail": "32 public names resolve",
+      "status": "completed"
+    },
+    {
+      "label": "Rendering the gallery corpus",
+      "detail": "Focused render suite",
+      "status": "running"
+    }
+  ],
+  "planTitle": "Implementation plan",
+  "tasks": [
+    {
+      "id": "audit",
+      "label": "Audit component APIs",
+      "detail": "32 exports checked",
+      "status": "completed"
+    },
+    {
+      "id": "gallery",
+      "label": "Build gallery coverage",
+      "detail": "13 focused demos",
+      "status": "running",
+      "progress": 72
+    },
+    {
+      "id": "docs",
+      "label": "Regenerate the corpus doc",
+      "detail": "WIDGET_EXAMPLES.md",
+      "status": "pending"
+    }
+  ],
+  "codeFile": "src/agent-card.tsx",
+  "code": "export function AgentCard() {\n  const status = useAgentStatus();\n  return (\n    <Response>\n      <StatusRow value={status} />\n    </Response>\n  );\n}",
+  "highlightLines": [
+    2,
+    5
+  ],
+  "diffFile": "src/agent-card.tsx",
+  "diffRows": [
+    {
+      "oldLine": 1,
+      "newLine": 1,
+      "type": "context",
+      "text": "export function AgentCard() {"
+    },
+    {
+      "oldLine": 2,
+      "type": "remove",
+      "text": "  return null;"
+    },
+    {
+      "newLine": 2,
+      "type": "add",
+      "text": "  const status = useAgentStatus();"
+    },
+    {
+      "newLine": 3,
+      "type": "add",
+      "text": "  return <StatusRow value={status} />;"
+    },
+    {
+      "oldLine": 3,
+      "newLine": 4,
+      "type": "context",
+      "text": "}"
+    }
+  ]
+}
+```
+
+### Image generation
+
+A generating canvas with live progress above a finished render. (id: `agent-media`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <ImageGeneration prompt={prompt} progress={progress} status={status} resolution={resolution} aspectRatio="landscape" />
+  <ImageGeneration prompt={finishedPrompt} status={finishedStatus} image={finishedImage} alt={finishedPrompt} resolution={resolution} aspectRatio="landscape" />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "prompt": "A calm command center for an AI agent, dawn light",
+  "progress": 68,
+  "status": "Generating image",
+  "resolution": "1536 × 1024",
+  "finishedPrompt": "A calm mountain lake at dawn",
+  "finishedStatus": "Finished in 12s",
+  "finishedImage": "https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=1200&q=80"
+}
+```
+
+### Agent decisions
+
+Approval questions with keyed options beside a confidence-aware recommendation. (id: `agent-decisions`)
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={3}>
+  <Grid columns="repeat(auto-fit, minmax(260px, 1fr))" gap={3}>
+    <ApprovalCard
+      title={approvalTitle}
+      description={approvalDescription}
+      questions={approvalQuestions}
+      autoAdvance
+      approveLabel="Continue"
+      rejectLabel="Pause"
+      countdown={18}
+      approveAction={{ type: "agent.approval.accept" }}
+      rejectAction={{ type: "agent.approval.reject" }}
+    />
+    <RecommendationCard
+      title={recommendationTitle}
+      description={recommendationDescription}
+      confidence={confidence}
+      alternatives={alternatives}
+      acceptLabel="Use split layout"
+      acceptAction={{ type: "agent.recommendation.accept" }}
+      alternativesAction={{ type: "agent.recommendation.alternatives" }}
+    />
+  </Grid>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "approvalTitle": "How should the agent proceed?",
+  "approvalDescription": "Two quick questions before the workspace changes apply.",
+  "approvalQuestions": [
+    {
+      "id": "review-mode",
+      "title": "How should the agent proceed?",
+      "description": "Choose a review mode for the proposed changes.",
+      "allowOther": false,
+      "options": [
+        {
+          "label": "Review the diff first",
+          "value": "review",
+          "description": "Walk through every change"
+        },
+        {
+          "label": "Apply and summarize",
+          "value": "apply",
+          "description": "Continue with current defaults"
+        },
+        {
+          "label": "Stage behind a flag",
+          "value": "flag",
+          "description": "Ship dark, enable gradually"
+        }
+      ]
+    },
+    {
+      "id": "checks",
+      "title": "Which checks should run?",
+      "description": "Pick one or more validation gates.",
+      "multiple": true,
+      "otherPlaceholder": "Name another check…",
+      "options": [
+        {
+          "label": "Renderer tests",
+          "value": "render",
+          "description": "Render every example"
+        },
+        {
+          "label": "Production build",
+          "value": "build",
+          "description": "Compile package and docs"
+        }
+      ]
+    }
+  ],
+  "recommendationTitle": "Use a split workspace",
+  "recommendationDescription": "Navigation stays visible while the workflow remains scannable — the layout most teams keep after trying all three.",
+  "confidence": 0.91,
+  "alternatives": [
+    {
+      "label": "Single column",
+      "description": "Best for narrow hosts",
+      "status": "Compact"
+    },
+    {
+      "label": "Tabbed view",
+      "description": "Best for dense artifacts",
+      "status": "Flexible"
+    }
+  ]
+}
+```
+
+### Agent conversation
+
+A tabbed transcript with user, reasoning, tool, and assistant turns plus a composer. (id: `agent-conversation`)
+
+WIDGET TEMPLATE:
+
+```
+<Response>
+  <Chat tabs={tabs} defaultTab="build" messages={messages} placeholder="Reply to the agent…" sendAction={{ type: "agent.chat.send" }} onTabChangeAction={{ type: "agent.chat.tab" }} />
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "tabs": [
+    {
+      "id": "build",
+      "label": "Build"
+    },
+    {
+      "id": "review",
+      "label": "Review"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "role": "user",
+      "content": "Add every new agent primitive to the gallery."
+    },
+    {
+      "id": "m2",
+      "role": "reasoning",
+      "label": "Planned",
+      "detail": "13 demos",
+      "duration": "6s",
+      "content": "Group related states so each demo stays focused on one surface."
+    },
+    {
+      "id": "m3",
+      "role": "tool",
+      "label": "Write",
+      "detail": "widgetExamples.ts",
+      "content": "Added 13 examples and regenerated the corpus doc."
+    },
+    {
+      "id": "m4",
+      "role": "assistant",
+      "content": "Done — the gallery now covers every canonical export, and both aliases render."
+    }
+  ]
+}
+```
+
+### Prompt composers
+
+The full composer, a source-aware pill bar, and the minimal prompt input. (id: `agent-composer`)
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={4}>
+  <Col gap={2}>
+    <Caption value="FULL COMPOSER" size="sm" />
+    <AgentInput
+      defaultValue={prompt}
+      models={models}
+      defaultModel="fable-5"
+      attachments={attachments}
+      commands={commands}
+      skills={skills}
+      selectedSkills={selectedSkills}
+      rows={2}
+      submitAction={{ type: "agent.prompt.send" }}
+      attachAction={{ type: "agent.attachment.add" }}
+      removeAttachmentAction={{ type: "agent.attachment.remove" }}
+      commandAction={{ type: "agent.command.select" }}
+      skillAction={{ type: "agent.skill.select" }}
+      enhanceAction={{ type: "agent.prompt.enhance" }}
+    />
+  </Col>
+  <Col gap={2}>
+    <Caption value="SOURCE-AWARE BAR" size="sm" />
+    <PromptBar
+      placeholder="Ask across your sources…"
+      variant="pill"
+      sources={sources}
+      selectedSources={selectedSources}
+      rows={1}
+      submitAction={{ type: "agent.prompt.send" }}
+      sourceAction={{ type: "agent.source.toggle" }}
+    />
+  </Col>
+  <Col gap={2}>
+    <Caption value="MINIMAL PROMPT" size="sm" />
+    <PromptInput placeholder="Ask a follow-up…" rows={1} submitAction={{ type: "agent.prompt.send" }} />
+  </Col>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "prompt": "Summarize the implementation and list open risks",
+  "models": [
+    {
+      "value": "fable-5",
+      "label": "Fable 5"
+    },
+    {
+      "value": "swift-4",
+      "label": "Swift 4 mini"
+    }
+  ],
+  "attachments": [
+    {
+      "id": "brief",
+      "name": "ui-brief.md",
+      "type": "text/markdown",
+      "size": "12 KB"
+    }
+  ],
+  "commands": [
+    {
+      "value": "review",
+      "label": "Review changes",
+      "description": "Inspect the current widget diff",
+      "icon": "search"
+    },
+    {
+      "value": "test",
+      "label": "Run tests",
+      "description": "Validate the gallery and package",
+      "icon": "terminal"
+    }
+  ],
+  "skills": [
+    {
+      "value": "frontend",
+      "label": "Frontend review",
+      "description": "Check polish and accessibility",
+      "icon": "palette"
+    }
+  ],
+  "selectedSkills": [
+    "frontend"
+  ],
+  "sources": [
+    {
+      "id": "components",
+      "label": "Component registry",
+      "description": "Canonical renderer names",
+      "icon": "cube",
+      "connected": true
+    },
+    {
+      "id": "guide",
+      "label": "Authoring guide",
+      "description": "Template and action rules",
+      "icon": "document",
+      "connected": true
+    }
+  ],
+  "selectedSources": [
+    "components",
+    "guide"
+  ]
+}
+```
+
+### Knowledge workspace
+
+Context chunks, plan comparison, and selectable proposed changes. (id: `knowledge-workspace`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="lg" gap={3}>
+  <Tabs tabs={[
+    { id: "context", label: "Context", icon: "document" },
+    { id: "compare", label: "Compare", icon: "layers" },
+    { id: "changes", label: "Changes", icon: "shuffle" }
+  ]}>
+    <Tabs.Panel id="context">
+      <ContextCards title="Retrieved context" items={contextItems} onItemClickAction={{ type: "workspace.context.open" }} />
+    </Tabs.Panel>
+    <Tabs.Panel id="compare">
+      <ComparisonTable label="Implementation options" plans={plans} features={features} highlightPlan={1} />
+    </Tabs.Panel>
+    <Tabs.Panel id="changes">
+      <DiffTable title="Proposed registry changes" description="Tap a changed row to include or exclude it" columns={columns} rows={diffRows} applyAction={{ type: "workspace.diff.apply" }} />
+    </Tabs.Panel>
+  </Tabs>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "contextItems": [
+    {
+      "id": "c1",
+      "title": "Renderer registry",
+      "excerpt": "All public component names resolve through one canonical map, so templates never import anything.",
+      "characters": 118,
+      "source": {
+        "label": "registry.ts",
+        "type": "TS"
+      }
+    },
+    {
+      "id": "c2",
+      "title": "Authoring contract",
+      "excerpt": "Templates use a supported root and data validated by a strict schema before anything renders.",
+      "characters": 104,
+      "source": {
+        "label": "AGENTS.md",
+        "type": "MD"
+      }
+    },
+    {
+      "id": "c3",
+      "title": "Design tokens",
+      "excerpt": "Every surface, border, and text color comes from widget tokens, so dark mode needs zero extra work.",
+      "characters": 112,
+      "source": {
+        "label": "widget.css",
+        "type": "CSS"
+      }
+    }
+  ],
+  "plans": [
+    "Separate pages",
+    "Composite demos",
+    "One mega page"
+  ],
+  "features": [
+    {
+      "label": "Compact corpus",
+      "values": [
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "label": "Focused screenshots",
+      "values": [
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "Interactive coverage",
+      "values": [
+        "Partial",
+        "Complete",
+        "Complete"
+      ]
+    },
+    {
+      "label": "Maintenance cost",
+      "values": [
+        "High",
+        "Low",
+        "Low"
+      ]
+    }
+  ],
+  "columns": [
+    {
+      "key": "name",
+      "label": "Component"
+    },
+    {
+      "key": "kind",
+      "label": "Kind"
+    },
+    {
+      "key": "status",
+      "label": "Status",
+      "type": "status"
+    }
+  ],
+  "diffRows": [
+    {
+      "id": "d1",
+      "type": "context",
+      "values": {
+        "name": "ThinkingState",
+        "kind": "Status",
+        "status": "Kept"
+      }
+    },
+    {
+      "id": "d2",
+      "type": "remove",
+      "values": {
+        "name": "LegacyPrompt",
+        "kind": "Composer",
+        "status": "Removed"
+      }
+    },
+    {
+      "id": "d3",
+      "type": "add",
+      "values": {
+        "name": "PromptBar",
+        "kind": "Composer",
+        "status": "Added"
+      }
+    },
+    {
+      "id": "d4",
+      "type": "add",
+      "values": {
+        "name": "TaskRows",
+        "kind": "Tasks",
+        "status": "Added"
+      }
+    }
+  ]
+}
+```
+
+### Data workspace
+
+Sortable, selectable records and status-filtered views of one dataset. (id: `data-workspace`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="lg" gap={3}>
+  <Tabs tabs={[
+    { id: "records", label: "Records", icon: "database" },
+    { id: "filtered", label: "Filtered", icon: "filter" }
+  ]}>
+    <Tabs.Panel id="records">
+      <RecordsTable columns={columns} rows={rows} caption="Click a row to select it" selectable defaultSortKey="owner" onRowClickAction={{ type: "workspace.record.open" }} onSelectionChangeAction={{ type: "workspace.records.select" }} />
+    </Tabs.Panel>
+    <Tabs.Panel id="filtered">
+      <FilterTable filters={filters} defaultFilter="all" statusKey="status" columns={columns} rows={rows} onFilterAction={{ type: "workspace.filter.change" }} onRowClickAction={{ type: "workspace.record.open" }} />
+    </Tabs.Panel>
+  </Tabs>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "columns": [
+    {
+      "key": "owner",
+      "label": "Owner"
+    },
+    {
+      "key": "surface",
+      "label": "Surface"
+    },
+    {
+      "key": "tags",
+      "label": "Tags",
+      "type": "tags"
+    },
+    {
+      "key": "coverage",
+      "label": "Coverage",
+      "type": "number",
+      "align": "end"
+    },
+    {
+      "key": "status",
+      "label": "Status",
+      "type": "status"
+    }
+  ],
+  "rows": [
+    {
+      "id": "r1",
+      "owner": "Mira",
+      "surface": "Task rows",
+      "tags": [
+        "Agent",
+        "UI"
+      ],
+      "coverage": 12,
+      "status": "Active"
+    },
+    {
+      "id": "r2",
+      "owner": "Theo",
+      "surface": "Corpus doc",
+      "tags": [
+        "Docs"
+      ],
+      "coverage": 8,
+      "status": "Blocked"
+    },
+    {
+      "id": "r3",
+      "owner": "Ari",
+      "surface": "Gallery",
+      "tags": [
+        "Demos"
+      ],
+      "coverage": 13,
+      "status": "Active"
+    },
+    {
+      "id": "r4",
+      "owner": "Noor",
+      "surface": "Composer",
+      "tags": [
+        "Input",
+        "A11y"
+      ],
+      "coverage": 6,
+      "status": "Review"
+    },
+    {
+      "id": "r5",
+      "owner": "Sam",
+      "surface": "Workbench",
+      "tags": [
+        "Dark"
+      ],
+      "coverage": 9,
+      "status": "Active"
+    }
+  ],
+  "filters": [
+    {
+      "label": "All",
+      "value": "all",
+      "count": 5
+    },
+    {
+      "label": "Active",
+      "value": "active",
+      "count": 3,
+      "tone": "success"
+    },
+    {
+      "label": "Review",
+      "value": "review",
+      "count": 1,
+      "tone": "warning"
+    },
+    {
+      "label": "Blocked",
+      "value": "blocked",
+      "count": 1,
+      "tone": "danger"
+    }
+  ]
+}
+```
+
+### Navigation workflow
+
+Workspace sidebar, live search, and a connected agent flowchart. (id: `navigation-workflow`)
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={3}>
+  <Grid columns="minmax(180px, 0.65fr) minmax(250px, 1.35fr)" gap={4}>
+    <SidebarNav workspace={workspace} workspaceIcon="cube" sections={sections} onNavigateAction={{ type: "workspace.navigate" }} footerAction={{ label: "New workflow", action: { type: "workspace.workflow.new" } }} />
+    <Col gap={3}>
+      <Search placeholder="Search workspace…" items={searchItems} onSelectAction={{ type: "workspace.search.open" }} onChangeAction={{ type: "workspace.search.change" }} />
+      <Flowchart nodes={nodes} edges={edges} onNodeClickAction={{ type: "workspace.flow.node" }} />
+    </Col>
+  </Grid>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "workspace": "Agent Studio",
+  "sections": [
+    {
+      "label": "Workspace",
+      "items": [
+        {
+          "id": "overview",
+          "label": "Overview",
+          "icon": "home",
+          "active": true
+        },
+        {
+          "id": "runs",
+          "label": "Runs",
+          "icon": "activity",
+          "badge": 4
+        },
+        {
+          "id": "sources",
+          "label": "Sources",
+          "icon": "database"
+        }
+      ]
+    },
+    {
+      "label": "Library",
+      "items": [
+        {
+          "id": "prompts",
+          "label": "Prompts",
+          "icon": "sparkle"
+        },
+        {
+          "id": "evals",
+          "label": "Evals",
+          "icon": "target",
+          "badge": 2
+        }
+      ]
+    }
+  ],
+  "searchItems": [
+    {
+      "id": "run-42",
+      "label": "Gallery coverage run",
+      "description": "13 demos · active",
+      "keywords": "agent components",
+      "icon": "sparkle"
+    },
+    {
+      "id": "doc",
+      "label": "Authoring guide",
+      "description": "Template root and schema rules",
+      "keywords": "documentation",
+      "icon": "document"
+    },
+    {
+      "id": "eval-7",
+      "label": "Composer eval",
+      "description": "Prompt quality · 92%",
+      "keywords": "evals",
+      "icon": "target"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "label": "Request received",
+      "description": "Read component sources",
+      "kind": "trigger",
+      "icon": "message"
+    },
+    {
+      "id": "validate",
+      "label": "Validate APIs",
+      "description": "Check props and registry",
+      "kind": "condition",
+      "icon": "search"
+    },
+    {
+      "id": "publish",
+      "label": "Publish examples",
+      "description": "Generate the gallery corpus",
+      "kind": "result",
+      "icon": "check"
+    }
+  ],
+  "edges": [
+    {
+      "from": "request",
+      "to": "validate",
+      "label": "inspect",
+      "tone": "info"
+    },
+    {
+      "from": "validate",
+      "to": "publish",
+      "label": "verified",
+      "tone": "success"
+    }
+  ]
+}
+```
+
+### Insight editor
+
+Swipeable insights, fine-tuning controls, and selection-aware editing actions. (id: `insight-editor`)
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={3}>
+  <Grid columns="repeat(auto-fit, minmax(260px, 1fr))" gap={4}>
+    <InsightCards title="Run insights" items={insights} onChangeAction={{ type: "workspace.insight.change" }} />
+    <Col gap={3}>
+      <FineTuneCard title={fineTuneTitle} fields={fields} applyLabel="Apply tuning" applyAction={{ type: "workspace.tuning.apply" }} onChangeAction={{ type: "workspace.tuning.change" }} />
+      <SelectionActions text={selectionText} selection={selection} actions={selectionActions} submitAction={{ type: "workspace.selection.edit" }} />
+    </Col>
+  </Grid>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "insights": [
+    {
+      "id": "coverage",
+      "title": "Coverage is complete",
+      "description": "Every new agent and workspace export appears in the gallery.",
+      "metrics": [
+        {
+          "label": "Components",
+          "value": "32",
+          "delta": "+32 this week",
+          "color": "#6366f1",
+          "data": [
+            4,
+            8,
+            13,
+            21,
+            32
+          ]
+        },
+        {
+          "label": "Focused demos",
+          "value": "13",
+          "delta": "was 8",
+          "data": [
+            1,
+            2,
+            3,
+            5,
+            8,
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "id": "validation",
+      "title": "Schemas stay strict",
+      "description": "Gallery data remains deterministic and renderer-safe.",
+      "metrics": [
+        {
+          "label": "Schema failures",
+          "value": "0",
+          "delta": "30 days clean",
+          "data": [
+            3,
+            2,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "Render time",
+          "value": "41ms",
+          "delta": "-8ms",
+          "data": [
+            62,
+            55,
+            49,
+            44,
+            41
+          ]
+        }
+      ]
+    }
+  ],
+  "fineTuneTitle": "Response style",
+  "fields": [
+    {
+      "name": "detail",
+      "label": "Detail",
+      "type": "range",
+      "value": 62,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    {
+      "name": "tone",
+      "label": "Tone",
+      "type": "select",
+      "value": "concise",
+      "options": [
+        {
+          "label": "Concise",
+          "value": "concise"
+        },
+        {
+          "label": "Exploratory",
+          "value": "exploratory"
+        }
+      ]
+    }
+  ],
+  "selectionText": "The agent response is clear, complete, and intentionally compact.",
+  "selection": "clear, complete",
+  "selectionActions": [
+    {
+      "label": "Shorter",
+      "value": "shorter",
+      "icon": "minimize"
+    },
+    {
+      "label": "Explain",
+      "value": "explain",
+      "icon": "sparkle"
+    }
   ]
 }
 ```
