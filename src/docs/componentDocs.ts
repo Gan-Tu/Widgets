@@ -26,7 +26,7 @@ const thinkingReasoningProps: PropDoc[] = [
 ];
 
 const orbProps: PropDoc[] = [
-  { name: "variant", description: "Animation family and phase. S=lattice, G=globe, C=ring, B=lens, and M=morph.", type: '"S1" | "S2" | "S3" | "S4" | "S5" | "G1" | "G2" | "G3" | "G4" | "G5" | "C1" | "C2" | "C3" | "C4" | "C5" | "B1" | "B2" | "B3" | "B4" | "B5" | "M1" | "M2" | "M3" | "M4" | "M5"', default: '"S1"' },
+  { name: "variant", description: "Animation family and phase; every phase is a distinct choreography. S lattice pulse — S1 radiates from the centre, S2 sweeps the diagonal, S3 runs the perimeter as a comet, S4 crosses column by column, S5 lands in scrambled order. G globe wave — G1 waves left to right, G2 runs the middle band against its neighbours, G3 cascades down the rows, G4 breathes while spinning, G5 idles in a slow shallow ripple. C ring — C1 single comet chase, C2 slow swell circling the ring, C3 twin heads opposite each other, C4 even/odd blink, C5 scrambled twinkle. B lens blobs — B1 four corners converge on the focus, B2 a pair sweeps around, B3 rings ripple outward, B4 the pair meets on the vertical axis, B5 three lobes rotate one stop at a time. M morphing ring — M1 folds circle to diamond, M2 gathers to a point and expands, M3 unfolds a quarter turn at a time, M4 alternate dots trade radii like gears, M5 disperses outward and re-forms.", type: '"S1" | "S2" | "S3" | "S4" | "S5" | "G1" | "G2" | "G3" | "G4" | "G5" | "C1" | "C2" | "C3" | "C4" | "C5" | "B1" | "B2" | "B3" | "B4" | "B5" | "M1" | "M2" | "M3" | "M4" | "M5"', default: '"S1"' },
   { name: "size", description: "Orb diameter in pixels or as a CSS size.", type: "number | string", default: "20" },
   { name: "color", description: "Orb color token or CSS color.", type: "string | ThemeColor", default: "accent" },
   { name: "label", description: "Optional visible status label and accessible name.", type: "string" }
@@ -1486,7 +1486,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Orb",
     name: "Orb",
-    description: "Animated agent activity glyph with 25 lattice, globe, ring, lens, and morph variants.",
+    description: "Animated agent activity glyph with 25 distinct choreographies across the lattice, globe, ring, lens, and morph families — the live example animates every variant.",
     category: "Agent status & reasoning",
     usage: `<Orb variant="C3" size={24} label="Streaming" />`,
     props: orbProps

@@ -1543,12 +1543,44 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Orb: {
     template: `
-<Card size="sm">
-  <Row gap={4} align="center">
-    <Orb variant="S3" size={24} label="Working" />
-    <Orb variant="C3" size={24} label="Streaming" />
-    <Orb variant="M2" size={24} label="Shaping" />
-  </Row>
+<Card size="md" gap={3}>
+  <Col gap={0}>
+    <Title value="All 25 variants" size="sm" />
+    <Caption value="One family per row — each phase is a distinct choreography." />
+  </Col>
+  <Grid columns="24px repeat(5, minmax(0, 1fr))" gap={2}>
+    <Caption value="S" size="sm" />
+    <Col align="center" gap={1}><Orb variant="S1" size={20} /><Caption value="S1" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="S2" size={20} /><Caption value="S2" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="S3" size={20} /><Caption value="S3" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="S4" size={20} /><Caption value="S4" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="S5" size={20} /><Caption value="S5" size="sm" /></Col>
+    <Caption value="G" size="sm" />
+    <Col align="center" gap={1}><Orb variant="G1" size={20} /><Caption value="G1" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="G2" size={20} /><Caption value="G2" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="G3" size={20} /><Caption value="G3" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="G4" size={20} /><Caption value="G4" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="G5" size={20} /><Caption value="G5" size="sm" /></Col>
+    <Caption value="C" size="sm" />
+    <Col align="center" gap={1}><Orb variant="C1" size={20} /><Caption value="C1" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="C2" size={20} /><Caption value="C2" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="C3" size={20} /><Caption value="C3" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="C4" size={20} /><Caption value="C4" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="C5" size={20} /><Caption value="C5" size="sm" /></Col>
+    <Caption value="B" size="sm" />
+    <Col align="center" gap={1}><Orb variant="B1" size={20} /><Caption value="B1" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="B2" size={20} /><Caption value="B2" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="B3" size={20} /><Caption value="B3" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="B4" size={20} /><Caption value="B4" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="B5" size={20} /><Caption value="B5" size="sm" /></Col>
+    <Caption value="M" size="sm" />
+    <Col align="center" gap={1}><Orb variant="M1" size={20} /><Caption value="M1" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="M2" size={20} /><Caption value="M2" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="M3" size={20} /><Caption value="M3" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="M4" size={20} /><Caption value="M4" size="sm" /></Col>
+    <Col align="center" gap={1}><Orb variant="M5" size={20} /><Caption value="M5" size="sm" /></Col>
+  </Grid>
+  <Caption value="S lattice pulse · G globe wave · C ring chase · B lens blobs · M morphing ring" />
 </Card>
     `.trim(),
     schema: EmptySchema,
@@ -1557,7 +1589,11 @@ export const componentExamples: Record<string, ComponentExample> = {
   Orbs: {
     template: `
 <Card size="sm">
-  <Orbs variant="G4" size={26} color="discovery" label="Syncing sources" />
+  <Col gap={3}>
+    <Orbs variant="G4" size={26} color="discovery" label="Syncing sources" />
+    <Orbs variant="C1" size={26} label="Loading context" />
+    <Orbs variant="M5" size={26} color="success" label="Publishing" />
+  </Col>
 </Card>
     `.trim(),
     schema: EmptySchema,

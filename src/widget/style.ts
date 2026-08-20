@@ -35,6 +35,15 @@ const borderTokens: Record<string, string> = {
   strong: "var(--widget-border-strong)"
 };
 
+// Status tones without a text-token entry. success/warning/danger/info
+// intentionally resolve to their readable text variants above; accent and
+// discovery have no text variant, so without this map they fell through to
+// the raw string and produced an invalid CSS color (an invisible Orb).
+const statusToneTokens: Record<string, string> = {
+  accent: "var(--widget-accent)",
+  discovery: "var(--widget-discovery)"
+};
+
 const radiusMap: Record<RadiusValue, string> = {
   "2xs": "4px",
   xs: "6px",
@@ -144,6 +153,7 @@ export function resolveColor(
   if (raw in textColorTokens) return textColorTokens[raw];
   if (raw in surfaceTokens) return surfaceTokens[raw];
   if (raw in borderTokens) return borderTokens[raw];
+  if (raw in statusToneTokens) return statusToneTokens[raw];
 
   if (raw === "alpha-70") return "var(--widget-alpha-70)";
   if (raw === "alpha-10") return "var(--widget-alpha-10)";
