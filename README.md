@@ -6,6 +6,8 @@ A compact, schema-capable widget renderer for chat UIs. Pass a **Widget UI templ
 
 DeepWiki Docs: https://deepwiki.com/Gan-Tu/Widgets
 
+To try generative widgets in ChatGPT, create a custom plugin with `https://genui.tugan.app/mcp` (no auth needed).
+
 
 ## What’s in this repo
 
