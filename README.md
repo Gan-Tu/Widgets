@@ -12,7 +12,7 @@ DeepWiki Docs: https://deepwiki.com/Gan-Tu/Widgets
 - **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
 - **Component library**: 142 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
-  - `/gallery` — 47 categorized, searchable pre-built widgets
+  - `/gallery` — 52 categorized, searchable pre-built widgets
   - `/docs` — per-component docs with live examples, prop tables, and deep links
   - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed)
 - **Authoring guide**: `public/AGENTS.md` — the complete widget-authoring contract embedded into the generation prompt

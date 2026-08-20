@@ -17,16 +17,15 @@ const statusIcon: Record<AgentStatus, WidgetIcon> = {
   cancelled: "ban"
 };
 
-function appendPayload(action: ActionConfig, payload: Record<string, unknown>): ActionConfig {
-  return { ...action, payload: { ...(action.payload ?? {}), ...payload } };
-}
-
 function useActionInvoker() {
   const dispatch = useWidgetAction();
   return React.useCallback(
     (action: ActionConfig | undefined, payload: Record<string, unknown> = {}) => {
       if (!action || !dispatch) return;
-      dispatch(appendPayload(action, payload));
+      // Second-argument form: the dispatcher merges the payload itself AND
+      // exposes it to deferred $-action expressions — a local pre-merge does
+      // neither for deferred actions.
+      dispatch(action, payload);
     },
     [dispatch]
   );
@@ -273,6 +272,13 @@ type InlineCitationsProps = {
   sources?: CitationSource[];
 };
 
+// Ids may be strings ("owasp") or out-of-order numbers; only a finite numeric
+// id overrides the positional number, so the badge never renders NaN.
+function citationNumber(source: CitationSource, index: number): number {
+  const numeric = typeof source.id === "number" ? source.id : Number(source.id);
+  return Number.isFinite(numeric) ? numeric : index + 1;
+}
+
 function CitationLink({ source, number }: { source: CitationSource; number: number }) {
   const href = safeHttpHref(source.url);
   const content = (
@@ -300,8 +306,11 @@ const InlineCitations: React.FC<InlineCitationsProps> = ({ text, sources = [] })
           const match = piece.match(/^\[(\d+)\]$/);
           if (!match) return <React.Fragment key={index}>{piece}</React.Fragment>;
           const number = Number(match[1]);
+          const source =
+            sources.find((item, sourceIndex) => citationNumber(item, sourceIndex) === number) ??
+            sources[number - 1];
           return (
-            <sup className="wg-citation-marker" key={index} title={sources[number - 1]?.label}>
+            <sup className="wg-citation-marker" key={index} title={source?.label}>
               {number}
             </sup>
           );
@@ -310,7 +319,7 @@ const InlineCitations: React.FC<InlineCitationsProps> = ({ text, sources = [] })
       {sources.length > 0 ? (
         <div className="wg-citation-sources">
           {sources.map((source, index) => (
-            <CitationLink source={source} number={Number(source.id ?? index + 1)} key={`${source.label}-${index}`} />
+            <CitationLink source={source} number={citationNumber(source, index)} key={`${source.label}-${index}`} />
           ))}
         </div>
       ) : null}
@@ -831,8 +840,16 @@ const AgentInput: React.FC<AgentInputProps> = ({
   const [menu, setMenu] = React.useState<"commands" | "skills" | null>(null);
   const [activeMenuItem, setActiveMenuItem] = React.useState(0);
 
+  // Publish the draft into the surrounding form. The write itself produces a
+  // new form identity, so an unguarded [form] dep would re-run this effect
+  // every commit and loop forever; the ref makes the sync converge.
+  const lastFormSyncRef = React.useRef<string | null>(null);
   React.useEffect(() => {
-    form?.setValue(name, value);
+    if (!form) return;
+    const key = `${name} ${value}`;
+    if (lastFormSyncRef.current === key) return;
+    lastFormSyncRef.current = key;
+    form.setValue(name, value);
   }, [form, name, value]);
 
   const change = (next: string) => {
@@ -857,7 +874,7 @@ const AgentInput: React.FC<AgentInputProps> = ({
   }, [commands, value]);
   const menuItems = menu === "commands" ? visibleCommands : skills;
   const chooseCommand = (item: AgentCommand) => {
-    const next = value.replace(/(?:^|\s)\/[^\s]*$/, (match) => `${match.startsWith(" ") ? " " : ""}/${item.value} `);
+    const next = value.replace(/(^|\s)\/[^\s]*$/, (_match, lead: string) => `${lead}/${item.value} `);
     setValue(next);
     form?.setValue(name, next);
     if (onChangeAction && dispatch) dispatch(onChangeAction, buildChangePayload(name, next));
@@ -1064,7 +1081,15 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
   const selectedValues = Array.isArray(selected) ? selected : selected ? [selected] : [];
   const other = otherAnswers[questionId] ?? "";
   const answer = selectedValues.length > 0 ? (activeQuestion?.multiple ? selectedValues : selectedValues[0]) : other;
-  const answerMap = { ...answers, ...(other ? { [questionId]: other } : {}) };
+  // Typing an "other" answer blanks the canonical entry for that question, so
+  // the submit payload must fold EVERY question's free text back in — not just
+  // the question that happens to be on screen when Approve/Skip is pressed.
+  const answerMap: Record<string, string | string[]> = { ...answers };
+  for (const [id, text] of Object.entries(otherAnswers)) {
+    const chosen = answerMap[id];
+    const hasChosen = Array.isArray(chosen) ? chosen.length > 0 : Boolean(chosen);
+    if (text && !hasChosen) answerMap[id] = text;
+  }
   const goToQuestion = (next: number) => {
     const bounded = Math.max(0, Math.min(next, questionList.length - 1));
     setQuestionIndex(bounded);
@@ -1245,6 +1270,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
   selectedSources = [],
   variant = "rounded",
   sourceAction,
+  rows = 1,
   ...inputProps
 }) => {
   const invoke = useActionInvoker();
@@ -1269,7 +1295,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
         <button type="button" className="wg-prompt-source-trigger" onClick={() => setOpen((value) => !value)} aria-label="Choose sources">
           <Icon name="plus" size="sm" color="currentColor" />
         </button>
-        <AgentInput {...inputProps} rows={1} />
+        <AgentInput {...inputProps} rows={rows} />
       </div>
     </div>
   );

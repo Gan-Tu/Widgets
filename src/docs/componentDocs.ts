@@ -1700,7 +1700,8 @@ export const componentDocs: ComponentDoc[] = [
     category: "Agent interfaces",
     usage: `<PromptBar sources={[{ id: "docs", label: "Product docs", connected: true }]} selectedSources={["docs"]} submitAction={{ type: "prompt.submit" }} />`,
     props: [
-      ...agentInputProps,
+      // PromptBar keeps the compact one-row composer by default.
+      ...agentInputProps.map((prop) => (prop.name === "rows" ? { ...prop, default: "1" } : prop)),
       { name: "sources", description: "Context sources displayed by the source picker.", type: "Array<{ id: string; label: string; description?: string; icon?: WidgetIcon; connected?: boolean }>" },
       { name: "selectedSources", description: "Source ids shown as selected chips.", type: "string[]" },
       { name: "variant", description: "Outer composer shape.", type: '"rounded" | "pill"', default: '"rounded"' },

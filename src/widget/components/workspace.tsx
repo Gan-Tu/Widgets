@@ -15,16 +15,15 @@ type WorkspaceColumn = {
   align?: "start" | "center" | "end";
 };
 
-function mergeAction(action: ActionConfig, payload: Record<string, unknown>): ActionConfig {
-  return { ...action, payload: { ...(action.payload ?? {}), ...payload } };
-}
-
 function useWorkspaceAction() {
   const dispatch = useWidgetAction();
   return React.useCallback(
     (action: ActionConfig | undefined, payload: Record<string, unknown> = {}) => {
       if (!action || !dispatch) return;
-      dispatch(mergeAction(action, payload));
+      // Second-argument form: the dispatcher merges the payload itself AND
+      // exposes it to deferred $-action expressions — a local pre-merge does
+      // neither for deferred actions.
+      dispatch(action, payload);
     },
     [dispatch]
   );
@@ -245,11 +244,14 @@ const DiffTable: React.FC<DiffTableProps> = ({
   applyAction
 }) => {
   const invoke = useWorkspaceAction();
+  // Only explicit "add"/"remove" rows are changes; an omitted type renders as
+  // a context row, so it must not be pre-selected or toggleable either.
+  const isChangeRow = (row: DiffTableRow | undefined) => row?.type === "add" || row?.type === "remove";
   const [selected, setSelected] = React.useState<Set<number>>(
-    () => new Set(rows.flatMap((row, index) => row.type !== "context" && row.selected !== false ? [index] : []))
+    () => new Set(rows.flatMap((row, index) => isChangeRow(row) && row.selected !== false ? [index] : []))
   );
   const toggle = (_row: Record<string, TableValue>, index: number) => {
-    if (rows[index]?.type === "context") return;
+    if (!isChangeRow(rows[index])) return;
     setSelected((current) => {
       const next = new Set(current);
       if (next.has(index)) next.delete(index); else next.add(index);
@@ -317,12 +319,12 @@ const RecordsTable: React.FC<RecordsTableProps> = ({
   const toggleSelection = (displayIndex: number) => {
     const sourceIndex = sorted[displayIndex]?.index;
     if (sourceIndex === undefined) return;
-    setSelected((current) => {
-      const next = new Set(current);
-      if (next.has(sourceIndex)) next.delete(sourceIndex); else next.add(sourceIndex);
-      invoke(onSelectionChangeAction, { selected: [...next], count: next.size });
-      return next;
-    });
+    // Dispatch outside the updater: updaters must stay pure or StrictMode's
+    // double invocation fires the host action twice per click.
+    const next = new Set(selected);
+    if (next.has(sourceIndex)) next.delete(sourceIndex); else next.add(sourceIndex);
+    setSelected(next);
+    invoke(onSelectionChangeAction, { selected: [...next], count: next.size });
   };
   return (
     <div className="wg-records-table">
@@ -638,7 +640,10 @@ const FineTuneCard: React.FC<FineTuneCardProps> = ({
   const form = useWidgetForm();
   const [values, setValues] = React.useState<Record<string, string | number>>(() => Object.fromEntries(fields.map((field) => [field.name, field.value ?? ""])));
   const change = (field: FineTuneField, value: string) => {
-    const nextValue = field.type === "number" || field.type === "range" ? Number(value) : value;
+    // Keep "" as "" while a number field is being cleared/retyped — Number("")
+    // is 0, which would snap the controlled input to "0" and make it uneditable.
+    const numeric = field.type === "number" || field.type === "range";
+    const nextValue = numeric && value !== "" ? Number(value) : value;
     setValues((current) => ({ ...current, [field.name]: nextValue }));
     form?.setValue(field.name, nextValue);
     if (onChangeAction && dispatch) dispatch(onChangeAction, buildChangePayload(field.name, nextValue));
