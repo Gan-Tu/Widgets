@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   ArrowRight,
+  Bot,
   Braces,
   Check,
   ChevronRight,
@@ -17,6 +18,8 @@ import { widgetRegistry } from "@/widget/registry";
 
 const cardClass =
   "rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(16,20,28,0.04),0_8px_24px_-12px_rgba(16,20,28,0.08)]";
+
+const mcpEndpoint = "https://genui.tugan.app/mcp";
 
 const heroTemplate = `
 <Card size="md">
@@ -101,7 +104,7 @@ import { WidgetRenderer } from "@tugan/widgets";
   onAction={(action) => handleAction(action)}
 />`;
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, label = "code" }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -118,7 +121,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      aria-label={copied ? "Copied" : "Copy code"}
+      aria-label={copied ? `Copied ${label}` : `Copy ${label}`}
       className="absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
     >
       {copied ? (
@@ -256,6 +259,45 @@ export function HomePage() {
           </p>
         </motion.div>
       </section>
+
+      <motion.section
+        {...fadeIn(0)}
+        aria-labelledby="chatgpt-callout-title"
+        className="overflow-hidden rounded-3xl border border-indigo-400/20 bg-slate-950 px-6 py-7 text-white shadow-[0_18px_50px_-28px_rgba(49,46,129,0.65)] md:px-8 md:py-8"
+      >
+        <div className="grid items-center gap-6 md:grid-cols-[1fr_minmax(300px,0.75fr)] md:gap-10">
+          <div className="flex gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-inset ring-indigo-400/20">
+              <Bot className="h-5 w-5" aria-hidden />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-300">
+                ChatGPT
+              </p>
+              <h2
+                id="chatgpt-callout-title"
+                className="mt-2 text-xl font-semibold tracking-tight md:text-2xl"
+              >
+                Try generative widgets in ChatGPT
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-300 md:text-base">
+                Create a custom plugin in ChatGPT and use this MCP endpoint. No
+                authentication is required.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative min-w-0 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 pr-14">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+              MCP endpoint
+            </p>
+            <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-sm text-indigo-200">
+              {mcpEndpoint}
+            </code>
+            <CopyButton text={mcpEndpoint} label="MCP endpoint" />
+          </div>
+        </div>
+      </motion.section>
 
       <section className="space-y-6">
         <motion.div {...fadeIn(0)} className="max-w-2xl">
