@@ -16,7 +16,7 @@ const PlaygroundPage = lazy(() =>
 );
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+  `flex min-h-10 cursor-pointer items-center justify-center rounded-full px-1 py-2 text-center text-xs font-medium transition-colors sm:min-h-0 sm:px-3.5 sm:py-1.5 sm:text-sm ${
     isActive
       ? "bg-slate-900 text-white"
       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -72,11 +72,11 @@ export default function App() {
     <div className="app-shell">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur">
         <div
-          className={`${containerClass} flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3`}
+          className={`${containerClass} flex flex-wrap items-center justify-between gap-x-2 gap-y-2 py-3 sm:gap-x-6`}
         >
           <NavLink
             to="/"
-            className="flex items-center gap-2.5 rounded-xl transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            className="flex min-h-10 cursor-pointer items-center gap-2.5 rounded-xl transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 sm:min-h-0"
             aria-label="Widgets — go to home"
           >
             <img
@@ -100,7 +100,7 @@ export default function App() {
             aria-label="Primary"
             className="order-3 w-full sm:order-none sm:w-auto"
           >
-            <div className="flex flex-wrap items-center justify-center gap-1">
+            <div className="grid grid-cols-4 gap-1 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
               <NavLink to="/" end className={navLinkClass}>
                 Home
               </NavLink>
@@ -120,18 +120,19 @@ export default function App() {
             <a
               href="/AGENTS.md"
               download="AGENTS.md"
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              aria-label="Download AGENTS.md"
+              className="inline-flex h-10 w-10 cursor-pointer items-center justify-center gap-1.5 rounded-full text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5"
               title="Download AGENTS.md — the widget spec for coding agents"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
-              AGENTS.md
+              <span className="hidden md:inline">AGENTS.md</span>
             </a>
             <a
               href="https://github.com/Gan-Tu/Widgets"
               target="_blank"
               rel="noreferrer"
               aria-label="View source on GitHub"
-              className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:h-8 sm:w-8"
             >
               <Github className="h-4 w-4" aria-hidden />
             </a>

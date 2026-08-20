@@ -6,6 +6,7 @@ import {
   Check,
   ChevronRight,
   Copy,
+  ExternalLink,
   PackageOpen,
   Palette,
   Sparkles
@@ -20,6 +21,8 @@ const cardClass =
   "rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(16,20,28,0.04),0_8px_24px_-12px_rgba(16,20,28,0.08)]";
 
 const mcpEndpoint = "https://genui.tugan.app/mcp";
+const developerModeGuideUrl =
+  "https://developers.openai.com/api/docs/guides/developer-mode";
 
 const heroTemplate = `
 <Card size="md">
@@ -104,7 +107,15 @@ import { WidgetRenderer } from "@tugan/widgets";
   onAction={(action) => handleAction(action)}
 />`;
 
-function CopyButton({ text, label = "code" }: { text: string; label?: string }) {
+function CopyButton({
+  text,
+  label = "code",
+  tone = "dark"
+}: {
+  text: string;
+  label?: string;
+  tone?: "dark" | "light";
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -122,10 +133,19 @@ function CopyButton({ text, label = "code" }: { text: string; label?: string }) 
       type="button"
       onClick={handleCopy}
       aria-label={copied ? `Copied ${label}` : `Copy ${label}`}
-      className="absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/10 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+      className={`absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 ${
+        tone === "light"
+          ? "text-slate-500 hover:bg-white hover:text-slate-700 focus-visible:ring-indigo-500"
+          : "text-slate-400 hover:bg-white/10 hover:text-slate-100 focus-visible:ring-slate-500"
+      }`}
     >
       {copied ? (
-        <Check className="h-4 w-4 text-emerald-400" aria-hidden />
+        <Check
+          className={`h-4 w-4 ${
+            tone === "light" ? "text-emerald-600" : "text-emerald-400"
+          }`}
+          aria-hidden
+        />
       ) : (
         <Copy className="h-4 w-4" aria-hidden />
       )}
@@ -263,38 +283,51 @@ export function HomePage() {
       <motion.section
         {...fadeIn(0)}
         aria-labelledby="chatgpt-callout-title"
-        className="overflow-hidden rounded-3xl border border-indigo-400/20 bg-slate-950 px-6 py-7 text-white shadow-[0_18px_50px_-28px_rgba(49,46,129,0.65)] md:px-8 md:py-8"
+        className="overflow-hidden rounded-3xl border border-indigo-100 bg-white px-6 py-7 text-slate-900 shadow-[0_18px_50px_-32px_rgba(15,23,42,0.24)] md:px-8 md:py-8"
       >
         <div className="grid items-center gap-6 md:grid-cols-[1fr_minmax(300px,0.75fr)] md:gap-10">
           <div className="flex gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-inset ring-indigo-400/20">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-inset ring-indigo-100">
               <Bot className="h-5 w-5" aria-hidden />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">
                 ChatGPT
               </p>
               <h2
                 id="chatgpt-callout-title"
-                className="mt-2 text-xl font-semibold tracking-tight md:text-2xl"
+                className="mt-2 text-xl font-semibold tracking-tight text-slate-900 md:text-2xl"
               >
                 Try generative widgets in ChatGPT
               </h2>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-300 md:text-base">
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 md:text-base">
                 Create a custom plugin in ChatGPT and use this MCP endpoint. No
                 authentication is required.
               </p>
+              <a
+                href={developerModeGuideUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-md text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              >
+                Developer mode setup guide
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              </a>
             </div>
           </div>
 
-          <div className="relative min-w-0 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 pr-14">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          <div className="relative min-w-0 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 pr-14">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               MCP endpoint
             </p>
-            <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-sm text-indigo-200">
+            <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-sm text-indigo-700">
               {mcpEndpoint}
             </code>
-            <CopyButton text={mcpEndpoint} label="MCP endpoint" />
+            <CopyButton
+              text={mcpEndpoint}
+              label="MCP endpoint"
+              tone="light"
+            />
           </div>
         </div>
       </motion.section>
@@ -332,7 +365,10 @@ export function HomePage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_340px] lg:items-start">
-        <motion.div {...fadeIn(0)} className={`${cardClass} p-6 md:p-8`}>
+        <motion.div
+          {...fadeIn(0)}
+          className={`${cardClass} min-w-0 p-6 md:p-8`}
+        >
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
             Quick start
           </h2>
@@ -348,7 +384,10 @@ export function HomePage() {
           </div>
         </motion.div>
 
-        <motion.div {...fadeIn(0.07)} className={`${cardClass} p-4 md:p-5`}>
+        <motion.div
+          {...fadeIn(0.07)}
+          className={`${cardClass} min-w-0 p-4 md:p-5`}
+        >
           <h3 className="px-3 pt-1 text-base font-semibold text-slate-900">
             Next steps
           </h3>
