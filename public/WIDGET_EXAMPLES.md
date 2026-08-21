@@ -6,638 +6,6 @@ The complete gallery corpus — every demo widget from the gallery as a `templat
 
 52 widgets across 10 categories.
 
-## Featured
-
-### Analytics overview
-
-Stat row with sparklines, tabbed area chart, and a channel table. (id: `analytics-overview`)
-
-WIDGET TEMPLATE:
-
-```
-<Card size="lg" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Site analytics" size="sm" />
-      <Caption value="Last 30 days · updated 5m ago" />
-    </Col>
-    <Spacer />
-    <Badge label="Live" color="success" icon="activity" />
-  </Row>
-
-  <Row gap={5} wrap="wrap">
-    <Each $of="stats" item="stat">
-      <Col flex={1} minWidth={120} gap={1}>
-        <Stat label={stat.label} value={stat.value} delta={stat.delta} size="sm" />
-        <Sparkline data={stat.trend} height={30} />
-      </Col>
-    </Each>
-  </Row>
-
-  <Tabs tabs={[
-    { id: "traffic", label: "Traffic", icon: "trending-up" },
-    { id: "channels", label: "Channels", icon: "layers" }
-  ]}>
-    <Tabs.Panel id="traffic">
-      <AreaChart
-        data={series}
-        xAxis={{ dataKey: "week" }}
-        series={[
-          { dataKey: "visitors", label: "Visitors" },
-          { dataKey: "signups", label: "Signups", color: "#10b981" }
-        ]}
-        height={190}
-      />
-    </Tabs.Panel>
-    <Tabs.Panel id="channels">
-      <DataTable
-        columns={[
-          { key: "channel", label: "Channel" },
-          { key: "visitors", label: "Visitors", align: "end" },
-          { key: "change", label: "Change", align: "end" }
-        ]}
-        rows={channels}
-      />
-    </Tabs.Panel>
-  </Tabs>
-</Card>
-```
-
-WIDGET DATA:
-
-```json
-{
-  "stats": [
-    {
-      "label": "Visitors",
-      "value": "48.2K",
-      "delta": "+12.4%",
-      "trend": [
-        30,
-        34,
-        32,
-        38,
-        41,
-        39,
-        44,
-        48
-      ]
-    },
-    {
-      "label": "Signups",
-      "value": "1,284",
-      "delta": "+8.1%",
-      "trend": [
-        10,
-        12,
-        11,
-        14,
-        13,
-        16,
-        17,
-        19
-      ]
-    },
-    {
-      "label": "Bounce rate",
-      "value": "31%",
-      "delta": "-2.3%",
-      "trend": [
-        40,
-        38,
-        39,
-        36,
-        35,
-        33,
-        32,
-        31
-      ]
-    }
-  ],
-  "series": [
-    {
-      "week": "W1",
-      "visitors": 5200,
-      "signups": 140
-    },
-    {
-      "week": "W2",
-      "visitors": 6100,
-      "signups": 168
-    },
-    {
-      "week": "W3",
-      "visitors": 5800,
-      "signups": 155
-    },
-    {
-      "week": "W4",
-      "visitors": 7400,
-      "signups": 210
-    },
-    {
-      "week": "W5",
-      "visitors": 8600,
-      "signups": 262
-    },
-    {
-      "week": "W6",
-      "visitors": 9800,
-      "signups": 301
-    }
-  ],
-  "channels": [
-    {
-      "channel": "Organic search",
-      "visitors": "21,400",
-      "change": "+14%"
-    },
-    {
-      "channel": "Direct",
-      "visitors": "12,050",
-      "change": "+6%"
-    },
-    {
-      "channel": "Referral",
-      "visitors": "8,220",
-      "change": "+21%"
-    },
-    {
-      "channel": "Social",
-      "visitors": "6,530",
-      "change": "-3%"
-    }
-  ]
-}
-```
-
-### Flight booking
-
-A detailed booking review with segments, fare rules, and confirm actions. (id: `flight-booking`)
-
-WIDGET TEMPLATE:
-
-```
-<Card
-  size="md"
-  padding={0}
-  confirm={{
-    label: "Confirm booking",
-    action: { type: "flight.booking.confirm", payload: { bookingId } }
-  }}
-  cancel={{
-    label: "Cancel",
-    action: { type: "flight.booking.cancel", payload: { bookingId } }
-  }}
->
-  <Image src={heroImage} alt="Destination" height={160} fit="cover" flush />
-
-  <Row align="center" padding={{ x: 4, top: 3, bottom: 2 }}>
-    <Col gap={0} flex="auto">
-      <Title value="Confirm international booking" size="sm" />
-      <Text value={tripSummary} size="sm" color="secondary" />
-    </Col>
-    <Badge label={statusLabel} variant="soft" color="info" />
-  </Row>
-
-  <Divider flush />
-
-  <Row align="center" padding={{ x: 4, y: 3 }} gap={3}>
-    <Box size={18} radius="full" border={{ size: 2, color: "subtle" }} background="surface" />
-    <Col flex="auto" gap={0}>
-      <Text value={route} size="sm" weight="semibold" />
-      <Caption value={dates} />
-    </Col>
-    <Col align="end" gap={0}>
-      <Text value={cabinClass} size="sm" weight="semibold" />
-      <Caption value={`${guests} guests`} />
-    </Col>
-  </Row>
-
-  <Divider flush />
-
-  <Col padding={{ x: 4, y: 3 }} gap={3}>
-    <Row gap={2} align="center">
-      <Box background="surface-elevated-secondary" radius="full" padding={2}>
-        <Icon name="plane" size="lg" />
-      </Box>
-      <Text value="Flight details" size="sm" weight="semibold" />
-    </Row>
-
-    <Col gap={2}>
-      <Each $of="segments" item="seg">
-        <Row gap={3} align="start">
-          <Image src={seg.image} size={52} radius="md" frame />
-          <Col flex="auto" gap={1}>
-            <Row gap={2} align="center">
-              <Text value={seg.route} size="sm" weight="semibold" />
-              <Spacer />
-              <Badge label={seg.stopsLabel} variant="soft" />
-            </Row>
-            <Row gap={2} align="center">
-              <Text value={seg.flightNumber} size="sm" color="secondary" />
-              <Text value="•" size="sm" color="tertiary" />
-              <Text value={seg.aircraft} size="sm" color="secondary" />
-            </Row>
-            <Row gap={3} align="start">
-              <Col flex={1} gap={0}>
-                <Caption value="Depart" size="sm" />
-                <Text value={seg.departTime} weight="semibold" />
-                <Caption value={seg.departNote} />
-              </Col>
-              <Col flex={1} gap={0}>
-                <Caption value="Arrive" size="sm" />
-                <Text value={seg.arriveTime} weight="semibold" />
-                <Caption value={seg.arriveNote} />
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </Each>
-    </Col>
-
-    <Divider flush />
-
-    <KeyValue rows={reviewRows} />
-  </Col>
-
-  <Row padding={{ x: 4, y: 4 }} background="surface-elevated-secondary" border={{ top: { size: 1 } }}>
-    <Col gap={0}>
-      <Text value="Total" size="sm" weight="semibold" />
-      <Caption value={priceNote} />
-    </Col>
-    <Spacer />
-    <Title value={totalPrice} size="sm" />
-  </Row>
-</Card>
-```
-
-WIDGET DATA:
-
-```json
-{
-  "bookingId": "bk-ua-893421",
-  "heroImage": "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80",
-  "tripSummary": "Round-trip · International",
-  "statusLabel": "Review",
-  "route": "SFO → NRT",
-  "dates": "Mar 12 – Mar 20",
-  "guests": "2",
-  "cabinClass": "Premium Economy",
-  "reviewRows": [
-    {
-      "label": "Guests",
-      "value": "2"
-    },
-    {
-      "label": "Cabin",
-      "value": "Premium Economy"
-    },
-    {
-      "label": "Baggage",
-      "value": "1 checked + 1 carry-on"
-    },
-    {
-      "label": "Refundability",
-      "value": "Changes allowed with fee"
-    }
-  ],
-  "segments": [
-    {
-      "id": "seg-1",
-      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
-      "route": "SFO → NRT",
-      "stopsLabel": "Nonstop",
-      "flightNumber": "United 837",
-      "aircraft": "Boeing 787-9",
-      "departTime": "11:30 AM",
-      "departNote": "Wed, Mar 12 · SFO",
-      "arriveTime": "3:05 PM",
-      "arriveNote": "Thu, Mar 13 · NRT"
-    },
-    {
-      "id": "seg-2",
-      "image": "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80",
-      "route": "NRT → SFO",
-      "stopsLabel": "Nonstop",
-      "flightNumber": "United 838",
-      "aircraft": "Boeing 787-9",
-      "departTime": "5:15 PM",
-      "departNote": "Thu, Mar 20 · NRT",
-      "arriveTime": "10:40 AM",
-      "arriveNote": "Thu, Mar 20 · SFO"
-    }
-  ],
-  "totalPrice": "$3,184.20",
-  "priceNote": "Includes taxes and fees · 2 guests"
-}
-```
-
-### Order tracking
-
-Steps, a live timeline, and order details for a shipment. (id: `order-tracking`)
-
-WIDGET TEMPLATE:
-
-```
-<Card size="md" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Your order is on its way" size="sm" />
-      <Caption value={`Order ${orderId}`} />
-    </Col>
-    <Spacer />
-    <Badge label={eta} color="accent" icon="truck" />
-  </Row>
-
-  <Steps items={steps} current={currentStep} />
-
-  <Callout
-    color="info"
-    icon="map-pin"
-    title="Out for delivery"
-    description="Your courier is 4 stops away. Someone should be available to receive the package."
-  />
-
-  <Timeline items={events} />
-
-  <Divider />
-
-  <KeyValue rows={details} />
-
-  <Button
-    label="View live map"
-    iconStart="navigation"
-    variant="soft"
-    color="primary"
-    block
-    onClickAction={{ type: "order.track.map", payload: { orderId } }}
-  />
-</Card>
-```
-
-WIDGET DATA:
-
-```json
-{
-  "orderId": "#84213",
-  "eta": "Today, 2–4 PM",
-  "currentStep": 2,
-  "steps": [
-    {
-      "label": "Ordered"
-    },
-    {
-      "label": "Shipped"
-    },
-    {
-      "label": "Out for delivery"
-    },
-    {
-      "label": "Delivered"
-    }
-  ],
-  "events": [
-    {
-      "title": "Out for delivery",
-      "description": "With courier · San Francisco, CA",
-      "time": "11:42 AM",
-      "icon": "truck",
-      "state": "active"
-    },
-    {
-      "title": "Arrived at local facility",
-      "description": "San Francisco, CA",
-      "time": "6:18 AM",
-      "state": "done"
-    },
-    {
-      "title": "Shipped",
-      "description": "Left fulfillment center · Reno, NV",
-      "time": "Yesterday",
-      "state": "done"
-    },
-    {
-      "title": "Order confirmed",
-      "time": "Mon",
-      "state": "done"
-    }
-  ],
-  "details": [
-    {
-      "label": "Carrier",
-      "value": "FastShip Express"
-    },
-    {
-      "label": "Tracking",
-      "value": "FS-4821-9932"
-    },
-    {
-      "label": "Items",
-      "value": "2 items"
-    }
-  ]
-}
-```
-
-### Smart home
-
-A dark-theme control center with scenes, stats, and device toggles. (id: `smart-home` · theme: `dark`)
-
-WIDGET TEMPLATE:
-
-```
-<Card size="md" theme="dark" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Good evening" size="sm" />
-      <Caption value="3 devices on · Home" />
-    </Col>
-    <Spacer />
-    <Badge label="Away mode off" variant="outline" color="secondary" />
-  </Row>
-
-  <Row gap={5}>
-    <Stat label="Inside" value={temperature} icon="thermometer" size="sm" />
-    <Stat label="Humidity" value={humidity} icon="droplet" size="sm" />
-    <Col flex={1} gap={1}>
-      <Stat label="Energy today" value={energyToday} size="sm" />
-      <Sparkline data={energyTrend} height={26} color="#34d399" />
-    </Col>
-  </Row>
-
-  <Divider />
-
-  <Col gap={2}>
-    <Caption value="SCENES" size="sm" />
-    <ChipGroup name="scene" defaultValue="relax" options={scenes}
-      onChangeAction={{ type: "home.scene.set" }} />
-  </Col>
-
-  <Col gap={0}>
-    <Each $of="devices" item="device">
-      <Row align="center" gap={3} padding={{ y: 2 }}>
-        <Box size={34} radius="lg" background="surface-tertiary" align="center" justify="center">
-          <Icon name={device.icon} size="md" color={device.on ? "primary" : "tertiary"} />
-        </Box>
-        <Col flex="auto" gap={0}>
-          <Text value={device.name} size="sm" weight="semibold" />
-          <Caption value={device.room} />
-        </Col>
-        <Toggle
-          name={device.id}
-          label={device.on ? "On" : "Off"}
-          defaultPressed={device.on}
-          onChangeAction={{ type: "home.device.toggle", payload: { id: device.id } }}
-        />
-      </Row>
-    </Each>
-  </Col>
-</Card>
-```
-
-WIDGET DATA:
-
-```json
-{
-  "temperature": "72°",
-  "humidity": "44%",
-  "energyToday": "12.4 kWh",
-  "energyTrend": [
-    4,
-    5,
-    4,
-    6,
-    8,
-    7,
-    9,
-    8,
-    10,
-    9,
-    12
-  ],
-  "scenes": [
-    {
-      "label": "Relax",
-      "value": "relax",
-      "icon": "sunset"
-    },
-    {
-      "label": "Focus",
-      "value": "focus",
-      "icon": "target"
-    },
-    {
-      "label": "Movie",
-      "value": "movie",
-      "icon": "film"
-    },
-    {
-      "label": "Sleep",
-      "value": "sleep",
-      "icon": "moon"
-    }
-  ],
-  "devices": [
-    {
-      "id": "living-lights",
-      "name": "Living room lights",
-      "room": "Living room",
-      "icon": "lightbulb",
-      "on": true
-    },
-    {
-      "id": "thermostat",
-      "name": "Thermostat",
-      "room": "Hallway",
-      "icon": "thermometer",
-      "on": true
-    },
-    {
-      "id": "speaker",
-      "name": "Speaker",
-      "room": "Kitchen",
-      "icon": "music",
-      "on": false
-    }
-  ]
-}
-```
-
-### Player profile
-
-Dark gradient profile card with a season stat row and form sparkline. (id: `player-profile` · theme: `dark`)
-
-WIDGET TEMPLATE:
-
-```
-<Card size="sm" theme="dark" background="linear-gradient(165deg, #1c2540 0%, #0d1120 100%)" gap={3}>
-  <Row gap={3} align="center">
-    <Avatar src={photo} name={name} size={56} />
-    <Col flex="auto" gap={0}>
-      <Title value={name} size="sm" />
-      <Caption value={`${team} · ${position}`} />
-    </Col>
-    <Badge label={number} color="accent" variant="soft" size="lg" />
-  </Row>
-
-  <Divider />
-
-  <Row justify="between" gap={4}>
-    <Each $of="stats" item="stat">
-      <Stat label={stat.label} value={stat.value} size="sm" />
-    </Each>
-  </Row>
-
-  <Col gap={1}>
-    <Caption value="LAST 10 GAMES" size="sm" />
-    <Sparkline data={form} height={32} color="#818cf8" />
-  </Col>
-</Card>
-```
-
-WIDGET DATA:
-
-```json
-{
-  "name": "Jordan Vale",
-  "team": "SF Breakers",
-  "position": "Point guard",
-  "number": "#11",
-  "photo": "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=300&q=80",
-  "stats": [
-    {
-      "label": "PPG",
-      "value": "24.8"
-    },
-    {
-      "label": "AST",
-      "value": "7.2"
-    },
-    {
-      "label": "REB",
-      "value": "4.6"
-    },
-    {
-      "label": "FG%",
-      "value": "48.1"
-    }
-  ],
-  "form": [
-    18,
-    22,
-    27,
-    21,
-    30,
-    24,
-    26,
-    31,
-    25,
-    29
-  ]
-}
-```
-
 ## Agent UI
 
 ### Thinking & reasoning
@@ -943,7 +311,7 @@ WIDGET DATA:
 
 ### Agent workbench
 
-A dark work log with reasoning and plan, plus streamed code and a diff. (id: `agent-workbench` · theme: `dark`)
+A work log with reasoning and plan, plus streamed code and a diff. (id: `agent-workbench`)
 
 WIDGET TEMPLATE:
 
@@ -1901,6 +1269,113 @@ WIDGET DATA:
 
 ## Commerce
 
+### Order tracking
+
+Steps, a live timeline, and order details for a shipment. (id: `order-tracking`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Row align="center">
+    <Col gap={0}>
+      <Title value="Your order is on its way" size="sm" />
+      <Caption value={`Order ${orderId}`} />
+    </Col>
+    <Spacer />
+    <Badge label={eta} color="accent" icon="truck" />
+  </Row>
+
+  <Steps items={steps} current={currentStep} />
+
+  <Callout
+    color="info"
+    icon="map-pin"
+    title="Out for delivery"
+    description="Your courier is 4 stops away. Someone should be available to receive the package."
+  />
+
+  <Timeline items={events} />
+
+  <Divider />
+
+  <KeyValue rows={details} />
+
+  <Button
+    label="View live map"
+    iconStart="navigation"
+    variant="soft"
+    color="primary"
+    block
+    onClickAction={{ type: "order.track.map", payload: { orderId } }}
+  />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "orderId": "#84213",
+  "eta": "Today, 2–4 PM",
+  "currentStep": 2,
+  "steps": [
+    {
+      "label": "Ordered"
+    },
+    {
+      "label": "Shipped"
+    },
+    {
+      "label": "Out for delivery"
+    },
+    {
+      "label": "Delivered"
+    }
+  ],
+  "events": [
+    {
+      "title": "Out for delivery",
+      "description": "With courier · San Francisco, CA",
+      "time": "11:42 AM",
+      "icon": "truck",
+      "state": "active"
+    },
+    {
+      "title": "Arrived at local facility",
+      "description": "San Francisco, CA",
+      "time": "6:18 AM",
+      "state": "done"
+    },
+    {
+      "title": "Shipped",
+      "description": "Left fulfillment center · Reno, NV",
+      "time": "Yesterday",
+      "state": "done"
+    },
+    {
+      "title": "Order confirmed",
+      "time": "Mon",
+      "state": "done"
+    }
+  ],
+  "details": [
+    {
+      "label": "Carrier",
+      "value": "FastShip Express"
+    },
+    {
+      "label": "Tracking",
+      "value": "FS-4821-9932"
+    },
+    {
+      "label": "Items",
+      "value": "2 items"
+    }
+  ]
+}
+```
+
 ### Product detail
 
 Rating, size selector chips, pricing, and purchase actions. (id: `product-detail`)
@@ -2336,6 +1811,168 @@ WIDGET DATA:
 
 ## Travel
 
+### Flight booking
+
+A detailed booking review with segments, fare rules, and confirm actions. (id: `flight-booking`)
+
+WIDGET TEMPLATE:
+
+```
+<Card
+  size="md"
+  padding={0}
+  confirm={{
+    label: "Confirm booking",
+    action: { type: "flight.booking.confirm", payload: { bookingId } }
+  }}
+  cancel={{
+    label: "Cancel",
+    action: { type: "flight.booking.cancel", payload: { bookingId } }
+  }}
+>
+  <Image src={heroImage} alt="Destination" height={160} fit="cover" flush />
+
+  <Row align="center" padding={{ x: 4, top: 3, bottom: 2 }}>
+    <Col gap={0} flex="auto">
+      <Title value="Confirm international booking" size="sm" />
+      <Text value={tripSummary} size="sm" color="secondary" />
+    </Col>
+    <Badge label={statusLabel} variant="soft" color="info" />
+  </Row>
+
+  <Divider flush />
+
+  <Row align="center" padding={{ x: 4, y: 3 }} gap={3}>
+    <Box size={18} radius="full" border={{ size: 2, color: "subtle" }} background="surface" />
+    <Col flex="auto" gap={0}>
+      <Text value={route} size="sm" weight="semibold" />
+      <Caption value={dates} />
+    </Col>
+    <Col align="end" gap={0}>
+      <Text value={cabinClass} size="sm" weight="semibold" />
+      <Caption value={`${guests} guests`} />
+    </Col>
+  </Row>
+
+  <Divider flush />
+
+  <Col padding={{ x: 4, y: 3 }} gap={3}>
+    <Row gap={2} align="center">
+      <Box background="surface-elevated-secondary" radius="full" padding={2}>
+        <Icon name="plane" size="lg" />
+      </Box>
+      <Text value="Flight details" size="sm" weight="semibold" />
+    </Row>
+
+    <Col gap={2}>
+      <Each $of="segments" item="seg">
+        <Row gap={3} align="start">
+          <Image src={seg.image} size={52} radius="md" frame />
+          <Col flex="auto" gap={1}>
+            <Row gap={2} align="center">
+              <Text value={seg.route} size="sm" weight="semibold" />
+              <Spacer />
+              <Badge label={seg.stopsLabel} variant="soft" />
+            </Row>
+            <Row gap={2} align="center">
+              <Text value={seg.flightNumber} size="sm" color="secondary" />
+              <Text value="•" size="sm" color="tertiary" />
+              <Text value={seg.aircraft} size="sm" color="secondary" />
+            </Row>
+            <Row gap={3} align="start">
+              <Col flex={1} gap={0}>
+                <Caption value="Depart" size="sm" />
+                <Text value={seg.departTime} weight="semibold" />
+                <Caption value={seg.departNote} />
+              </Col>
+              <Col flex={1} gap={0}>
+                <Caption value="Arrive" size="sm" />
+                <Text value={seg.arriveTime} weight="semibold" />
+                <Caption value={seg.arriveNote} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Each>
+    </Col>
+
+    <Divider flush />
+
+    <KeyValue rows={reviewRows} />
+  </Col>
+
+  <Row padding={{ x: 4, y: 4 }} background="surface-elevated-secondary" border={{ top: { size: 1 } }}>
+    <Col gap={0}>
+      <Text value="Total" size="sm" weight="semibold" />
+      <Caption value={priceNote} />
+    </Col>
+    <Spacer />
+    <Title value={totalPrice} size="sm" />
+  </Row>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "bookingId": "bk-ua-893421",
+  "heroImage": "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80",
+  "tripSummary": "Round-trip · International",
+  "statusLabel": "Review",
+  "route": "SFO → NRT",
+  "dates": "Mar 12 – Mar 20",
+  "guests": "2",
+  "cabinClass": "Premium Economy",
+  "reviewRows": [
+    {
+      "label": "Guests",
+      "value": "2"
+    },
+    {
+      "label": "Cabin",
+      "value": "Premium Economy"
+    },
+    {
+      "label": "Baggage",
+      "value": "1 checked + 1 carry-on"
+    },
+    {
+      "label": "Refundability",
+      "value": "Changes allowed with fee"
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg-1",
+      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
+      "route": "SFO → NRT",
+      "stopsLabel": "Nonstop",
+      "flightNumber": "United 837",
+      "aircraft": "Boeing 787-9",
+      "departTime": "11:30 AM",
+      "departNote": "Wed, Mar 12 · SFO",
+      "arriveTime": "3:05 PM",
+      "arriveNote": "Thu, Mar 13 · NRT"
+    },
+    {
+      "id": "seg-2",
+      "image": "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80",
+      "route": "NRT → SFO",
+      "stopsLabel": "Nonstop",
+      "flightNumber": "United 838",
+      "aircraft": "Boeing 787-9",
+      "departTime": "5:15 PM",
+      "departNote": "Thu, Mar 20 · NRT",
+      "arriveTime": "10:40 AM",
+      "arriveNote": "Thu, Mar 20 · SFO"
+    }
+  ],
+  "totalPrice": "$3,184.20",
+  "priceNote": "Includes taxes and fees · 2 guests"
+}
+```
+
 ### Trip itinerary
 
 Cover image, weather strip, and a day-by-day timeline. (id: `trip-itinerary`)
@@ -2561,18 +2198,18 @@ WIDGET DATA:
 
 ### Weather
 
-Dark gradient conditions card with an hourly strip and detail stats. (id: `weather-now` · theme: `dark`)
+Gradient conditions card with an hourly strip and detail stats. (id: `weather-now`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="sm" theme="dark" background="linear-gradient(170deg, #24437a 0%, #0e1c33 70%)" gap={3}>
+<Card size="sm" background="linear-gradient(170deg, #dbeafe 0%, #f0f9ff 70%)" gap={3}>
   <Row align="start">
     <Col gap={0} flex="auto">
       <Title value={city} size="sm" />
       <Caption value={condition} />
     </Col>
-    <Icon name={conditionIcon} size="2xl" color="#93c5fd" />
+    <Icon name={conditionIcon} size="2xl" color="#2563eb" />
   </Row>
 
   <Row align="baseline" gap={3}>
@@ -2587,7 +2224,7 @@ WIDGET TEMPLATE:
     <Each $of="hourly" item="hour">
       <Box flex={1} padding={{ y: 2 }} radius="lg" background="alpha-10" align="center" gap={1}>
         <Caption value={hour.time} size="sm" />
-        <Icon name={hour.icon} size="sm" color="#bfdbfe" />
+        <Icon name={hour.icon} size="sm" color="#3b82f6" />
         <Text value={hour.temp} size="sm" weight="semibold" />
       </Box>
     </Each>
@@ -2642,6 +2279,130 @@ WIDGET DATA:
 ```
 
 ## Productivity
+
+### Smart home
+
+A control center with scenes, stats, and device toggles. (id: `smart-home`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Row align="center">
+    <Col gap={0}>
+      <Title value="Good evening" size="sm" />
+      <Caption value="3 devices on · Home" />
+    </Col>
+    <Spacer />
+    <Badge label="Away mode off" variant="outline" color="secondary" />
+  </Row>
+
+  <Row gap={5}>
+    <Stat label="Inside" value={temperature} icon="thermometer" size="sm" />
+    <Stat label="Humidity" value={humidity} icon="droplet" size="sm" />
+    <Col flex={1} gap={1}>
+      <Stat label="Energy today" value={energyToday} size="sm" />
+      <Sparkline data={energyTrend} height={26} color="#10b981" />
+    </Col>
+  </Row>
+
+  <Divider />
+
+  <Col gap={2}>
+    <Caption value="SCENES" size="sm" />
+    <ChipGroup name="scene" defaultValue="relax" options={scenes}
+      onChangeAction={{ type: "home.scene.set" }} />
+  </Col>
+
+  <Col gap={0}>
+    <Each $of="devices" item="device">
+      <Row align="center" gap={3} padding={{ y: 2 }}>
+        <Box size={34} radius="lg" background="surface-tertiary" align="center" justify="center">
+          <Icon name={device.icon} size="md" color={device.on ? "primary" : "tertiary"} />
+        </Box>
+        <Col flex="auto" gap={0}>
+          <Text value={device.name} size="sm" weight="semibold" />
+          <Caption value={device.room} />
+        </Col>
+        <Toggle
+          name={device.id}
+          label={device.on ? "On" : "Off"}
+          defaultPressed={device.on}
+          onChangeAction={{ type: "home.device.toggle", payload: { id: device.id } }}
+        />
+      </Row>
+    </Each>
+  </Col>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "temperature": "72°",
+  "humidity": "44%",
+  "energyToday": "12.4 kWh",
+  "energyTrend": [
+    4,
+    5,
+    4,
+    6,
+    8,
+    7,
+    9,
+    8,
+    10,
+    9,
+    12
+  ],
+  "scenes": [
+    {
+      "label": "Relax",
+      "value": "relax",
+      "icon": "sunset"
+    },
+    {
+      "label": "Focus",
+      "value": "focus",
+      "icon": "target"
+    },
+    {
+      "label": "Movie",
+      "value": "movie",
+      "icon": "film"
+    },
+    {
+      "label": "Sleep",
+      "value": "sleep",
+      "icon": "moon"
+    }
+  ],
+  "devices": [
+    {
+      "id": "living-lights",
+      "name": "Living room lights",
+      "room": "Living room",
+      "icon": "lightbulb",
+      "on": true
+    },
+    {
+      "id": "thermostat",
+      "name": "Thermostat",
+      "room": "Hallway",
+      "icon": "thermometer",
+      "on": true
+    },
+    {
+      "id": "speaker",
+      "name": "Speaker",
+      "room": "Kitchen",
+      "icon": "music",
+      "on": false
+    }
+  ]
+}
+```
 
 ### Create task
 
@@ -2924,6 +2685,169 @@ WIDGET DATA:
 ```
 
 ## Analytics
+
+### Analytics overview
+
+Stat row with sparklines, tabbed area chart, and a channel table. (id: `analytics-overview`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="lg" gap={4}>
+  <Row align="center">
+    <Col gap={0}>
+      <Title value="Site analytics" size="sm" />
+      <Caption value="Last 30 days · updated 5m ago" />
+    </Col>
+    <Spacer />
+    <Badge label="Live" color="success" icon="activity" />
+  </Row>
+
+  <Row gap={5} wrap="wrap">
+    <Each $of="stats" item="stat">
+      <Col flex={1} minWidth={120} gap={1}>
+        <Stat label={stat.label} value={stat.value} delta={stat.delta} size="sm" />
+        <Sparkline data={stat.trend} height={30} />
+      </Col>
+    </Each>
+  </Row>
+
+  <Tabs tabs={[
+    { id: "traffic", label: "Traffic", icon: "trending-up" },
+    { id: "channels", label: "Channels", icon: "layers" }
+  ]}>
+    <Tabs.Panel id="traffic">
+      <AreaChart
+        data={series}
+        xAxis={{ dataKey: "week" }}
+        series={[
+          { dataKey: "visitors", label: "Visitors" },
+          { dataKey: "signups", label: "Signups", color: "#10b981" }
+        ]}
+        height={190}
+      />
+    </Tabs.Panel>
+    <Tabs.Panel id="channels">
+      <DataTable
+        columns={[
+          { key: "channel", label: "Channel" },
+          { key: "visitors", label: "Visitors", align: "end" },
+          { key: "change", label: "Change", align: "end" }
+        ]}
+        rows={channels}
+      />
+    </Tabs.Panel>
+  </Tabs>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "stats": [
+    {
+      "label": "Visitors",
+      "value": "48.2K",
+      "delta": "+12.4%",
+      "trend": [
+        30,
+        34,
+        32,
+        38,
+        41,
+        39,
+        44,
+        48
+      ]
+    },
+    {
+      "label": "Signups",
+      "value": "1,284",
+      "delta": "+8.1%",
+      "trend": [
+        10,
+        12,
+        11,
+        14,
+        13,
+        16,
+        17,
+        19
+      ]
+    },
+    {
+      "label": "Bounce rate",
+      "value": "31%",
+      "delta": "-2.3%",
+      "trend": [
+        40,
+        38,
+        39,
+        36,
+        35,
+        33,
+        32,
+        31
+      ]
+    }
+  ],
+  "series": [
+    {
+      "week": "W1",
+      "visitors": 5200,
+      "signups": 140
+    },
+    {
+      "week": "W2",
+      "visitors": 6100,
+      "signups": 168
+    },
+    {
+      "week": "W3",
+      "visitors": 5800,
+      "signups": 155
+    },
+    {
+      "week": "W4",
+      "visitors": 7400,
+      "signups": 210
+    },
+    {
+      "week": "W5",
+      "visitors": 8600,
+      "signups": 262
+    },
+    {
+      "week": "W6",
+      "visitors": 9800,
+      "signups": 301
+    }
+  ],
+  "channels": [
+    {
+      "channel": "Organic search",
+      "visitors": "21,400",
+      "change": "+14%"
+    },
+    {
+      "channel": "Direct",
+      "visitors": "12,050",
+      "change": "+6%"
+    },
+    {
+      "channel": "Referral",
+      "visitors": "8,220",
+      "change": "+21%"
+    },
+    {
+      "channel": "Social",
+      "visitors": "6,530",
+      "change": "-3%"
+    }
+  ]
+}
+```
 
 ### Finance dashboard
 
@@ -3864,6 +3788,80 @@ WIDGET DATA:
 ```
 
 ## Communication
+
+### Player profile
+
+Gradient profile card with a season stat row and form sparkline. (id: `player-profile`)
+
+WIDGET TEMPLATE:
+
+```
+<Card size="sm" background="linear-gradient(165deg, #eef2ff 0%, #f8fafc 100%)" gap={3}>
+  <Row gap={3} align="center">
+    <Avatar src={photo} name={name} size={56} />
+    <Col flex="auto" gap={0}>
+      <Title value={name} size="sm" />
+      <Caption value={`${team} · ${position}`} />
+    </Col>
+    <Badge label={number} color="accent" variant="soft" size="lg" />
+  </Row>
+
+  <Divider />
+
+  <Row justify="between" gap={4}>
+    <Each $of="stats" item="stat">
+      <Stat label={stat.label} value={stat.value} size="sm" />
+    </Each>
+  </Row>
+
+  <Col gap={1}>
+    <Caption value="LAST 10 GAMES" size="sm" />
+    <Sparkline data={form} height={32} color="#6366f1" />
+  </Col>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "name": "Jordan Vale",
+  "team": "SF Breakers",
+  "position": "Point guard",
+  "number": "#11",
+  "photo": "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=300&q=80",
+  "stats": [
+    {
+      "label": "PPG",
+      "value": "24.8"
+    },
+    {
+      "label": "AST",
+      "value": "7.2"
+    },
+    {
+      "label": "REB",
+      "value": "4.6"
+    },
+    {
+      "label": "FG%",
+      "value": "48.1"
+    }
+  ],
+  "form": [
+    18,
+    22,
+    27,
+    21,
+    30,
+    24,
+    26,
+    31,
+    25,
+    29
+  ]
+}
+```
 
 ### Notifications
 

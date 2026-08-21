@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { widgetExamples } from "../src/examples/widgetExamples.ts";
+import { widgetCategories, widgetExamples } from "../src/examples/widgetExamples.ts";
 import { widgetComponentNames } from "../api/widget-component-names.js";
 
 const repoRoot = path.resolve(fileURLToPath(import.meta.url), "..", "..");
@@ -36,9 +36,41 @@ test("advertised widget and component counts match the data", async () => {
     `packages/widgets/README.md must advertise ${components} registered component names`
   );
 
+  const indexHtml = await readFile(path.join(repoRoot, "index.html"), "utf8");
+  assert.ok(
+    indexHtml.includes(`${components} registered components`),
+    `index.html meta description must advertise ${components} registered components`
+  );
+
   const home = await readFile(path.join(repoRoot, "src", "pages", "Home.tsx"), "utf8");
   assert.ok(
-    home.includes(`${examples} ready-made examples`),
-    `src/pages/Home.tsx must advertise ${examples} ready-made examples`
+    home.includes(`${examples} widgets · ${widgetCategories.length} categories`),
+    `src/pages/Home.tsx collection eyebrow must read "${examples} widgets · ${widgetCategories.length} categories"`
+  );
+
+  // The collection index rows are curated literals; pin each gallery chip's
+  // count. "Featured" is the flag-driven showcase, the rest count by category.
+  for (const category of widgetCategories) {
+    const count =
+      category === "Featured"
+        ? widgetExamples.filter(
+            (example) => example.featured === true || example.category === "Featured"
+          ).length
+        : widgetExamples.filter((example) => example.category === category).length;
+    const row = new RegExp(
+      `\\{ name: "${category}", note: "[^"]*", count: ${count} \\}`
+    );
+    assert.ok(
+      row.test(home),
+      `src/pages/Home.tsx must list the "${category}" collection row with count: ${count}`
+    );
+  }
+
+  // Every example renders in light mode; the gallery's dark frame is retired.
+  const darkExamples = widgetExamples.filter((example) => example.theme === "dark");
+  assert.deepEqual(
+    darkExamples.map((example) => example.id),
+    [],
+    "gallery examples must all be light mode"
   );
 });

@@ -179,11 +179,12 @@ type PreviewWidth = keyof typeof previewWidthClasses;
 
 /**
  * "side" puts the preview beside the editors (the default two-column split).
- * "below" stacks it under them and turns the editors horizontal, trading
- * editor height for preview width — the layout for inspecting a wide widget.
- * Both only diverge at `lg`; narrow viewports stack everything either way.
+ * "above" and "below" stack it over or under them and turn the editors
+ * horizontal, trading editor height for preview width — the layouts for
+ * inspecting a wide widget. All only diverge at `lg`; narrow viewports stack
+ * everything either way.
  */
-type PreviewPlacement = "side" | "below";
+type PreviewPlacement = "side" | "above" | "below";
 
 type SegmentedOption<T extends string> = { value: T; label: string };
 
@@ -670,6 +671,7 @@ export function PlaygroundPage() {
             onChange={setPreviewPlacement}
             options={[
               { value: "side", label: "Beside" },
+              { value: "above", label: "Above" },
               { value: "below", label: "Below" }
             ]}
           />
@@ -799,7 +801,7 @@ export function PlaygroundPage() {
           <div
             className={cn(
               "mt-4",
-              previewPlacement === "below"
+              previewPlacement !== "side"
                 ? "space-y-5 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0"
                 : "space-y-5"
             )}
@@ -850,7 +852,7 @@ export function PlaygroundPage() {
                   "mt-2 min-h-[240px] rounded-xl font-mono text-[13px] leading-relaxed",
                   // Side by side, the shorter data box would leave a ragged
                   // bottom edge next to the template — match their heights.
-                  previewPlacement === "below" && "lg:min-h-[320px]"
+                  previewPlacement !== "side" && "lg:min-h-[320px]"
                 )}
                 value={jsonInput}
                 onChange={(event) => {
@@ -866,8 +868,11 @@ export function PlaygroundPage() {
           className={cn(
             "rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm",
             // Sticky only helps when the preview sits beside a tall editor
-            // column; stacked below, it would pin over the page as you scroll.
-            previewPlacement === "side" && "lg:sticky lg:top-20"
+            // column; stacked, it would pin over the page as you scroll.
+            previewPlacement === "side" && "lg:sticky lg:top-20",
+            // "Above" flips the stacked order; the grid wrapper makes the
+            // order utility effective.
+            previewPlacement === "above" && "order-first"
           )}
         >
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -923,11 +928,11 @@ export function PlaygroundPage() {
                     // (Card size="lg" stops at 560px) would sit flush left;
                     // auto margins center it.
                     "[&>*]:mx-auto",
-                    // Below the editors the whole point is seeing the widget at
-                    // full size, so drop that self-imposed cap and let it fill
-                    // the preview. The cap is an inline style on the widget
-                    // root, so only `!important` beats it.
-                    previewPlacement === "below" && "[&>*]:max-w-none!",
+                    // Stacked above or below the editors, the whole point is
+                    // seeing the widget at full size, so drop that self-imposed
+                    // cap and let it fill the preview. The cap is an inline
+                    // style on the widget root, so only `!important` beats it.
+                    previewPlacement !== "side" && "[&>*]:max-w-none!",
                     theme === "dark" && "rounded-xl bg-[#0c101a] p-6"
                   )}
                 >

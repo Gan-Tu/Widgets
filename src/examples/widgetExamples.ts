@@ -816,19 +816,20 @@ export const widgetExamples: {
   description: string;
   category: WidgetCategory;
   featured?: boolean;
+  /** Display order inside the gallery's Featured view (lower first). */
+  featuredRank?: number;
   size?: "sm" | "md" | "lg";
   template: string;
   schema: z.ZodTypeAny;
   data: unknown;
   theme?: "light" | "dark";
 }[] = [
-  /* ---------------------------- Featured ---------------------------- */
+  /* ------------------------- Showcase leads ------------------------- */
   {
     id: "analytics-overview",
     title: "Analytics overview",
     description: "Stat row with sparklines, tabbed area chart, and a channel table.",
-    category: "Featured",
-    featured: true,
+    category: "Analytics",
     template: `
 <Card size="lg" gap={4}>
   <Row align="center">
@@ -904,8 +905,9 @@ export const widgetExamples: {
     id: "flight-booking",
     title: "Flight booking",
     description: "A detailed booking review with segments, fare rules, and confirm actions.",
-    category: "Featured",
+    category: "Travel",
     featured: true,
+    featuredRank: 13,
     template: `
 <Card
   size="md"
@@ -1053,8 +1055,9 @@ export const widgetExamples: {
     id: "order-tracking",
     title: "Order tracking",
     description: "Steps, a live timeline, and order details for a shipment.",
-    category: "Featured",
+    category: "Commerce",
     featured: true,
+    featuredRank: 12,
     template: `
 <Card size="md" gap={4}>
   <Row align="center">
@@ -1134,12 +1137,10 @@ export const widgetExamples: {
   {
     id: "smart-home",
     title: "Smart home",
-    description: "A dark-theme control center with scenes, stats, and device toggles.",
-    category: "Featured",
-    featured: true,
-    theme: "dark",
+    description: "A control center with scenes, stats, and device toggles.",
+    category: "Productivity",
     template: `
-<Card size="md" theme="dark" gap={4}>
+<Card size="md" gap={4}>
   <Row align="center">
     <Col gap={0}>
       <Title value="Good evening" size="sm" />
@@ -1154,7 +1155,7 @@ export const widgetExamples: {
     <Stat label="Humidity" value={humidity} icon="droplet" size="sm" />
     <Col flex={1} gap={1}>
       <Stat label="Energy today" value={energyToday} size="sm" />
-      <Sparkline data={energyTrend} height={26} color="#34d399" />
+      <Sparkline data={energyTrend} height={26} color="#10b981" />
     </Col>
   </Row>
 
@@ -1210,12 +1211,10 @@ export const widgetExamples: {
   {
     id: "player-profile",
     title: "Player profile",
-    description: "Dark gradient profile card with a season stat row and form sparkline.",
-    category: "Featured",
-    featured: true,
-    theme: "dark",
+    description: "Gradient profile card with a season stat row and form sparkline.",
+    category: "Communication",
     template: `
-<Card size="sm" theme="dark" background="linear-gradient(165deg, #1c2540 0%, #0d1120 100%)" gap={3}>
+<Card size="sm" background="linear-gradient(165deg, #eef2ff 0%, #f8fafc 100%)" gap={3}>
   <Row gap={3} align="center">
     <Avatar src={photo} name={name} size={56} />
     <Col flex="auto" gap={0}>
@@ -1235,7 +1234,7 @@ export const widgetExamples: {
 
   <Col gap={1}>
     <Caption value="LAST 10 GAMES" size="sm" />
-    <Sparkline data={form} height={32} color="#818cf8" />
+    <Sparkline data={form} height={32} color="#6366f1" />
   </Col>
 </Card>
     `.trim(),
@@ -1263,6 +1262,8 @@ export const widgetExamples: {
     title: "Product detail",
     description: "Rating, size selector chips, pricing, and purchase actions.",
     category: "Commerce",
+    featured: true,
+    featuredRank: 7,
     template: `
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={210} fit="cover" flush />
@@ -1327,6 +1328,8 @@ export const widgetExamples: {
     title: "Pricing plans",
     description: "Three plan cards with a highlighted popular tier.",
     category: "Commerce",
+    featured: true,
+    featuredRank: 10,
     size: "lg",
     template: `
 <Basic>
@@ -1414,6 +1417,8 @@ export const widgetExamples: {
     title: "Checkout",
     description: "Itemized cart with computed totals and purchase actions.",
     category: "Commerce",
+    featured: true,
+    featuredRank: 1,
     template: `
 <Scope values={{ itemCountLabel: String(size(items)) + " items" }}>
 <Card size="sm">
@@ -1764,17 +1769,16 @@ export const widgetExamples: {
   {
     id: "weather-now",
     title: "Weather",
-    description: "Dark gradient conditions card with an hourly strip and detail stats.",
+    description: "Gradient conditions card with an hourly strip and detail stats.",
     category: "Travel",
-    theme: "dark",
     template: `
-<Card size="sm" theme="dark" background="linear-gradient(170deg, #24437a 0%, #0e1c33 70%)" gap={3}>
+<Card size="sm" background="linear-gradient(170deg, #dbeafe 0%, #f0f9ff 70%)" gap={3}>
   <Row align="start">
     <Col gap={0} flex="auto">
       <Title value={city} size="sm" />
       <Caption value={condition} />
     </Col>
-    <Icon name={conditionIcon} size="2xl" color="#93c5fd" />
+    <Icon name={conditionIcon} size="2xl" color="#2563eb" />
   </Row>
 
   <Row align="baseline" gap={3}>
@@ -1789,7 +1793,7 @@ export const widgetExamples: {
     <Each $of="hourly" item="hour">
       <Box flex={1} padding={{ y: 2 }} radius="lg" background="alpha-10" align="center" gap={1}>
         <Caption value={hour.time} size="sm" />
-        <Icon name={hour.icon} size="sm" color="#bfdbfe" />
+        <Icon name={hour.icon} size="sm" color="#3b82f6" />
         <Text value={hour.temp} size="sm" weight="semibold" />
       </Box>
     </Each>
@@ -2273,6 +2277,8 @@ export const widgetExamples: {
     title: "Project setup",
     description: "A multi-field form with select, chips, and a submit action.",
     category: "Forms",
+    featured: true,
+    featuredRank: 14,
     template: `
 <Card size="md">
   <Form onSubmitAction={{ type: "project.create" }}>
@@ -2463,6 +2469,8 @@ export const widgetExamples: {
     title: "Verification code",
     description: "OTP input with tooltip help and a submit action.",
     category: "Forms",
+    featured: true,
+    featuredRank: 5,
     template: `
 <Card size="sm">
   <Form onSubmitAction={{ type: "auth.verify" }}>
@@ -2504,6 +2512,8 @@ export const widgetExamples: {
     title: "Playlist",
     description: "Cover art, numbered tracks, and play actions.",
     category: "Media",
+    featured: true,
+    featuredRank: 4,
     template: `
 <Card size="sm" padding={0}>
   <Image src={bannerImage} alt="Playlist cover" height={170} fit="cover" flush />
@@ -2650,6 +2660,8 @@ export const widgetExamples: {
     title: "Recipe card",
     description: "Photo header, rating, meta badges, and numbered steps.",
     category: "Media",
+    featured: true,
+    featuredRank: 3,
     template: `
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={180} fit="cover" flush />
@@ -2880,6 +2892,8 @@ export const widgetExamples: {
     title: "FAQ",
     description: "Accordion answers with a support callout and contact action.",
     category: "Communication",
+    featured: true,
+    featuredRank: 11,
     template: `
 <Card size="md" gap={3}>
   <Col gap={0}>
@@ -2925,6 +2939,8 @@ export const widgetExamples: {
     title: "Thinking & reasoning",
     description: "A finished reasoning trace that expands into steps, then a cited answer.",
     category: "Agent UI",
+    featured: true,
+    featuredRank: 2,
     template: `
 <Card size="md" gap={3}>
   <Thinking summary={summary} steps={steps} defaultOpen />
@@ -2969,6 +2985,7 @@ export const widgetExamples: {
     description: "Shimmering thinking line, a staged loading surface, and all 25 orb variants.",
     category: "Agent UI",
     featured: true,
+    featuredRank: 9,
     template: `
 <Card size="md" gap={4}>
   <ThinkingState label={thinkingLabel} elapsed={thinkingElapsed} active />
@@ -3024,6 +3041,7 @@ export const widgetExamples: {
     description: "Progressive text with a blinking caret, collapsible sources, and follow-ups.",
     category: "Agent UI",
     featured: true,
+    featuredRank: 8,
     template: `
 <Card size="md" gap={3}>
   <StreamingText text={text} speed={14} loop loopDelay={1800} sources={sources} followUps={followUps} />
@@ -3048,6 +3066,8 @@ export const widgetExamples: {
     title: "Tasks & tool calls",
     description: "Live task rows with child steps beside collapsible tool activity.",
     category: "Agent UI",
+    featured: true,
+    featuredRank: 6,
     template: `
 <Card size="md" gap={3}>
   <TaskRows items={tasks} variant="list" onItemClickAction={{ type: "agent.task.open" }} />
@@ -3088,11 +3108,9 @@ export const widgetExamples: {
   {
     id: "agent-workbench",
     title: "Agent workbench",
-    description: "A dark work log with reasoning and plan, plus streamed code and a diff.",
+    description: "A work log with reasoning and plan, plus streamed code and a diff.",
     category: "Agent UI",
     size: "lg",
-    theme: "dark",
-    featured: true,
     template: `
 <Card size="lg" gap={3}>
   <Tabs tabs={[
@@ -3168,6 +3186,8 @@ export const widgetExamples: {
     title: "Agent decisions",
     description: "Approval questions with keyed options beside a confidence-aware recommendation.",
     category: "Agent UI",
+    featured: true,
+    featuredRank: 15,
     size: "lg",
     template: `
 <Response gap={3}>
@@ -3346,6 +3366,8 @@ export const widgetExamples: {
     title: "Knowledge workspace",
     description: "Context chunks, plan comparison, and selectable proposed changes.",
     category: "Agent UI",
+    featured: true,
+    featuredRank: 16,
     size: "lg",
     template: `
 <Card size="lg" gap={3}>

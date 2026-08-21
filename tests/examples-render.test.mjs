@@ -6,6 +6,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { WidgetRenderer } from "../packages/widgets/dist/widget/index.js";
 // Node's type stripping lets us import the demo data straight from source.
 import { widgetExamples } from "../src/examples/widgetExamples.ts";
+import {
+  balanceTemplatePrefix,
+  heroData,
+  heroTemplate
+} from "../src/pages/heroExhibit.ts";
 
 test("built chart implementation is Node-ESM resolvable and renders", async () => {
   // The chart facade lazy-loads chartImpl via a dynamic import; this both
@@ -63,4 +68,33 @@ test("every gallery example renders without template or schema errors", () => {
   }
 
   assert.deepEqual(failures, [], `Example render failures:\n${failures.join("\n")}`);
+});
+
+test("every balanced prefix of the hero exhibit template renders", () => {
+  // The Home hero streams the widget in line by line: each completed line
+  // re-renders balanceTemplatePrefix(lines). If any prefix stops parsing, the
+  // exhibit flashes a template error mid-animation — catch it here instead.
+  const lines = heroTemplate.split("\n");
+  const failures = [];
+
+  for (let count = 2; count <= lines.length; count++) {
+    const balanced = balanceTemplatePrefix(lines.slice(0, count));
+    let html = "";
+    try {
+      html = renderToStaticMarkup(
+        React.createElement(WidgetRenderer, {
+          template: balanced,
+          data: heroData,
+          theme: "light"
+        })
+      );
+    } catch (error) {
+      failures.push(`prefix ${count}: threw ${error.message}`);
+      continue;
+    }
+    if (html.includes("Template error")) failures.push(`prefix ${count}: template error`);
+    if (html.trim() === "") failures.push(`prefix ${count}: rendered empty output`);
+  }
+
+  assert.deepEqual(failures, [], `Prefix render failures:\n${failures.join("\n")}`);
 });

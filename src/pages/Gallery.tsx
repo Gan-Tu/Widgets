@@ -1,7 +1,7 @@
 import { Download, Search, X } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { WidgetRenderer } from "@/widget";
 
@@ -165,9 +165,15 @@ function CardSkeleton() {
 }
 
 export function GalleryPage() {
+  const [searchParams] = useSearchParams();
   const [catalog, setCatalog] = React.useState<ExamplesCatalog | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = React.useState<CategoryFilter>("All");
+  // Deep links like /gallery?category=Agent%20UI pre-select a filter chip.
+  // The cast is unchecked here because the category list lives in the lazily
+  // loaded catalog; the load effect below resets unknown values to "All".
+  const [activeCategory, setActiveCategory] = React.useState<CategoryFilter>(
+    () => (searchParams.get("category") as CategoryFilter) ?? "All"
+  );
   const [query, setQuery] = React.useState("");
   const [toast, setToast] = React.useState<ToastState | null>(null);
   const toastIdRef = React.useRef(0);
@@ -184,6 +190,11 @@ export function GalleryPage() {
             examples: module.widgetExamples,
             categories: module.widgetCategories
           });
+          setActiveCategory((current) =>
+            current === "All" || module.widgetCategories.includes(current)
+              ? current
+              : "All"
+          );
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -224,7 +235,7 @@ export function GalleryPage() {
   const filtered = React.useMemo(() => {
     if (!catalog) return [];
     const q = query.trim().toLowerCase();
-    return catalog.examples.filter((example) => {
+    const matches = catalog.examples.filter((example) => {
       const matchesCategory =
         activeCategory === "All"
           ? true
@@ -238,6 +249,16 @@ export function GalleryPage() {
         example.description.toLowerCase().includes(q)
       );
     });
+    // The Featured view is a curated wall: featuredRank orders it so the
+    // highlights lead and the two-column cards land where the masonry packs.
+    if (activeCategory === "Featured") {
+      return [...matches].sort(
+        (a, b) =>
+          (a.featuredRank ?? Number.MAX_SAFE_INTEGER) -
+          (b.featuredRank ?? Number.MAX_SAFE_INTEGER)
+      );
+    }
+    return matches;
   }, [catalog, activeCategory, query]);
 
   const hasActiveFilters = activeCategory !== "All" || query.trim().length > 0;
