@@ -133,7 +133,8 @@ export default function App() {
               href="https://github.com/Gan-Tu/Widgets"
               target="_blank"
               rel="noreferrer"
-              className={`${metaLinkClass} gap-1.5`}
+              className={`${metaLinkClass} min-w-10 justify-center gap-1.5 sm:min-w-0 sm:justify-start`}
+              aria-label="GitHub repository"
             >
               <Github className="h-3.5 w-3.5" aria-hidden />
               <span className="sr-only sm:not-sr-only">GitHub&nbsp;↗</span>

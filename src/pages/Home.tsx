@@ -6,7 +6,12 @@ import { WidgetRenderer } from "@/widget";
 import { widgetRegistry } from "@/widget/registry";
 import type { ActionConfig } from "@/widget/types";
 
-import { balanceTemplatePrefix, heroData, heroTemplate } from "./heroExhibit";
+import {
+  balanceTemplatePrefix,
+  heroData,
+  heroTemplate,
+  sourceScrollDelta
+} from "./heroExhibit";
 
 /* ------------------------------------------------------------------ */
 /* Content                                                             */
@@ -113,6 +118,13 @@ function highlightLine(line: string, lineKey: number): React.ReactNode[] {
 }
 
 const HIGHLIGHTED_LINES = TEMPLATE_LINES.map((line, i) => highlightLine(line, i));
+
+function scrollSourceHorizontally(event: React.KeyboardEvent<HTMLDivElement>) {
+  const delta = sourceScrollDelta(event.key);
+  if (delta === 0) return;
+  event.preventDefault();
+  event.currentTarget.scrollLeft += delta;
+}
 
 /* ------------------------------------------------------------------ */
 /* Small components                                                    */
@@ -460,18 +472,22 @@ function Exhibit() {
         <button
           type="button"
           onClick={replay}
-          className="col-start-2 row-start-1 cursor-pointer border-b border-[var(--ink)] pb-px uppercase text-[var(--ink)] transition-colors hover:border-[var(--mid)] hover:text-[var(--mid)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] sm:order-none"
+          className="col-start-2 row-start-1 inline-flex min-h-11 cursor-pointer items-center justify-center border-b border-[var(--ink)] px-3 uppercase text-[var(--ink)] transition-colors hover:border-[var(--mid)] hover:text-[var(--mid)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] sm:order-none"
         >
           ↻ Replay
         </button>
       </div>
 
-      <div className="grid min-w-0 overflow-hidden border border-[var(--hairline)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] overflow-hidden border border-[var(--hairline)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <div className="flex min-h-[280px] min-w-0 flex-col bg-[var(--panel)] p-4 sm:min-h-[360px] sm:p-5 md:min-h-[420px] md:p-7">
           <div
+            id="hero-source-panel"
             ref={panelRef}
+            role="region"
+            tabIndex={0}
             aria-label="Widget template source"
-            className="ff-mono sr-no-scrollbar max-h-[300px] min-w-0 flex-1 overflow-auto whitespace-pre text-[10.5px] leading-[1.7] text-[var(--panel-text)] sm:max-h-[440px] sm:text-[11px] md:max-h-[560px] md:text-[12px] md:leading-[1.75]"
+            onKeyDown={scrollSourceHorizontally}
+            className="ff-mono sr-no-scrollbar max-h-[300px] min-w-0 flex-1 overflow-auto whitespace-pre text-[10.5px] leading-[1.7] text-[var(--panel-text)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--panel-string)] sm:max-h-[440px] sm:text-[11px] md:max-h-[560px] md:text-[12px] md:leading-[1.75]"
           >
             {HIGHLIGHTED_LINES.slice(0, completeCount).map((nodes, i) => (
               <div key={i}>{TEMPLATE_LINES[i] ? nodes : " "}</div>
@@ -552,7 +568,7 @@ export function HomePage() {
           <span className="uppercase">Open source — Apache-2.0</span>
           <span>@tugan/widgets</span>
         </p>
-        <h1 className="ff-display relative mt-6 text-balance text-[clamp(38px,11vw,104px)] font-semibold leading-[0.98] tracking-[-0.015em] text-[var(--ink)] sm:mt-8 md:mt-11">
+        <h1 className="ff-display relative mt-6 text-balance text-[clamp(38px,11vw,52px)] font-semibold leading-[0.98] tracking-[-0.015em] text-[var(--ink)] sm:mt-8 sm:text-[clamp(44px,8.5vw,104px)] md:mt-11">
           The model writes{" "}
           <span className="sr-outline">
             the{" "}

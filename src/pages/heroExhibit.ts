@@ -72,6 +72,12 @@ export const heroData = {
   ]
 };
 
+export function sourceScrollDelta(key: string): number {
+  if (key === "ArrowRight") return 48;
+  if (key === "ArrowLeft") return -48;
+  return 0;
+}
+
 // Matches one whole tag; quoted strings and {expressions} in the attribute
 // span are consumed atomically so ">" inside them can't end the tag early.
 const TAG_RE = /<(\/?)([A-Za-z][\w.]*)((?:"[^"]*"|\{[^}]*\}|[^>"{])*?)(\/?)>/g;
