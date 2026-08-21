@@ -3026,7 +3026,7 @@ export const widgetExamples: {
     featured: true,
     template: `
 <Card size="md" gap={3}>
-  <StreamingText text={text} speed={14} sources={sources} followUps={followUps} />
+  <StreamingText text={text} speed={14} loop loopDelay={1800} sources={sources} followUps={followUps} />
 </Card>
     `.trim(),
     schema: AgentResponseSchema,

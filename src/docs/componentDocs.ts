@@ -1533,6 +1533,8 @@ export const componentDocs: ComponentDoc[] = [
       { name: "text", description: "Complete text progressively revealed by the component.", type: "string" },
       { name: "streaming", description: "Animate text reveal; false renders the full value immediately.", type: "boolean", default: "true" },
       { name: "speed", description: "Milliseconds between two-character reveal steps, clamped to at least 8ms.", type: "number", default: "10" },
+      { name: "loop", description: "Restart the reveal after it completes.", type: "boolean", default: "false" },
+      { name: "loopDelay", description: "Completed-state pause before a looping reveal restarts, in milliseconds.", type: "number", default: "1800" },
       { name: "sources", description: "Sources displayed in a collapsible source list.", type: "Array<{ id?: string | number; label: string; host?: string; url?: string }>" },
       { name: "actions", description: "Actions shown below the response.", type: "Array<{ label: string; action: ActionConfig; icon?: WidgetIcon }>" },
       { name: "followUps", description: "Suggested follow-up actions.", type: "Array<{ label: string; action: ActionConfig; icon?: WidgetIcon }>" }

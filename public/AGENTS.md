@@ -438,7 +438,7 @@ Shared shapes: `AgentStatus` is `"pending"|"running"|"completed"|"failed"|"cance
 - `LoadingState` — richer working state. `label?`, `elapsed?`, `variant?` (`"drive"|"dots"|"orbit"|"surfer"`).
 - `TextResponse` — styled prose response. `value?`/children, `compact?`.
 - `InlineCitations` — response text with numbered `[n]` markers and a source list. `text`, `sources?` (citation source[]).
-- `StreamingText` — progressively reveals `text`. `streaming?` (true), `speed?` (10 ms), `sources?` (citation source[]), `actions?`/`followUps?` (`{ label, action: ActionConfig, icon? }[]`).
+- `StreamingText` — progressively reveals `text`. `streaming?` (true), `speed?` (10 ms), `loop?` (false), `loopDelay?` (1800 ms), `sources?` (citation source[]), `actions?`/`followUps?` (`{ label, action: ActionConfig, icon? }[]`).
 - `CodeBlock` — multiline code with header and copy affordance. `code`, `language?` ("text"), `file?`, `showLineNumbers?` (true), `copyable?` (true), `streaming?`, `highlightLines?` (1-based number[]), `onCopyAction?` (defaults to the local `copy` client action).
 - `FileDiff` — line-oriented file diff. `file`, `rows?` (`{ oldLine?, newLine?, type?: "context"|"add"|"remove", text }[]`), `language?`, `compact?`.
 - `ImageGeneration` — generation progress or final image. `prompt?`, `resolution?`, `aspectRatio?` (`"square"|"portrait"|"landscape"|string), `progress?` (0–100), `status?`, `image?` (http/https URL), `alt?`.

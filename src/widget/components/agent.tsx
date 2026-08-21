@@ -319,6 +319,8 @@ type StreamingTextProps = {
   text: string;
   streaming?: boolean;
   speed?: number;
+  loop?: boolean;
+  loopDelay?: number;
   sources?: CitationSource[];
   actions?: StreamingAction[];
   followUps?: StreamingAction[];
@@ -328,6 +330,8 @@ const StreamingText: React.FC<StreamingTextProps> = ({
   text,
   streaming = true,
   speed = 10,
+  loop = false,
+  loopDelay = 1800,
   sources = [],
   actions = [],
   followUps = []
@@ -341,22 +345,39 @@ const StreamingText: React.FC<StreamingTextProps> = ({
       setVisible(safeText.length);
       return;
     }
-    setVisible(Math.min(1, safeText.length));
-    if (safeText.length <= 1) return;
     // Keep chars/sec exact but never tick faster than a display frame: a
     // sub-16ms interval only burns renders that can never be painted.
     const base = Math.max(8, speed);
     const multiplier = Math.ceil(16 / base);
     const step = 2 * multiplier;
-    const interval = window.setInterval(() => {
-      setVisible((current) => {
-        const next = Math.min(safeText.length, current + step);
-        if (next >= safeText.length) window.clearInterval(interval);
-        return next;
-      });
-    }, base * multiplier);
-    return () => window.clearInterval(interval);
-  }, [safeText, speed, streaming]);
+    let visibleCount = Math.min(1, safeText.length);
+    let interval: number | undefined;
+    let restartTimeout: number | undefined;
+
+    const start = () => {
+      visibleCount = Math.min(1, safeText.length);
+      setVisible(visibleCount);
+      if (safeText.length <= 1) return;
+
+      interval = window.setInterval(() => {
+        visibleCount = Math.min(safeText.length, visibleCount + step);
+        setVisible(visibleCount);
+        if (visibleCount < safeText.length) return;
+
+        window.clearInterval(interval);
+        interval = undefined;
+        if (loop) {
+          restartTimeout = window.setTimeout(start, Math.max(0, loopDelay));
+        }
+      }, base * multiplier);
+    };
+
+    start();
+    return () => {
+      if (interval !== undefined) window.clearInterval(interval);
+      if (restartTimeout !== undefined) window.clearTimeout(restartTimeout);
+    };
+  }, [loop, loopDelay, safeText, speed, streaming]);
 
   const isStreaming = streaming && visible < safeText.length;
   return (
