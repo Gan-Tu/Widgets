@@ -71,7 +71,7 @@ import { WidgetRenderer } from "@tugan/widgets";
 /* ------------------------------------------------------------------ */
 
 const btnBase =
-  "ff-mono inline-flex h-11 cursor-pointer items-center gap-2 rounded-[2px] border border-[var(--ink)] px-6 text-xs uppercase tracking-[0.12em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)]";
+  "ff-mono inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[2px] border border-[var(--ink)] px-3 text-[10px] uppercase tracking-[0.1em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] sm:w-auto sm:px-6 sm:text-xs sm:tracking-[0.12em]";
 const btnPrimary = `${btnBase} bg-[var(--ink)] text-[var(--paper)] hover:bg-transparent hover:text-[var(--ink)]`;
 const btnGhost = `${btnBase} bg-transparent text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]`;
 
@@ -453,25 +453,25 @@ function Exhibit() {
       : "";
 
   return (
-    <section ref={sectionRef} aria-label="Live render demonstration" className="mt-14 md:mt-24">
-      <div className="ff-mono flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-[var(--ink)] pb-3.5 pt-3 text-[11px] uppercase tracking-[0.14em] text-[var(--mid)]">
+    <section ref={sectionRef} aria-label="Live render demonstration" className="mt-10 sm:mt-14 md:mt-24">
+      <div className="ff-mono grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-t border-[var(--ink)] pb-3.5 pt-3 text-[10px] uppercase tracking-[0.12em] text-[var(--mid)] sm:flex sm:flex-wrap sm:justify-between sm:text-[11px] sm:tracking-[0.14em]">
         <span className="text-[var(--ink)]">Fig. 01 — Checkout</span>
-        <span>One template string · one data object</span>
+        <span className="col-span-2 row-start-2 sm:order-none">One template string · one data object</span>
         <button
           type="button"
           onClick={replay}
-          className="cursor-pointer border-b border-[var(--ink)] pb-px uppercase text-[var(--ink)] transition-colors hover:border-[var(--mid)] hover:text-[var(--mid)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)]"
+          className="col-start-2 row-start-1 cursor-pointer border-b border-[var(--ink)] pb-px uppercase text-[var(--ink)] transition-colors hover:border-[var(--mid)] hover:text-[var(--mid)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] sm:order-none"
         >
           ↻ Replay
         </button>
       </div>
 
-      <div className="grid border border-[var(--hairline)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-        <div className="flex min-h-[420px] flex-col bg-[var(--panel)] p-5 md:p-7">
+      <div className="grid min-w-0 overflow-hidden border border-[var(--hairline)] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div className="flex min-h-[280px] min-w-0 flex-col bg-[var(--panel)] p-4 sm:min-h-[360px] sm:p-5 md:min-h-[420px] md:p-7">
           <div
             ref={panelRef}
             aria-label="Widget template source"
-            className="ff-mono sr-no-scrollbar max-h-[560px] flex-1 overflow-auto whitespace-pre text-[12px] leading-[1.75] text-[var(--panel-text)]"
+            className="ff-mono sr-no-scrollbar max-h-[300px] min-w-0 flex-1 overflow-auto whitespace-pre text-[10.5px] leading-[1.7] text-[var(--panel-text)] sm:max-h-[440px] sm:text-[11px] md:max-h-[560px] md:text-[12px] md:leading-[1.75]"
           >
             {HIGHLIGHTED_LINES.slice(0, completeCount).map((nodes, i) => (
               <div key={i}>{TEMPLATE_LINES[i] ? nodes : " "}</div>
@@ -483,7 +483,7 @@ function Exhibit() {
               </div>
             )}
           </div>
-          <div className="ff-mono mt-4 flex justify-between gap-3 border-t border-[var(--panel-text)]/15 pt-3.5 text-[10.5px] uppercase tracking-[0.14em] text-[var(--panel-dim)]">
+          <div className="ff-mono mt-4 flex min-w-0 flex-wrap justify-between gap-x-3 gap-y-1 border-t border-[var(--panel-text)]/15 pt-3.5 text-[9.5px] uppercase tracking-[0.12em] text-[var(--panel-dim)] sm:text-[10.5px] sm:tracking-[0.14em]">
             <span>{statusLeft}</span>
             <span className={statusRight ? "text-[var(--panel-string)]" : ""}>
               {statusRight}
@@ -491,8 +491,8 @@ function Exhibit() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center border-t border-[var(--hairline)] bg-[var(--plinth)] p-7 md:p-10 lg:border-l lg:border-t-0">
-          <div className="relative">
+        <div className="flex min-w-0 items-center justify-center border-t border-[var(--hairline)] bg-[var(--plinth)] p-5 sm:p-7 md:p-10 lg:border-l lg:border-t-0">
+          <div className="relative w-full max-w-[360px]">
             {/* Viewfinder corners frame the stage until the render lands. */}
             <span
               aria-hidden
@@ -506,7 +506,7 @@ function Exhibit() {
               <span className="pointer-events-none absolute -bottom-4 -right-4 h-4 w-4 border-b border-r border-[var(--mid)]" />
             </span>
             {showWidget ? (
-              <div ref={widgetRef} key={runId} className="sr-render-in w-[min(360px,80vw)]">
+              <div ref={widgetRef} key={runId} className="sr-render-in w-full">
                 <WidgetRenderer
                   template={previewTemplate}
                   data={heroData}
@@ -515,7 +515,7 @@ function Exhibit() {
               </div>
             ) : (
               <div
-                className="w-[min(360px,80vw)] rounded-2xl border border-[var(--hairline)] bg-[var(--paper)]/45 py-24"
+                className="w-full rounded-2xl border border-[var(--hairline)] bg-[var(--paper)]/45 py-20 sm:py-24"
                 aria-hidden
               />
             )}
@@ -546,13 +546,13 @@ export function HomePage() {
   return (
     <div className="pb-6">
       {/* Hero */}
-      <section aria-label="Introduction" className="relative pt-8 md:pt-16">
+      <section aria-label="Introduction" className="relative pt-4 sm:pt-8 md:pt-16">
         <OrbitalMark className="pointer-events-none absolute right-2 top-24 hidden h-64 w-64 text-[var(--ink)] opacity-[0.22] lg:block xl:right-10 xl:h-80 xl:w-80" />
         <p className="ff-mono flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-[var(--ink)] pt-3.5 text-[11px] tracking-[0.16em] text-[var(--mid)]">
           <span className="uppercase">Open source — Apache-2.0</span>
           <span>@tugan/widgets</span>
         </p>
-        <h1 className="ff-display relative mt-8 text-balance text-[clamp(44px,8.5vw,104px)] font-semibold leading-[0.97] tracking-[-0.015em] text-[var(--ink)] md:mt-11">
+        <h1 className="ff-display relative mt-6 text-balance text-[clamp(38px,11vw,104px)] font-semibold leading-[0.98] tracking-[-0.015em] text-[var(--ink)] sm:mt-8 md:mt-11">
           The model writes{" "}
           <span className="sr-outline">
             the{" "}
@@ -585,7 +585,7 @@ export function HomePage() {
           validates both and paints polished, interactive components — no
           arbitrary code, ever.
         </p>
-        <div className="mt-7 flex flex-wrap gap-3 md:mt-9">
+        <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 md:mt-9">
           <Link to="/playground" className={btnPrimary}>
             Open playground →
           </Link>
@@ -593,7 +593,7 @@ export function HomePage() {
             Browse the gallery
           </Link>
         </div>
-        <p className="ff-mono mt-8 flex flex-wrap gap-x-7 gap-y-1.5 border-t border-[var(--hairline)] pt-3.5 text-[11px] uppercase tracking-[0.14em] text-[var(--faint)] md:mt-11">
+        <p className="ff-mono mt-8 grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-[var(--hairline)] pt-3.5 text-[10px] uppercase tracking-[0.1em] text-[var(--faint)] sm:flex sm:flex-wrap sm:gap-x-7 sm:text-[11px] sm:tracking-[0.14em] md:mt-11">
           <span>{componentCount} components</span>
           <span>200+ icons</span>
           <span>Light &amp; dark</span>

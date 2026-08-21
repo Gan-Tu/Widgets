@@ -75,7 +75,7 @@ export default function App() {
     <div className="app-shell">
       <header className="sticky top-0 z-50 w-full border-b border-[var(--hairline)] bg-[var(--paper)]/85 backdrop-blur">
         <div
-          className={`${containerClass} flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3.5 sm:gap-x-8`}
+          className={`${containerClass} grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 py-2.5 sm:flex sm:flex-wrap sm:justify-between sm:gap-x-8 sm:gap-y-1 sm:py-3.5`}
         >
           <NavLink
             to="/"
@@ -92,9 +92,9 @@ export default function App() {
 
           <nav
             aria-label="Primary"
-            className="order-3 w-full sm:order-none sm:w-auto"
+            className="order-3 col-span-2 w-full sm:order-none sm:w-auto"
           >
-            <div className="grid grid-cols-4 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-7">
+            <div className="grid grid-cols-4 gap-1 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-7">
               <NavLink to="/" end className={navLinkClass}>
                 Home
               </NavLink>
@@ -110,14 +110,15 @@ export default function App() {
             </div>
           </nav>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 items-center justify-end gap-3 sm:gap-5">
             <a
               href="/AGENTS.md"
               download="AGENTS.md"
               className={metaLinkClass}
               title="Download AGENTS.md — the widget spec for coding agents"
             >
-              Agents.md&nbsp;↓
+              <span className="sm:hidden">Spec&nbsp;↓</span>
+              <span className="hidden sm:inline">Agents.md&nbsp;↓</span>
             </a>
             <a
               href="/WIDGET_EXAMPLES.md"
@@ -125,7 +126,8 @@ export default function App() {
               className={metaLinkClass}
               title="Download every gallery widget as template + data — a companion corpus to AGENTS.md for LLM context"
             >
-              Examples.md&nbsp;↓
+              <span className="sm:hidden">Examples&nbsp;↓</span>
+              <span className="hidden sm:inline">Examples.md&nbsp;↓</span>
             </a>
             <a
               href="https://github.com/Gan-Tu/Widgets"
@@ -134,13 +136,13 @@ export default function App() {
               className={`${metaLinkClass} gap-1.5`}
             >
               <Github className="h-3.5 w-3.5" aria-hidden />
-              GitHub&nbsp;↗
+              <span className="sr-only sm:not-sr-only">GitHub&nbsp;↗</span>
             </a>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 py-8 md:py-10">
+      <main className="flex-1 py-5 sm:py-8 md:py-10">
         <div className={containerClass}>
           <Suspense fallback={<RouteFallback />}>
             <Routes>
