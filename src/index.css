@@ -24,6 +24,9 @@
   --panel-dim: #8a8a7a;
   --panel-string: #9d9cf5;
   --plinth: #f3f3ec;
+  /* The one accent the chrome is allowed: the product's indigo, reserved for
+     calling out the Featured showcase. */
+  --signal: #4f46e5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -136,18 +139,51 @@ body {
   }
 }
 
-/* Self-drawing stroke (paths must set pathLength="1"). The base state is the
-   finished stroke, so reduced motion simply shows it drawn. */
-.sr-draw-stroke {
+/* The hero blueprint plotter. Every stroke shares one 36s timeline: draw
+   (0–3.5%), hold, wipe (24–27%), stay blank. Per-stroke animation-delay
+   staggers the plotting order; each layout's strokes are offset a 12s slot,
+   so three different widget wireframes take turns on the sheet. */
+.sr-plot {
   stroke-dasharray: 1;
-  animation: sr-draw 1.1s ease-out 0.45s both;
+  stroke-dashoffset: 1;
+  animation: sr-plot 36s linear infinite;
 }
-@keyframes sr-draw {
-  from {
+@keyframes sr-plot {
+  0% {
     stroke-dashoffset: 1;
   }
-  to {
+  3.5% {
     stroke-dashoffset: 0;
+  }
+  27% {
+    stroke-dashoffset: 0;
+  }
+  30% {
+    stroke-dashoffset: 1;
+  }
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+.sr-plot-label {
+  opacity: 0;
+  animation: sr-plot-label 36s linear infinite;
+}
+@keyframes sr-plot-label {
+  0% {
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  27% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
@@ -180,9 +216,20 @@ body {
   .sr-caret,
   .sr-render-in,
   .sr-spin,
-  .sr-draw-stroke,
   .sr-corner-pulse {
     animation: none;
+  }
+  /* Show the first wireframe fully drawn; the alternates stay off. */
+  .sr-plot {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .sr-plot-label {
+    animation: none;
+    opacity: 1;
+  }
+  .sr-plot-alt {
+    display: none;
   }
 }
 
