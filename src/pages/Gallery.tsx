@@ -3,6 +3,10 @@ import { motion, useReducedMotion } from "motion/react";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
+import {
+  compareFeaturedWidgetExamples,
+  isFeaturedWidgetExample
+} from "@/examples/featuredExamples";
 import { WidgetRenderer } from "@/widget";
 
 import type { WidgetCategory, WidgetExample } from "@/examples/widgetExamples";
@@ -240,7 +244,7 @@ export function GalleryPage() {
         activeCategory === "All"
           ? true
           : activeCategory === "Featured"
-            ? example.category === "Featured" || example.featured === true
+            ? isFeaturedWidgetExample(example)
             : example.category === activeCategory;
       if (!matchesCategory) return false;
       if (!q) return true;
@@ -252,11 +256,7 @@ export function GalleryPage() {
     // The Featured view is a curated wall: featuredRank orders it so the
     // highlights lead and the two-column cards land where the masonry packs.
     if (activeCategory === "Featured") {
-      return [...matches].sort(
-        (a, b) =>
-          (a.featuredRank ?? Number.MAX_SAFE_INTEGER) -
-          (b.featuredRank ?? Number.MAX_SAFE_INTEGER)
-      );
+      return [...matches].sort(compareFeaturedWidgetExamples);
     }
     return matches;
   }, [catalog, activeCategory, query]);

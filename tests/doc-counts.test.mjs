@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isFeaturedWidgetExample } from "../src/examples/featuredExamples.ts";
 import { widgetCategories, widgetExamples } from "../src/examples/widgetExamples.ts";
 import { widgetComponentNames } from "../api/widget-component-names.js";
 
@@ -53,9 +54,7 @@ test("advertised widget and component counts match the data", async () => {
   for (const category of widgetCategories) {
     const count =
       category === "Featured"
-        ? widgetExamples.filter(
-            (example) => example.featured === true || example.category === "Featured"
-          ).length
+        ? widgetExamples.filter(isFeaturedWidgetExample).length
         : widgetExamples.filter((example) => example.category === category).length;
     const row = new RegExp(
       `\\{ name: "${category}", note: "[^"]*", count: ${count} \\}`

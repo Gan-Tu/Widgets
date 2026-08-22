@@ -121,10 +121,10 @@ export default function App() {
               <span className="hidden sm:inline">Agents.md&nbsp;↓</span>
             </a>
             <a
-              href="/WIDGET_EXAMPLES.md"
-              download
+              href="/FEATURED_WIDGET_EXAMPLES.md"
+              download="FEATURED_WIDGET_EXAMPLES.md"
               className={metaLinkClass}
-              title="Download every gallery widget as template + data — a companion corpus to AGENTS.md for LLM context"
+              title="Download the featured gallery widgets as template + data — a focused companion to AGENTS.md for LLM context"
             >
               <span className="sm:hidden">Examples&nbsp;↓</span>
               <span className="hidden sm:inline">Examples.md&nbsp;↓</span>

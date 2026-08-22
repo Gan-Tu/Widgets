@@ -19,6 +19,7 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
   - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed)
 - **Authoring guide**: `public/AGENTS.md` — the complete widget-authoring contract embedded into the generation prompt
 - **Example corpus**: `public/WIDGET_EXAMPLES.md` — every gallery widget as a template + data pair, generated from `src/examples/widgetExamples.ts` (regenerate with `node --experimental-strip-types scripts/build-widget-examples-doc.mjs`); an optional download for richer LLM context
+- **Featured example corpus**: `public/FEATURED_WIDGET_EXAMPLES.md` — the smaller, gallery-ranked featured set linked beside `AGENTS.md` in the navbar
 
 Built with **React**, **Tailwind v4**, **shadcn/ui-style primitives**, **Recharts** (lazy-loaded), and **Motion** (`motion/react`).
 
