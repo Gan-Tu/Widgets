@@ -434,20 +434,24 @@ async function getOpenAIKey() {
 }
 
 // The authoring context is static in production; cache the read so each
-// generation request doesn't repeat the guide and example corpus disk reads.
+// generation request doesn't repeat the guide and featured examples disk reads.
 // In dev the files are under active iteration (vite pins this module for the
 // server's lifetime), so read fresh to keep the edit → generate loop honest.
 let widgetAuthoringContextPromise;
 
 function getWidgetAuthoringContext() {
   const guidePath = path.join(process.cwd(), "public", "AGENTS.md");
-  const examplesPath = path.join(process.cwd(), "public", "WIDGET_EXAMPLES.md");
+  const featuredExamplesPath = path.join(
+    process.cwd(),
+    "public",
+    "FEATURED_WIDGET_EXAMPLES.md"
+  );
   const readContext = async () => {
-    const [guide, examples] = await Promise.all([
+    const [guide, featuredExamples] = await Promise.all([
       readFile(guidePath, "utf8"),
-      readFile(examplesPath, "utf8")
+      readFile(featuredExamplesPath, "utf8")
     ]);
-    return `${guide}\n\n${examples}`;
+    return `${guide}\n\n${featuredExamples}`;
   };
 
   if (process.env.NODE_ENV !== "production") {

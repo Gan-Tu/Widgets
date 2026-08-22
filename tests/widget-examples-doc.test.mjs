@@ -92,3 +92,21 @@ test("the navbar downloads featured examples while the gallery keeps the full co
     "the gallery must keep pointing to the complete example corpus"
   );
 });
+
+test("Playground AI generation uses the featured example corpus", async () => {
+  const authorWidgetSource = await readFile(
+    path.join(repoRoot, "api", "author-widget.js"),
+    "utf8"
+  );
+
+  assert.ok(
+    authorWidgetSource.includes('"FEATURED_WIDGET_EXAMPLES.md"'),
+    "the authoring context must load the featured example corpus"
+  );
+  assert.ok(
+    !authorWidgetSource.includes(
+      'path.join(process.cwd(), "public", "WIDGET_EXAMPLES.md")'
+    ),
+    "the authoring context must not load the complete example corpus"
+  );
+});
