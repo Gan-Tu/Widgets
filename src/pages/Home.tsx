@@ -3,6 +3,7 @@ import { useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
 import { WidgetRenderer } from "@/widget";
+import { ParticleHero } from "@/components/home/ParticleHero";
 import { widgetRegistry } from "@/widget/registry";
 import type { ActionConfig } from "@/widget/types";
 
@@ -76,7 +77,7 @@ import { WidgetRenderer } from "@tugan/widgets";
 /* ------------------------------------------------------------------ */
 
 const btnBase =
-  "ff-mono inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[2px] border border-[var(--ink)] px-3 text-[10px] uppercase tracking-[0.1em] transition-colors sm:w-auto sm:px-6 sm:text-xs sm:tracking-[0.12em]";
+  "studio-hero-action ff-mono inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[2px] border border-[var(--ink)] px-3 text-[10px] uppercase tracking-[0.1em] transition-colors sm:w-auto sm:px-6 sm:text-xs sm:tracking-[0.12em]";
 const btnPrimary = `${btnBase} bg-[var(--ink)] text-[var(--paper)] hover:bg-transparent hover:text-[var(--ink)]`;
 const btnGhost = `${btnBase} bg-transparent text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]`;
 
@@ -160,134 +161,6 @@ function DraftingMark({ className }: { className?: string }) {
         <path d="M100 38 v16 M100 146 v16 M38 100 h16 M146 100 h16" strokeWidth="2" />
       </g>
       <circle cx="100" cy="100" r="3.5" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-// One stroke of a plotted wireframe, in plotting order.
-type PlotStroke = {
-  d?: string;
-  rect?: [x: number, y: number, w: number, h: number, rx: number];
-  circle?: [cx: number, cy: number, r: number];
-  width?: number;
-  opacity?: number;
-};
-
-// Three widget layouts the plotter cycles through, each drawn frame-first,
-// then header, content, footer — the order a person would sketch it.
-const PLOT_LAYOUTS: { label: string; strokes: PlotStroke[] }[] = [
-  {
-    label: "FIG. A — STAT CARD",
-    strokes: [
-      { rect: [36, 28, 208, 248, 14], width: 2 },
-      { d: "M56 62 h84", width: 2.5, opacity: 0.85 },
-      { d: "M56 80 h56", width: 1.5, opacity: 0.55 },
-      { rect: [188, 54, 40, 18, 9], width: 1.5, opacity: 0.7 },
-      { d: "M56 122 h72", width: 4, opacity: 0.9 },
-      { d: "M140 122 h28", width: 1.5, opacity: 0.6 },
-      { d: "M56 168 L80 156 L100 172 L124 148 L150 160 L178 140 L204 150", width: 2 },
-      { d: "M56 204 h168", width: 1, opacity: 0.4 },
-      { rect: [56, 224, 54, 22, 11], width: 1.5, opacity: 0.7 },
-      { rect: [120, 224, 54, 22, 11], width: 1.5, opacity: 0.7 },
-      { rect: [184, 224, 40, 22, 11], width: 1.5, opacity: 0.45 }
-    ]
-  },
-  {
-    label: "FIG. B — THREAD",
-    strokes: [
-      { rect: [36, 28, 208, 248, 14], width: 2 },
-      { circle: [64, 68, 14], width: 1.5, opacity: 0.75 },
-      { rect: [90, 50, 130, 36, 11], width: 1.5, opacity: 0.75 },
-      { d: "M102 68 h96", width: 1.5, opacity: 0.5 },
-      { rect: [56, 102, 150, 48, 11], width: 1.5, opacity: 0.75 },
-      { d: "M68 121 h118", width: 1.5, opacity: 0.5 },
-      { d: "M68 137 h84", width: 1.5, opacity: 0.5 },
-      {
-        d: "M62 182 a3 3 0 1 0 0.1 0 M78 182 a3 3 0 1 0 0.1 0 M94 182 a3 3 0 1 0 0.1 0",
-        width: 1.5,
-        opacity: 0.6
-      },
-      { rect: [56, 210, 168, 36, 18], width: 2, opacity: 0.85 },
-      { d: "M192 238 l20 -10 l-20 -10", width: 2, opacity: 0.85 }
-    ]
-  },
-  {
-    label: "FIG. C — FORM",
-    strokes: [
-      { rect: [36, 28, 208, 248, 14], width: 2 },
-      { d: "M56 60 h96", width: 2.5, opacity: 0.85 },
-      { rect: [56, 84, 168, 30, 8], width: 1.5, opacity: 0.7 },
-      { d: "M68 99 h60", width: 1.5, opacity: 0.45 },
-      { rect: [56, 128, 168, 30, 8], width: 1.5, opacity: 0.7 },
-      { d: "M68 143 h44", width: 1.5, opacity: 0.45 },
-      { rect: [56, 178, 44, 22, 11], width: 1.5, opacity: 0.75 },
-      { circle: [89, 189, 7], width: 1.5, opacity: 0.85 },
-      { d: "M112 189 h64", width: 1.5, opacity: 0.55 },
-      { rect: [56, 224, 168, 34, 17], width: 2.5, opacity: 0.9 },
-      { d: "M116 241 h48", width: 2, opacity: 0.85 }
-    ]
-  }
-];
-
-const PLOT_SLOT_S = 12; // seconds each layout owns of the 36s cycle
-const PLOT_STAGGER_S = 0.3; // gap between successive pen strokes
-
-// The hero mark: a plotter endlessly drafting widget wireframes. Each stroke
-// draws itself in sequence (dash-offset on a shared timeline), the finished
-// figure holds, wipes, and the pen starts the next layout.
-function BlueprintMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 280 340"
-      className={className}
-      aria-hidden
-      fill="none"
-      stroke="currentColor"
-    >
-      {/* static sheet chrome: corner brackets */}
-      <path d="M24 34 v-14 h14 M242 20 h14 v14 M256 274 v14 h-14 M38 288 h-14 v-14"
-        strokeWidth="1.5"
-        opacity="0.5"
-      />
-      {PLOT_LAYOUTS.map((layout, slot) => (
-        <g key={layout.label} className={slot > 0 ? "sr-plot-alt" : undefined}>
-          {layout.strokes.map((stroke, i) => {
-            const style: React.CSSProperties = {
-              animationDelay: `${slot * PLOT_SLOT_S + i * PLOT_STAGGER_S}s`
-            };
-            const common = {
-              className: "sr-plot",
-              style,
-              pathLength: 1,
-              strokeWidth: stroke.width ?? 1.5,
-              opacity: stroke.opacity ?? 0.8,
-              strokeLinecap: "round" as const,
-              strokeLinejoin: "round" as const
-            };
-            if (stroke.rect) {
-              const [x, y, w, h, rx] = stroke.rect;
-              return <rect key={i} x={x} y={y} width={w} height={h} rx={rx} {...common} />;
-            }
-            if (stroke.circle) {
-              const [cx, cy, r] = stroke.circle;
-              return <circle key={i} cx={cx} cy={cy} r={r} {...common} />;
-            }
-            return <path key={i} d={stroke.d} {...common} />;
-          })}
-          <text
-            x="36"
-            y="322"
-            className={`ff-mono sr-plot-label${slot > 0 ? " sr-plot-alt" : ""}`}
-            style={{ animationDelay: `${slot * PLOT_SLOT_S}s` }}
-            fill="currentColor"
-            stroke="none"
-            fontSize="10"
-            letterSpacing="2"
-          >
-            {layout.label}
-          </text>
-        </g>
-      ))}
     </svg>
   );
 }
@@ -627,29 +500,33 @@ export function HomePage() {
     <div className="pb-6">
       {/* Hero */}
       <section aria-label="Introduction" className="relative pt-4 sm:pt-8 md:pt-16">
-        <BlueprintMark className="pointer-events-none absolute right-4 top-1/2 hidden h-80 w-64 -translate-y-1/2 text-[var(--ink)] opacity-[0.45] lg:block xl:right-12 xl:h-[24rem] xl:w-80" />
         <p className="ff-mono flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-[var(--ink)] pt-3.5 text-[11px] tracking-[0.16em] text-[var(--mid)]">
           <span className="uppercase">Open source — Apache-2.0</span>
           <span>@tugan/widgets</span>
         </p>
-        <h1 className="ff-display relative mt-6 text-balance text-[clamp(38px,11vw,52px)] font-semibold leading-[0.98] tracking-[-0.015em] text-[var(--ink)] sm:mt-8 sm:text-[clamp(44px,8.5vw,104px)] md:mt-11">
-          The model writes{" "}
-          <span className="sr-outline">the interface.</span>
-        </h1>
-        <p className="mt-7 max-w-[58ch] text-[15.5px] leading-relaxed text-[var(--mid)] md:mt-9 md:text-[17px]">
-          Widgets is a renderer for AI-generated UI. A model writes a strict,
-          JSX-like template; your app supplies the data.{" "}
-          <strong className="font-semibold text-[var(--ink)]">WidgetRenderer</strong>{" "}
-          validates both and paints polished, interactive components — no
-          arbitrary code, ever.
-        </p>
-        <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 md:mt-9">
-          <Link to="/playground" className={btnPrimary}>
-            Open playground →
-          </Link>
-          <Link to="/gallery" className={btnGhost}>
-            Browse the gallery
-          </Link>
+        <div className="hero-composition">
+          <div className="hero-copy">
+            <h1 className="ff-display relative mt-6 text-balance text-[clamp(38px,11vw,52px)] font-semibold leading-[0.98] tracking-[-0.015em] text-[var(--ink)] sm:mt-8 sm:text-[clamp(44px,8.5vw,104px)] md:mt-11">
+              The model writes{" "}
+              <span className="sr-outline">the interface.</span>
+            </h1>
+            <p className="mt-7 max-w-[58ch] text-[15.5px] leading-relaxed text-[var(--mid)] md:mt-9 md:text-[17px]">
+              Widgets is a renderer for AI-generated UI. A model writes a strict,
+              JSX-like template; your app supplies the data.{" "}
+              <strong className="font-semibold text-[var(--ink)]">WidgetRenderer</strong>{" "}
+              validates both and paints polished, interactive components — no
+              arbitrary code, ever.
+            </p>
+            <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 md:mt-9">
+              <Link to="/playground" className={btnPrimary}>
+                Open playground →
+              </Link>
+              <Link to="/gallery" className={btnGhost}>
+                Browse the gallery
+              </Link>
+            </div>
+          </div>
+          <ParticleHero />
         </div>
         <p className="ff-mono mt-8 grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-[var(--hairline)] pt-3.5 text-[10px] uppercase tracking-[0.1em] text-[var(--faint)] sm:flex sm:flex-wrap sm:gap-x-7 sm:text-[11px] sm:tracking-[0.14em] md:mt-11">
           <span>{componentCount} components</span>
