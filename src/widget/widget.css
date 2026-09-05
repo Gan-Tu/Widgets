@@ -73,6 +73,7 @@
   /* Surfaces */
   --widget-bg: #ffffff;
   --widget-surface: #ffffff;
+  --widget-text-inverse: var(--widget-surface);
   --widget-surface-secondary: #f8f8fa;
   --widget-surface-tertiary: #f0f0f3;
   --widget-surface-elevated: #ffffff;
@@ -361,7 +362,7 @@
 /* Button color palettes */
 .wg-btn[data-color="primary"] {
   --_btn-bg: var(--widget-text-emphasis);
-  --_btn-fg: var(--widget-surface);
+  --_btn-fg: var(--widget-text-inverse);
   --_btn-hover-bg: color-mix(in srgb, var(--widget-text-emphasis) 88%, var(--widget-surface));
   --_btn-soft-bg: var(--widget-surface-secondary);
   --_btn-soft-border: transparent;
@@ -461,7 +462,7 @@
   --_badge-soft-fg: var(--widget-text-secondary);
   --_badge-border: var(--widget-border-default);
   --_badge-solid-bg: var(--widget-text-secondary);
-  --_badge-solid-fg: var(--widget-surface);
+  --_badge-solid-fg: var(--widget-text-inverse);
 }
 .wg-badge[data-color="accent"] {
   --_badge-soft-bg: var(--widget-accent-soft);
@@ -1585,7 +1586,7 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
   color: var(--widget-text-secondary);
   font-weight: 400;
 }
-.widget-root.wg-tooltip { color: var(--widget-surface); }
+.widget-root.wg-tooltip { color: var(--widget-text-inverse); }
 
 /* Menus identify keyboard focus with a highlighted row, not another ring. */
 .widget-root :where([role="option"], [role^="menuitem"]):focus {

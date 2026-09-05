@@ -42,6 +42,24 @@ test("error panels retain the requested theme and appearance", () => {
   }
 });
 
+test("material surfaces recognize themed tokens and preserve custom or absent backgrounds", () => {
+  const props = { data: {}, appearance: "glass", template: '<Basic><Box background={{ light: "surface", dark: "#192a40" }}><Text value="Panel" /></Box><Box background={null}><Text value="Unpainted" /></Box></Basic>' };
+  const light = render({ ...props, theme: "light" });
+  const dark = render({ ...props, theme: "dark" });
+  assert.equal([...light.matchAll(/data-widget-surface="panel"/g)].length, 1);
+  assert.doesNotMatch(dark, /data-widget-surface=/);
+  assert.match(dark, /background:#192a40/);
+  assert.doesNotMatch(light + dark, /Template error/);
+});
+
+test("nested surfaces retain their semantic emphasis and shadow choices", () => {
+  const html = render({ data: {}, appearance: "glass", template: '<Card shadow={false}><Box background="surface" border={{ size: 2, color: "emphasis" }}><Card background="surface-secondary"><Text value="Nested" /></Card></Box></Card>' });
+  assert.equal([...html.matchAll(/data-widget-surface="panel"/g)].length, 3);
+  assert.match(html, /data-surface-emphasis="true"/);
+  assert.match(html, /data-surface-shadow="false"/);
+  assert.doesNotMatch(html, /Template error/);
+});
+
 test("all gallery templates render in glass without syntax or data changes", () => {
   for (const example of widgetExamples) {
     for (const theme of ["light", "dark"]) {

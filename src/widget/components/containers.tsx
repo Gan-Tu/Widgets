@@ -4,7 +4,7 @@ import { useWidgetAction, useWidgetForm, useWidgetTheme, WidgetFormProvider, Wid
 import { useWidgetAppearance } from "../theme";
 import type { ActionConfig, Alignment, Justification, Padding, ThemeColor, WidgetStatus } from "../types";
 import { useVisibleAction } from "../hooks";
-import { applyPadding, resolveColor, resolveGap, spaceToCss } from "../style";
+import { applyPadding, isSurfaceColor, resolveColor, resolveGap, spaceToCss } from "../style";
 import { Row, resolveAlign, resolveJustify } from "./layout";
 import { Icon, Image, PlainButton } from "./content";
 
@@ -192,6 +192,8 @@ const CardInner: React.FC<CardProps> = ({
         className="widget-root wg-card"
         data-theme={resolvedTheme}
         data-appearance={appearance}
+        data-widget-surface={isSurfaceColor(background, resolvedTheme) ? "panel" : undefined}
+        data-surface-shadow={shadow ? "true" : "false"}
         data-clickable={onClickAction ? "true" : undefined}
         style={style}
         role={onClickAction ? "button" : undefined}
@@ -293,6 +295,7 @@ const ListView: React.FC<ListViewProps> = ({
         className="widget-root wg-card"
         data-theme={resolvedTheme}
         data-appearance={appearance}
+        data-widget-surface="panel"
         style={{
           background: "var(--widget-surface-elevated)",
           boxShadow: "var(--widget-shadow)",

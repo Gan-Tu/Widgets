@@ -169,7 +169,7 @@ function SegmentedControl<T extends string>({
     <div
       role="group"
       aria-label={label}
-      className="inline-flex items-center rounded-lg bg-[var(--plinth)] p-0.5"
+      className="studio-segmented inline-flex items-center rounded-lg bg-[var(--plinth)] p-0.5"
     >
       {options.map((option) => (
         <button

@@ -16,7 +16,9 @@ import {
   applyBorder,
   applyMargin,
   applyPadding,
+  isSurfaceColor,
   resolveColor,
+  resolveThemeColor,
   resolveGap,
   resolveRadius,
   sizeToCss,
@@ -118,10 +120,16 @@ const Box: React.FC<BoxProps> = ({
     { direction, align, justify, wrap, flex, gap, onVisibleAction, ...props },
     theme
   );
+  const materialSurface = isSurfaceColor(props.background, theme);
+  const borderColor = props.border && typeof props.border === "object" && "color" in props.border && props.border.color
+    ? resolveThemeColor(props.border.color, theme) : undefined;
+  const materialEmphasis = borderColor === "emphasis" || borderColor === "accent" || borderColor === "strong";
 
   return (
     <div
       ref={visibleRef}
+      data-widget-surface={materialSurface ? "panel" : undefined}
+      data-surface-emphasis={materialSurface && materialEmphasis ? "true" : undefined}
       style={{
         display: "flex",
         flexDirection: direction === "row" ? "row" : "column",

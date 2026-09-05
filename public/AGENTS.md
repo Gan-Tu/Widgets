@@ -178,6 +178,8 @@ Every control's `onChangeAction` fires with the new value under both its `name` 
 
 The host can render the same template with standard styling or an experimental liquid-glass material. This is a `WidgetRenderer`/host setting, separate from light/dark theme. **Do not add appearance keys to the output JSON or template props.** Compose with the same tokens, components, and actions; the optional stylesheet supplies the material, including floating menus and dialogs. Avoid recreating glass with nested translucent Boxes or extra decorative borders. Switching the host appearance preserves the widget's data and interaction state.
 
+Use surface tokens for panels so the material can adapt: an outer pane provides frosting, a nested pane uses a thin matte wash, and deeper groups stay clear. Primary and semantic buttons receive readable translucent tints; secondary controls stay neutral. Tables share one finish with a tinted selection, and popovers form a separate, denser layer. Explicit photo/brand backgrounds remain authored content. This follows [Apple's material hierarchy and tinting guidance](https://developer.apple.com/videos/play/wwdc2025/219/); avoid adding duplicate glass layers or hard outlines to simulate selection.
+
 ### Spacing & sizing units — read carefully
 
 - `padding`, `margin`, `gap`, `Divider.spacing`, `Spacer.minSize` use **spacing units: 1 unit = 4px**. `padding={4}` → 16px.

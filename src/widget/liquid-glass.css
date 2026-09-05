@@ -1,185 +1,255 @@
-/* Optional material layer. Import after styles.css and opt in with appearance="glass".
-   Content stays sharp: only surfaces sample the backdrop, never their children. */
+/* Optional material layer. Standard appearance and template syntax are unchanged.
+   One optical pane per stack; nested content uses thin washes, never repeated blur. */
 .widget-root[data-appearance="glass"] {
   --widget-text-prose: #20242b;
   --widget-text-primary: #20242b;
   --widget-text-emphasis: #11151c;
   --widget-text-secondary: #444b55;
   --widget-text-tertiary: #505966;
-  /* Keep --widget-surface opaque: it also serves as inverse button text. */
-  --widget-surface-elevated: rgb(250 253 255 / 82%);
-  --widget-surface-elevated-secondary: rgb(245 249 253 / 70%);
-  --widget-surface-secondary: rgb(225 234 243 / 45%);
-  --widget-surface-tertiary: rgb(188 203 219 / 42%);
-  --widget-surface-hover: rgb(255 255 255 / 52%);
-  --widget-surface-active: rgb(180 199 221 / 45%);
-  --widget-border-default: rgb(93 115 142 / 18%);
-  --widget-border-subtle: rgb(93 115 142 / 13%);
-  --widget-border-control: rgb(120 140 162 / 20%);
+  --widget-text-inverse: #ffffff;
+  --widget-text-success: #064320;
+  --widget-text-warning: #723c02;
+  --widget-text-danger: #731323;
+  --widget-text-info: #084186;
+  --widget-success-soft-fg: #064320;
+  --widget-warning-soft-fg: #723c02;
+  --widget-danger-soft-fg: #731323;
+  --widget-info-soft-fg: #084186;
+  --widget-discovery-soft-fg: #4d2284;
+  --widget-surface: rgb(255 255 255 / 16%);
+  --widget-surface-elevated: rgb(255 255 255 / 22%);
+  --widget-surface-elevated-secondary: rgb(241 248 255 / 18%);
+  --widget-surface-secondary: rgb(84 119 157 / 5%);
+  --widget-surface-tertiary: rgb(84 119 157 / 11%);
+  --widget-surface-hover: rgb(111 161 205 / 12%);
+  --widget-surface-active: rgb(61 137 201 / 18%);
+  --widget-accent-soft: rgb(31 133 216 / 10%);
+  --widget-accent-soft-strong: rgb(31 133 216 / 18%);
+  --widget-success-soft-bg: rgb(21 128 61 / 10%);
+  --widget-warning-soft-bg: rgb(226 150 29 / 12%);
+  --widget-danger-soft-bg: rgb(220 38 38 / 10%);
+  --widget-info-soft-bg: rgb(37 99 235 / 10%);
+  --widget-discovery-soft-bg: rgb(124 58 237 / 10%);
+  --widget-border-default: rgb(102 126 155 / 18%);
+  --widget-border-subtle: rgb(102 126 155 / 11%);
+  --widget-border-control: rgb(116 140 170 / 24%);
   --widget-border-strong: #7b899b;
   --widget-radius: 22px;
   --widget-radius-control: 12px;
-  --widget-shadow-xs: 0 2px 3px rgb(33 53 78 / 6%), inset 0 1px 0 rgb(255 255 255 / 85%);
-  --widget-shadow-sm: 0 4px 12px rgb(33 53 78 / 8%), inset 0 1px 0 rgb(255 255 255 / 85%);
-  --widget-shadow: inset 0 1px 0 rgb(255 255 255 / 95%), inset 0 -1px 0 rgb(255 255 255 / 35%), 0 16px 40px -16px rgb(44 65 92 / 28%), 0 3px 8px -4px rgb(44 65 92 / 16%);
-  --widget-shadow-lg: inset 0 1px 0 rgb(255 255 255 / 95%), 0 24px 64px -18px rgb(32 48 76 / 32%);
-  --widget-glass-blur: blur(24px) saturate(1.45);
-  --widget-glass-highlight: linear-gradient(145deg, rgb(255 255 255 / 55%), rgb(255 255 255 / 5%) 60%);
-  --widget-glass-solid-highlight: linear-gradient(145deg, rgb(255 255 255 / 15%), transparent 65%);
-  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), inset 0 -1px 0 rgb(100 120 150 / 9%), 0 2px 4px rgb(35 55 85 / 5%);
-  --widget-glass-thumb: rgb(255 255 255 / 86%);
+  --widget-shadow-xs: inset 0 1px 0 rgb(255 255 255 / 55%), 0 1px 3px rgb(33 53 78 / 5%);
+  --widget-shadow-sm: inset 0 1px 0 rgb(255 255 255 / 55%), 0 3px 10px -5px rgb(33 53 78 / 12%);
+  --widget-shadow: var(--widget-shadow-sm);
+  --widget-shadow-lg: var(--widget-shadow-sm);
+  --widget-glass-pane: rgb(248 252 255 / 78%);
+  --widget-glass-popup: rgb(248 252 255 / 90%);
+  --widget-glass-wash: rgb(255 255 255 / 18%);
+  --widget-glass-neutral: #8da3ba;
+  --widget-glass-tint: #1688df;
+  --widget-glass-tint-text: #043e6c;
+  --widget-glass-hover-tint: 12%;
+  --widget-glass-press-tint: 16%;
+  --widget-glass-selected: rgb(22 136 223 / 14%);
+  --widget-glass-highlight: linear-gradient(155deg, rgb(255 255 255 / 36%), rgb(255 255 255 / 3%) 65%);
+  --widget-glass-pane-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), inset 0 -1px 0 rgb(255 255 255 / 20%), 0 16px 36px -20px rgb(34 61 92 / 32%);
+  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 62%), 0 2px 5px -2px rgb(35 55 85 / 12%);
+  --widget-glass-thumb: rgb(255 255 255 / 76%);
+  --widget-glass-blur: blur(24px) saturate(1.35);
 }
-
 .widget-root[data-appearance="glass"][data-theme="dark"] {
   --widget-text-prose: #f3f6fa;
   --widget-text-primary: #f3f6fa;
   --widget-text-emphasis: #ffffff;
   --widget-text-secondary: #c9d2de;
   --widget-text-tertiary: #b8c3d2;
-  --widget-surface-elevated: rgb(24 30 40 / 84%);
-  --widget-surface-elevated-secondary: rgb(36 44 57 / 82%);
-  --widget-surface-secondary: rgb(131 152 180 / 12%);
-  --widget-surface-tertiary: rgb(161 185 211 / 20%);
-  --widget-surface-hover: rgb(200 222 255 / 12%);
-  --widget-surface-active: rgb(200 222 255 / 18%);
-  --widget-border-default: rgb(218 233 255 / 18%);
-  --widget-border-subtle: rgb(218 233 255 / 12%);
-  --widget-border-control: rgb(218 233 255 / 22%);
+  --widget-text-inverse: #141416;
+  --widget-text-success: #c6f5d7;
+  --widget-text-warning: #ffe8b9;
+  --widget-text-danger: #ffd5dc;
+  --widget-text-info: #d4e8ff;
+  --widget-success-soft-fg: #c6f5d7;
+  --widget-warning-soft-fg: #ffe8b9;
+  --widget-danger-soft-fg: #ffd5dc;
+  --widget-info-soft-fg: #d4e8ff;
+  --widget-discovery-soft-fg: #e6dcff;
+  --widget-surface: rgb(178 202 230 / 5%);
+  --widget-surface-elevated: rgb(178 202 230 / 7%);
+  --widget-surface-elevated-secondary: rgb(178 202 230 / 6%);
+  --widget-surface-secondary: rgb(178 202 230 / 4%);
+  --widget-surface-tertiary: rgb(178 202 230 / 10%);
+  --widget-surface-hover: rgb(145 191 240 / 12%);
+  --widget-surface-active: rgb(116 181 247 / 18%);
+  --widget-accent-soft: rgb(101 181 247 / 12%);
+  --widget-accent-soft-strong: rgb(101 181 247 / 20%);
+  --widget-border-default: rgb(202 224 252 / 16%);
+  --widget-border-subtle: rgb(202 224 252 / 9%);
+  --widget-border-control: rgb(202 224 252 / 24%);
   --widget-border-strong: #99abc3;
-  --widget-shadow-xs: inset 0 1px 0 rgb(233 244 255 / 16%), 0 2px 4px rgb(0 0 0 / 16%);
-  --widget-shadow-sm: inset 0 1px 0 rgb(233 244 255 / 16%), 0 4px 14px rgb(0 0 0 / 22%);
-  --widget-shadow: inset 0 1px 0 rgb(233 244 255 / 26%), inset 0 -1px 0 rgb(233 244 255 / 5%), 0 18px 48px -16px rgb(0 0 0 / 50%);
-  --widget-shadow-lg: inset 0 1px 0 rgb(233 244 255 / 26%), 0 24px 64px -16px rgb(0 0 0 / 65%);
-  --widget-glass-highlight: linear-gradient(145deg, rgb(229 241 255 / 10%), rgb(229 241 255 / 1%) 60%);
-  --widget-glass-control-shadow: inset 0 1px 0 rgb(224 239 255 / 21%), inset 0 -1px 0 rgb(0 0 0 / 15%), 0 2px 4px rgb(0 0 0 / 14%);
-  --widget-glass-thumb: rgb(229 239 251 / 88%);
+  --widget-shadow-xs: inset 0 1px 0 rgb(233 244 255 / 12%), 0 1px 3px rgb(0 0 0 / 10%);
+  --widget-shadow-sm: inset 0 1px 0 rgb(233 244 255 / 12%), 0 3px 10px -5px rgb(0 0 0 / 20%);
+  --widget-glass-pane: rgb(23 31 43 / 88%);
+  --widget-glass-popup: rgb(26 35 49 / 93%);
+  --widget-glass-wash: rgb(168 194 224 / 6%);
+  --widget-glass-neutral: #94b3d5;
+  --widget-glass-tint: #6ab9fb;
+  --widget-glass-tint-text: #e5f3ff;
+  --widget-glass-hover-tint: 8%;
+  --widget-glass-press-tint: 12%;
+  --widget-glass-selected: rgb(101 181 247 / 17%);
+  --widget-glass-highlight: linear-gradient(155deg, rgb(229 241 255 / 8%), rgb(229 241 255 / 1%) 65%);
+  --widget-glass-pane-shadow: inset 0 1px 0 rgb(233 244 255 / 22%), 0 18px 40px -18px rgb(0 0 0 / 50%);
+  --widget-glass-control-shadow: inset 0 1px 0 rgb(224 239 255 / 16%), 0 2px 5px -2px rgb(0 0 0 / 22%);
+  --widget-glass-thumb: rgb(220 236 255 / 68%);
 }
 
-/* Structural glass: cards and floating surfaces get the optical depth. */
-.widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) {
+/* Semantic surface hooks cover Cards and token-backed Boxes, including pricing
+   tiles. Custom photo/brand backgrounds remain authored content. */
+.widget-root[data-appearance="glass"][data-widget-surface],
+.widget-root[data-appearance="glass"] [data-widget-surface] {
+  background: var(--widget-glass-pane) !important;
+  box-shadow: var(--widget-glass-pane-shadow) !important;
   -webkit-backdrop-filter: var(--widget-glass-blur);
   backdrop-filter: var(--widget-glass-blur);
+}
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-widget-surface],
+.widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-widget-surface] {
+  background: var(--widget-glass-wash) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.widget-root[data-appearance="glass"] [data-surface-emphasis="true"] {
+  border-width: 1px !important;
+  border-color: color-mix(in srgb, var(--widget-glass-tint) 35%, transparent) !important;
+  background: color-mix(in srgb, var(--widget-glass-tint) 5%, var(--widget-glass-pane)) !important;
+}
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-surface-emphasis="true"],
+.widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-surface-emphasis="true"] {
+  background: var(--widget-glass-selected) !important;
+}
+.widget-root[data-appearance="glass"].wg-card[data-surface-shadow="false"] { box-shadow: none !important; }
+/* Additional inset groups share their parent's finish instead of accumulating paint. */
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-widget-surface] [data-widget-surface]:not([data-surface-emphasis]),
+.widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-widget-surface] [data-widget-surface]:not([data-surface-emphasis]) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Portals begin a fresh optical layer. Their content shares the same pane. */
+.widget-root[data-appearance="glass"].wg-portal {
+  color: var(--widget-text-primary);
+  background: var(--widget-glass-popup);
   border-color: var(--widget-border-default);
-}
-.widget-root[data-appearance="glass"].wg-portal:not(.wg-tooltip) {
-  border-radius: 18px;
-  background: var(--widget-surface-elevated);
-  box-shadow: var(--widget-shadow-lg);
-}
-.widget-root[data-appearance="glass"].wg-tooltip {
-  /* Tooltips keep their inverse, readable foreground. */
-  background: var(--widget-text-emphasis);
-  box-shadow: var(--widget-shadow-sm);
-}
-
-/* Inner controls use highlights on the existing fill. No nested blur layers. */
-.widget-root[data-appearance="glass"] :where(
-  .wg-btn:not([data-variant="ghost"]),
-  [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]),
-  .wg-agent-button, .wg-choice, [data-slot="toggle"], [data-slot="toggle-group-item"],
-  [data-slot="checkbox"], [data-slot="radio-group-item"],
-  .wg-input, .wg-field-control, [data-slot="input"], [data-slot="textarea"],
-  [data-slot="select-trigger"], [data-slot="input-otp-slot"]
-) {
-  background-image: var(--widget-glass-highlight);
-  box-shadow: var(--widget-glass-control-shadow);
-}
-.widget-root[data-appearance="glass"] :where(
-  .wg-btn[data-variant="solid"], [data-slot="button"][data-variant="default"],
-  [data-slot="button"][data-variant="destructive"], .wg-agent-button[data-primary],
-  .wg-choice[aria-pressed="true"], [data-slot="toggle"][data-state="on"], [data-slot="toggle-group-item"][data-state="on"],
-  [data-slot="checkbox"][data-state="checked"]
-) {
-  background-image: var(--widget-glass-solid-highlight);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), 0 3px 8px rgb(15 25 40 / 12%);
-}
-.widget-root[data-appearance="glass"] :where(.wg-input, [data-slot="input"], [data-slot="textarea"], .wg-field-control) {
-  background-color: var(--widget-surface-secondary);
-  border-radius: var(--widget-radius-control);
-}
-.widget-root[data-appearance="glass"] :where(.wg-input, .wg-field-control):focus-visible {
-  /* Retain the established border-only field focus treatment. */
-  box-shadow: none;
-  border-color: var(--widget-border-strong);
-}
-.widget-root[data-appearance="glass"] :where(.wg-btn, [data-slot="button"]) {
-  border-radius: var(--widget-radius-control);
-}
-.widget-root[data-appearance="glass"] .wg-tabs-list {
-  gap: 4px;
-  padding: 4px;
-  border: 0;
-  border-radius: 14px;
-  background: var(--widget-surface-secondary);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%);
-}
-.widget-root[data-appearance="glass"] .wg-tabs-tab {
-  padding: 7px 12px;
-  border: 0;
-  border-radius: 10px;
-}
-.widget-root[data-appearance="glass"] .wg-tabs-tab[aria-selected="true"] {
-  background: var(--widget-surface-elevated);
-  box-shadow: var(--widget-glass-control-shadow);
-}
-.widget-root[data-appearance="glass"] :where(.wg-switch, .wg-slider-track) {
-  box-shadow: inset 0 1px 3px rgb(30 55 85 / 15%), 0 1px 0 rgb(255 255 255 / 35%);
-}
-.widget-root[data-appearance="glass"] .wg-switch > span,
-.widget-root[data-appearance="glass"] .wg-slider-thumb {
-  background: var(--widget-glass-thumb);
-  border: 1px solid rgb(255 255 255 / 60%);
-  box-shadow: inset 0 1px 1px white, 0 2px 5px rgb(25 45 75 / 20%);
-}
-.widget-root[data-appearance="glass"] .wg-slider-thumb { width: 22px; height: 22px; }
-.widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(30 55 85 / 8%), 0 1px 0 rgb(255 255 255 / 40%); }
-/* These primitives set their fill inline; overlay light without replacing it. */
-.widget-root[data-appearance="glass"] :is(.wg-choice, .wg-segmented-control > button) {
-  background-image: var(--widget-glass-highlight) !important;
-}
-.widget-root[data-appearance="glass"] :is(.wg-choice[aria-pressed="true"], .wg-segmented-control > button[aria-checked="true"]) {
-  background-image: var(--widget-glass-solid-highlight) !important;
-}
-.widget-root[data-appearance="glass"][data-theme="dark"] .wg-switch[aria-checked="true"] > span {
-  background: var(--widget-on-accent);
-  border-color: rgb(255 255 255 / 22%);
-}
-.widget-root[data-appearance="glass"] :where(.wg-selection-toolbar, .wg-agent-input) {
-  background-image: var(--widget-glass-highlight);
-  box-shadow: var(--widget-shadow-sm);
-}
-.widget-root[data-appearance="glass"] .recharts-default-tooltip {
-  background: var(--widget-surface-elevated) !important;
-  border-color: var(--widget-border-default) !important;
-  border-radius: 12px !important;
+  border-radius: 16px;
+  box-shadow: var(--widget-glass-pane-shadow);
   -webkit-backdrop-filter: var(--widget-glass-blur);
   backdrop-filter: var(--widget-glass-blur);
-  box-shadow: var(--widget-shadow-sm);
+}
+.widget-root[data-appearance="glass"].wg-portal [cmdk-root] { background: transparent; }
+.widget-root[data-appearance="glass"].wg-portal :is([role="option"], [role^="menuitem"]):is([data-highlighted], [data-selected="true"]) { background: var(--widget-glass-selected); color: var(--widget-text-primary); }
+
+/* State variables keep every hover/press in the same material family. Important
+   longhands override inline fills on chips/segments without changing geometry. */
+.widget-root[data-appearance="glass"] :is(
+  .wg-btn[data-variant], [data-slot="button"], .wg-agent-button,
+  .wg-choice, .wg-segmented-control > button, .wg-tabs-tab,
+  [data-slot="toggle"], [data-slot="toggle-group-item"],
+  .wg-agent-send, .wg-fine-apply, .wg-selection-submit, .wg-table-footer button
+) {
+  --_glass-tint: var(--widget-glass-neutral);
+  --_glass-text: var(--widget-text-primary);
+  --_glass-fill: var(--widget-glass-wash);
+  --_glass-edge: var(--widget-border-control);
+  background-color: var(--_glass-fill) !important;
+  background-image: var(--widget-glass-highlight) !important;
+  color: var(--_glass-text) !important;
+  border-color: var(--_glass-edge) !important;
+  border-radius: var(--widget-radius-control);
+  box-shadow: var(--widget-glass-control-shadow) !important;
+  filter: none;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 100ms ease;
+}
+.widget-root[data-appearance="glass"] :is(
+  .wg-btn[data-color="primary"], .wg-btn[data-color="accent"],
+  [data-slot="button"][data-variant="default"], .wg-agent-button[data-primary],
+  .wg-agent-send, .wg-fine-apply, .wg-selection-submit, .wg-table-footer button,
+  .wg-choice[aria-pressed="true"], .wg-segmented-control > button[aria-checked="true"],
+  .wg-tabs-tab[aria-selected="true"], [data-slot="toggle"][data-state="on"], [data-slot="toggle-group-item"][data-state="on"]
+) { --_glass-tint: var(--widget-glass-tint); --_glass-text: var(--widget-glass-tint-text); --_glass-fill: color-mix(in srgb, var(--_glass-tint) 18%, var(--widget-glass-wash)); --_glass-edge: color-mix(in srgb, var(--_glass-tint) 27%, transparent); }
+.widget-root[data-appearance="glass"] .wg-btn[data-color="info"] { --_glass-tint: var(--widget-info); --_glass-text: var(--widget-info-soft-fg); }
+.widget-root[data-appearance="glass"] .wg-btn[data-color="success"] { --_glass-tint: var(--widget-success); --_glass-text: var(--widget-success-soft-fg); }
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-color="danger"], [data-slot="button"][data-variant="destructive"]) { --_glass-tint: var(--widget-danger); --_glass-text: var(--widget-danger-soft-fg); }
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-color="warning"], .wg-btn[data-color="caution"]) { --_glass-tint: var(--widget-warning); --_glass-text: var(--widget-warning-soft-fg); }
+.widget-root[data-appearance="glass"] .wg-btn[data-color="discovery"] { --_glass-tint: var(--widget-discovery); --_glass-text: var(--widget-discovery-soft-fg); }
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-color="info"], .wg-btn[data-color="success"], .wg-btn[data-color="danger"], .wg-btn[data-color="warning"], .wg-btn[data-color="caution"], .wg-btn[data-color="discovery"], [data-slot="button"][data-variant="destructive"]) { --_glass-fill: color-mix(in srgb, var(--_glass-tint) 14%, var(--widget-glass-wash)); --_glass-edge: color-mix(in srgb, var(--_glass-tint) 25%, transparent); }
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="ghost"], [data-slot="button"][data-variant="ghost"], [data-slot="button"][data-variant="link"], .wg-tabs-tab:not([aria-selected="true"])) {
+  --_glass-fill: transparent;
+  --_glass-edge: transparent;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+@media (hover: hover) {
+  .widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, .wg-tabs-tab, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit, .wg-table-footer button):hover:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
+    background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-hover-tint)), var(--_glass-tint) var(--widget-glass-hover-tint)) !important;
+    border-color: color-mix(in srgb, var(--_glass-tint) 30%, transparent) !important;
+    box-shadow: var(--widget-glass-control-shadow), inset 0 0 0 1px rgb(255 255 255 / 10%) !important;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit):active:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
+  background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-press-tint)), var(--_glass-tint) var(--widget-glass-press-tint)) !important;
+  box-shadow: inset 0 1px 3px rgb(22 50 80 / 12%) !important;
+  transform: scale(.985);
 }
 
-/* Clear material fallbacks: neither low contrast nor blur is essential to use. */
+/* Recessed fields stay matte. Keyboard focus still uses one border cue. */
+.widget-root[data-appearance="glass"] :is(.wg-input, .wg-field-control, [data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"], [data-slot="input-otp-slot"]) {
+  background: var(--widget-glass-wash) !important;
+  color: var(--widget-text-primary) !important;
+  box-shadow: inset 0 1px 2px rgb(22 50 80 / 5%), 0 1px 0 rgb(255 255 255 / 24%) !important;
+  border-color: var(--widget-border-control) !important;
+}
+.widget-root[data-appearance="glass"] :is(.wg-input, .wg-field-control, [data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]):focus-visible,
+.widget-root[data-appearance="glass"] [data-slot="input-otp-slot"][data-active] {
+  outline: none;
+  box-shadow: none !important;
+  border-color: var(--widget-border-strong) !important;
+}
+.widget-root[data-appearance="glass"] .wg-tabs-list { gap: 4px; padding: 4px; border: 0; border-radius: 14px; background: var(--widget-surface-secondary); }
+.widget-root[data-appearance="glass"] .wg-tabs-tab { padding: 7px 12px; border: 1px solid transparent; border-radius: 10px; }
+.widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(30 55 85 / 6%); }
+.widget-root[data-appearance="glass"] :is(.wg-switch, .wg-slider-track, [data-slot="checkbox"], [data-slot="radio-group-item"]) { background: var(--widget-surface-tertiary); border-color: var(--widget-border-control); box-shadow: inset 0 1px 3px rgb(30 55 85 / 12%); }
+.widget-root[data-appearance="glass"] :is(.wg-switch[aria-checked="true"], [data-slot="checkbox"][data-state="checked"], [data-slot="radio-group-item"][data-state="checked"]) { background: var(--widget-glass-selected); border-color: var(--widget-glass-tint); color: var(--widget-glass-tint-text); }
+.widget-root[data-appearance="glass"] .wg-switch > span,
+.widget-root[data-appearance="glass"] .wg-slider-thumb { background: var(--widget-glass-thumb); border: 1px solid rgb(255 255 255 / 55%); box-shadow: inset 0 1px 1px rgb(255 255 255 / 60%), 0 2px 5px rgb(25 45 75 / 18%); }
+.widget-root[data-appearance="glass"] .wg-slider-thumb { width: 22px; height: 22px; }
+.widget-root[data-appearance="glass"] .wg-badge[data-variant="solid"] { background: var(--_badge-soft-bg); color: var(--_badge-soft-fg); border-color: var(--_badge-border); }
+
+/* Dense data shares one surface; selected headers and cells use the same tint. */
+.widget-root[data-appearance="glass"] :is(.wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) { background: var(--widget-glass-wash); box-shadow: none; }
+.widget-root[data-appearance="glass"] :is(.wg-comparison-table, .wg-workspace-table) thead th { background: var(--widget-surface-secondary); }
+.widget-root[data-appearance="glass"] .wg-comparison-table [data-highlighted],
+.widget-root[data-appearance="glass"] .wg-workspace-table tr[data-selected] { background: var(--widget-glass-selected); }
+.widget-root[data-appearance="glass"] .wg-comparison-table thead th[data-highlighted] { color: var(--widget-glass-tint-text); }
+.widget-root[data-appearance="glass"] :is(.wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar) { background-color: var(--widget-glass-wash); box-shadow: var(--widget-shadow-xs); }
+.widget-root[data-appearance="glass"] :is(.wg-task-row, .wg-context-card, .wg-approval-options label):hover { background: var(--widget-surface-hover); border-color: var(--widget-border-control); box-shadow: var(--widget-shadow-sm); transform: none; }
+.widget-root[data-appearance="glass"] .recharts-default-tooltip { background: var(--widget-glass-popup) !important; border-color: var(--widget-border-default) !important; border-radius: 12px !important; box-shadow: var(--widget-glass-pane-shadow); -webkit-backdrop-filter: var(--widget-glass-blur); backdrop-filter: var(--widget-glass-blur); }
+
+/* Solid material is reserved for requested accessibility and browser fallback. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .widget-root[data-appearance="glass"] { --widget-surface-elevated: #f7faff; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-surface-elevated: #1c2430; }
+  .widget-root[data-appearance="glass"] { --widget-glass-pane: #f4f8fc; --widget-glass-popup: #f4f8fc; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c2430; --widget-glass-popup: #1c2430; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .widget-root[data-appearance="glass"] {
-    --widget-surface-elevated: #ffffff;
-    --widget-surface-elevated-secondary: #f4f6f9;
-    --widget-surface-secondary: #f0f3f7;
-    --widget-surface-tertiary: #e0e6ef;
-    --widget-glass-blur: none;
-    --widget-glass-highlight: none;
-    --widget-glass-solid-highlight: none;
-  }
-  .widget-root[data-appearance="glass"][data-theme="dark"] {
-    --widget-surface-elevated: #181e28;
-    --widget-surface-elevated-secondary: #242d3b;
-    --widget-surface-secondary: #242d3b;
-    --widget-surface-tertiary: #354157;
-  }
+  .widget-root[data-appearance="glass"] { --widget-glass-pane: #ffffff; --widget-glass-popup: #ffffff; --widget-glass-wash: #edf2f8; --widget-glass-selected: #d8eafa; --widget-glass-highlight: none; --widget-glass-blur: none; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #181e28; --widget-glass-popup: #181e28; --widget-glass-wash: #273244; --widget-glass-selected: #294765; }
 }
 @media (prefers-contrast: more) {
   .widget-root[data-appearance="glass"] { --widget-border-default: #7b899b; --widget-border-subtle: #7b899b; --widget-border-control: #7b899b; }
   .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-border-default: #99abc3; --widget-border-subtle: #99abc3; --widget-border-control: #99abc3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .widget-root[data-appearance="glass"] :is(button, [role="button"]) { transition: none; }
+  .widget-root[data-appearance="glass"] :is(button, [role="button"]):active { transform: none; }
 }

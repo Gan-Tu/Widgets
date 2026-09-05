@@ -231,6 +231,10 @@ The effect uses frosted backgrounds, backdrop blur, edge highlights, and restrai
 
 The optional stylesheet lives in `src/widget/liquid-glass.css`; demo backgrounds and chrome live separately in `src/styles/glass-demo.css`. The package build copies the material stylesheet to its own export, so importing only `styles.css` keeps the existing appearance.
 
+Material hierarchy follows [Apple's Liquid Glass guidance](https://developer.apple.com/videos/play/wwdc2025/219/): tint emphasizes primary actions, and a group shares one optical layer. Outer Cards, token-backed Boxes, and agent/workspace panels receive the frosted pane; nested panels use a thin matte wash, and deeper groups stay clear. Floating menus begin a fresh, denser pane. Tables share their container's finish, with one tint for selected columns. Labels, images, and chart marks stay sharp. Built-in components identify painted surfaces through the internal `data-widget-surface` hook; this adds no template props.
+
+Glass buttons use translucent neutral or semantic tints through rest, hover, and press states. Hover gently strengthens the tint; pressing adds an inset highlight and a small compression. Disabled controls retain their disabled treatment. Solid surfaces remain available for reduced-transparency/high-contrast preferences. Use surface tokens for automatic material treatment; explicit photo/brand backgrounds remain authored content. The implementation avoids nested blur boundaries, which [MDN explains can prevent a child from sampling the page backdrop](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/backdrop-filter#backdrop_root).
+
 ## License and project boundaries
 
 The code and documentation in this repository, including the `@tugan/widgets`

@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--widget-text-emphasis)] text-[var(--widget-surface)] hover:opacity-90",
+          "bg-[var(--widget-text-emphasis)] text-[var(--widget-text-inverse)] hover:opacity-90",
         destructive:
           "bg-[var(--widget-danger)] text-[var(--widget-on-danger)] hover:opacity-90 ",
         outline:

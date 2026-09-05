@@ -154,6 +154,12 @@ export function resolveThemeColor(
   return theme === "dark" ? color.dark : color.light;
 }
 
+/** Identify semantic panel fills without reinterpreting authored brand colors. */
+export function isSurfaceColor(color: string | ThemeColor | null | undefined, theme: ThemeMode) {
+  const raw = color ? resolveThemeColor(color, theme) : undefined;
+  return raw !== undefined && Object.hasOwn(surfaceTokens, raw);
+}
+
 // Colors that don't match a token fall through to raw CSS, and templates are
 // model-authored — so an unrecognized value like `url(https://attacker/pixel)`
 // would turn a widget into a beacon that leaks the viewer's IP. Allow the value

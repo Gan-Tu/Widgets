@@ -66,7 +66,7 @@ function WorkspaceTable({
   onRowClick?: (row: Record<string, TableValue>, index: number) => void;
 }) {
   return (
-    <div className="wg-workspace-table-wrap">
+    <div className="wg-workspace-table-wrap" data-widget-surface="panel">
       <table className="wg-workspace-table">
         <thead><tr>{columns.map((column) => <th data-align={column.align} key={column.key}>{column.label}</th>)}</tr></thead>
         <tbody>
@@ -144,7 +144,7 @@ const ContextCards: React.FC<ContextCardsProps> = ({
           </>
         ) : null;
         return (
-          <article className="wg-context-card" key={String(item.id ?? index)}>
+          <article className="wg-context-card" data-widget-surface="panel" key={String(item.id ?? index)}>
             <button
               type="button"
               disabled={!onItemClickAction}
@@ -183,7 +183,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
   features = [],
   highlightPlan
 }) => (
-  <div className="wg-comparison-table" role="region" aria-label={label} tabIndex={0}>
+  <div className="wg-comparison-table" data-widget-surface="panel" role="region" aria-label={label} tabIndex={0}>
     <table>
       <thead><tr><th>Feature</th>{plans.map((plan, index) => <th data-highlighted={highlightPlan === index || undefined} key={plan}>{plan}</th>)}</tr></thead>
       <tbody>
@@ -393,7 +393,7 @@ const FilterTable: React.FC<FilterTableProps> = ({
   const [active, setActive] = React.useState(defaultFilter);
   const visibleRows = active === "all" ? rows : rows.filter((row) => valueText(row[statusKey]).toLowerCase() === active.toLowerCase());
   return (
-    <div className="wg-filter-table">
+    <div className="wg-filter-table" data-widget-surface="panel">
       <div className="wg-filter-chips">
         {filters.map((filter) => (
           <button
@@ -501,7 +501,7 @@ const Search: React.FC<SearchProps> = ({
     if (onChangeAction && dispatch) dispatch(onChangeAction, buildChangePayload(name, next));
   };
   return (
-    <div className="wg-search">
+    <div className="wg-search" data-widget-surface="panel">
       <label><Icon name="search" size="sm" color="tertiary" /><input name={name} value={query} onChange={(event) => change(event.target.value)} placeholder={placeholder} /></label>
       <div className="wg-search-results">
         {matches.length > 0 ? matches.map((item, index) => (
@@ -593,7 +593,7 @@ const InsightCards: React.FC<InsightCardsProps> = ({
   };
   if (!item) return null;
   return (
-    <div className="wg-insight-cards">
+    <div className="wg-insight-cards" data-widget-surface="panel">
       <div className="wg-insight-header"><strong>{title}</strong><span>{index + 1}/{items.length}</span></div>
       <div className="wg-insight-copy"><strong>{item.title}</strong>{item.description ? <p>{item.description}</p> : null}</div>
       {item.metrics?.length ? (
@@ -659,7 +659,7 @@ const FineTuneCard: React.FC<FineTuneCardProps> = ({
     if (onChangeAction && dispatch) dispatch(onChangeAction, buildChangePayload(field.name, nextValue));
   };
   return (
-    <div className="wg-fine-tune">
+    <div className="wg-fine-tune" data-widget-surface="panel">
       <div className="wg-fine-heading"><strong>{title}</strong><span><Icon name="settings-slider" size="xs" color="currentColor" />{badge}</span></div>
       <div className="wg-fine-fields">
         {fields.map((field) => (
@@ -706,7 +706,7 @@ const SelectionActions: React.FC<SelectionActionsProps> = ({
   return (
     <div className="wg-selection-actions">
       <p>{before}<mark>{selected}</mark>{after}</p>
-      <div className="wg-selection-toolbar">
+      <div className="wg-selection-toolbar" data-widget-surface="panel">
         <input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder={placeholder} />
         {actions.map((item) => (
           <button type="button" onClick={() => run(item)} disabled={!item.action && !submitAction} key={item.value ?? item.label}>

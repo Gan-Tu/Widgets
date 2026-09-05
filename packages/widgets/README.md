@@ -115,6 +115,8 @@ Standard appearance is the default; an explicit renderer prop overrides its prov
 
 The CSS material adds frosted surfaces, edge highlights, and softer depth while keeping content sharp. A background with subtle color or detail makes the effect visible. Reduced-transparency and increased-contrast preferences use solid surfaces; browsers without backdrop blur receive an opaque fallback. Importing only `styles.css` keeps the existing appearance.
 
+Outer panels provide the blur, inner panels use a thin matte wash, and deeper groups share that finish without adding another blur or shadow. Token-backed Boxes participate automatically; explicit brand backgrounds keep their supplied color. Buttons use translucent tints with consistent hover and press states, and tables share one surface instead of stacking opaque cell fills. Floating menus use a separate, denser pane for legibility. This hierarchy follows [Apple's guidance on tinting and grouping](https://developer.apple.com/videos/play/wwdc2025/219/).
+
 ## License
 
 Licensed under [Apache-2.0](LICENSE). See [NOTICE](NOTICE) for attribution.

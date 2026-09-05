@@ -556,7 +556,7 @@ const ImageGeneration: React.FC<ImageGenerationProps> = ({
   const src = safeHttpHref(image);
   const ratio = aspectRatio === "portrait" ? "4 / 5" : aspectRatio === "landscape" ? "16 / 9" : aspectRatio === "square" ? "1 / 1" : aspectRatio;
   return (
-    <div className="wg-image-generation">
+    <div className="wg-image-generation" data-widget-surface="panel">
       <div className="wg-image-canvas" style={{ aspectRatio: ratio }}>
         {src ? <img src={src} alt={alt} /> : <span className="wg-image-grid" aria-hidden />}
         {!src ? <span className="wg-image-glow" aria-hidden /> : null}
@@ -862,7 +862,7 @@ const AgentInput: React.FC<AgentInputProps> = ({
   const lastFormSyncRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (!form) return;
-    const key = `${name} ${value}`;
+    const key = `${name}\u0000${value}`;
     if (lastFormSyncRef.current === key) return;
     lastFormSyncRef.current = key;
     form.setValue(name, value);
@@ -906,7 +906,7 @@ const AgentInput: React.FC<AgentInputProps> = ({
   };
 
   return (
-    <div className="wg-agent-input" data-disabled={disabled || undefined}>
+    <div className="wg-agent-input" data-widget-surface="panel" data-disabled={disabled || undefined}>
       {attachments.length > 0 || selectedSkills.length > 0 ? (
         <div className="wg-agent-input-chips">
           {attachments.map((attachment, index) => (
@@ -1131,7 +1131,7 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
     }
   };
   return (
-    <div className="wg-approval-card" data-variant={variant}>
+    <div className="wg-approval-card" data-widget-surface="panel" data-variant={variant}>
       <div className="wg-approval-heading">
         <span className="wg-approval-icon"><Icon name={variant === "command" ? "terminal" : variant === "plan" ? "clipboard" : "circle-question"} size="sm" color="currentColor" /></span>
         <span>
@@ -1294,7 +1294,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
   const invoke = useActionInvoker();
   const [open, setOpen] = React.useState(false);
   return (
-    <div className="wg-prompt-bar" data-variant={variant}>
+    <div className="wg-prompt-bar" data-widget-surface="panel" data-variant={variant}>
       {open && sources.length > 0 ? (
         <div className="wg-prompt-sources">
           {sources.map((source) => (
@@ -1351,7 +1351,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const normalized = confidence > 1 ? confidence / 100 : confidence;
   const label = confidenceLabel ?? (normalized >= 0.8 ? "High confidence" : normalized >= 0.55 ? "Medium confidence" : "Low confidence");
   return (
-    <div className="wg-recommendation">
+    <div className="wg-recommendation" data-widget-surface="panel">
       <div className="wg-recommendation-copy"><strong>{title}</strong>{description ? <p>{description}</p> : null}</div>
       {alternatives.length > 0 ? (
         <div className="wg-recommendation-options">
