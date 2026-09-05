@@ -14,10 +14,10 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
 - **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
 - **Component library**: 142 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
-  - `/` — an evolving SVG particle sculpture and a live template-to-widget exhibit; the sculpture supports pause, pointer interaction, reduced motion, and automatic suspension offscreen or in hidden tabs
+  - `/` — a monochrome SVG particle sculpture cycling through five forms, including a rotating braided knot, plus a live template-to-widget exhibit; the sculpture supports pause, pointer interaction, reduced motion, and automatic suspension offscreen or in hidden tabs
   - `/gallery` — 52 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
   - `/docs` — per-component docs with live examples, prop tables, deep links, and a searchable component sidebar
-  - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed); starts with **Checkout**, and Reset restores it. Explicit example/component links open the requested demo
+  - `/playground` — live template + JSON editing, plus AI widget generation using **`gpt-6-astra`** through the OpenAI Responses API; starts with **Checkout**, and Reset restores it. Explicit example/component links open the requested demo
 - **Authoring guide**: [`public/AGENTS.md`](public/AGENTS.md) — the complete widget-authoring contract and design principles embedded into generation and repair prompts
 - **Example corpus**: `public/WIDGET_EXAMPLES.md` — every gallery widget as a template + data pair, generated from `src/examples/widgetExamples.ts` (regenerate with `node --experimental-strip-types scripts/build-widget-examples-doc.mjs`); an optional download for richer LLM context
 - **Featured example corpus**: `public/FEATURED_WIDGET_EXAMPLES.md` — the smaller, gallery-ranked featured set linked beside `AGENTS.md` in the navbar and used by Playground AI generation

@@ -64,11 +64,14 @@ const collection = [
 const quickStartCode = `npm install @tugan/widgets
 
 import "@tugan/widgets/styles.css";
+// Optional material layer for the glass appearance.
+import "@tugan/widgets/liquid-glass.css";
 import { WidgetRenderer } from "@tugan/widgets";
 
 <WidgetRenderer
-  template={template} // model-written template string
-  data={data} // your app's JSON
+  template={template}
+  data={data}
+  appearance="glass"
   onAction={(action) => handleAction(action)}
 />`;
 
@@ -514,8 +517,8 @@ export function HomePage() {
               Widgets is a renderer for AI-generated UI. A model writes a strict,
               JSX-like template; your app supplies the data.{" "}
               <strong className="font-semibold text-[var(--ink)]">WidgetRenderer</strong>{" "}
-              validates both and paints polished, interactive components — no
-              arbitrary code, ever.
+              validates both and paints polished, interactive components, with
+              optional liquid-glass styling — no arbitrary code, ever.
             </p>
             <div className="mt-7 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 md:mt-9">
               <Link to="/playground" className={btnPrimary}>
@@ -604,8 +607,15 @@ export function HomePage() {
 
       {/* Quick start */}
       <section aria-labelledby="quickstart-title" className="mt-20 md:mt-32">
-        <SectionEyebrow route="npm i @tugan/widgets" meta="Three lines to first render" />
+        <SectionEyebrow route="npm i @tugan/widgets" meta="Standard or liquid glass" />
         <SectionTitle id="quickstart-title">In your app</SectionTitle>
+        <p className="mt-5 max-w-[72ch] text-[15px] leading-relaxed text-[var(--mid)]">
+          Enable translucent surfaces with <code className="ff-mono text-[13px] text-[var(--ink)]">appearance="glass"</code>{" "}
+          and the optional stylesheet. Use <code className="ff-mono text-[13px] text-[var(--ink)]">appearance="default"</code>{" "}
+          for standard styling.
+          Both use the same template, data, and actions. Try the Glass toggle above
+          to compare them across the site.
+        </p>
         <div className="relative mt-7 bg-[var(--panel)] md:mt-10">
           <CopyAction
             text={quickStartCode}

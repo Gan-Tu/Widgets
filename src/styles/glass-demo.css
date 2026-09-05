@@ -1,5 +1,6 @@
 /* Demo-only backdrop and chrome. The published material stylesheet has no app selectors. */
 .appearance-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -20,6 +21,43 @@
 .appearance-toggle-indicator > span { width: 12px; height: 12px; border-radius: 50%; background: white; box-shadow: 0 1px 2px #0002; transition: transform 160ms; }
 .appearance-toggle[aria-pressed="true"] .appearance-toggle-indicator { background: #657588; }
 .appearance-toggle[aria-pressed="true"] .appearance-toggle-indicator > span { transform: translateX(9px); }
+
+/* One soft invitation after 1.2s, then 6.2s of quiet between glows. */
+.appearance-toggle[aria-pressed="false"]::before,
+.appearance-toggle[aria-pressed="false"]::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from 40deg, #1399f5, #ba5cd2, #ff5248, #ffcf03, #53cc28, #1399f5);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  animation: glass-toggle-invitation 8s cubic-bezier(0.45, 0, 0.55, 1) 1.2s infinite;
+}
+.appearance-toggle[aria-pressed="false"]::after {
+  inset: -4px;
+  padding: 3px;
+  filter: blur(4px);
+}
+@keyframes glass-toggle-invitation {
+  0%, 22.5%, 100% { opacity: 0; }
+  8.75% { opacity: 0.8; }
+}
+/* Once attention is on the control, let its ordinary interaction states lead. */
+.appearance-toggle:is(:hover, :focus-visible)::before,
+.appearance-toggle:is(:hover, :focus-visible)::after {
+  animation: none;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .appearance-toggle[aria-pressed="false"]::before,
+  .appearance-toggle[aria-pressed="false"]::after { content: none; animation: none; }
+}
 
 .app-shell[data-appearance="glass"] {
   --paper: #edf2f7;

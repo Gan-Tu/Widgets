@@ -1,15 +1,14 @@
 .hero-composition { display: grid; align-items: center; gap: 12px; }
 .hero-copy { min-width: 0; }
-.hero-particles { position: relative; width: min(100%, 300px); justify-self: center; margin: 8px 0 0; isolation: isolate; }
-.hero-particles::before { content: ""; position: absolute; z-index: -1; inset: 9% 1% 12%; border-radius: 50%; background: radial-gradient(ellipse at 36% 38%, #1399f510, transparent 62%), radial-gradient(ellipse at 70% 70%, #ba5cd20c, transparent 60%); pointer-events: none; }
+.hero-particles { position: relative; width: min(100%, 300px); justify-self: center; margin: 8px 0 0; color: #101010; }
 .hero-particles-scene { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
 .hero-particles-scene circle { transform-box: fill-box; transform-origin: center; }
 .hero-particles-scene line { transform-box: fill-box; transform-origin: 0 0; }
-.hero-particles-orbit { color: #54799a; opacity: .35; transform-box: fill-box; transform-origin: center; animation: particle-orbit 70s linear infinite; }
+.hero-particles-orbit { opacity: .18; transform-box: fill-box; transform-origin: center; animation: particle-orbit 70s linear infinite; }
 .hero-particles[data-running="false"] .hero-particles-orbit { animation-play-state: paused; }
 .hero-particles-caption { display: flex; min-height: 30px; align-items: center; justify-content: space-between; gap: 12px; margin: -10px 12% 0; }
 .hero-particles-status { display: inline-flex; align-items: center; gap: 8px; color: var(--mid); font-family: "Fragment Mono", ui-monospace, monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
-.hero-particles-status i { width: 4px; height: 4px; border-radius: 50%; background: #1399f5; box-shadow: 0 0 8px #1399f545; }
+.hero-particles-status i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .hero-particles-status > span { margin-left: 5px; color: var(--faint); font-size: 8px; letter-spacing: .04em; }
 .hero-particles-pause { display: grid; place-items: center; width: 28px; height: 28px; flex-shrink: 0; border: 1px solid var(--hairline); border-radius: 50%; background: transparent; color: var(--mid); cursor: pointer; transition: background 160ms, color 160ms; }
 @media (hover: hover) { .hero-particles-pause:hover { background: rgb(112 128 148 / 8%); color: var(--ink); } }
