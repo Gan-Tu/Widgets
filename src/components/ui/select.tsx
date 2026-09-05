@@ -1,4 +1,4 @@
-import { useWidgetTheme } from "../../widget/theme";
+import { useWidgetAppearance, useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
@@ -73,6 +73,7 @@ const SelectContent = React.forwardRef<
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
       ref={ref}
       className={cn(
         "widget-root wg-portal",

@@ -1,4 +1,4 @@
-import { useWidgetTheme } from "../../widget/theme";
+import { useWidgetAppearance, useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as MenubarPrimitive from "@radix-ui/react-menubar";
 import { Check, ChevronRight, Circle } from "lucide-react";
@@ -68,6 +68,7 @@ const MenubarSubContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenubarPrimitive.SubContent
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
     ref={ref}
     className={cn(
         "widget-root wg-portal",
@@ -86,6 +87,7 @@ const MenubarContent = React.forwardRef<
   <MenubarPrimitive.Portal>
     <MenubarPrimitive.Content
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
       ref={ref}
       align={align}
       alignOffset={alignOffset}

@@ -1,4 +1,4 @@
-import { useWidgetTheme } from "../../widget/theme";
+import { useWidgetAppearance, useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
@@ -29,6 +29,7 @@ const DrawerContent = React.forwardRef<
     <DrawerOverlay />
     <DrawerPrimitive.Content
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
       ref={ref}
       className={cn(
         "widget-root wg-portal",

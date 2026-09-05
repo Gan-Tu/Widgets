@@ -42,6 +42,7 @@ import { Box, Col, Row } from "./layout";
 import { Badge, Icon, Image } from "./content";
 import { Text, Caption } from "./text";
 import { BaseCarousel, BaseCarouselItem, BaseCarouselMediaItem, CardCarousel, CardLinkItem } from "./carousel";
+import { useWidgetAppearance } from "../theme";
 
 type ChildrenProps = { children?: React.ReactNode };
 
@@ -85,7 +86,7 @@ const Response: React.FC<
   // scope (tokens, font, cursor/focus rules) and the theme like Basic does.
   return (
     <WidgetThemeProvider theme={resolvedTheme}>
-      <div ref={visibleRef} className="widget-root" data-theme={resolvedTheme} style={style}>
+      <div ref={visibleRef} className="widget-root" data-theme={resolvedTheme} data-appearance={useWidgetAppearance()} style={style}>
         {children}
       </div>
     </WidgetThemeProvider>
@@ -1134,7 +1135,7 @@ const SegmentedControl: React.FC<{
     <div
       role="radiogroup"
       aria-label={ariaLabel ?? name}
-      className="inline-flex gap-1 rounded-xl p-1"
+      className="wg-segmented-control inline-flex gap-1 rounded-xl p-1"
       style={{
         width: block ? "100%" : undefined,
         borderRadius: pill ? "999px" : "12px",

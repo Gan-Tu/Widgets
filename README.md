@@ -88,6 +88,7 @@ export function WidgetMessage() {
 - **`data: unknown`**: widget state/data; when `schema` is provided, it must match the schema. Keep the reference stable between renders (memoize it) — passing a fresh object each render resets widget-local state
 - **`onAction?: (action, formData?) => void`**: receives declarative actions, optional captured form state, and client-action results
 - **`theme?: "light" | "dark"`**: force theme for the widget subtree
+- **`appearance?: "default" | "glass"`**: override the host's visual material; defaults to standard styling. Glass requires the optional stylesheet below
 - **`debug?: boolean`**: render validated data under the widget
 
 ## Template rules (the important bits)
@@ -201,6 +202,34 @@ Widget design tokens are declared in `src/widget/widget.css` and included in the
 For mode-specific overrides, use `.widget-root[data-theme="light"]` and `.widget-root[data-theme="dark"]`. Popovers, menus, dialogs, and other widget portals receive the widget's theme and `.widget-root` scope too; a selector tied only to an ancestor around the embedded card will not reach a portal rendered under `body`.
 
 If changing the action accent, coordinate `--widget-accent`, its strong/soft/border variants, and `--widget-on-accent` to preserve readable text and state contrast. Chart colors use separate `--widget-chart-1` through `--widget-chart-6` tokens; their numbers identify palette entries, not series order. Pie charts choose combinations by slice count. See the [chart reference](public/AGENTS.md#charts) for the palette and automatic combinations.
+
+### Experimental liquid glass
+
+Import the optional material layer after the base stylesheet, then choose the appearance on the renderer. Templates, data, actions, and the authoring output format stay the same:
+
+```tsx
+import "@tugan/widgets/styles.css";
+import "@tugan/widgets/liquid-glass.css";
+import { WidgetRenderer } from "@tugan/widgets";
+
+<WidgetRenderer template={template} data={data} appearance="glass" theme="light" />
+```
+
+For one preference across a host app, wrap its renderers in the exported `WidgetAppearanceProvider`:
+
+```tsx
+import { WidgetAppearanceProvider } from "@tugan/widgets";
+
+<WidgetAppearanceProvider appearance={glassEnabled ? "glass" : "default"}>
+  <WidgetRenderer template={template} data={data} />
+</WidgetAppearanceProvider>
+```
+
+An explicit renderer `appearance` overrides the provider. Switching appearance preserves local widget and form state. Light/dark theme remains independent, and menus, popovers, tooltips, sheets, and dialogs inherit both settings. The demo's **Glass** toggle applies to every route and remembers the choice in local storage; standard styling remains the default.
+
+The effect uses frosted backgrounds, backdrop blur, edge highlights, and restrained shadows. Text, images, and chart marks stay sharp. It works best over a subtle background with some color or detail; the demo provides one. `prefers-reduced-transparency` and increased-contrast preferences use solid surfaces, and browsers without backdrop-filter get an opaque fallback. This experimental mode approximates the supplied references with CSS.
+
+The optional stylesheet lives in `src/widget/liquid-glass.css`; demo backgrounds and chrome live separately in `src/styles/glass-demo.css`. The package build copies the material stylesheet to its own export, so importing only `styles.css` keeps the existing appearance.
 
 ## License and project boundaries
 

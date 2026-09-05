@@ -3,6 +3,7 @@ import type React from "react";
 import type { IconName } from "./iconNames";
 
 export type ThemeMode = "light" | "dark";
+export type WidgetAppearance = "default" | "glass";
 
 export type ThemeColor = {
   light: string;

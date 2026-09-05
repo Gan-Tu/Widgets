@@ -1,0 +1,185 @@
+/* Optional material layer. Import after styles.css and opt in with appearance="glass".
+   Content stays sharp: only surfaces sample the backdrop, never their children. */
+.widget-root[data-appearance="glass"] {
+  --widget-text-prose: #20242b;
+  --widget-text-primary: #20242b;
+  --widget-text-emphasis: #11151c;
+  --widget-text-secondary: #444b55;
+  --widget-text-tertiary: #505966;
+  /* Keep --widget-surface opaque: it also serves as inverse button text. */
+  --widget-surface-elevated: rgb(250 253 255 / 82%);
+  --widget-surface-elevated-secondary: rgb(245 249 253 / 70%);
+  --widget-surface-secondary: rgb(225 234 243 / 45%);
+  --widget-surface-tertiary: rgb(188 203 219 / 42%);
+  --widget-surface-hover: rgb(255 255 255 / 52%);
+  --widget-surface-active: rgb(180 199 221 / 45%);
+  --widget-border-default: rgb(93 115 142 / 18%);
+  --widget-border-subtle: rgb(93 115 142 / 13%);
+  --widget-border-control: rgb(120 140 162 / 20%);
+  --widget-border-strong: #7b899b;
+  --widget-radius: 22px;
+  --widget-radius-control: 12px;
+  --widget-shadow-xs: 0 2px 3px rgb(33 53 78 / 6%), inset 0 1px 0 rgb(255 255 255 / 85%);
+  --widget-shadow-sm: 0 4px 12px rgb(33 53 78 / 8%), inset 0 1px 0 rgb(255 255 255 / 85%);
+  --widget-shadow: inset 0 1px 0 rgb(255 255 255 / 95%), inset 0 -1px 0 rgb(255 255 255 / 35%), 0 16px 40px -16px rgb(44 65 92 / 28%), 0 3px 8px -4px rgb(44 65 92 / 16%);
+  --widget-shadow-lg: inset 0 1px 0 rgb(255 255 255 / 95%), 0 24px 64px -18px rgb(32 48 76 / 32%);
+  --widget-glass-blur: blur(24px) saturate(1.45);
+  --widget-glass-highlight: linear-gradient(145deg, rgb(255 255 255 / 55%), rgb(255 255 255 / 5%) 60%);
+  --widget-glass-solid-highlight: linear-gradient(145deg, rgb(255 255 255 / 15%), transparent 65%);
+  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), inset 0 -1px 0 rgb(100 120 150 / 9%), 0 2px 4px rgb(35 55 85 / 5%);
+  --widget-glass-thumb: rgb(255 255 255 / 86%);
+}
+
+.widget-root[data-appearance="glass"][data-theme="dark"] {
+  --widget-text-prose: #f3f6fa;
+  --widget-text-primary: #f3f6fa;
+  --widget-text-emphasis: #ffffff;
+  --widget-text-secondary: #c9d2de;
+  --widget-text-tertiary: #b8c3d2;
+  --widget-surface-elevated: rgb(24 30 40 / 84%);
+  --widget-surface-elevated-secondary: rgb(36 44 57 / 82%);
+  --widget-surface-secondary: rgb(131 152 180 / 12%);
+  --widget-surface-tertiary: rgb(161 185 211 / 20%);
+  --widget-surface-hover: rgb(200 222 255 / 12%);
+  --widget-surface-active: rgb(200 222 255 / 18%);
+  --widget-border-default: rgb(218 233 255 / 18%);
+  --widget-border-subtle: rgb(218 233 255 / 12%);
+  --widget-border-control: rgb(218 233 255 / 22%);
+  --widget-border-strong: #99abc3;
+  --widget-shadow-xs: inset 0 1px 0 rgb(233 244 255 / 16%), 0 2px 4px rgb(0 0 0 / 16%);
+  --widget-shadow-sm: inset 0 1px 0 rgb(233 244 255 / 16%), 0 4px 14px rgb(0 0 0 / 22%);
+  --widget-shadow: inset 0 1px 0 rgb(233 244 255 / 26%), inset 0 -1px 0 rgb(233 244 255 / 5%), 0 18px 48px -16px rgb(0 0 0 / 50%);
+  --widget-shadow-lg: inset 0 1px 0 rgb(233 244 255 / 26%), 0 24px 64px -16px rgb(0 0 0 / 65%);
+  --widget-glass-highlight: linear-gradient(145deg, rgb(229 241 255 / 10%), rgb(229 241 255 / 1%) 60%);
+  --widget-glass-control-shadow: inset 0 1px 0 rgb(224 239 255 / 21%), inset 0 -1px 0 rgb(0 0 0 / 15%), 0 2px 4px rgb(0 0 0 / 14%);
+  --widget-glass-thumb: rgb(229 239 251 / 88%);
+}
+
+/* Structural glass: cards and floating surfaces get the optical depth. */
+.widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) {
+  -webkit-backdrop-filter: var(--widget-glass-blur);
+  backdrop-filter: var(--widget-glass-blur);
+  border-color: var(--widget-border-default);
+}
+.widget-root[data-appearance="glass"].wg-portal:not(.wg-tooltip) {
+  border-radius: 18px;
+  background: var(--widget-surface-elevated);
+  box-shadow: var(--widget-shadow-lg);
+}
+.widget-root[data-appearance="glass"].wg-tooltip {
+  /* Tooltips keep their inverse, readable foreground. */
+  background: var(--widget-text-emphasis);
+  box-shadow: var(--widget-shadow-sm);
+}
+
+/* Inner controls use highlights on the existing fill. No nested blur layers. */
+.widget-root[data-appearance="glass"] :where(
+  .wg-btn:not([data-variant="ghost"]),
+  [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]),
+  .wg-agent-button, .wg-choice, [data-slot="toggle"], [data-slot="toggle-group-item"],
+  [data-slot="checkbox"], [data-slot="radio-group-item"],
+  .wg-input, .wg-field-control, [data-slot="input"], [data-slot="textarea"],
+  [data-slot="select-trigger"], [data-slot="input-otp-slot"]
+) {
+  background-image: var(--widget-glass-highlight);
+  box-shadow: var(--widget-glass-control-shadow);
+}
+.widget-root[data-appearance="glass"] :where(
+  .wg-btn[data-variant="solid"], [data-slot="button"][data-variant="default"],
+  [data-slot="button"][data-variant="destructive"], .wg-agent-button[data-primary],
+  .wg-choice[aria-pressed="true"], [data-slot="toggle"][data-state="on"], [data-slot="toggle-group-item"][data-state="on"],
+  [data-slot="checkbox"][data-state="checked"]
+) {
+  background-image: var(--widget-glass-solid-highlight);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), 0 3px 8px rgb(15 25 40 / 12%);
+}
+.widget-root[data-appearance="glass"] :where(.wg-input, [data-slot="input"], [data-slot="textarea"], .wg-field-control) {
+  background-color: var(--widget-surface-secondary);
+  border-radius: var(--widget-radius-control);
+}
+.widget-root[data-appearance="glass"] :where(.wg-input, .wg-field-control):focus-visible {
+  /* Retain the established border-only field focus treatment. */
+  box-shadow: none;
+  border-color: var(--widget-border-strong);
+}
+.widget-root[data-appearance="glass"] :where(.wg-btn, [data-slot="button"]) {
+  border-radius: var(--widget-radius-control);
+}
+.widget-root[data-appearance="glass"] .wg-tabs-list {
+  gap: 4px;
+  padding: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--widget-surface-secondary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%);
+}
+.widget-root[data-appearance="glass"] .wg-tabs-tab {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 10px;
+}
+.widget-root[data-appearance="glass"] .wg-tabs-tab[aria-selected="true"] {
+  background: var(--widget-surface-elevated);
+  box-shadow: var(--widget-glass-control-shadow);
+}
+.widget-root[data-appearance="glass"] :where(.wg-switch, .wg-slider-track) {
+  box-shadow: inset 0 1px 3px rgb(30 55 85 / 15%), 0 1px 0 rgb(255 255 255 / 35%);
+}
+.widget-root[data-appearance="glass"] .wg-switch > span,
+.widget-root[data-appearance="glass"] .wg-slider-thumb {
+  background: var(--widget-glass-thumb);
+  border: 1px solid rgb(255 255 255 / 60%);
+  box-shadow: inset 0 1px 1px white, 0 2px 5px rgb(25 45 75 / 20%);
+}
+.widget-root[data-appearance="glass"] .wg-slider-thumb { width: 22px; height: 22px; }
+.widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(30 55 85 / 8%), 0 1px 0 rgb(255 255 255 / 40%); }
+/* These primitives set their fill inline; overlay light without replacing it. */
+.widget-root[data-appearance="glass"] :is(.wg-choice, .wg-segmented-control > button) {
+  background-image: var(--widget-glass-highlight) !important;
+}
+.widget-root[data-appearance="glass"] :is(.wg-choice[aria-pressed="true"], .wg-segmented-control > button[aria-checked="true"]) {
+  background-image: var(--widget-glass-solid-highlight) !important;
+}
+.widget-root[data-appearance="glass"][data-theme="dark"] .wg-switch[aria-checked="true"] > span {
+  background: var(--widget-on-accent);
+  border-color: rgb(255 255 255 / 22%);
+}
+.widget-root[data-appearance="glass"] :where(.wg-selection-toolbar, .wg-agent-input) {
+  background-image: var(--widget-glass-highlight);
+  box-shadow: var(--widget-shadow-sm);
+}
+.widget-root[data-appearance="glass"] .recharts-default-tooltip {
+  background: var(--widget-surface-elevated) !important;
+  border-color: var(--widget-border-default) !important;
+  border-radius: 12px !important;
+  -webkit-backdrop-filter: var(--widget-glass-blur);
+  backdrop-filter: var(--widget-glass-blur);
+  box-shadow: var(--widget-shadow-sm);
+}
+
+/* Clear material fallbacks: neither low contrast nor blur is essential to use. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .widget-root[data-appearance="glass"] { --widget-surface-elevated: #f7faff; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-surface-elevated: #1c2430; }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .widget-root[data-appearance="glass"] {
+    --widget-surface-elevated: #ffffff;
+    --widget-surface-elevated-secondary: #f4f6f9;
+    --widget-surface-secondary: #f0f3f7;
+    --widget-surface-tertiary: #e0e6ef;
+    --widget-glass-blur: none;
+    --widget-glass-highlight: none;
+    --widget-glass-solid-highlight: none;
+  }
+  .widget-root[data-appearance="glass"][data-theme="dark"] {
+    --widget-surface-elevated: #181e28;
+    --widget-surface-elevated-secondary: #242d3b;
+    --widget-surface-secondary: #242d3b;
+    --widget-surface-tertiary: #354157;
+  }
+}
+@media (prefers-contrast: more) {
+  .widget-root[data-appearance="glass"] { --widget-border-default: #7b899b; --widget-border-subtle: #7b899b; --widget-border-control: #7b899b; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-border-default: #99abc3; --widget-border-subtle: #99abc3; --widget-border-control: #99abc3; }
+}

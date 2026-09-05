@@ -45,6 +45,7 @@ export function WidgetMessage() {
 - `data: unknown` — widget state/data; when `schema` is provided, it must match the schema. Keep the reference stable between renders; a new object resets widget-local state
 - `onAction?: (action, formData?) => void` — receives declarative actions, optional captured form state, and client-action results
 - `theme?: "light" | "dark"` — force theme for the widget subtree
+- `appearance?: "default" | "glass"` — optional visual material override; requires the glass stylesheet when enabled
 - `debug?: boolean` — render validated data under the widget
 
 ## DIL support
@@ -92,6 +93,27 @@ Pass `theme="light"` or `theme="dark"` to `WidgetRenderer`. Widget popovers, men
 Use `.widget-root[data-theme="light"]` or `.widget-root[data-theme="dark"]` for mode-specific overrides. Widget portals also carry these attributes; an ancestor selector around only the card will not reach portals mounted under `body`. When changing the action accent, update its strong/soft/border variants and `--widget-on-accent` together for readable text and states.
 
 Charts have their own vivid palette, independent of the monochrome action accent. With no explicit series colors, one series uses blue, two use yellow + green, and three use blue + green + pinkish red. Larger sets add purple and orange without pairing yellow with orange. Pie charts choose combinations by slice count. Override `--widget-chart-1` through `--widget-chart-6` to customize palette entries; their numbers are not series positions. Keep chart labels and tooltip text neutral and readable.
+
+### Experimental liquid glass
+
+Load the optional stylesheet after the base styles and enable it on the renderer:
+
+```tsx
+import "@tugan/widgets/styles.css";
+import "@tugan/widgets/liquid-glass.css";
+import { WidgetRenderer, WidgetAppearanceProvider } from "@tugan/widgets";
+
+<WidgetRenderer template={template} data={data} appearance="glass" theme="light" />
+
+// Or share one appearance preference across multiple renderers:
+<WidgetAppearanceProvider appearance={glassEnabled ? "glass" : "default"}>
+  <WidgetRenderer template={template} data={data} />
+</WidgetAppearanceProvider>
+```
+
+Standard appearance is the default; an explicit renderer prop overrides its provider. Changing this setting preserves widget state and does not change template syntax, data, or actions. Light/dark mode is independent, and floating menus and dialogs inherit both settings.
+
+The CSS material adds frosted surfaces, edge highlights, and softer depth while keeping content sharp. A background with subtle color or detail makes the effect visible. Reduced-transparency and increased-contrast preferences use solid surfaces; browsers without backdrop blur receive an opaque fallback. Importing only `styles.css` keeps the existing appearance.
 
 ## License
 

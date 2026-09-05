@@ -16,7 +16,8 @@
       "types": "./dist/widget/index.d.ts",
       "import": "./dist/widget/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./liquid-glass.css": "./dist/liquid-glass.css"
   },
   "files": [
     "dist",
@@ -25,7 +26,8 @@
     "README.md"
   ],
   "sideEffects": [
-    "./dist/styles.css"
+    "./dist/styles.css",
+    "./dist/liquid-glass.css"
   ],
   "publishConfig": {
     "access": "public",

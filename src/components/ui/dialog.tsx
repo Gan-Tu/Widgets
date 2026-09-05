@@ -1,4 +1,4 @@
-import { useWidgetTheme } from "../../widget/theme";
+import { useWidgetAppearance, useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
@@ -33,6 +33,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
       ref={ref}
       className={cn(
         "widget-root wg-portal",

@@ -1,4 +1,4 @@
-import { useWidgetTheme } from "../../widget/theme";
+import { useWidgetAppearance, useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
@@ -37,6 +37,7 @@ const ContextMenuSubContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.SubContent
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
     ref={ref}
     className={cn(
         "widget-root wg-portal",
@@ -55,6 +56,7 @@ const ContextMenuContent = React.forwardRef<
   <ContextMenuPrimitive.Portal>
     <ContextMenuPrimitive.Content
       data-theme={useWidgetTheme()}
+      data-appearance={useWidgetAppearance()}
       ref={ref}
       className={cn(
         "widget-root wg-portal",

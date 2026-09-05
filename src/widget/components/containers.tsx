@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useWidgetAction, useWidgetForm, useWidgetTheme, WidgetFormProvider, WidgetThemeProvider } from "../context";
+import { useWidgetAppearance } from "../theme";
 import type { ActionConfig, Alignment, Justification, Padding, ThemeColor, WidgetStatus } from "../types";
 import { useVisibleAction } from "../hooks";
 import { applyPadding, resolveColor, resolveGap, spaceToCss } from "../style";
@@ -29,6 +30,7 @@ const Basic: React.FC<BasicProps> = ({
   onVisibleAction
 }) => {
   const inheritedTheme = useWidgetTheme();
+  const appearance = useWidgetAppearance();
   const resolvedTheme = theme ?? inheritedTheme;
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const style: React.CSSProperties = {
@@ -47,7 +49,7 @@ const Basic: React.FC<BasicProps> = ({
 
   return (
     <WidgetThemeProvider theme={resolvedTheme}>
-      <div ref={visibleRef} className="widget-root" data-theme={resolvedTheme} style={style}>
+      <div ref={visibleRef} className="widget-root" data-theme={resolvedTheme} data-appearance={appearance} style={style}>
         {children}
       </div>
     </WidgetThemeProvider>
@@ -140,6 +142,7 @@ const CardInner: React.FC<CardProps> = ({
   const action = useWidgetAction();
   const form = useWidgetForm();
   const inheritedTheme = useWidgetTheme();
+  const appearance = useWidgetAppearance();
   const resolvedTheme = theme ?? inheritedTheme;
   const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
@@ -188,6 +191,7 @@ const CardInner: React.FC<CardProps> = ({
         data-card-id={cardId ?? id}
         className="widget-root wg-card"
         data-theme={resolvedTheme}
+        data-appearance={appearance}
         data-clickable={onClickAction ? "true" : undefined}
         style={style}
         role={onClickAction ? "button" : undefined}
@@ -272,6 +276,7 @@ const ListView: React.FC<ListViewProps> = ({
   onVisibleAction
 }) => {
   const inheritedTheme = useWidgetTheme();
+  const appearance = useWidgetAppearance();
   const resolvedTheme = theme ?? inheritedTheme;
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const [expanded, setExpanded] = React.useState(false);
@@ -287,6 +292,7 @@ const ListView: React.FC<ListViewProps> = ({
         ref={visibleRef}
         className="widget-root wg-card"
         data-theme={resolvedTheme}
+        data-appearance={appearance}
         style={{
           background: "var(--widget-surface-elevated)",
           boxShadow: "var(--widget-shadow)",

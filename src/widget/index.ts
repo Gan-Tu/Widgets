@@ -1,5 +1,6 @@
 export { WidgetRenderer } from "./WidgetRenderer";
 export type { WidgetRendererProps } from "./WidgetRenderer";
+export { WidgetAppearanceProvider } from "./theme";
 
 export * from "./types";
 export * from "./actions";

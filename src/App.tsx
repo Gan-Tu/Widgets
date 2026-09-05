@@ -1,7 +1,19 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { WidgetAppearanceProvider } from "@/widget/theme";
+import type { WidgetAppearance } from "@/widget/types";
+
+const APPEARANCE_STORAGE_KEY = "widgets:appearance";
+
+function readAppearance(): WidgetAppearance {
+  try {
+    return window.localStorage.getItem(APPEARANCE_STORAGE_KEY) === "glass" ? "glass" : "default";
+  } catch {
+    return "default";
+  }
+}
 
 const HomePage = lazy(() =>
   import("@/pages/Home").then((mod) => ({ default: mod.HomePage }))
@@ -53,6 +65,11 @@ function NotFoundPage() {
 }
 
 export default function App() {
+  const [appearance, setAppearance] = useState<WidgetAppearance>(readAppearance);
+  const changeAppearance = (next: WidgetAppearance) => {
+    setAppearance(next);
+    try { window.localStorage.setItem(APPEARANCE_STORAGE_KEY, next); } catch { /* Session-only when storage is unavailable. */ }
+  };
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -66,9 +83,10 @@ export default function App() {
     : "app-container";
 
   return (
-    <div className="app-shell">
+    <WidgetAppearanceProvider appearance={appearance}>
+    <div className="app-shell" data-appearance={appearance}>
       <a className="studio-skip-link" href="#main-content">Skip to content</a>
-      <SiteHeader containerClass={containerClass} />
+      <SiteHeader containerClass={containerClass} appearance={appearance} onAppearanceChange={changeAppearance} />
 
       <main id="main-content" className="flex-1 py-5 sm:py-8 md:py-10">
         <div className={containerClass}>
@@ -138,5 +156,6 @@ export default function App() {
         </div>
       </footer>
     </div>
+    </WidgetAppearanceProvider>
   );
 }

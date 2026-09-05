@@ -174,6 +174,10 @@ Every control's `onChangeAction` fires with the new value under both its `name` 
 
 ## Design system
 
+### Host appearance modes
+
+The host can render the same template with standard styling or an experimental liquid-glass material. This is a `WidgetRenderer`/host setting, separate from light/dark theme. **Do not add appearance keys to the output JSON or template props.** Compose with the same tokens, components, and actions; the optional stylesheet supplies the material, including floating menus and dialogs. Avoid recreating glass with nested translucent Boxes or extra decorative borders. Switching the host appearance preserves the widget's data and interaction state.
+
 ### Spacing & sizing units — read carefully
 
 - `padding`, `margin`, `gap`, `Divider.spacing`, `Spacer.minSize` use **spacing units: 1 unit = 4px**. `padding={4}` → 16px.

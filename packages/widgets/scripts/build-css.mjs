@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { copyFileSync, mkdirSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,3 +21,7 @@ const tailwindBin = resolve(repoRoot, "node_modules", ".bin", "tailwindcss");
 const command = `\"${tailwindBin}\" -i \"${input}\" -o \"${output}\" --content \"${content}\"`;
 
 execSync(command, { stdio: "inherit" });
+copyFileSync(
+  resolve(repoRoot, "src/widget/liquid-glass.css"),
+  resolve(packageDir, "dist/liquid-glass.css")
+);

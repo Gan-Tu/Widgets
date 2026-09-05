@@ -868,11 +868,12 @@ export function PlaygroundPage() {
             ) : (
               <div className={cn("mx-auto", previewWidthClasses[previewWidth])}>
                 <div
+                  data-preview-theme={theme}
                   className={cn(
                     // Beside the editors a widget that caps its own width
                     // (Card size="lg" stops at 560px) would sit flush left;
                     // auto margins center it.
-                    "[&>*]:mx-auto",
+                    "playground-widget-frame [&>*]:mx-auto",
                     // Stacked above or below the editors, the whole point is
                     // seeing the widget at full size, so drop that self-imposed
                     // cap and let it fill the preview. The cap is an inline

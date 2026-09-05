@@ -6,7 +6,8 @@ import { widgetRegistry } from "./registry";
 import { renderTemplate } from "./renderer/templateEngine";
 import { Card } from "./components/containers";
 import { Text, Title } from "./components/text";
-import type { ActionConfig } from "./types";
+import { useWidgetAppearance, WidgetAppearanceProvider } from "./theme";
+import type { ActionConfig, WidgetAppearance } from "./types";
 
 type WidgetRendererProps<T extends z.ZodTypeAny = z.ZodTypeAny> = {
   template: string;
@@ -14,6 +15,8 @@ type WidgetRendererProps<T extends z.ZodTypeAny = z.ZodTypeAny> = {
   data: z.infer<T>;
   onAction?: (action: ActionConfig, formData?: Record<string, unknown>) => void;
   theme?: "light" | "dark";
+  /** Optional presentation mode. Requires the separate liquid-glass.css stylesheet. */
+  appearance?: WidgetAppearance;
   debug?: boolean;
 };
 
@@ -32,8 +35,11 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
   data,
   onAction,
   theme = "light",
+  appearance,
   debug = false
 }: WidgetRendererProps<T>) => {
+  const inheritedAppearance = useWidgetAppearance();
+  const resolvedAppearance = appearance ?? inheritedAppearance;
   const parseResult = React.useMemo(() => {
     if (!schema) {
       return { success: true as const, data };
@@ -85,20 +91,20 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
     }
   }, [stateForRender, template]);
 
+  let rendered: React.ReactNode;
   if (!parseResult.success) {
     const message = parseResult.error.issues
       .map((issue) => `${issue.path.join(".") || "root"}: ${issue.message}`)
       .join("; ");
-    return <ErrorPanel title="Schema validation failed" message={message} />;
+    rendered = <ErrorPanel title="Schema validation failed" message={message} />;
+  } else if (!renderResult.ok) {
+    rendered = <ErrorPanel title="Template error" message={renderResult.message} />;
+  } else {
+    rendered = renderResult.node;
   }
-
-  if (!renderResult.ok) {
-    return <ErrorPanel title="Template error" message={renderResult.message} />;
-  }
-
-  const rendered = renderResult.node;
 
   return (
+    <WidgetAppearanceProvider appearance={resolvedAppearance}>
     <WidgetThemeProvider theme={theme}>
       <WidgetActionProvider
         onAction={onAction}
@@ -113,6 +119,7 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
         ) : null}
       </WidgetActionProvider>
     </WidgetThemeProvider>
+    </WidgetAppearanceProvider>
   );
 };
 
