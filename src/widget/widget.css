@@ -18,80 +18,93 @@
     "Liberation Mono", monospace;
 
   /* Text */
-  --widget-text-prose: #171c26;
-  --widget-text-primary: #1d2430;
-  --widget-text-emphasis: #0c111b;
-  --widget-text-secondary: #5c6675;
-  --widget-text-tertiary: #98a1b2;
+  --widget-text-prose: #1d1d1f;
+  --widget-text-primary: #1d1d1f;
+  --widget-text-emphasis: #09090b;
+  --widget-text-secondary: #515157;
+  --widget-text-tertiary: #63636b;
   --widget-text-success: #157f3d;
   --widget-text-warning: #b45309;
   --widget-text-danger: #d92d20;
   --widget-text-info: #175cd3;
 
-  /* Accent (indigo by default — override for brand) */
-  --widget-accent: #4f46e5;
-  --widget-accent-strong: #4338ca;
-  --widget-accent-soft: rgba(79, 70, 229, 0.08);
-  --widget-accent-soft-strong: rgba(79, 70, 229, 0.14);
-  --widget-accent-border: rgba(79, 70, 229, 0.28);
+  /* Neutral action color — override for brand. Status retains its own tone. */
+  --widget-accent: #111114;
+  --widget-accent-strong: #303034;
+  --widget-accent-soft: rgba(17, 17, 20, 0.06);
+  --widget-accent-soft-strong: rgba(17, 17, 20, 0.1);
+  --widget-accent-border: rgba(17, 17, 20, 0.24);
   --widget-on-accent: #ffffff;
 
   /* Status tones — soft (tinted chip) + strong (solid) pairs */
-  --widget-success: #16a34a;
-  --widget-success-soft-bg: #eafaf1;
+  --widget-on-success: #ffffff;
+  --widget-success: #15803d;
+  --widget-success-soft-bg: #eef5ef;
   --widget-success-soft-fg: #15803d;
   --widget-success-soft-border: rgba(22, 163, 74, 0.24);
   --widget-warning: #f59e0b;
-  --widget-warning-soft-bg: #fdf6e3;
+  --widget-warning-soft-bg: #faf5e9;
   --widget-warning-soft-fg: #b45309;
   --widget-warning-soft-border: rgba(217, 119, 6, 0.28);
+  --widget-on-danger: #ffffff;
   --widget-danger: #dc2626;
   --widget-danger-soft-bg: #fdf0ef;
   --widget-danger-soft-fg: #b91c1c;
   --widget-danger-soft-border: rgba(220, 38, 38, 0.22);
+  --widget-on-info: #ffffff;
   --widget-info: #2563eb;
-  --widget-info-soft-bg: #eef4fe;
+  --widget-info-soft-bg: #f0f4f8;
   --widget-info-soft-fg: #1d4ed8;
   --widget-info-soft-border: rgba(37, 99, 235, 0.24);
+  --widget-on-discovery: #ffffff;
   --widget-discovery: #7c3aed;
-  --widget-discovery-soft-bg: #f4f0fd;
+  --widget-discovery-soft-bg: #f5f2f8;
   --widget-discovery-soft-fg: #6d28d9;
   --widget-discovery-soft-border: rgba(124, 58, 237, 0.24);
+
+  /* Chart series use a vivid palette independent of monochrome controls. */
+  --widget-chart-1: #ffcf03;
+  --widget-chart-2: #ffa003;
+  --widget-chart-3: #ff5248;
+  --widget-chart-4: #ba5cd2;
+  --widget-chart-5: #1399f5;
+  --widget-chart-6: #53cc28;
 
   /* Surfaces */
   --widget-bg: #ffffff;
   --widget-surface: #ffffff;
-  --widget-surface-secondary: #f7f8fa;
-  --widget-surface-tertiary: #eff1f5;
+  --widget-surface-secondary: #f8f8fa;
+  --widget-surface-tertiary: #f0f0f3;
   --widget-surface-elevated: #ffffff;
-  --widget-surface-elevated-secondary: #f7f8fa;
-  --widget-surface-hover: rgba(23, 28, 38, 0.04);
-  --widget-surface-active: rgba(23, 28, 38, 0.07);
+  --widget-surface-elevated-secondary: #f8f8fa;
+  --widget-surface-hover: rgba(0, 0, 0, 0.04);
+  --widget-surface-active: rgba(0, 0, 0, 0.07);
 
   /* Borders */
-  --widget-border-default: rgba(23, 28, 38, 0.12);
-  --widget-border-subtle: rgba(23, 28, 38, 0.07);
-  --widget-border-strong: rgba(23, 28, 38, 0.22);
+  --widget-border-default: #e4e4e7;
+  --widget-border-subtle: #ededf0;
+  --widget-border-strong: #a1a1aa;
+  --widget-border-control: var(--widget-border-default);
 
   /* Alpha helpers */
-  --widget-alpha-70: rgba(23, 28, 38, 0.7);
-  --widget-alpha-10: rgba(23, 28, 38, 0.1);
+  --widget-alpha-70: rgba(0, 0, 0, 0.7);
+  --widget-alpha-10: rgba(0, 0, 0, 0.1);
 
   /* Depth — layered ambient + key shadows */
   --widget-shadow-xs: 0 1px 2px rgba(16, 20, 28, 0.05);
   --widget-shadow-sm: 0 1px 2px rgba(16, 20, 28, 0.05), 0 2px 8px rgba(16, 20, 28, 0.04);
-  --widget-shadow: 0 1px 2px rgba(16, 20, 28, 0.04), 0 4px 12px rgba(16, 20, 28, 0.05),
-    0 16px 32px -12px rgba(16, 20, 28, 0.08);
+  --widget-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
   --widget-shadow-lg: 0 2px 4px rgba(16, 20, 28, 0.05), 0 12px 24px -6px rgba(16, 20, 28, 0.1),
     0 32px 64px -16px rgba(16, 20, 28, 0.14);
 
   /* Focus ring */
-  --widget-ring-color: rgba(79, 70, 229, 0.35);
-  --widget-ring: 0 0 0 3px rgba(79, 70, 229, 0.22);
+  --widget-ring-color: #a1a1aa;
+  --widget-focus-outline: #8e8e93;
+  --widget-ring: 0 0 0 3px rgba(17, 17, 20, 0.13);
 
   /* Shape & rhythm */
-  --widget-radius: 16px;
-  --widget-radius-control: 10px;
+  --widget-radius: 12px;
+  --widget-radius-control: 6px;
   --widget-gap: 0.5rem;
 
   /* Motion */
@@ -107,23 +120,24 @@
 }
 
 .widget-root[data-theme="dark"] {
-  --widget-text-prose: #e6e9ef;
-  --widget-text-primary: #dde1e9;
-  --widget-text-emphasis: #f7f8fb;
-  --widget-text-secondary: #99a3b5;
-  --widget-text-tertiary: #67707f;
+  --widget-text-prose: #f5f5f7;
+  --widget-text-primary: #f2f2f4;
+  --widget-text-emphasis: #ffffff;
+  --widget-text-secondary: #c0c0c8;
+  --widget-text-tertiary: #a3a3ad;
   --widget-text-success: #4ade80;
   --widget-text-warning: #fbbf24;
   --widget-text-danger: #f87171;
   --widget-text-info: #60a5fa;
 
-  --widget-accent: #818cf8;
-  --widget-accent-strong: #6366f1;
-  --widget-accent-soft: rgba(129, 140, 248, 0.14);
-  --widget-accent-soft-strong: rgba(129, 140, 248, 0.22);
-  --widget-accent-border: rgba(129, 140, 248, 0.38);
-  --widget-on-accent: #101322;
+  --widget-accent: #ffffff;
+  --widget-accent-strong: #e5e5ea;
+  --widget-accent-soft: rgba(255, 255, 255, 0.09);
+  --widget-accent-soft-strong: rgba(255, 255, 255, 0.16);
+  --widget-accent-border: rgba(255, 255, 255, 0.28);
+  --widget-on-accent: #111114;
 
+  --widget-on-success: #09090b;
   --widget-success: #22c55e;
   --widget-success-soft-bg: rgba(34, 197, 94, 0.14);
   --widget-success-soft-fg: #4ade80;
@@ -132,44 +146,49 @@
   --widget-warning-soft-bg: rgba(245, 158, 11, 0.14);
   --widget-warning-soft-fg: #fbbf24;
   --widget-warning-soft-border: rgba(245, 158, 11, 0.32);
+  --widget-on-danger: #09090b;
   --widget-danger: #ef4444;
   --widget-danger-soft-bg: rgba(239, 68, 68, 0.14);
   --widget-danger-soft-fg: #f87171;
   --widget-danger-soft-border: rgba(239, 68, 68, 0.32);
+  --widget-on-info: #09090b;
   --widget-info: #3b82f6;
   --widget-info-soft-bg: rgba(59, 130, 246, 0.14);
   --widget-info-soft-fg: #60a5fa;
   --widget-info-soft-border: rgba(59, 130, 246, 0.32);
+  --widget-on-discovery: #09090b;
   --widget-discovery: #8b5cf6;
   --widget-discovery-soft-bg: rgba(139, 92, 246, 0.16);
   --widget-discovery-soft-fg: #a78bfa;
   --widget-discovery-soft-border: rgba(139, 92, 246, 0.34);
 
-  --widget-bg: #0c101a;
-  --widget-surface: #111624;
-  --widget-surface-secondary: #161c2c;
-  --widget-surface-tertiary: #1d2436;
-  --widget-surface-elevated: #151b2b;
-  --widget-surface-elevated-secondary: #1b2234;
-  --widget-surface-hover: rgba(230, 233, 239, 0.06);
-  --widget-surface-active: rgba(230, 233, 239, 0.1);
 
-  --widget-border-default: rgba(226, 232, 240, 0.14);
-  --widget-border-subtle: rgba(226, 232, 240, 0.08);
-  --widget-border-strong: rgba(226, 232, 240, 0.26);
+  --widget-bg: #08080a;
+  --widget-surface: #141416;
+  --widget-surface-secondary: #1e1e21;
+  --widget-surface-tertiary: #2c2c30;
+  --widget-surface-elevated: #18181b;
+  --widget-surface-elevated-secondary: #232326;
+  --widget-surface-hover: rgba(255, 255, 255, 0.06);
+  --widget-surface-active: rgba(255, 255, 255, 0.1);
 
-  --widget-alpha-70: rgba(247, 248, 251, 0.7);
-  --widget-alpha-10: rgba(247, 248, 251, 0.1);
+  --widget-border-default: rgba(255, 255, 255, 0.12);
+  --widget-border-subtle: rgba(255, 255, 255, 0.08);
+  --widget-border-strong: #85858f;
+  --widget-border-control: var(--widget-border-default);
+
+  --widget-alpha-70: rgba(255, 255, 255, 0.7);
+  --widget-alpha-10: rgba(255, 255, 255, 0.1);
 
   --widget-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
   --widget-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.25);
-  --widget-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.3),
-    0 16px 32px -12px rgba(0, 0, 0, 0.45);
+  --widget-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   --widget-shadow-lg: 0 2px 4px rgba(0, 0, 0, 0.35), 0 12px 24px -6px rgba(0, 0, 0, 0.45),
     0 32px 64px -16px rgba(0, 0, 0, 0.55);
 
-  --widget-ring-color: rgba(129, 140, 248, 0.45);
-  --widget-ring: 0 0 0 3px rgba(129, 140, 248, 0.28);
+  --widget-ring-color: #85858f;
+  --widget-focus-outline: #a1a1aa;
+  --widget-ring: 0 0 0 3px rgba(255, 255, 255, 0.18);
 
   color: var(--widget-text-prose);
 }
@@ -199,8 +218,10 @@
   outline: none;
 }
 
+.wg-focusable:focus-visible,
 .widget-root :where(button, [role="button"], a[href], [tabindex]):focus-visible {
-  box-shadow: var(--widget-ring);
+  outline: 2px solid var(--widget-focus-outline);
+  outline-offset: 2px;
 }
 
 .widget-root :where(img) {
@@ -235,7 +256,7 @@
 /* --- Card -------------------------------------------------- */
 .wg-card {
   background: var(--widget-surface-elevated);
-  border: 1px solid var(--widget-border-subtle);
+  border: 1px solid var(--widget-border-default);
   border-radius: var(--widget-radius);
   transition:
     box-shadow var(--widget-duration) var(--widget-ease),
@@ -262,7 +283,8 @@
   justify-content: center;
   gap: 0.4rem;
   font-family: inherit;
-  font-weight: 550;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   white-space: nowrap;
   user-select: none;
   border: 1px solid transparent;
@@ -298,11 +320,11 @@
   background: var(--_btn-bg);
   color: var(--_btn-fg);
   border-color: var(--_btn-bg);
-  box-shadow: var(--widget-shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: var(--widget-shadow-xs);
 }
 .wg-btn[data-variant="solid"]:not(:disabled):hover {
   border-color: var(--_btn-hover-bg, var(--_btn-bg));
-  box-shadow: var(--widget-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: var(--widget-shadow-xs);
 }
 
 /* Soft */
@@ -312,14 +334,14 @@
 }
 .wg-btn[data-variant="soft"]:not(:disabled):hover {
   background: var(--_btn-soft-hover-bg, var(--_btn-soft-bg));
-  border-color: transparent;
+  border-color: var(--_btn-soft-border, transparent);
 }
 
 /* Outline */
 .wg-btn[data-variant="outline"] {
   background: transparent;
   color: var(--_btn-soft-fg);
-  border-color: var(--_btn-outline-border, var(--widget-border-default));
+  border-color: var(--_btn-outline-border, var(--widget-border-control));
 }
 .wg-btn[data-variant="outline"]:not(:disabled):hover {
   background: var(--_btn-soft-bg);
@@ -341,15 +363,17 @@
   --_btn-bg: var(--widget-text-emphasis);
   --_btn-fg: var(--widget-surface);
   --_btn-hover-bg: color-mix(in srgb, var(--widget-text-emphasis) 88%, var(--widget-surface));
-  --_btn-soft-bg: var(--widget-surface-tertiary);
+  --_btn-soft-bg: var(--widget-surface-secondary);
+  --_btn-soft-border: transparent;
   --_btn-soft-fg: var(--widget-text-primary);
   --_btn-soft-hover-bg: color-mix(in srgb, var(--widget-surface-tertiary) 88%, var(--widget-text-primary));
 }
 .wg-btn[data-color="secondary"] {
-  --_btn-bg: var(--widget-surface-tertiary);
+  --_btn-bg: var(--widget-surface-secondary);
   --_btn-fg: var(--widget-text-primary);
   --_btn-hover-bg: color-mix(in srgb, var(--widget-surface-tertiary) 92%, var(--widget-text-primary));
-  --_btn-soft-bg: var(--widget-surface-tertiary);
+  --_btn-soft-bg: var(--widget-surface-secondary);
+  --_btn-soft-border: transparent;
   --_btn-soft-fg: var(--widget-text-primary);
   --_btn-soft-hover-bg: color-mix(in srgb, var(--widget-surface-tertiary) 92%, var(--widget-text-primary));
   box-shadow: none;
@@ -365,24 +389,24 @@
 }
 .wg-btn[data-color="info"] {
   --_btn-bg: var(--widget-info);
-  --_btn-fg: #ffffff;
-  --_btn-hover-bg: color-mix(in srgb, var(--widget-info) 85%, black);
+  --_btn-fg: var(--widget-on-info);
+  --_btn-hover-bg: color-mix(in srgb, var(--widget-info) 90%, var(--widget-on-info));
   --_btn-soft-bg: var(--widget-info-soft-bg);
   --_btn-soft-fg: var(--widget-info-soft-fg);
   --_btn-outline-border: var(--widget-info-soft-border);
 }
 .wg-btn[data-color="discovery"] {
   --_btn-bg: var(--widget-discovery);
-  --_btn-fg: #ffffff;
-  --_btn-hover-bg: color-mix(in srgb, var(--widget-discovery) 85%, black);
+  --_btn-fg: var(--widget-on-discovery);
+  --_btn-hover-bg: color-mix(in srgb, var(--widget-discovery) 90%, var(--widget-on-discovery));
   --_btn-soft-bg: var(--widget-discovery-soft-bg);
   --_btn-soft-fg: var(--widget-discovery-soft-fg);
   --_btn-outline-border: var(--widget-discovery-soft-border);
 }
 .wg-btn[data-color="success"] {
   --_btn-bg: var(--widget-success);
-  --_btn-fg: #ffffff;
-  --_btn-hover-bg: color-mix(in srgb, var(--widget-success) 85%, black);
+  --_btn-fg: var(--widget-on-success);
+  --_btn-hover-bg: color-mix(in srgb, var(--widget-success) 90%, var(--widget-on-success));
   --_btn-soft-bg: var(--widget-success-soft-bg);
   --_btn-soft-fg: var(--widget-success-soft-fg);
   --_btn-outline-border: var(--widget-success-soft-border);
@@ -398,8 +422,8 @@
 }
 .wg-btn[data-color="danger"] {
   --_btn-bg: var(--widget-danger);
-  --_btn-fg: #ffffff;
-  --_btn-hover-bg: color-mix(in srgb, var(--widget-danger) 85%, black);
+  --_btn-fg: var(--widget-on-danger);
+  --_btn-hover-bg: color-mix(in srgb, var(--widget-danger) 90%, var(--widget-on-danger));
   --_btn-soft-bg: var(--widget-danger-soft-bg);
   --_btn-soft-fg: var(--widget-danger-soft-fg);
   --_btn-outline-border: var(--widget-danger-soft-border);
@@ -451,6 +475,7 @@
   --_badge-soft-fg: var(--widget-success-soft-fg);
   --_badge-border: var(--widget-success-soft-border);
   --_badge-solid-bg: var(--widget-success);
+  --_badge-solid-fg: var(--widget-on-success);
 }
 .wg-badge[data-color="warning"] {
   --_badge-soft-bg: var(--widget-warning-soft-bg);
@@ -464,18 +489,21 @@
   --_badge-soft-fg: var(--widget-danger-soft-fg);
   --_badge-border: var(--widget-danger-soft-border);
   --_badge-solid-bg: var(--widget-danger);
+  --_badge-solid-fg: var(--widget-on-danger);
 }
 .wg-badge[data-color="info"] {
   --_badge-soft-bg: var(--widget-info-soft-bg);
   --_badge-soft-fg: var(--widget-info-soft-fg);
   --_badge-border: var(--widget-info-soft-border);
   --_badge-solid-bg: var(--widget-info);
+  --_badge-solid-fg: var(--widget-on-info);
 }
 .wg-badge[data-color="discovery"] {
   --_badge-soft-bg: var(--widget-discovery-soft-bg);
   --_badge-soft-fg: var(--widget-discovery-soft-fg);
   --_badge-border: var(--widget-discovery-soft-border);
   --_badge-solid-bg: var(--widget-discovery);
+  --_badge-solid-fg: var(--widget-on-discovery);
 }
 
 /* --- Inputs ------------------------------------------------ */
@@ -513,8 +541,8 @@
 
 .wg-input:focus,
 .wg-input:focus-within {
-  border-color: var(--widget-accent);
-  box-shadow: var(--widget-ring);
+  border-color: var(--widget-border-strong);
+  box-shadow: none;
   outline: none;
 }
 
@@ -550,10 +578,10 @@
 }
 
 .wg-editable:focus {
-  border-color: var(--widget-accent);
+  border-color: var(--widget-border-strong);
   background: var(--widget-surface);
   padding: 0.25rem 0.5rem;
-  box-shadow: var(--widget-ring);
+  box-shadow: none;
 }
 
 /* --- List rows --------------------------------------------- */
@@ -1130,8 +1158,8 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-task-disc { display: flex; width: 22px; height: 22px; align-items: center; justify-content: center; border: 1.5px solid var(--widget-border-strong); border-radius: 999px; color: var(--widget-text-tertiary); }
 .wg-task-disc i { font-size: 0.6875rem; font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
 .wg-task-disc[data-status="running"] { border-color: var(--widget-accent); color: var(--widget-accent); box-shadow: 0 0 0 3px var(--widget-accent-soft); }
-.wg-task-disc[data-status="completed"] { border-color: transparent; background: var(--widget-success); color: #fff; }
-.wg-task-disc[data-status="failed"] { border-color: transparent; background: var(--widget-danger); color: #fff; }
+.wg-task-disc[data-status="completed"] { border-color: transparent; background: var(--widget-success); color: var(--widget-on-success); }
+.wg-task-disc[data-status="failed"] { border-color: transparent; background: var(--widget-danger); color: var(--widget-on-danger); }
 .wg-task-disc[data-status="cancelled"] { border-style: dashed; }
 .wg-task-pill { display: none; align-items: center; border-radius: 999px; padding: 0.18rem 0.5rem; font-size: 0.6875rem; font-weight: 550; white-space: nowrap; }
 .wg-task-pill[data-status="completed"] { display: inline-flex; background: var(--widget-success-soft-bg); color: var(--widget-success-soft-fg); }
@@ -1149,7 +1177,7 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 
 /* --- Agent composer ----------------------------------------- */
 .wg-agent-input { overflow: hidden; width: 100%; border: 1px solid var(--widget-border-default); border-radius: 14px; background: var(--widget-surface-elevated); box-shadow: var(--widget-shadow-xs); transition: border-color 150ms ease, box-shadow 150ms ease; }
-.wg-agent-input:focus-within { border-color: var(--widget-accent-border); box-shadow: var(--widget-ring); }
+.wg-agent-input:focus-within { border-color: var(--widget-border-strong); box-shadow: var(--widget-shadow-xs); }
 .wg-agent-input textarea { display: block; resize: none; width: 100%; min-height: 44px; border: 0; background: transparent; color: var(--widget-text-primary); padding: 0.7rem 0.85rem 0.25rem; font: inherit; font-size: 0.8125rem; line-height: 1.5; }
 .wg-agent-input textarea::placeholder { color: var(--widget-text-tertiary); }
 .wg-agent-input-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.55rem 0.6rem 0; }
@@ -1207,7 +1235,7 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-approval-options label small { color: var(--widget-text-tertiary); font-size: 0.6875rem; }
 .wg-approval-other { width: 100%; min-height: 38px; border: 1px dashed var(--widget-border-default); border-radius: 10px; background: transparent; color: var(--widget-text-primary); padding: 0 0.65rem; font-size: 0.78rem; transition: 150ms var(--widget-ease); }
 .wg-approval-other::placeholder { color: var(--widget-text-tertiary); }
-.wg-approval-other:focus { border-style: solid; border-color: var(--widget-accent-border); outline: none; box-shadow: var(--widget-ring); }
+.wg-approval-other:focus { border-style: solid; border-color: var(--widget-border-strong); outline: none; box-shadow: none; }
 .wg-approval-progress { display: flex; gap: 0.25rem; padding-top: 0.25rem; }
 .wg-approval-progress span { height: 3px; flex: 1; border-radius: 99px; background: var(--widget-surface-tertiary); transition: background-color 180ms ease; }
 .wg-approval-progress span[data-active] { background: var(--wg-approval-tone); }
@@ -1472,7 +1500,7 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
 .wg-fine-fields { display: grid; gap: 0.65rem; padding: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 .wg-fine-fields label { display: flex; min-width: 0; flex-direction: column; gap: 0.3rem; color: var(--widget-text-secondary); font-size: 0.6875rem; font-weight: 550; }
 .wg-fine-fields :where(input, select) { width: 100%; min-height: 34px; border: 1px solid var(--widget-border-default); border-radius: 8px; background: var(--widget-surface-elevated); color: var(--widget-text-primary); padding: 0 0.5rem; font: inherit; font-size: 0.75rem; }
-.wg-fine-fields :where(input, select):focus-visible { border-color: var(--widget-accent-border); box-shadow: var(--widget-ring); outline: none; }
+.wg-fine-fields :where(input, select):focus-visible { border-color: var(--widget-border-strong); box-shadow: none; outline: none; }
 .wg-fine-fields input[type="range"] { min-height: 24px; border: 0; padding: 0; accent-color: var(--widget-accent); }
 .wg-fine-input { position: relative; display: flex; align-items: center; }
 .wg-fine-input em { position: absolute; right: 0.5rem; color: var(--widget-text-tertiary); font-size: 0.625rem; font-style: normal; pointer-events: none; }
@@ -1500,4 +1528,67 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
   .wg-recommendation-footer .wg-agent-button { flex: 1; }
   .wg-diff-line { grid-template-columns: 26px 26px 18px minmax(180px, 1fr); }
   .wg-selection-toolbar input { min-width: 72px; }
+}
+
+/* Tab navigation: quiet track, clear selection, fully keyboard operable. */
+.wg-tabs { display: flex; min-width: 0; flex-direction: column; gap: 1rem; }
+.wg-tabs-list { display: flex; gap: 1.25rem; border-bottom: 1px solid var(--widget-border-subtle); overflow-x: auto; scrollbar-width: thin; }
+.wg-tabs-tab { display: inline-flex; flex-shrink: 0; align-items: center; gap: .4rem; padding: .55rem 0 .7rem; border: 0; border-bottom: 1.5px solid transparent; background: transparent; color: var(--widget-text-secondary); font-family: inherit; font-size: .8rem; font-weight: 450; transition: color 150ms, border-color 150ms; }
+.wg-tabs-tab:hover { color: var(--widget-text-emphasis); }
+.wg-tabs-tab[aria-selected="true"] { border-bottom-color: var(--widget-accent); color: var(--widget-text-emphasis); font-weight: 550; }
+.wg-tabs-panel { min-width: 0; }
+.wg-choice:hover:not(:disabled) { filter: brightness(.97); }
+.wg-choice:active:not(:disabled) { transform: translateY(1px); }
+/* Library controls inherit the widget's semantic palette in embedded hosts. */
+.widget-root [data-slot="accordion-item"] { border-color: var(--widget-border-subtle); }
+.widget-root [data-slot="accordion-trigger"] { padding-block: 1rem; font-size: .85rem; font-weight: 500; color: var(--widget-text-primary); text-decoration: none; }
+.widget-root [data-slot="accordion-content"] { color: var(--widget-text-secondary); line-height: 1.65; }
+.widget-root [data-slot="slider-track"] { background: var(--widget-surface-tertiary); height: 4px; }
+.widget-root [data-slot="slider-range"] { background: var(--widget-accent); }
+.widget-root [data-slot="slider-thumb"] { border-color: var(--widget-border-strong); background: var(--widget-surface-elevated); box-shadow: var(--widget-shadow-xs); }
+.widget-root [data-slot="input-otp-slot"] { border-color: var(--widget-border-default); background: var(--widget-surface-secondary); color: var(--widget-text-emphasis); }
+.wg-switch { display: inline-flex; align-items: center; flex-shrink: 0; width: 38px; height: 24px; padding: 3px; border: 1px solid var(--widget-border-default); border-radius: 999px; background: var(--widget-surface-tertiary); transition: background 180ms, border-color 180ms; }
+.wg-switch > span { display: block; width: 16px; height: 16px; border-radius: 50%; background: var(--widget-surface-elevated); box-shadow: 0 1px 3px #0002; transition: transform 180ms var(--widget-ease); }
+.wg-switch[aria-checked="true"] { background: var(--widget-accent); border-color: var(--widget-accent); }
+.wg-switch[aria-checked="true"] > span { transform: translateX(14px); background: var(--widget-on-accent); }
+.wg-switch:disabled { opacity: .45; }
+@media (prefers-reduced-motion: reduce) { .wg-switch, .wg-switch > span, .wg-tabs-tab { transition: none; } }
+.widget-root .wg-input { box-shadow: none; }
+.widget-root .wg-input:focus, .widget-root .wg-input:focus-within { box-shadow: none; }
+
+@media (prefers-contrast: more) {
+  .widget-root { --widget-text-secondary: #303034; --widget-text-tertiary: #444448; --widget-border-subtle: #777780; }
+  .widget-root[data-theme="dark"] { --widget-text-secondary: #e5e5ea; --widget-text-tertiary: #d1d1d6; --widget-border-subtle: #8e8e93; }
+}
+
+.widget-root [data-slot="button"][data-variant="outline"] {
+  border-color: var(--widget-border-control);
+}
+
+/* Field-like controls indicate focus at their own boundary, without a halo. */
+.widget-root .wg-field-control:focus-visible,
+.wg-field-control:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--widget-border-strong);
+}
+.widget-root [data-slot="input-otp-slot"][data-active] {
+  border-color: var(--widget-border-strong);
+  background: var(--widget-surface-elevated);
+  box-shadow: none;
+}
+.widget-root .prose blockquote {
+  border-inline-start: 0;
+  padding: .75rem 1rem;
+  border-radius: var(--widget-radius-control);
+  background: var(--widget-surface-secondary);
+  color: var(--widget-text-secondary);
+  font-weight: 400;
+}
+.widget-root.wg-tooltip { color: var(--widget-surface); }
+
+/* Menus identify keyboard focus with a highlighted row, not another ring. */
+.widget-root :where([role="option"], [role^="menuitem"]):focus {
+  outline: none;
+  box-shadow: none;
 }

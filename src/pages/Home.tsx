@@ -76,7 +76,7 @@ import { WidgetRenderer } from "@tugan/widgets";
 /* ------------------------------------------------------------------ */
 
 const btnBase =
-  "ff-mono inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[2px] border border-[var(--ink)] px-3 text-[10px] uppercase tracking-[0.1em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] sm:w-auto sm:px-6 sm:text-xs sm:tracking-[0.12em]";
+  "ff-mono inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[2px] border border-[var(--ink)] px-3 text-[10px] uppercase tracking-[0.1em] transition-colors sm:w-auto sm:px-6 sm:text-xs sm:tracking-[0.12em]";
 const btnPrimary = `${btnBase} bg-[var(--ink)] text-[var(--paper)] hover:bg-transparent hover:text-[var(--ink)]`;
 const btnGhost = `${btnBase} bg-transparent text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--paper)]`;
 
@@ -340,7 +340,7 @@ function CopyAction({
     <button
       type="button"
       onClick={handleCopy}
-      className={`ff-mono cursor-pointer text-[11.5px] uppercase tracking-[0.14em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] ${className}`}
+      className={`ff-mono cursor-pointer text-[11.5px] uppercase tracking-[0.14em] transition-colors ${className}`}
     >
       {copied ? "Copied ✓" : label}
     </button>
@@ -536,7 +536,7 @@ function Exhibit() {
         <button
           type="button"
           onClick={replay}
-          className="col-start-2 row-start-1 inline-flex min-h-11 cursor-pointer items-center justify-center border-b border-[var(--ink)] px-3 uppercase text-[var(--ink)] transition-colors hover:border-[var(--mid)] hover:text-[var(--mid)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ink)] sm:order-none"
+          className="col-start-2 row-start-1 inline-flex min-h-11 cursor-pointer items-center justify-center border-b border-[var(--ink)] px-3 uppercase text-[var(--ink)] transition-colors hover:border-[var(--mid)] hover:text-[var(--mid)] sm:order-none"
         >
           ↻ Replay
         </button>
@@ -551,7 +551,7 @@ function Exhibit() {
             tabIndex={0}
             aria-label="Widget template source"
             onKeyDown={scrollSourceHorizontally}
-            className="ff-mono sr-no-scrollbar max-h-[300px] min-w-0 flex-1 overflow-auto whitespace-pre text-[10.5px] leading-[1.7] text-[var(--panel-text)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--panel-string)] sm:max-h-[440px] sm:text-[11px] md:max-h-[560px] md:text-[12px] md:leading-[1.75]"
+            className="ff-mono sr-no-scrollbar max-h-[300px] min-w-0 flex-1 overflow-auto whitespace-pre text-[10.5px] leading-[1.7] text-[var(--panel-text)] focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--panel-string)] sm:max-h-[440px] sm:text-[11px] md:max-h-[560px] md:text-[12px] md:leading-[1.75]"
           >
             {HIGHLIGHTED_LINES.slice(0, completeCount).map((nodes, i) => (
               <div key={i}>{TEMPLATE_LINES[i] ? nodes : " "}</div>

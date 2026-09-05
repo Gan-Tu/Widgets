@@ -1,3 +1,4 @@
+import { useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
@@ -31,15 +32,17 @@ const DialogContent = React.forwardRef<
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
+      data-theme={useWidgetTheme()}
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-6 shadow-lg",
+        "widget-root wg-portal",
+        "fixed left-[50%] top-[50%] z-50 w-[calc(100vw-2rem)] max-w-lg max-h-[calc(100svh-2rem)] overflow-y-auto translate-x-[-50%] translate-y-[-50%] rounded-lg border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-6 shadow-lg",
         className
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--widget-ring-color)]">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>

@@ -158,7 +158,7 @@ const Divider: React.FC<{
 }> = ({ color, size = 1, spacing, flush = false }) => {
   const theme = useWidgetTheme();
   const resolvedColor = resolveColor(color ?? "default", theme);
-  const marginValue = spacing !== undefined ? spaceToCss(spacing) : spaceToCss(3);
+  const marginValue = spacing !== undefined ? spaceToCss(spacing) : "0px";
   const style: React.CSSProperties = {
     height: sizeToCss(size),
     width: "100%",
@@ -173,7 +173,7 @@ const Divider: React.FC<{
     style.width = "calc(100% + var(--widget-card-padding, 1rem) * 2)";
   }
 
-  return <div style={style} />;
+  return <div role="separator" style={style} />;
 };
 
 export { Box, Row, Col, Spacer, Divider, buildBlockStyles, resolveAlign, resolveJustify };

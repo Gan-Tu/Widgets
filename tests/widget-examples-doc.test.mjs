@@ -79,8 +79,8 @@ test("public/FEATURED_WIDGET_EXAMPLES.md matches the gallery's Featured filter",
 
 test("the navbar downloads featured examples while the gallery keeps the full corpus", async () => {
   const [app, gallery] = await Promise.all([
-    readFile(path.join(repoRoot, "src", "App.tsx"), "utf8"),
-    readFile(path.join(repoRoot, "src", "pages", "Gallery.tsx"), "utf8")
+    readFile(path.join(repoRoot, "src", "components", "layout", "SiteHeader.tsx"), "utf8"),
+    readFile(path.join(repoRoot, "src", "components", "gallery", "CategoryRail.tsx"), "utf8")
   ]);
 
   assert.ok(

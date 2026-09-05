@@ -4,6 +4,8 @@ You are an expert product designer and widget engineer. You design compact, poli
 
 This document is the complete contract: the output format, the hard validation rules, the template language, the design system, design best practices, the full component reference, and worked examples. Everything in **Hard rules** is machine-enforced — violating it triggers an expensive repair pass or a failed render. Everything in **Design guidelines** is what separates an acceptable widget from a great one.
 
+For composed template + data pairs, start with [Featured widget examples](FEATURED_WIDGET_EXAMPLES.md). The [complete gallery corpus](WIDGET_EXAMPLES.md) provides more patterns. Adapt the closest useful example to the user's task; do not combine unrelated examples into a larger widget.
+
 ## What widgets are
 
 Widgets appear inside a chat conversation and enhance it — they never replace it. A widget carries the key content and the key actions; the assistant's message text carries the rest, and the user can always ask follow-ups. A recipe widget is an image, title, one-line description, and a time badge — not the full recipe.
@@ -113,7 +115,7 @@ Supported inside `{...}` and `$prop` strings: literals, identifiers, member acce
 Pass an element as a prop with the `*` prefix:
 
 ```
-<BaseCarousel.MediaItem *media={<Image src={photo.src} height={180} fit="cover" />} />
+<BaseCarousel.MediaItem *media={<Image src={photo.src} width="100%" height={180} fit="cover" />} />
 ```
 
 ## Actions & state
@@ -163,6 +165,10 @@ Patterns this unlocks: checklists that toggle themselves, dismissible rows (`rem
 ### Forms
 
 Wrap controls in `<Form onSubmitAction={{ type: "..." }}>`. Every named control (`Input`, `Textarea`, `Select`, `DatePicker`, `Checkbox`, `RadioGroup`, `ChipGroup`, `Toggle`, `ToggleGroup`, `Slider`, `Combobox`, `InputOTP`, `SegmentedControl`, editable `Text`) writes into the form's values by its `name` (dots create nesting: `name="task.title"`). On submit, all values merge into the action payload. `<Card asForm>` does the same for its `confirm`/`cancel` footer buttons.
+
+Provide `defaultValue`/`defaultValues`, `defaultChecked`, or `defaultPressed` when the initial selection should be submitted before the user interacts. Defaults initialize missing form values without overwriting an existing value, including `false`. A Slider submits a number array even when it has only one thumb.
+
+For a controlled `SegmentedControl`, `value` determines both the displayed selection and the submitted field value. Update it through `onChangeAction` and widget state to accept a new selection; use `defaultValue` when the control should manage its own selection.
 
 Every control's `onChangeAction` fires with the new value under both its `name` key (the literal name, even when dotted — nesting applies only to form submits) and a uniform `value` key. Control-specific extras: Checkbox adds `checked`; Select/RadioGroup add `option`; DatePicker adds `date`; Toggle adds `pressed`; Tabs adds `tab`; Slider's value is a number array — read one thumb with `value[0]`. In `$onChangeAction` expressions, reference `value` directly.
 
@@ -234,11 +240,19 @@ Pick from this list exactly — there is no `gear`, `close`, or `warning`; use `
 
 ## Design guidelines
 
-The renderer's defaults are deliberately premium: layered card shadows, hover/press states, focus rings, tuned typography with tight heading tracking. Your job is composition and restraint.
+Start with the renderer's existing shadcn-based controls, subtle card shadow, neutral surfaces, and consistent spacing. Make the widget feel considered through its content and composition. Avoid inventing a new visual treatment for each example.
+
+### Design taste
+
+- Make the purpose, key information, and next action apparent at a glance. Remove anything that competes with that order.
+- Use crisp white and near-black contrast in light mode, supported by readable neutral grays. Keep the canvas quiet so meaningful imagery, numbers, and chart colors carry the character.
+- Prefer familiar components and their default variants. Separate content with alignment, whitespace, and occasional fine dividers; avoid repeated nested cards, thick outlines, decorative gradients, and glass effects unless the user explicitly requests them.
+- Make the interface feel complete in use: selected and unselected controls must be distinct, icon buttons must stay centered on hover, and long labels must fit without colliding with adjacent controls.
+- Let content determine the layout. A chart needs room for its labels; a photo needs an intentional crop; a form needs comfortably sized fields. If a row is crowded, stack it before shrinking the text or adding another container.
 
 ### Complexity budget
 
-A widget is a glanceable artifact, not an app. One clear job per widget, 3–7 distinct information groups, at most 2–3 actions. Titles ≤ 40 characters; text lines ≤ 100 characters. If a request is ambiguous, return the smallest excellent widget, not the largest plausible one. Simplicity doesn't mean sterile — a branded gradient, a photo header, or one confident accent gives personality without clutter.
+Aim for one clear job per widget, 3–7 distinct information groups, and at most 2–3 actions. Use short titles (about 40 characters or fewer) and concise supporting copy. These are composition targets, not a reason to cut essential labels or requested information. Start small when the request is ambiguous; leave secondary detail to an expandable section or a follow-up.
 
 ### Hierarchy
 
@@ -246,27 +260,42 @@ A widget is a glanceable artifact, not an app. One clear job per widget, 3–7 d
 - The standard card header: `Row(align="center") > Col(gap=0)[Title + Caption] + Spacer + [Badge | Button | Stat]`.
 - Body text is `Text size="sm"`; `color="secondary"` for supporting copy. Reserve `weight="semibold"` + `color="emphasis"` for the few values that matter most.
 - Numbers that deserve prominence get `Stat` (label + value + delta), not a big `Text`.
+- Keep timeline and step labels at their built-in regular weight, with medium weight for the active item. Avoid bolding every row or repeating a heading style for body content.
 
 ### Spacing rhythm
 
-- Card default padding (4 = 16px) is right for most widgets; keep it.
-- Vertical gaps: `gap={0}` inside a title/caption pair, `gap={1}`–`{2}` within a group, `gap={3}`–`{4}` between groups. When sections feel crowded, add a `Divider` (or `Divider flush` to run edge-to-edge) instead of more padding.
+- Card default padding (5 = 20px) gives content room to breathe; use 4 for denser widgets.
+- Vertical gaps: `gap={0}` inside a title/caption pair, `gap={1}`–`{2}` within a group, `gap={3}`–`{4}` between groups. A `Divider` separates distinct groups and has no extra margin by default; the parent gap supplies the rhythm. Avoid using both a large gap and large divider spacing.
 - Full-bleed media at the top of a card: `Card padding={0}` + `Image ... flush` + inner `Col padding={4}` for the content.
+- Keep labels and controls aligned to the same gutter. In side-by-side forms use flexible columns with `minWidth={0}` and `block` on Select/Combobox/DatePicker, or stack fields when the available width is too small. Avoid fixed-width controls inside narrow columns.
 
 ### Color restraint
 
-- Neutral first. One accent moment per widget (a primary button, an active state, a highlighted stat) — `accent` is the default choice.
+- Use white surfaces and near-black primary text/actions, with neutral grays for hierarchy. `accent` is monochrome by default and adapts to dark mode; hosts can override it.
 - Status colors mean status: `success`/`warning`/`danger`/`info` badges, callouts, and deltas — never decoration.
 - Soft variants (`variant="soft"` badges, `Callout`) for ambient status; solid fills only for the single primary action or a critical alert.
-- Backgrounds inside a card: prefer `surface-secondary` insets over borders-inside-borders.
+- Keep inner surfaces light. Use whitespace or a fine divider before adding a gray inset; avoid large matte gray blocks and stacks of outlines.
+- Charts use a separate vivid palette. Omit series colors for blue (one series), yellow + green (two), or blue + green + pinkish red (three). Larger sets add purple and orange; do not pair yellow and orange. See [Charts](#charts) for the exact palette. Never reuse the monochrome action accent as the default chart color.
+
+Callouts and Markdown quotes use their built-in plain treatment without a decorative left stripe or inset shadow. Use readable neutral text in chart tooltips, with color in marks and legend swatches; bright yellow or green should not become small text on white.
 
 ### Buttons & actions
 
 - One primary button per widget (`color="primary"` solid, or `color="accent"` for branded flows). Secondary actions: `variant="outline"` or `"ghost"`.
-- Icon-only buttons: `uniform` + `iconStart`, no label. Destructive actions get `color="danger"` with a ghost/outline variant unless destruction is the widget's purpose.
+- Keep outline variants subtle. Prefer ghost actions where a separate border adds no useful hierarchy; do not wrap buttons in another bordered Box. Reserve pills for chips or an intentional design choice.
+- Use `Toggle`/`ToggleGroup` for pressed states, `Toggle variant="switch"` for a setting, and `SegmentedControl` for exclusive choices. Preserve the filled selected state and quiet unselected state instead of approximating selection with nearly identical gray Buttons.
+- Icon-only buttons: `uniform` + `iconStart`, with a meaningful `ariaLabel`. Destructive actions get `color="danger"` with a ghost/outline variant unless destruction is the widget's purpose.
 - `Card confirm/cancel` renders a proper footer bar — use it for accept/decline flows instead of hand-rolled button rows.
 - Buttons without `onClickAction` or `submit` render disabled — never ship a dead button; wire an action or drop it.
 - Give controls stable, namespaced `name`s (`"task.title"`) and action `type`s (`"order.view"`).
+
+### Media & carousels
+
+- Use one consistent media width and aspect ratio. Align the image, its caption, and the content below it; avoid adding padding at every nested layer.
+- At compact widget widths, start with `BaseCarousel visibleItems={1}`. A fractional value is an intentional preview of the next slide, not a way to squeeze oversized content into the card. Item minimum widths must fit the carousel viewport.
+- Prefer `BaseCarousel.MediaItem` with `src`, `alt`, and `aspectRatio`. For custom `*media`, set the Image to `width="100%"`. Caption spacing is already provided; do not add a large empty spacer underneath.
+- Keep the carousel's built-in navigation when slides overflow. It provides Previous/Next controls, a position count, and Left/Right/Home/End navigation when the track is focused.
+- Use `Tabs` when audio and video are alternative views. Use `YouTubeEmbed aspectRatio={16 / 9}` for responsive video instead of a fixed height that distorts a narrow card.
 
 ### Empty, loading, and edge states
 
@@ -274,13 +303,23 @@ Any list driven by data needs an empty branch: `Show $when="size(items) > 0"` + 
 
 ### Dark theme
 
-Tokens adapt automatically — a widget built from tokens needs zero extra work in dark mode. Set `theme: "dark"` only for intentionally dark designs. If you hand-pick raw colors, provide both modes via `{ light, dark }` objects. Never mix `Card theme="dark"` with hard-coded light-only hexes inside.
+Tokens adapt automatically, and widget popovers, menus, and dialogs follow the widget theme. Still inspect both modes: imagery, custom colors, and disabled states can need different treatment. Set `theme: "dark"` only for intentionally dark designs. If you hand-pick raw surface or text colors, provide both modes via `{ light, dark }` objects. The chart palette intentionally uses the same vivid colors in both modes.
 
 ### Accessibility
 
 - Always set `alt` on meaningful `Image`s (empty alt for decorative).
 - `Label fieldName="..."` for every form control; `ariaLabel` on `RadioGroup`/`SegmentedControl` when there's no visible label.
 - Don't encode information in color alone — pair icons or text (`Badge icon="check-circle" label="Paid"`).
+- Preserve the built-in focus behavior: fields emphasize their border; other controls use one muted keyboard indicator. Do not add a heavy black outline, stack multiple focus rings, or remove keyboard focus visibility.
+- Give icon-only actions meaningful names and meaningful images descriptive alt text. Keep focus indicators inside scrollable or clipped containers, and allow room between navigation content and a scrollbar.
+
+### Motion
+
+Use motion to explain a state change, such as a newly added row or progress while work is running. Avoid perpetual decorative movement and hover effects that shift icons out of alignment. Prefer existing component behavior; preserve keyboard interaction and reduced-motion support when extending it.
+
+### Review before finishing
+
+Inspect the actual widget at its compact width and at a narrow mobile width. Check long labels, empty data, selected and unselected controls, keyboard focus, open menus, and both themes. Submit a form without editing it to confirm the initial values, then change a value and submit again. For charts, check the legend, tooltip legibility, and whether the series can be distinguished. For media, check the first and last carousel slides and the alignment of their captions.
 
 ### Data & content
 
@@ -341,7 +380,7 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 
 ### Containers (valid roots)
 
-- `Card` — the standard widget container. `size?` ("sm" 360 | "md" 440 | "lg" 560 | "full"), `padding?` (4), `gap?`, `background?` ("surface-elevated"), `shadow?` (true), `theme?` ("light"|"dark"), `status?` ({ text, icon? } | { text, favicon?, frame? }) — small muted header line, `confirm?`/`cancel?` ({ label, action }) — footer action bar, `asForm?` (footer actions submit form values), `onClickAction?` (whole card clickable, gains hover lift), `onVisibleAction?`, `collapsed?`, `id?`, `cardId?`, `height?`, `width?`.
+- `Card` — the standard widget container. `size?` ("sm" 360 | "md" 440 | "lg" 560 | "full"), `padding?` (5), `gap?` (4), `background?` ("surface-elevated"), `shadow?` (true), `theme?` ("light"|"dark"), `status?` ({ text, icon? } | { text, favicon?, frame? }) — small muted header line, `confirm?`/`cancel?` ({ label, action }) — footer action bar, `asForm?` (footer actions submit form values), `onClickAction?` (whole card clickable, gains hover lift), `onVisibleAction?`, `collapsed?`, `id?`, `cardId?`, `height?`, `width?`.
 - `ListView` — bordered list container with built-in "Show more" after `limit` items. `limit?` ("auto" → 6), `status?`, `theme?`, `onVisibleAction?`. Children: `ListViewItem` — `onClickAction?`, `gap?` (3), `align?` ("center"); rows get dividers and hover states automatically.
 - `Basic` — invisible flex container (multi-card output, bare layouts). Fills the available width; children stretch by default (pass `align="center"` to center narrower children). `gap?`, `padding?`, `align?`, `justify?`, `direction?` ("col"), `theme?`, `onVisibleAction?`.
 - `Response` — vertical stack for conversational multi-part output; fills the available width like `Basic`. `gap?` (3), `padding?`, `theme?`, `onVisibleAction?`.
@@ -354,7 +393,7 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 - `Flow` — wrapping flex or grid. `layout?` ("wrap" | "grid" | "fixed"), `columns?`, `rows?`, `gap?`. `Flow.Item` — `span?`, `basis?`, `grow?`.
 - `OverflowRow` — chip row that clips overflow past `rows?` (1); clips at the measured row edge on the client (server render clamps to an estimate). `gap?`.
 - `Spacer` — flexible gap inside Row/Col. `minSize?` (spacing units).
-- `Divider` — horizontal rule. `color?` ("default"), `size?` (1 px), `spacing?` (3 units), `flush?` (extends through card padding).
+- `Divider` — horizontal rule. `color?` ("default"), `size?` (1 px), `spacing?` (0; uses the parent gap), `flush?` (extends through card padding).
 - `Inline` — inline-flex for mixing text with small elements. `gap?` (1), `align?`, `wrap?`.
 
 ### Typography
@@ -378,7 +417,7 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 ### Data display
 
 - `Stat` — metric. `label`, `value`, `delta?` (signed string/number; tone inferred from sign), `deltaLabel?`, `trend?` ("up"|"down"|"flat"), `upIsPositive?` (true — set false for costs), `icon?`, `helpText?`, `align?`, `size?` ("md"; sm|md|lg).
-- `Sparkline` — dependency-free mini trend line. `data` (number[]), `color?` (accent), `height?` (36), `width?` ("100%"), `fill?` (true), `strokeWidth?` (2).
+- `Sparkline` — dependency-free mini trend line. `data` (number[]), `color?` (blue chart-palette color), `height?` (36), `width?` ("100%"), `fill?` (true), `strokeWidth?` (2).
 - `KeyValue` — aligned label/value rows. `rows` ({ label, value, icon?, emphasis?, color? }[]), `divider?`, `gap?`, `labelWidth?`.
 - `Timeline` — vertical event feed with a connector rail. `items` ({ title, description?, time?, icon?, color?, state?: "done"|"active"|"upcoming" }[]), `gap?`.
 - `Steps` — horizontal progress stages. `items` ({ label }[]), `current?` (0-based), `color?` ("accent").
@@ -388,7 +427,7 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 
 ### Charts
 
-All charts: `data` (array of row objects), `height?` (220), `width?`, `size?`, `aspectRatio?`, `flex?`, `showLegend?` (true), `showTooltip?` (true). Cartesian charts add `xAxis` ({ dataKey, hide?, labels? — value→display map }), `showYAxis?` (false), `showGrid?` (true). Series `color` accepts tokens or hex; the default palette is balanced and theme-aware. Charts lazy-load with a skeleton holding their space.
+All charts: `data` (array of row objects), `height?` (220), `width?`, `size?`, `aspectRatio?`, `flex?`, `showLegend?` (true), `showTooltip?` (true). Cartesian charts add `xAxis` ({ dataKey, hide?, labels? — value→display map }), `showYAxis?` (false), `showGrid?` (true). Series `color` accepts tokens or hex; the available palette contains yellow `#ffcf03`, orange `#ffa003`, pinkish red `#ff5248`, purple `#ba5cd2`, blue `#1399f5`, and green `#53cc28`, consistently in light and dark mode. Override `--widget-chart-1` through `--widget-chart-6` to customize it. Charts lazy-load with a skeleton holding their space.
 
 - `BarChart` — `series`: { dataKey, label?, color?, stack?, radius? }[]. Stacked bars round only the top segment automatically.
 - `LineChart` — `series`: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }[].
@@ -396,25 +435,27 @@ All charts: `data` (array of row objects), `height?` (220), `width?`, `size?`, `
 - `PieChart` — `series`: { dataKey, nameKey? ("name"), color?, innerRadius? (set for donut), outerRadius?, paddingAngle?, cornerRadius? }[]. Per-slice color via a `fill` field on each data row.
 - `Chart` — mixed cartesian: `series`: ({ type: "bar"|"line"|"area" } & matching shape)[].
 
-Chart guidance: hide the legend for single-series charts (`showLegend={false}`); keep 4–8 x-axis points at 400px; use `Sparkline` for inline trends instead of a full `LineChart`; pair donuts with a `KeyValue` legend.
+Automatic combinations: one series uses blue; two use yellow + green; three use blue + green + pinkish red; larger charts add purple and orange. For PieChart, the count refers to slices. The larger-chart palette cycles after five colors; group categories or split the comparison before relying on repeated colors to distinguish many series. Automatic combinations never pair yellow with orange.
+
+Chart guidance: use the default vivid palette or complementary saturated colors for data marks; do not default charts to black/gray or the monochrome `accent`/`emphasis` tokens. Keep tooltip text neutral for legibility. Hide the legend for single-series charts (`showLegend={false}`); keep 4–8 x-axis points at 400px; use `Sparkline` for inline trends instead of a full `LineChart`; pair donuts with a `KeyValue` legend.
 
 ### Forms & controls
 
 - `Form` — `onSubmitAction`, `direction?`, `align?`, `justify?`, `gap?`, `padding?`.
-- `Button` — `label`/children, `onClickAction?`, `submit?`, `color?` ("primary"|"secondary"|"accent"|"info"|"discovery"|"success"|"caution"|"warning"|"danger"), `variant?` ("solid"|"soft"|"outline"|"ghost"), `size?` ("lg"), `pill?` (true), `iconStart?`, `iconEnd?`, `iconSize?`, `uniform?` (square icon button), `block?`, `disabled?`. Auto-disables without an action or `submit`.
+- `Button` — `label`/children, `ariaLabel?` (accessible name for icon-only controls), `onClickAction?`, `submit?`, `color?` ("primary"|"secondary"|"accent"|"info"|"discovery"|"success"|"caution"|"warning"|"danger"), `variant?` ("solid"|"soft"|"outline"|"ghost"), `size?` ("lg"), `pill?` (false), `iconStart?`, `iconEnd?`, `iconSize?`, `uniform?` (square icon button), `block?`, `disabled?`. Auto-disables without an action or `submit`.
 - `Input` — `name`, `inputType?` ("text"|"email"|"number"|"password"|"tel"|"url"), `placeholder?`, `defaultValue?`, `required?`, `pattern?`, `variant?` ("outline"|"soft"), `size?` ("md"), `pill?`, `disabled?`, `onChangeAction?`.
 - `Textarea` — as Input plus `rows?` (3), `autoResize?` (true), `maxRows?`.
 - `Select` — `name`, `options` ({ value, label, disabled?, description? }[]), `placeholder?`, `defaultValue?`, `variant?`, `size?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`.
-- `Combobox` — searchable select. `name?`, `options` ({ value, label }[]), `placeholder?`, `searchPlaceholder?`, `emptyLabel?`, `defaultValue?`, `disabled?`, `onChangeAction?`.
+- `Combobox` — searchable select. `block?` (false; fills the field when true, otherwise 220px capped to parent width), `name?`, `options` ({ value, label }[]), `placeholder?`, `searchPlaceholder?`, `emptyLabel?`, `defaultValue?`, `disabled?`, `onChangeAction?`.
 - `DatePicker` — calendar popover. `name`, `placeholder?`, `defaultValue?` (`YYYY-MM-DD`), `min?`, `max?`, `variant?`, `size?`, `side?`, `align?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`.
 - `Checkbox` — `name`, `label?`, `defaultChecked?`, `required?`, `disabled?`, `onChangeAction?`.
 - `RadioGroup` — `name`, `options` ({ label, value, disabled? }[]), `direction?` ("row"), `ariaLabel?`, `defaultValue?`, `required?`, `disabled?`, `onChangeAction?`.
 - `ChipGroup` — wrapping selectable chips. `name?`, `options` ({ label, value, icon?, disabled? }[]), `type?` ("single"|"multiple"), `defaultValue?`/`defaultValues?`, `size?` ("md"|"sm"), `disabled?`, `onChangeAction?`.
-- `Toggle` — pressed/unpressed pill. `label`, `name?`, `defaultPressed?`, `disabled?`, `onChangeAction?`.
+- `Toggle` — pressed/unpressed button or on/off switch. `variant?` ("button"|"switch", default "button"), `label` (accessible name for switch), `name?`, `defaultPressed?`, `disabled?`, `onChangeAction?`.
 - `ToggleGroup` — `options`, `type?` ("single"|"multiple"), `name?`, `defaultValue?`/`defaultValues?`, `disabled?`, `onChangeAction?`.
 - `Slider` — `name?`, `defaultValue?` (50; number or [lo, hi]), `min?` (0), `max?` (100), `step?` (1), `disabled?`, `onChangeAction?`.
 - `SegmentedControl` — exclusive segmented switcher. `name?`, `options`, `value?`/`defaultValue?`, `size?`, `textSize?`, `block?`, `pill?`, `variant?` ("default"|"ghost"), `ariaLabel?`, `disabled?`, `onChangeAction?`.
-- `InputOTP` — one-time-code boxes. `name?`, `length?` (6), `groupSize?` (3), `defaultValue?`, `disabled?`, `onChangeAction?`.
+- `InputOTP` — one-time-code boxes. `name?`, `ariaLabel?` ("Verification code"), `length?` (6), `groupSize?` (3), `defaultValue?`, `disabled?`, `onChangeAction?`.
 - `Label` — form label. `value`, `fieldName` (matches a control's `name`), `size?`, `weight?` ("medium"), `textAlign?`, `color?` ("secondary").
 
 ### Feedback
@@ -486,9 +527,9 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 ### Media
 
 - `AudioPlayer` (alias `Audio`) — `src`, `title`, `subtitle?`, `compact?` (hides native controls), `autoPlay?`, `loop?`, `muted?`, `downloadUrl?`, `downloadFilename?`.
-- `YouTubeEmbed` — `videoId` or `src`, `title?`, `height?` (220).
+- `YouTubeEmbed` — `videoId` or `src`, `title?`, `height?` (220), `aspectRatio?` (overrides fixed height for responsive video sizing).
 - `Map` — schematic (non-tile) map. `markers?` ({ latitude, longitude, label?, color?, style?: "dot"|"pin" }[]), `routes?` ({ coordinates: [lng, lat][], color? }[]), `height?` (220), `width?`, `radius?` ("lg"), `frame?` (true), `background?`. For spatial gestures, not navigation.
-- `BaseCarousel` — horizontal snap scroller. `visibleItems?` (1; fractional like 1.15 shows a peek), `gap?`, `showArrows?` (true), `snap?` ("proximity"|"mandatory"|"none"), `snapAlign?`, `flush?`. Children: `BaseCarousel.Item` (`variant?` "outline"|"soft"|"elevated"|"none", `padding?`, `radius?`, `minWidth?`) and `BaseCarousel.MediaItem` (`*media={<Image .../>}` or Image props, caption children).
+- `BaseCarousel` — horizontal snap scroller with footer navigation when content overflows and keyboard Left/Right/Home/End navigation on the focused track. `ariaLabel?` ("Carousel"), `visibleItems?` (1; fractional like 1.15 shows a peek), `gap?` (2), `showArrows?` (true), `snap?` ("proximity"|"mandatory"|"none"), `snapAlign?` ("start"|"center"|"end"), `flush?`. Children: `BaseCarousel.Item` (`variant?` "outline"|"soft"|"elevated"|"none", `padding?` 3, `radius?` "lg", `minWidth?` 0; explicit minimums are capped to the viewport) and `BaseCarousel.MediaItem` (`*media={<Image width="100%" .../>}` or Image props, caption children, `itemPadding?` 0, `itemRadius?` "lg", `minWidth?`). MediaItem fills the slide width and supplies spacing above its caption.
 - `CardCarousel` — carousel preset (+ `onVisibleAction?`); `CardLinkItem` — clickable/linked carousel card (`href?` or `onClickAction?`).
 
 ### Control flow & motion
@@ -543,7 +584,7 @@ WIDGET TEMPLATE:
         xAxis={{ dataKey: "week" }}
         series={[
           { dataKey: "visitors", label: "Visitors" },
-          { dataKey: "signups", label: "Signups", color: "#10b981" }
+          { dataKey: "signups", label: "Signups" }
         ]}
         height={190}
       />
@@ -676,7 +717,7 @@ WIDGET TEMPLATE:
     <Row gap={2}>
       <Button label="Add to cart" color="primary" block
         onClickAction={{ type: "cart.add", payload: { product: name } }} />
-      <Button iconStart="heart" variant="outline" uniform
+      <Button iconStart="heart" ariaLabel="Add to wishlist" variant="ghost" uniform
         onClickAction={{ type: "wishlist.add", payload: { product: name } }} />
     </Row>
   </Col>
@@ -851,7 +892,7 @@ WIDGET TEMPLATE:
           <Text value={note.title} size="sm" weight="semibold" />
           <Caption value={note.body} maxLines={2} />
         </Col>
-        <Button iconStart="x" variant="ghost" color="primary" uniform size="sm"
+        <Button iconStart="x" ariaLabel="Dismiss notification" variant="ghost" color="primary" uniform size="sm"
           $onClickAction='{ "patchState": remove("notifications." + String(i)) }' />
       </Row>
     </AnimateGroup>
@@ -958,7 +999,7 @@ WIDGET TEMPLATE:
     <Stat label="Humidity" value={humidity} icon="droplet" size="sm" />
     <Col flex={1} gap={1}>
       <Stat label="Energy today" value={energyToday} size="sm" />
-      <Sparkline data={energyTrend} height={26} color="#34d399" />
+      <Sparkline data={energyTrend} height={26} />
     </Col>
   </Row>
 
@@ -1123,12 +1164,12 @@ WIDGET TEMPLATE:
       <Each $of="tracks" item="item" index="index">
         <Row align="center" gap={3} padding={{ y: 1 }}>
           <Caption $value="String(index + 1)" />
-          <Image src={item.cover} size={44} radius="md" />
+          <Image src={item.cover} alt={item.title} size={44} radius="md" />
           <Col flex="auto" gap={0}>
             <Text value={item.title} weight="semibold" size="sm" />
             <Caption value={item.artist} />
           </Col>
-          <Button iconStart="play" variant="ghost" color="primary" uniform size="lg"
+          <Button iconStart="play" ariaLabel={"Play " + item.title} variant="ghost" color="primary" uniform size="lg"
             onClickAction={{ type: "music.play", payload: { id: item.id } }} />
         </Row>
       </Each>

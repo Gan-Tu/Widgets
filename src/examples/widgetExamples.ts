@@ -43,8 +43,7 @@ const AnalyticsOverviewSchema = z.strictObject({
     z.strictObject({
       label: z.string(),
       value: z.string(),
-      delta: z.string(),
-      trend: z.array(z.number())
+      delta: z.string()
     })
   ),
   series: z.array(z.record(z.string(), z.union([z.string(), z.number()]))),
@@ -57,7 +56,6 @@ const FlightBookingSchema = z.strictObject({
   bookingId: z.string(),
   heroImage: z.string(),
   tripSummary: z.string(),
-  statusLabel: z.string(),
   route: z.string(),
   dates: z.string(),
   guests: z.string(),
@@ -65,7 +63,6 @@ const FlightBookingSchema = z.strictObject({
   segments: z.array(
     z.strictObject({
       id: z.string(),
-      image: z.string(),
       route: z.string(),
       stopsLabel: z.string(),
       flightNumber: z.string(),
@@ -90,8 +87,6 @@ const FlightBookingSchema = z.strictObject({
 const OrderTrackingSchema = z.strictObject({
   orderId: z.string(),
   eta: z.string(),
-  currentStep: z.number(),
-  steps: z.array(z.strictObject({ label: z.string() })),
   events: z.array(
     z.strictObject({
       title: z.string(),
@@ -108,7 +103,6 @@ const SmartHomeSchema = z.strictObject({
   temperature: z.string(),
   humidity: z.string(),
   energyToday: z.string(),
-  energyTrend: z.array(z.number()),
   scenes: z.array(z.strictObject({ label: z.string(), value: z.string(), icon: z.string() })),
   devices: z.array(
     z.strictObject({
@@ -341,8 +335,7 @@ const MediaCarouselSchema = z.strictObject({
       id: z.string(),
       title: z.string(),
       src: z.string(),
-      source: z.string(),
-      favicon: z.string()
+      source: z.string()
     })
   ),
   audio: z.strictObject({ title: z.string(), subtitle: z.string(), src: z.string() }),
@@ -828,52 +821,38 @@ export const widgetExamples: {
   {
     id: "analytics-overview",
     title: "Analytics overview",
-    description: "Stat row with sparklines, tabbed area chart, and a channel table.",
+    description: "Traffic, growth, and the sources behind them.",
     category: "Analytics",
     template: `
-<Card size="lg" gap={4}>
+<Card size="md" gap={5}>
   <Row align="center">
-    <Col gap={0}>
-      <Title value="Site analytics" size="sm" />
-      <Caption value="Last 30 days · updated 5m ago" />
-    </Col>
+    <Title value="Site analytics" size="sm" />
     <Spacer />
-    <Badge label="Live" color="success" icon="activity" />
+    <Caption value="Last 30 days" size="sm" />
   </Row>
-
-  <Row gap={5} wrap="wrap">
-    <Each $of="stats" item="stat">
-      <Col flex={1} minWidth={120} gap={1}>
-        <Stat label={stat.label} value={stat.value} delta={stat.delta} size="sm" />
-        <Sparkline data={stat.trend} height={30} />
-      </Col>
-    </Each>
-  </Row>
-
   <Tabs tabs={[
-    { id: "traffic", label: "Traffic", icon: "trending-up" },
-    { id: "channels", label: "Channels", icon: "layers" }
+    { id: "traffic", label: "Traffic" },
+    { id: "channels", label: "Channels" }
   ]}>
     <Tabs.Panel id="traffic">
-      <AreaChart
-        data={series}
-        xAxis={{ dataKey: "week" }}
-        series={[
-          { dataKey: "visitors", label: "Visitors" },
-          { dataKey: "signups", label: "Signups", color: "#10b981" }
-        ]}
-        height={190}
-      />
+      <Col gap={4}>
+        <Stat label={stats[0].label} value={stats[0].value} delta={stats[0].delta} size="lg" deltaLabel="vs. last month" />
+        <AreaChart data={series} xAxis={{ dataKey: "week" }}
+          series={[{ dataKey: "visitors", label: "Visitors" }]}
+          height={150} showLegend={false} />
+        <Divider />
+        <Row gap={6}>
+          <Stat label={stats[1].label} value={stats[1].value} delta={stats[1].delta} size="sm" />
+          <Stat label={stats[2].label} value={stats[2].value} delta={stats[2].delta} upIsPositive={false} size="sm" />
+        </Row>
+      </Col>
     </Tabs.Panel>
     <Tabs.Panel id="channels">
-      <DataTable
-        columns={[
-          { key: "channel", label: "Channel" },
-          { key: "visitors", label: "Visitors", align: "end" },
-          { key: "change", label: "Change", align: "end" }
-        ]}
-        rows={channels}
-      />
+      <DataTable columns={[
+        { key: "channel", label: "Channel" },
+        { key: "visitors", label: "Visitors", align: "end" },
+        { key: "change", label: "Change", align: "end" }
+      ]} rows={channels} />
     </Tabs.Panel>
   </Tabs>
 </Card>
@@ -881,9 +860,9 @@ export const widgetExamples: {
     schema: AnalyticsOverviewSchema,
     data: {
       stats: [
-        { label: "Visitors", value: "48.2K", delta: "+12.4%", trend: [30, 34, 32, 38, 41, 39, 44, 48] },
-        { label: "Signups", value: "1,284", delta: "+8.1%", trend: [10, 12, 11, 14, 13, 16, 17, 19] },
-        { label: "Bounce rate", value: "31%", delta: "-2.3%", trend: [40, 38, 39, 36, 35, 33, 32, 31] }
+        { label: "Visitors", value: "48.2K", delta: "+12.4%" },
+        { label: "Signups", value: "1,284", delta: "+8.1%" },
+        { label: "Bounce rate", value: "31%", delta: "-2.3%" }
       ],
       series: [
         { week: "W1", visitors: 5200, signups: 140 },
@@ -904,111 +883,61 @@ export const widgetExamples: {
   {
     id: "flight-booking",
     title: "Flight booking",
-    description: "A detailed booking review with segments, fare rules, and confirm actions.",
+    description: "Every detail of your next departure.",
     category: "Travel",
     featured: true,
     featuredRank: 13,
     template: `
-<Card
-  size="md"
-  padding={0}
-  confirm={{
-    label: "Confirm booking",
-    action: { type: "flight.booking.confirm", payload: { bookingId } }
-  }}
-  cancel={{
-    label: "Cancel",
-    action: { type: "flight.booking.cancel", payload: { bookingId } }
-  }}
->
-  <Image src={heroImage} alt="Destination" height={160} fit="cover" flush />
-
-  <Row align="center" padding={{ x: 4, top: 3, bottom: 2 }}>
-    <Col gap={0} flex="auto">
-      <Title value="Confirm international booking" size="sm" />
-      <Text value={tripSummary} size="sm" color="secondary" />
+<Card size="md" padding={0} gap={0}
+  confirm={{ label: "Confirm booking", action: { type: "flight.booking.confirm", payload: { bookingId } } }}
+  cancel={{ label: "Cancel", action: { type: "flight.booking.cancel", payload: { bookingId } } }}>
+  <Image src={heroImage} alt="Japan destination" height={145} fit="cover" flush />
+  <Col padding={5} gap={4}>
+    <Col gap={1}>
+      <Row align="center">
+        <Title value={route} size="lg" />
+        <Spacer />
+        <Caption value={tripSummary} size="sm" />
+      </Row>
+      <Caption value={dates + " · " + guests + " guests"} />
     </Col>
-    <Badge label={statusLabel} variant="soft" color="info" />
-  </Row>
-
-  <Divider flush />
-
-  <Row align="center" padding={{ x: 4, y: 3 }} gap={3}>
-    <Box size={18} radius="full" border={{ size: 2, color: "subtle" }} background="surface" />
-    <Col flex="auto" gap={0}>
-      <Text value={route} size="sm" weight="semibold" />
-      <Caption value={dates} />
-    </Col>
-    <Col align="end" gap={0}>
-      <Text value={cabinClass} size="sm" weight="semibold" />
-      <Caption value={\`\${guests} guests\`} />
-    </Col>
-  </Row>
-
-  <Divider flush />
-
-  <Col padding={{ x: 4, y: 3 }} gap={3}>
-    <Row gap={2} align="center">
-      <Box background="surface-elevated-secondary" radius="full" padding={2}>
-        <Icon name="plane" size="lg" />
-      </Box>
-      <Text value="Flight details" size="sm" weight="semibold" />
-    </Row>
-
-    <Col gap={2}>
-      <Each $of="segments" item="seg">
-        <Row gap={3} align="start">
-          <Image src={seg.image} size={52} radius="md" frame />
-          <Col flex="auto" gap={1}>
-            <Row gap={2} align="center">
-              <Text value={seg.route} size="sm" weight="semibold" />
-              <Spacer />
-              <Badge label={seg.stopsLabel} variant="soft" />
-            </Row>
-            <Row gap={2} align="center">
-              <Text value={seg.flightNumber} size="sm" color="secondary" />
-              <Text value="•" size="sm" color="tertiary" />
-              <Text value={seg.aircraft} size="sm" color="secondary" />
-            </Row>
-            <Row gap={3} align="start">
-              <Col flex={1} gap={0}>
-                <Caption value="Depart" size="sm" />
-                <Text value={seg.departTime} weight="semibold" />
-                <Caption value={seg.departNote} />
-              </Col>
-              <Col flex={1} gap={0}>
-                <Caption value="Arrive" size="sm" />
-                <Text value={seg.arriveTime} weight="semibold" />
-                <Caption value={seg.arriveNote} />
-              </Col>
-            </Row>
+    <Divider />
+    <Each $of="segments" item="seg">
+      <Col gap={2}>
+        <Row justify="between" gap={2}>
+          <Caption value={seg.flightNumber + " · " + seg.stopsLabel} size="sm" />
+          <Caption value={seg.route} size="sm" />
+        </Row>
+        <Row justify="between" align="center" gap={3}>
+          <Col gap={0}>
+            <Text value={seg.departTime} weight="medium" />
+            <Caption value={seg.departNote} size="sm" />
+          </Col>
+          <Icon name="arrow-right" size="sm" color="tertiary" />
+          <Col gap={0} align="end">
+            <Text value={seg.arriveTime} weight="medium" />
+            <Caption value={seg.arriveNote} size="sm" />
           </Col>
         </Row>
-      </Each>
-    </Col>
-
-    <Divider flush />
-
-    <KeyValue rows={reviewRows} />
+      </Col>
+    </Each>
+    <Accordion items={[{ id: "fare", title: "Cabin & fare details", content: cabinClass + " · " + reviewRows[2].value + ". " + reviewRows[3].value + ". Aircraft: " + segments[0].aircraft + "." }]} />
+    <Row align="center" justify="between" gap={3}>
+      <Col gap={0}>
+        <Text value="Total" size="sm" />
+        <Caption value={priceNote} size="sm" />
+      </Col>
+      <Title value={totalPrice} size="sm" />
+    </Row>
   </Col>
-
-  <Row padding={{ x: 4, y: 4 }} background="surface-elevated-secondary" border={{ top: { size: 1 } }}>
-    <Col gap={0}>
-      <Text value="Total" size="sm" weight="semibold" />
-      <Caption value={priceNote} />
-    </Col>
-    <Spacer />
-    <Title value={totalPrice} size="sm" />
-  </Row>
 </Card>
     `.trim(),
     schema: FlightBookingSchema,
     data: {
       bookingId: "bk-ua-893421",
       heroImage:
-        "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
       tripSummary: "Round-trip · International",
-      statusLabel: "Review",
       route: "SFO → NRT",
       dates: "Mar 12 – Mar 20",
       guests: "2",
@@ -1022,8 +951,6 @@ export const widgetExamples: {
       segments: [
         {
           id: "seg-1",
-          image:
-            "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
           route: "SFO → NRT",
           stopsLabel: "Nonstop",
           flightNumber: "United 837",
@@ -1035,8 +962,6 @@ export const widgetExamples: {
         },
         {
           id: "seg-2",
-          image:
-            "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80",
           route: "NRT → SFO",
           stopsLabel: "Nonstop",
           flightNumber: "United 838",
@@ -1054,57 +979,31 @@ export const widgetExamples: {
   {
     id: "order-tracking",
     title: "Order tracking",
-    description: "Steps, a live timeline, and order details for a shipment.",
+    description: "Follow a delivery, from checkout to doorstep.",
     category: "Commerce",
     featured: true,
     featuredRank: 12,
     template: `
-<Card size="md" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Your order is on its way" size="sm" />
-      <Caption value={\`Order \${orderId}\`} />
-    </Col>
-    <Spacer />
-    <Badge label={eta} color="accent" icon="truck" />
+<Card size="md" gap={5}>
+  <Row align="center" justify="between" gap={3}>
+    <Caption value={"Order " + orderId} />
+    <Badge label="On the way" color="success" />
   </Row>
-
-  <Steps items={steps} current={currentStep} />
-
-  <Callout
-    color="info"
-    icon="map-pin"
-    title="Out for delivery"
-    description="Your courier is 4 stops away. Someone should be available to receive the package."
-  />
-
+  <Col gap={1}>
+    <Title value="Arriving today" size="lg" />
+    <Caption value={eta + " · Your courier is 4 stops away."} />
+  </Col>
   <Timeline items={events} />
-
   <Divider />
-
   <KeyValue rows={details} />
-
-  <Button
-    label="View live map"
-    iconStart="navigation"
-    variant="soft"
-    color="primary"
-    block
-    onClickAction={{ type: "order.track.map", payload: { orderId } }}
-  />
+  <Button label="View live map" iconEnd="arrow-up-right" color="primary" block
+    onClickAction={{ type: "order.track.map", payload: { orderId } }} />
 </Card>
     `.trim(),
     schema: OrderTrackingSchema,
     data: {
       orderId: "#84213",
       eta: "Today, 2–4 PM",
-      currentStep: 2,
-      steps: [
-        { label: "Ordered" },
-        { label: "Shipped" },
-        { label: "Out for delivery" },
-        { label: "Delivered" }
-      ],
       events: [
         {
           title: "Out for delivery",
@@ -1137,52 +1036,34 @@ export const widgetExamples: {
   {
     id: "smart-home",
     title: "Smart home",
-    description: "A control center with scenes, stats, and device toggles.",
+    description: "A little control over your everyday.",
     category: "Productivity",
     template: `
-<Card size="md" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Good evening" size="sm" />
-      <Caption value="3 devices on · Home" />
-    </Col>
-    <Spacer />
-    <Badge label="Away mode off" variant="outline" color="secondary" />
+<Card size="md" gap={5}>
+  <Row align="center" justify="between">
+    <Title value="At home" size="sm" />
+    <Caption value="Living room" />
   </Row>
-
-  <Row gap={5}>
-    <Stat label="Inside" value={temperature} icon="thermometer" size="sm" />
-    <Stat label="Humidity" value={humidity} icon="droplet" size="sm" />
-    <Col flex={1} gap={1}>
-      <Stat label="Energy today" value={energyToday} size="sm" />
-      <Sparkline data={energyTrend} height={26} color="#10b981" />
+  <Row align="center" justify="between" gap={5}>
+    <Stat label="Indoor temperature" value={temperature} size="lg" />
+    <Col gap={3}>
+      <Stat label="Humidity" value={humidity} size="sm" />
+      <Caption value={energyToday + " today"} />
     </Col>
   </Row>
-
+  <ChipGroup name="scene" defaultValue="relax" options={scenes} size="sm"
+    onChangeAction={{ type: "home.scene.set" }} />
   <Divider />
-
-  <Col gap={2}>
-    <Caption value="SCENES" size="sm" />
-    <ChipGroup name="scene" defaultValue="relax" options={scenes}
-      onChangeAction={{ type: "home.scene.set" }} />
-  </Col>
-
   <Col gap={0}>
     <Each $of="devices" item="device">
       <Row align="center" gap={3} padding={{ y: 2 }}>
-        <Box size={34} radius="lg" background="surface-tertiary" align="center" justify="center">
-          <Icon name={device.icon} size="md" color={device.on ? "primary" : "tertiary"} />
-        </Box>
+        <Icon name={device.icon} size="md" color="secondary" />
         <Col flex="auto" gap={0}>
-          <Text value={device.name} size="sm" weight="semibold" />
-          <Caption value={device.room} />
+          <Text value={device.name} size="sm" weight="medium" />
+          <Caption value={device.room} size="sm" />
         </Col>
-        <Toggle
-          name={device.id}
-          label={device.on ? "On" : "Off"}
-          defaultPressed={device.on}
-          onChangeAction={{ type: "home.device.toggle", payload: { id: device.id } }}
-        />
+        <Toggle variant="switch" name={device.id} label={device.name} defaultPressed={device.on}
+          onChangeAction={{ type: "home.device.toggle", payload: { id: device.id } }} />
       </Row>
     </Each>
   </Col>
@@ -1193,7 +1074,6 @@ export const widgetExamples: {
       temperature: "72°",
       humidity: "44%",
       energyToday: "12.4 kWh",
-      energyTrend: [4, 5, 4, 6, 8, 7, 9, 8, 10, 9, 12],
       scenes: [
         { label: "Relax", value: "relax", icon: "sunset" },
         { label: "Focus", value: "focus", icon: "target" },
@@ -1211,10 +1091,10 @@ export const widgetExamples: {
   {
     id: "player-profile",
     title: "Player profile",
-    description: "Gradient profile card with a season stat row and form sparkline.",
+    description: "A season in numbers. A player in focus.",
     category: "Communication",
     template: `
-<Card size="sm" background="linear-gradient(165deg, #eef2ff 0%, #f8fafc 100%)" gap={3}>
+<Card size="sm" background="surface" gap={3}>
   <Row gap={3} align="center">
     <Avatar src={photo} name={name} size={56} />
     <Col flex="auto" gap={0}>
@@ -1234,7 +1114,7 @@ export const widgetExamples: {
 
   <Col gap={1}>
     <Caption value="LAST 10 GAMES" size="sm" />
-    <Sparkline data={form} height={32} color="#6366f1" />
+    <Sparkline data={form} height={32} />
   </Col>
 </Card>
     `.trim(),
@@ -1260,14 +1140,14 @@ export const widgetExamples: {
   {
     id: "product-detail",
     title: "Product detail",
-    description: "Rating, size selector chips, pricing, and purchase actions.",
+    description: "A closer look before adding to your cart.",
     category: "Commerce",
     featured: true,
     featuredRank: 7,
     template: `
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={210} fit="cover" flush />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Col gap={1}>
       <Caption value={brand} />
       <Title value={name} size="sm" />
@@ -1285,7 +1165,7 @@ export const widgetExamples: {
       <ChipGroup name="size" defaultValue="m" options={sizes} />
     </Col>
 
-    <Callout color="success" icon="truck" description={shippingNote} />
+    <Row align="start" gap={2}><Icon name="truck" size="sm" color="secondary" /><Caption value={shippingNote} size="sm" /></Row>
 
     <Row gap={2}>
       <Button
@@ -1296,6 +1176,7 @@ export const widgetExamples: {
       />
       <Button
         iconStart="heart"
+        ariaLabel="Save to wishlist"
         variant="outline"
         uniform
         onClickAction={{ type: "wishlist.add", payload: { product: name } }}
@@ -1326,7 +1207,7 @@ export const widgetExamples: {
   {
     id: "pricing-plans",
     title: "Pricing plans",
-    description: "Three plan cards with a highlighted popular tier.",
+    description: "Find the right plan for what comes next.",
     category: "Commerce",
     featured: true,
     featuredRank: 10,
@@ -1340,7 +1221,7 @@ export const widgetExamples: {
           padding={4}
           radius="xl"
           gap={3}
-          border={plan.popular ? { size: 2, color: "#4f46e5" } : { size: 1, color: "default" }}
+          border={plan.popular ? { size: 2, color: "emphasis" } : { size: 1, color: "default" }}
           background={plan.popular ? "surface-elevated" : "surface"}
         >
           <Col gap={1}>
@@ -1415,13 +1296,13 @@ export const widgetExamples: {
   {
     id: "checkout-summary",
     title: "Checkout",
-    description: "Itemized cart with computed totals and purchase actions.",
+    description: "One last look at something good.",
     category: "Commerce",
     featured: true,
     featuredRank: 1,
     template: `
 <Scope values={{ itemCountLabel: String(size(items)) + " items" }}>
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Row align="center">
     <Title value="Checkout" size="sm" />
     <Spacer />
@@ -1431,7 +1312,7 @@ export const widgetExamples: {
   <Col>
     <Show $when="size(items) > 0">
       <Each $of="items" item="item">
-        <Row align="center" gap={3} padding={{ y: 1 }}>
+        <Row align="center" gap={3} padding={{ y: 2 }}>
           <Image src={item.image} size={48} radius="lg" />
           <Col gap={0}>
             <Text value={item.title} size="sm" weight="semibold" color="emphasis" />
@@ -1452,7 +1333,7 @@ export const widgetExamples: {
 
   <Col gap={2}>
     <Button label="Purchase" color="primary" block onClickAction={{ type: "purchase" }} />
-    <Button label="Save for later" variant="ghost" color="primary" block onClickAction={{ type: "cart.save" }} />
+    <Button label="Save for later" variant="outline" color="primary" block onClickAction={{ type: "cart.save" }} />
   </Col>
 </Card>
 </Scope>
@@ -1489,7 +1370,7 @@ export const widgetExamples: {
   {
     id: "receipt",
     title: "Purchase receipt",
-    description: "Order confirmation with item, totals, and delivery note.",
+    description: "Everything you need, after the purchase.",
     category: "Commerce",
     template: `
 <Card size="sm" status={{ text: merchant, icon: "store" }} gap={3}>
@@ -1540,12 +1421,12 @@ export const widgetExamples: {
   {
     id: "delivery-map",
     title: "Delivery map",
-    description: "Schematic map with courier route, progress steps, and drop-off details.",
+    description: "Your order, a little closer.",
     category: "Commerce",
     template: `
 <Card size="md" padding={0}>
   <Map markers={markers} routes={routes} height={180} radius="none" frame={false} />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Row align="center">
       <Col gap={0}>
         <Title value="Courier en route" size="sm" />
@@ -1592,12 +1473,12 @@ export const widgetExamples: {
   {
     id: "trip-itinerary",
     title: "Trip itinerary",
-    description: "Cover image, weather strip, and a day-by-day timeline.",
+    description: "A few days away, thoughtfully planned.",
     category: "Travel",
     template: `
 <Card size="md" padding={0}>
   <Image src={coverImage} alt={destination} height={150} fit="cover" flush />
-  <Col padding={4} gap={4}>
+  <Col padding={5} gap={4}>
     <Row align="center">
       <Col gap={0}>
         <Title value={destination} size="sm" />
@@ -1659,7 +1540,7 @@ export const widgetExamples: {
   {
     id: "hotel-card",
     title: "Hotel listing",
-    description: "Rating, amenity chips, and nightly pricing.",
+    description: "Somewhere worth staying.",
     category: "Travel",
     template: `
 <Card size="sm" padding={0} onClickAction={{ type: "hotel.open", payload: { name } }}>
@@ -1712,7 +1593,7 @@ export const widgetExamples: {
   {
     id: "rider-status",
     title: "Ride status",
-    description: "Pickup progress with driver details and live ETA.",
+    description: "Your pickup, down to the minute.",
     category: "Travel",
     template: `
 <Card size="sm" gap={3}>
@@ -1769,16 +1650,16 @@ export const widgetExamples: {
   {
     id: "weather-now",
     title: "Weather",
-    description: "Gradient conditions card with an hourly strip and detail stats.",
+    description: "A small window into the day ahead.",
     category: "Travel",
     template: `
-<Card size="sm" background="linear-gradient(170deg, #dbeafe 0%, #f0f9ff 70%)" gap={3}>
+<Card size="sm" background="#eef2f0" gap={3}>
   <Row align="start">
     <Col gap={0} flex="auto">
       <Title value={city} size="sm" />
       <Caption value={condition} />
     </Col>
-    <Icon name={conditionIcon} size="2xl" color="#2563eb" />
+    <Icon name={conditionIcon} size="2xl" color="#0066cc" />
   </Row>
 
   <Row align="baseline" gap={3}>
@@ -1791,9 +1672,9 @@ export const widgetExamples: {
 
   <Row gap={2}>
     <Each $of="hourly" item="hour">
-      <Box flex={1} padding={{ y: 2 }} radius="lg" background="alpha-10" align="center" gap={1}>
+      <Box flex={1} padding={{ y: 2 }} radius="md" background="surface" align="center" gap={1}>
         <Caption value={hour.time} size="sm" />
-        <Icon name={hour.icon} size="sm" color="#3b82f6" />
+        <Icon name={hour.icon} size="sm" color="#007aff" />
         <Text value={hour.temp} size="sm" weight="semibold" />
       </Box>
     </Each>
@@ -1832,7 +1713,7 @@ export const widgetExamples: {
   {
     id: "task-create",
     title: "Create task",
-    description: "Inline-editable text, priority chips, date picker, and submit.",
+    description: "Turn a thought into the next thing to do.",
     category: "Productivity",
     template: `
 <Card size="md">
@@ -1882,7 +1763,7 @@ export const widgetExamples: {
   {
     id: "team-progress",
     title: "Sprint progress",
-    description: "Progress bar with per-member status and completion stats.",
+    description: "See how the sprint is coming together.",
     category: "Productivity",
     template: `
 <Card size="sm" gap={3}>
@@ -1943,7 +1824,7 @@ export const widgetExamples: {
   {
     id: "onboarding-checklist",
     title: "Onboarding checklist",
-    description: "Interactive checklist — clicking items updates local widget state.",
+    description: "Small steps toward getting started.",
     category: "Productivity",
     template: `
 <Card size="sm" gap={3}>
@@ -2012,7 +1893,7 @@ export const widgetExamples: {
   {
     id: "calendar-confirm",
     title: "Confirm calendar event",
-    description: "Day column with highlighted new events and confirm actions.",
+    description: "Make room for the next conversation.",
     category: "Productivity",
     template: `
 <Card
@@ -2065,16 +1946,15 @@ export const widgetExamples: {
   {
     id: "finance-dashboard",
     title: "Finance dashboard",
-    description: "Composed chart, balance stat with sparkline, and budget progress.",
+    description: "A clearer picture of money in motion.",
     category: "Analytics",
     template: `
 <Card size="lg" gap={4}>
-  <Row align="start">
-    <Col gap={1}>
+  <Row align="start" justify="between" wrap="wrap" gap={3}>
+    <Col gap={1} flex="1 1 180px" minWidth={0}>
       <Stat label="Total balance" value={balance} delta={balanceDelta} deltaLabel="vs last month" size="lg" />
       <Sparkline data={spendTrend} height={36} width={180} />
     </Col>
-    <Spacer />
     <SegmentedControl
       name="range"
       defaultValue="6m"
@@ -2091,9 +1971,9 @@ export const widgetExamples: {
     data={months}
     xAxis={{ dataKey: "month" }}
     series={[
-      { type: "bar", dataKey: "income", label: "Income", color: "#6366f1" },
-      { type: "bar", dataKey: "spending", label: "Spending", color: "#f43f5e" },
-      { type: "line", dataKey: "savings", label: "Savings", color: "#10b981", strokeWidth: 2 }
+      { type: "bar", dataKey: "income", label: "Income", color: "var(--widget-chart-5)" },
+      { type: "bar", dataKey: "spending", label: "Spending", color: "var(--widget-chart-6)" },
+      { type: "line", dataKey: "savings", label: "Savings", color: "var(--widget-chart-3)", strokeWidth: 2 }
     ]}
     height={200}
   />
@@ -2135,7 +2015,7 @@ export const widgetExamples: {
   {
     id: "traffic-donut",
     title: "Traffic breakdown",
-    description: "Donut chart with per-slice colors and a key-value legend.",
+    description: "See where your audience comes from.",
     category: "Analytics",
     template: `
 <Card size="sm" gap={3}>
@@ -2163,10 +2043,10 @@ export const widgetExamples: {
       total: "86.4K",
       delta: "+9.6%",
       slices: [
-        { name: "Organic", value: 42, fill: "#6366f1" },
-        { name: "Direct", value: 26, fill: "#0ea5e9" },
-        { name: "Referral", value: 18, fill: "#10b981" },
-        { name: "Social", value: 14, fill: "#f59e0b" }
+        { name: "Organic", value: 42, fill: "var(--widget-chart-5)" },
+        { name: "Direct", value: 26, fill: "var(--widget-chart-6)" },
+        { name: "Referral", value: 18, fill: "var(--widget-chart-3)" },
+        { name: "Social", value: 14, fill: "var(--widget-chart-4)" }
       ],
       legend: [
         { label: "Organic", value: "42%" },
@@ -2179,7 +2059,7 @@ export const widgetExamples: {
   {
     id: "usage-billing",
     title: "Usage & billing",
-    description: "Plan usage meters and an invoice table.",
+    description: "Your plan, usage, and invoices at a glance.",
     category: "Analytics",
     template: `
 <Card size="md" gap={4}>
@@ -2236,7 +2116,7 @@ export const widgetExamples: {
   {
     id: "poll-results",
     title: "Poll results",
-    description: "Grouped bar chart comparing this year's survey against last year's.",
+    description: "What people think, side by side.",
     category: "Analytics",
     template: `
 <Card size="sm" gap={3}>
@@ -2249,8 +2129,8 @@ export const widgetExamples: {
     data={results}
     xAxis={{ dataKey: "option" }}
     series={[
-      { dataKey: "thisYear", label: "2026", color: "#6366f1" },
-      { dataKey: "lastYear", label: "2025", color: "#c7d2fe" }
+      { dataKey: "thisYear", label: "2026" },
+      { dataKey: "lastYear", label: "2025" }
     ]}
     height={190}
   />
@@ -2275,7 +2155,7 @@ export const widgetExamples: {
   {
     id: "project-setup",
     title: "Project setup",
-    description: "A multi-field form with select, chips, and a submit action.",
+    description: "A considered starting point for your project.",
     category: "Forms",
     featured: true,
     featuredRank: 14,
@@ -2344,7 +2224,7 @@ export const widgetExamples: {
   {
     id: "campaign-composer",
     title: "Campaign composer",
-    description: "Steps, combobox, date picker, and textarea in a guided flow.",
+    description: "Bring your next campaign together.",
     category: "Forms",
     template: `
 <Card size="md">
@@ -2367,7 +2247,7 @@ export const widgetExamples: {
       <Row gap={3} wrap="wrap">
         <Col flex={1} gap={2} minWidth={170}>
           <Label value="Audience" fieldName="campaign.audience" />
-          <Combobox name="campaign.audience" options={audiences} placeholder="Pick audience" />
+          <Combobox name="campaign.audience" options={audiences} placeholder="Pick audience" block />
         </Col>
         <Col flex={1} gap={2} minWidth={170}>
           <Label value="Send date" fieldName="campaign.date" />
@@ -2416,10 +2296,10 @@ export const widgetExamples: {
   {
     id: "feedback-survey",
     title: "Feedback survey",
-    description: "Radio scores, aspect chips, and a comment box.",
+    description: "Make a little room for feedback.",
     category: "Forms",
     template: `
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Form onSubmitAction={{ type: "feedback.submit" }}>
     <Col gap={4}>
       <Col gap={0}>
@@ -2429,7 +2309,7 @@ export const widgetExamples: {
 
       <Col gap={2}>
         <Label value="Overall" fieldName="feedback.score" />
-        <RadioGroup name="feedback.score" options={scores} direction="row" />
+        <RadioGroup ariaLabel="Overall experience" name="feedback.score" options={scores} direction="row" />
       </Col>
 
       <Col gap={2}>
@@ -2450,10 +2330,10 @@ export const widgetExamples: {
     schema: FeedbackSchema,
     data: {
       scores: [
-        { label: "😞", value: "1" },
-        { label: "😐", value: "2" },
-        { label: "🙂", value: "3" },
-        { label: "🤩", value: "4" }
+        { label: "Poor", value: "1" },
+        { label: "Fair", value: "2" },
+        { label: "Good", value: "3" },
+        { label: "Great", value: "4" }
       ],
       aspects: [
         { label: "Speed", value: "speed", icon: "bolt" },
@@ -2467,12 +2347,12 @@ export const widgetExamples: {
   {
     id: "verify-code",
     title: "Verification code",
-    description: "OTP input with tooltip help and a submit action.",
+    description: "A simple, focused verification step.",
     category: "Forms",
     featured: true,
     featuredRank: 5,
     template: `
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Form onSubmitAction={{ type: "auth.verify" }}>
     <Col gap={4} align="center">
       <Box size={44} radius="full" background="surface-tertiary" align="center" justify="center">
@@ -2510,7 +2390,7 @@ export const widgetExamples: {
   {
     id: "playlist",
     title: "Playlist",
-    description: "Cover art, numbered tracks, and play actions.",
+    description: "Something for the rest of your afternoon.",
     category: "Media",
     featured: true,
     featuredRank: 4,
@@ -2520,7 +2400,7 @@ export const widgetExamples: {
   <Col padding={{ y: 2, x: 3 }}>
     <Show $when="size(tracks) > 0">
       <Each $of="tracks" item="item" index="index">
-        <Row align="center" gap={3} padding={{ y: 1 }}>
+        <Row align="center" gap={3} padding={{ y: 2 }}>
           <Caption $value="String(index + 1)" />
           <Image src={item.cover} size={44} radius="md" />
           <Col flex="auto" gap={0}>
@@ -2561,31 +2441,28 @@ export const widgetExamples: {
   {
     id: "media-carousel",
     title: "Media carousel",
-    description: "Carousel with media items, audio player, and video embed.",
+    description: "Browse photos, then switch between audio and video.",
     category: "Media",
     template: `
-<Card size="md" padding={0}>
-  <BaseCarousel visibleItems={1.15} gap={3} snap="mandatory" flush>
+<Card size="md" padding={4} gap={4}>
+  <BaseCarousel ariaLabel="Field notes photos" visibleItems={1} gap={3} snap="mandatory">
     <Each $of="photos" item="photo">
-      <BaseCarousel.MediaItem
-        minWidth={260}
-        *media={<Image src={photo.src} alt={photo.title} height={180} fit="cover" frame />}
-      >
-        <Row gap={2}>
-          <Favicon url={photo.favicon} />
-          <Col gap={0}>
-            <Text value={photo.title} weight="semibold" size="sm" />
-            <Caption value={photo.source} />
-          </Col>
-        </Row>
+      <BaseCarousel.MediaItem src={photo.src} alt={photo.title} aspectRatio={1.6} radius="md" border={0}>
+        <Col gap={1}>
+          <Text value={photo.title} weight="medium" size="sm" />
+          <Caption value={photo.source} size="sm" />
+        </Col>
       </BaseCarousel.MediaItem>
     </Each>
   </BaseCarousel>
-
-  <Col padding={{ x: 4, y: 4 }} gap={3}>
-    <AudioPlayer src={audio.src} title={audio.title} subtitle={audio.subtitle} compact />
-    <YouTubeEmbed videoId={videoId} height={190} title="Video preview" />
-  </Col>
+  <Tabs tabs={[{ id: "audio", label: "Audio" }, { id: "video", label: "Video" }]}>
+    <Tabs.Panel id="audio">
+      <AudioPlayer src={audio.src} title={audio.title} subtitle={audio.subtitle} compact />
+    </Tabs.Panel>
+    <Tabs.Panel id="video">
+      <YouTubeEmbed videoId={videoId} aspectRatio={1.7777778} title="Embedded video demo" />
+    </Tabs.Panel>
+  </Tabs>
 </Card>
     `.trim(),
     schema: MediaCarouselSchema,
@@ -2595,15 +2472,13 @@ export const widgetExamples: {
           id: "p1",
           title: "Field robotics lab",
           src: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80",
-          source: "Unsplash",
-          favicon: "https://www.google.com/s2/favicons?domain=unsplash.com"
+          source: "Unsplash"
         },
         {
           id: "p2",
           title: "Transit control wall",
           src: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
-          source: "Unsplash",
-          favicon: "https://www.google.com/s2/favicons?domain=unsplash.com"
+          source: "Unsplash"
         }
       ],
       audio: {
@@ -2617,7 +2492,7 @@ export const widgetExamples: {
   {
     id: "podcast-episode",
     title: "Podcast episode",
-    description: "Audio player with chapter timeline.",
+    description: "Listen in. Pick up where you left off.",
     category: "Media",
     template: `
 <Card size="sm" gap={3}>
@@ -2658,23 +2533,23 @@ export const widgetExamples: {
   {
     id: "recipe-card",
     title: "Recipe card",
-    description: "Photo header, rating, meta badges, and numbered steps.",
+    description: "Something worth making tonight.",
     category: "Media",
     featured: true,
     featuredRank: 3,
     template: `
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={180} fit="cover" flush />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Col gap={1}>
       <Title value={name} size="sm" />
       <Rating value={rating} showValue count={reviews} />
     </Col>
 
     <Row gap={2} wrap="wrap">
-      <Badge label={time} icon="clock" color="secondary" variant="outline" />
-      <Badge label={calories} icon="flame" color="secondary" variant="outline" />
-      <Badge label={servings} icon="utensils" color="secondary" variant="outline" />
+      <Caption value={time} />
+      <Caption value={calories} />
+      <Caption value={servings} />
     </Row>
 
     <Divider />
@@ -2687,7 +2562,7 @@ export const widgetExamples: {
       </Each>
     </List>
 
-    <Button label="Open full recipe" iconEnd="arrow-up-right" variant="soft" color="primary" block
+    <Button label="Open full recipe" iconEnd="arrow-up-right" color="primary" block
       onClickAction={{ type: "recipe.open" }} />
   </Col>
 </Card>
@@ -2714,7 +2589,7 @@ export const widgetExamples: {
   {
     id: "notifications-inbox",
     title: "Notifications",
-    description: "Dismissible list that collapses into an empty state — all local state.",
+    description: "The updates that deserve your attention.",
     category: "Communication",
     template: `
 <Card size="sm" gap={2}>
@@ -2782,7 +2657,7 @@ export const widgetExamples: {
   {
     id: "contact-card",
     title: "Contact card",
-    description: "Copy, email, and open-url client actions from one profile.",
+    description: "A familiar face, a conversation away.",
     category: "Communication",
     template: `
 <Card size="sm" gap={3}>
@@ -2827,7 +2702,7 @@ export const widgetExamples: {
   {
     id: "event-invite",
     title: "Event invite",
-    description: "RSVP with local state plus an add-to-calendar client action.",
+    description: "An invitation with all the details.",
     category: "Communication",
     template: `
 <Card size="sm" gap={3}>
@@ -2890,7 +2765,7 @@ export const widgetExamples: {
   {
     id: "faq-accordion",
     title: "FAQ",
-    description: "Accordion answers with a support callout and contact action.",
+    description: "Useful answers, without the clutter.",
     category: "Communication",
     featured: true,
     featuredRank: 11,
@@ -2937,7 +2812,7 @@ export const widgetExamples: {
   {
     id: "agent-thinking",
     title: "Thinking & reasoning",
-    description: "A finished reasoning trace that expands into steps, then a cited answer.",
+    description: "Follow the thinking behind an answer.",
     category: "Agent UI",
     featured: true,
     featuredRank: 2,
@@ -2982,7 +2857,7 @@ export const widgetExamples: {
   {
     id: "agent-working",
     title: "Working states",
-    description: "Shimmering thinking line, a staged loading surface, and all 25 orb variants.",
+    description: "A quiet signal that work is underway.",
     category: "Agent UI",
     featured: true,
     featuredRank: 9,
@@ -3038,7 +2913,7 @@ export const widgetExamples: {
   {
     id: "agent-response",
     title: "Streaming answer",
-    description: "Progressive text with a blinking caret, collapsible sources, and follow-ups.",
+    description: "An answer taking shape, word by word.",
     category: "Agent UI",
     featured: true,
     featuredRank: 8,
@@ -3064,7 +2939,7 @@ export const widgetExamples: {
   {
     id: "agent-tasks",
     title: "Tasks & tool calls",
-    description: "Live task rows with child steps beside collapsible tool activity.",
+    description: "The plan, the progress, and what comes next.",
     category: "Agent UI",
     featured: true,
     featuredRank: 6,
@@ -3108,7 +2983,7 @@ export const widgetExamples: {
   {
     id: "agent-workbench",
     title: "Agent workbench",
-    description: "A work log with reasoning and plan, plus streamed code and a diff.",
+    description: "A focused workspace for work in progress.",
     category: "Agent UI",
     size: "lg",
     template: `
@@ -3161,7 +3036,7 @@ export const widgetExamples: {
   {
     id: "agent-media",
     title: "Image generation",
-    description: "A generating canvas with live progress above a finished render.",
+    description: "From an idea to its first image.",
     category: "Agent UI",
     template: `
 <Card size="md" gap={4}>
@@ -3184,7 +3059,7 @@ export const widgetExamples: {
   {
     id: "agent-decisions",
     title: "Agent decisions",
-    description: "Approval questions with keyed options beside a confidence-aware recommendation.",
+    description: "Clear choices when your input matters.",
     category: "Agent UI",
     featured: true,
     featuredRank: 15,
@@ -3256,7 +3131,7 @@ export const widgetExamples: {
   {
     id: "agent-conversation",
     title: "Agent conversation",
-    description: "A tabbed transcript with user, reasoning, tool, and assistant turns plus a composer.",
+    description: "A conversation with room for the work.",
     category: "Agent UI",
     template: `
 <Response>
@@ -3297,7 +3172,7 @@ export const widgetExamples: {
   {
     id: "agent-composer",
     title: "Prompt composers",
-    description: "The full composer, a source-aware pill bar, and the minimal prompt input.",
+    description: "A starting point for your next idea.",
     category: "Agent UI",
     template: `
 <Response gap={4}>
@@ -3364,7 +3239,7 @@ export const widgetExamples: {
   {
     id: "knowledge-workspace",
     title: "Knowledge workspace",
-    description: "Context chunks, plan comparison, and selectable proposed changes.",
+    description: "Sources, comparisons, and proposed changes.",
     category: "Agent UI",
     featured: true,
     featuredRank: 16,
@@ -3436,7 +3311,7 @@ export const widgetExamples: {
   {
     id: "data-workspace",
     title: "Data workspace",
-    description: "Sortable, selectable records and status-filtered views of one dataset.",
+    description: "Explore the records behind the work.",
     category: "Agent UI",
     size: "lg",
     template: `
@@ -3481,7 +3356,7 @@ export const widgetExamples: {
   {
     id: "navigation-workflow",
     title: "Navigation workflow",
-    description: "Workspace sidebar, live search, and a connected agent flowchart.",
+    description: "Move from context to the next action.",
     category: "Agent UI",
     size: "lg",
     template: `
@@ -3534,7 +3409,7 @@ export const widgetExamples: {
   {
     id: "insight-editor",
     title: "Insight editor",
-    description: "Swipeable insights, fine-tuning controls, and selection-aware editing actions.",
+    description: "Review an insight. Refine its direction.",
     category: "Agent UI",
     size: "lg",
     template: `
@@ -3556,7 +3431,7 @@ export const widgetExamples: {
           title: "Coverage is complete",
           description: "Every new agent and workspace export appears in the gallery.",
           metrics: [
-            { label: "Components", value: "32", delta: "+32 this week", color: "#6366f1", data: [4, 8, 13, 21, 32] },
+            { label: "Components", value: "32", delta: "+32 this week", color: "var(--widget-chart-5)", data: [4, 8, 13, 21, 32] },
             { label: "Focused demos", value: "13", delta: "was 8", data: [1, 2, 3, 5, 8, 13] }
           ]
         },
@@ -3597,7 +3472,7 @@ export const widgetExamples: {
   {
     id: "live-status",
     title: "Live status board",
-    description: "RunInterval ticks patch local state; Animate and Show branch the UI.",
+    description: "A live view of a changing system.",
     category: "Engine",
     template: `
 <Card size="md" cardId="launch-control" gap={3}>
@@ -3655,7 +3530,7 @@ export const widgetExamples: {
   {
     id: "state-counter",
     title: "Local state 101",
-    description: "The smallest stateful widget: patchState increments and appends.",
+    description: "Small interactions that remember their state.",
     category: "Engine",
     template: `
 <Card size="sm" gap={3}>
@@ -3691,7 +3566,7 @@ export const widgetExamples: {
   {
     id: "route-operations",
     title: "Route operations",
-    description: "Structured Table, SegmentedControl, Popover, and Pressable surfaces.",
+    description: "The route, its status, and the next stop.",
     category: "Engine",
     template: `
 <Card size="md" gap={3}>
@@ -3763,7 +3638,7 @@ export const widgetExamples: {
   {
     id: "rich-text",
     title: "Rich text & loading",
-    description: "Inline marks, icon list markers, tag overflow, and loading states.",
+    description: "A small study in type and information.",
     category: "Engine",
     template: `
 <Card size="md" gap={3}>
@@ -3824,7 +3699,7 @@ export const widgetExamples: {
   {
     id: "tip-calculator",
     title: "Tip calculator",
-    description: "Slider writes local state; every total recomputes from expressions.",
+    description: "Split the bill. Keep the math simple.",
     category: "Engine",
     template: `
 <Card size="sm" gap={3}>

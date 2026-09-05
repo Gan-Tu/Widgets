@@ -17,6 +17,7 @@ import {
   PieChart as RePieChart
 } from "recharts";
 
+import { getDefaultChartColors } from "../chartPalette";
 import { useWidgetTheme } from "../context";
 import { useResizeObserver } from "../hooks";
 import { normalizeCssSize, resolveColor } from "../style";
@@ -29,16 +30,6 @@ import type {
   PieChartProps,
   XAxisConfig
 } from "./chart";
-
-const defaultSeriesColors = [
-  "#6366f1",
-  "#0ea5e9",
-  "#f59e0b",
-  "#10b981",
-  "#f43f5e",
-  "#8b5cf6",
-  "#14b8a6"
-];
 
 const axisTickStyle = {
   fill: "var(--widget-text-tertiary)",
@@ -54,7 +45,7 @@ const sharedAxisProps = {
 } as const;
 
 const gridProps = {
-  strokeDasharray: "3 4",
+  strokeDasharray: "2 5",
   stroke: "var(--widget-border-subtle)",
   vertical: false
 } as const;
@@ -98,7 +89,7 @@ function ensureXAxis(xAxis: unknown): XAxisConfig {
 }
 
 function makeDefaultTooltipStyle(theme: ReturnType<typeof useWidgetTheme>) {
-  const bg = resolveColor({ light: "#ffffff", dark: "#1a2133" }, theme) ?? "white";
+  const bg = resolveColor({ light: "#ffffff", dark: "#1e1e21" }, theme) ?? "white";
   const border = resolveColor(
     { light: "rgba(23, 28, 38, 0.1)", dark: "rgba(226, 232, 240, 0.16)" },
     theme
@@ -122,7 +113,7 @@ function makeTooltipProps(theme: ReturnType<typeof useWidgetTheme>) {
   return {
     contentStyle: makeDefaultTooltipStyle(theme),
     labelStyle: { fontWeight: 600, marginBottom: 4 } as React.CSSProperties,
-    itemStyle: { padding: "1px 0" } as React.CSSProperties,
+    itemStyle: { padding: "1px 0", color: "var(--widget-text-primary)" } as React.CSSProperties,
     cursor: { fill: "var(--widget-surface-hover)", stroke: "var(--widget-border-subtle)" },
     wrapperStyle: { zIndex: 80 } as React.CSSProperties
   };
@@ -218,16 +209,14 @@ export const BarChartImpl: React.FC<BarChartProps> = ({
   const tooltipProps = tooltipPropsByTheme[theme];
   const safeData = ensureArrayData<Record<string, number | string>>("BarChart", data);
   const safeSeries = ensureSeries<BarChartProps["series"][number]>("BarChart", series);
+  const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
   // For stacked bars, only round the top segment in each stack.
   // Otherwise inner segments have rounded corners which creates a visible "gap" between stacks.
-  const topBarDataKeyByStack = React.useMemo(() => {
-    const map = new Map<string, string>();
-    safeSeries.forEach((s) => {
-      if (s.stack) map.set(s.stack, s.dataKey);
-    });
-    return map;
-  }, [safeSeries]);
+  const topBarDataKeyByStack = new Map<string, string>();
+  safeSeries.forEach((s) => {
+    if (s.stack) topBarDataKeyByStack.set(s.stack, s.dataKey);
+  });
 
   return (
     <ChartFrame {...frame}>
@@ -282,6 +271,7 @@ export const LineChartImpl: React.FC<LineChartProps> = ({
   const tooltipProps = tooltipPropsByTheme[theme];
   const safeData = ensureArrayData<Record<string, number | string>>("LineChart", data);
   const safeSeries = ensureSeries<LineChartProps["series"][number]>("LineChart", series);
+  const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
 
   return (
@@ -337,6 +327,7 @@ export const AreaChartImpl: React.FC<AreaChartProps> = ({
   const gradientId = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const safeData = ensureArrayData<Record<string, number | string>>("AreaChart", data);
   const safeSeries = ensureSeries<AreaChartProps["series"][number]>("AreaChart", series);
+  const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
 
   return (
@@ -408,6 +399,7 @@ export const PieChartImpl: React.FC<PieChartProps> = ({
   const tooltipProps = tooltipPropsByTheme[theme];
   const safeData = ensureArrayData<Record<string, number | string>>("PieChart", data);
   const safeSeries = ensureSeries<PieChartProps["series"][number]>("PieChart", series);
+  const defaultSeriesColors = getDefaultChartColors(safeData.length);
 
   return (
     <ChartFrame {...frame}>
@@ -471,14 +463,12 @@ export const ComposedChartImpl: React.FC<ChartProps> = ({
   const gradientId = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const safeData = ensureArrayData<Record<string, number | string>>("Chart", data);
   const safeSeries = ensureSeries<ChartProps["series"][number]>("Chart", series);
+  const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
-  const topBarDataKeyByStack = React.useMemo(() => {
-    const map = new Map<string, string>();
-    safeSeries.forEach((s) => {
-      if (s.type === "bar" && s.stack) map.set(s.stack, s.dataKey);
-    });
-    return map;
-  }, [safeSeries]);
+  const topBarDataKeyByStack = new Map<string, string>();
+  safeSeries.forEach((s) => {
+    if (s.type === "bar" && s.stack) topBarDataKeyByStack.set(s.stack, s.dataKey);
+  });
 
   return (
     <ChartFrame {...frame}>

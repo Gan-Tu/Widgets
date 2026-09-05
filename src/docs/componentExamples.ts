@@ -634,8 +634,9 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Toggle: {
     template: `
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Toggle name="subscribe" label="Subscribe" />
+  <Row justify="between"><Text value="Notifications" size="sm" /><Toggle variant="switch" name="notifications" label="Notifications" defaultPressed /></Row>
 </Card>
     `.trim(),
     schema: EmptySchema,

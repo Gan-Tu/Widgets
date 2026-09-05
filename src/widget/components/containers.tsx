@@ -122,14 +122,14 @@ const CardInner: React.FC<CardProps> = ({
   asForm,
   background = "surface-elevated",
   size = "sm",
-  padding = 4,
+  padding = 5,
   status,
   collapsed = false,
   confirm,
   cancel,
   onClickAction,
   onVisibleAction,
-  gap,
+  gap = 4,
   height,
   width,
   shadow = true,
@@ -165,7 +165,7 @@ const CardInner: React.FC<CardProps> = ({
       ? spaceToCss(padding)
       : typeof padding === "string"
       ? padding
-      : spaceToCss(padding?.x ?? padding?.left ?? 4);
+      : spaceToCss(padding?.x ?? padding?.left ?? 5);
 
   const contentStyle: React.CSSProperties = {
     "--widget-card-padding": paddingValue,

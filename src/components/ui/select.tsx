@@ -1,3 +1,4 @@
+import { useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
@@ -17,7 +18,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full cursor-pointer items-center justify-between rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface)] px-3 py-2 text-sm text-[var(--widget-text-primary)] shadow-sm placeholder:text-[var(--widget-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--widget-ring-color)] disabled:cursor-not-allowed disabled:opacity-50",
+      "wg-field-control flex h-10 min-w-0 w-full cursor-pointer items-center justify-between rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface)] px-3 py-2 text-sm text-[var(--widget-text-primary)] shadow-sm placeholder:text-[var(--widget-text-tertiary)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
       className
     )}
     {...props}
@@ -71,8 +72,10 @@ const SelectContent = React.forwardRef<
 >(({ className, children, position = "popper", ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
+      data-theme={useWidgetTheme()}
       ref={ref}
       className={cn(
+        "widget-root wg-portal",
         "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] text-[var(--widget-text-primary)] shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
@@ -118,7 +121,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

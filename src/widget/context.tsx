@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { isScopedClientAction, runWidgetClientAction } from "./actions";
 import { resolveDeferredActionExpression } from "./renderer/templateEngine";
 import { applyStateAction, hasStateAction } from "./state";
-import type { ActionConfig, ThemeMode } from "./types";
+import type { ActionConfig } from "./types";
 
 type ActionDispatcher = (action: ActionConfig, formData?: Record<string, unknown>) => void;
 export type WidgetActionResult = {
@@ -94,25 +94,7 @@ export function useWidgetAction() {
   return useContext(WidgetActionContext);
 }
 
-const WidgetThemeContext = createContext<ThemeMode>("light");
-
-export function WidgetThemeProvider({
-  theme,
-  children
-}: {
-  theme: ThemeMode;
-  children: React.ReactNode;
-}) {
-  return (
-    <WidgetThemeContext.Provider value={theme}>
-      {children}
-    </WidgetThemeContext.Provider>
-  );
-}
-
-export function useWidgetTheme() {
-  return useContext(WidgetThemeContext);
-}
+export { WidgetThemeProvider, useWidgetTheme } from "./theme";
 
 type FormContextValue = {
   values: Record<string, unknown>;
@@ -132,9 +114,9 @@ function setValueAtPath(
   for (let i = 0; i < segments.length - 1; i += 1) {
     const key = segments[i];
     const existing = cursor[key];
-    if (typeof existing !== "object" || existing === null) {
-      cursor[key] = {};
-    }
+    cursor[key] = typeof existing === "object" && existing !== null
+      ? Array.isArray(existing) ? [...existing] : { ...existing }
+      : {};
     cursor = cursor[key] as Record<string, unknown>;
   }
   cursor[segments[segments.length - 1]] = value;
@@ -193,4 +175,14 @@ export function getFormValue(values: Record<string, unknown>, name: string) {
     cursor = (cursor as Record<string, unknown>)[segment];
   }
   return cursor;
+}
+
+/** Seed defaults once per named field, without overriding a user's existing value. */
+export function useFormDefaultValue(name: string | undefined, defaultValue: unknown) {
+  const form = useWidgetForm();
+  useEffect(() => {
+    if (name && form && defaultValue !== undefined && getFormValue(form.values, name) === undefined) {
+      form.setValue(name, defaultValue);
+    }
+  }, [name, form, defaultValue]);
 }

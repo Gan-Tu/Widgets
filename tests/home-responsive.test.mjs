@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { sourceScrollDelta } from "../src/pages/heroExhibit.ts";
 
-const appSource = await readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
+const headerSource = await readFile(new URL("../src/components/layout/SiteHeader.tsx", import.meta.url), "utf8");
 const homeSource = await readFile(new URL("../src/pages/Home.tsx", import.meta.url), "utf8");
 
 test("the mobile exhibit declares a bounded track and keyboard scroll contract", () => {
@@ -20,9 +20,9 @@ test("the mobile exhibit declares a bounded track and keyboard scroll contract",
 });
 
 test("mobile header and primary actions use compact responsive layouts", () => {
-  assert.match(appSource, /grid-cols-\[auto_minmax\(0,1fr\)\]/);
-  assert.match(appSource, /<span className="sm:hidden">Spec/);
-  assert.match(appSource, /min-w-10 justify-center gap-1\.5 sm:min-w-0/);
+  assert.match(headerSource, /grid-cols-\[auto_minmax\(0,1fr\)\]/);
+  assert.match(headerSource, /grid grid-cols-4/);
+  assert.match(headerSource, /order-3 col-span-2 w-full sm:order-none sm:w-auto/);
   assert.match(homeSource, /grid grid-cols-2 gap-2 sm:flex/);
   assert.match(homeSource, /inline-flex min-h-11 cursor-pointer items-center justify-center/);
 });

@@ -1,16 +1,22 @@
 # Widget examples
 
-The complete gallery corpus — every demo widget from the gallery as a `template` + `data` pair. This is the optional companion to `AGENTS.md`: the guide defines the authoring contract and a curated example set; this file provides the full corpus for richer LLM context windows, retrieval, or fine-tuning.
+The complete gallery corpus — every demo widget from the gallery as a `template` + `data` pair. This is the optional companion to [AGENTS.md](AGENTS.md): the guide defines the authoring contract and a curated example set; this file provides the full corpus for richer LLM context windows, retrieval, or fine-tuning.
 
 > Generated from `src/examples/widgetExamples.ts` by `scripts/build-widget-examples-doc.mjs` — do not edit by hand.
 
 52 widgets across 10 categories.
 
+## Using these examples
+
+Read the [authoring contract and design guidelines](AGENTS.md#design-guidelines) alongside these templates. Start with the closest pattern and adapt its content, data bindings, and actions to the task. Preserve the built-in control states, subtle borders, consistent gutters, and responsive sizing.
+
+Omit explicit chart colors to use the automatic combinations: blue for one series, yellow + green for two, and blue + green + pinkish red for three. Larger sets add purple and orange without pairing yellow with orange. For pie charts, use the slice count. Keep tooltip text neutral. Check the result at compact widths, in both themes, and with keyboard interaction; examples are starting points, not a reason to add more panels or actions than the task needs.
+
 ## Agent UI
 
 ### Thinking & reasoning
 
-A finished reasoning trace that expands into steps, then a cited answer. (id: `agent-thinking`)
+Follow the thinking behind an answer. (id: `agent-thinking`)
 
 WIDGET TEMPLATE:
 
@@ -66,7 +72,7 @@ WIDGET DATA:
 
 ### Working states
 
-Shimmering thinking line, a staged loading surface, and all 25 orb variants. (id: `agent-working`)
+A quiet signal that work is underway. (id: `agent-working`)
 
 WIDGET TEMPLATE:
 
@@ -175,7 +181,7 @@ WIDGET DATA:
 
 ### Streaming answer
 
-Progressive text with a blinking caret, collapsible sources, and follow-ups. (id: `agent-response`)
+An answer taking shape, word by word. (id: `agent-response`)
 
 WIDGET TEMPLATE:
 
@@ -225,7 +231,7 @@ WIDGET DATA:
 
 ### Tasks & tool calls
 
-Live task rows with child steps beside collapsible tool activity. (id: `agent-tasks`)
+The plan, the progress, and what comes next. (id: `agent-tasks`)
 
 WIDGET TEMPLATE:
 
@@ -311,7 +317,7 @@ WIDGET DATA:
 
 ### Agent workbench
 
-A work log with reasoning and plan, plus streamed code and a diff. (id: `agent-workbench`)
+A focused workspace for work in progress. (id: `agent-workbench`)
 
 WIDGET TEMPLATE:
 
@@ -417,7 +423,7 @@ WIDGET DATA:
 
 ### Image generation
 
-A generating canvas with live progress above a finished render. (id: `agent-media`)
+From an idea to its first image. (id: `agent-media`)
 
 WIDGET TEMPLATE:
 
@@ -444,7 +450,7 @@ WIDGET DATA:
 
 ### Agent decisions
 
-Approval questions with keyed options beside a confidence-aware recommendation. (id: `agent-decisions`)
+Clear choices when your input matters. (id: `agent-decisions`)
 
 WIDGET TEMPLATE:
 
@@ -545,7 +551,7 @@ WIDGET DATA:
 
 ### Agent conversation
 
-A tabbed transcript with user, reasoning, tool, and assistant turns plus a composer. (id: `agent-conversation`)
+A conversation with room for the work. (id: `agent-conversation`)
 
 WIDGET TEMPLATE:
 
@@ -601,7 +607,7 @@ WIDGET DATA:
 
 ### Prompt composers
 
-The full composer, a source-aware pill bar, and the minimal prompt input. (id: `agent-composer`)
+A starting point for your next idea. (id: `agent-composer`)
 
 WIDGET TEMPLATE:
 
@@ -718,7 +724,7 @@ WIDGET DATA:
 
 ### Knowledge workspace
 
-Context chunks, plan comparison, and selectable proposed changes. (id: `knowledge-workspace`)
+Sources, comparisons, and proposed changes. (id: `knowledge-workspace`)
 
 WIDGET TEMPLATE:
 
@@ -875,7 +881,7 @@ WIDGET DATA:
 
 ### Data workspace
 
-Sortable, selectable records and status-filtered views of one dataset. (id: `data-workspace`)
+Explore the records behind the work. (id: `data-workspace`)
 
 WIDGET TEMPLATE:
 
@@ -1009,7 +1015,7 @@ WIDGET DATA:
 
 ### Navigation workflow
 
-Workspace sidebar, live search, and a connected agent flowchart. (id: `navigation-workflow`)
+Move from context to the next action. (id: `navigation-workflow`)
 
 WIDGET TEMPLATE:
 
@@ -1135,7 +1141,7 @@ WIDGET DATA:
 
 ### Insight editor
 
-Swipeable insights, fine-tuning controls, and selection-aware editing actions. (id: `insight-editor`)
+Review an insight. Refine its direction. (id: `insight-editor`)
 
 WIDGET TEMPLATE:
 
@@ -1165,7 +1171,7 @@ WIDGET DATA:
           "label": "Components",
           "value": "32",
           "delta": "+32 this week",
-          "color": "#6366f1",
+          "color": "var(--widget-chart-5)",
           "data": [
             4,
             8,
@@ -1271,44 +1277,25 @@ WIDGET DATA:
 
 ### Order tracking
 
-Steps, a live timeline, and order details for a shipment. (id: `order-tracking`)
+Follow a delivery, from checkout to doorstep. (id: `order-tracking`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="md" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Your order is on its way" size="sm" />
-      <Caption value={`Order ${orderId}`} />
-    </Col>
-    <Spacer />
-    <Badge label={eta} color="accent" icon="truck" />
+<Card size="md" gap={5}>
+  <Row align="center" justify="between" gap={3}>
+    <Caption value={"Order " + orderId} />
+    <Badge label="On the way" color="success" />
   </Row>
-
-  <Steps items={steps} current={currentStep} />
-
-  <Callout
-    color="info"
-    icon="map-pin"
-    title="Out for delivery"
-    description="Your courier is 4 stops away. Someone should be available to receive the package."
-  />
-
+  <Col gap={1}>
+    <Title value="Arriving today" size="lg" />
+    <Caption value={eta + " · Your courier is 4 stops away."} />
+  </Col>
   <Timeline items={events} />
-
   <Divider />
-
   <KeyValue rows={details} />
-
-  <Button
-    label="View live map"
-    iconStart="navigation"
-    variant="soft"
-    color="primary"
-    block
-    onClickAction={{ type: "order.track.map", payload: { orderId } }}
-  />
+  <Button label="View live map" iconEnd="arrow-up-right" color="primary" block
+    onClickAction={{ type: "order.track.map", payload: { orderId } }} />
 </Card>
 ```
 
@@ -1318,21 +1305,6 @@ WIDGET DATA:
 {
   "orderId": "#84213",
   "eta": "Today, 2–4 PM",
-  "currentStep": 2,
-  "steps": [
-    {
-      "label": "Ordered"
-    },
-    {
-      "label": "Shipped"
-    },
-    {
-      "label": "Out for delivery"
-    },
-    {
-      "label": "Delivered"
-    }
-  ],
   "events": [
     {
       "title": "Out for delivery",
@@ -1378,14 +1350,14 @@ WIDGET DATA:
 
 ### Product detail
 
-Rating, size selector chips, pricing, and purchase actions. (id: `product-detail`)
+A closer look before adding to your cart. (id: `product-detail`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={210} fit="cover" flush />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Col gap={1}>
       <Caption value={brand} />
       <Title value={name} size="sm" />
@@ -1403,7 +1375,7 @@ WIDGET TEMPLATE:
       <ChipGroup name="size" defaultValue="m" options={sizes} />
     </Col>
 
-    <Callout color="success" icon="truck" description={shippingNote} />
+    <Row align="start" gap={2}><Icon name="truck" size="sm" color="secondary" /><Caption value={shippingNote} size="sm" /></Row>
 
     <Row gap={2}>
       <Button
@@ -1414,6 +1386,7 @@ WIDGET TEMPLATE:
       />
       <Button
         iconStart="heart"
+        ariaLabel="Save to wishlist"
         variant="outline"
         uniform
         onClickAction={{ type: "wishlist.add", payload: { product: name } }}
@@ -1458,7 +1431,7 @@ WIDGET DATA:
 
 ### Pricing plans
 
-Three plan cards with a highlighted popular tier. (id: `pricing-plans`)
+Find the right plan for what comes next. (id: `pricing-plans`)
 
 WIDGET TEMPLATE:
 
@@ -1471,7 +1444,7 @@ WIDGET TEMPLATE:
           padding={4}
           radius="xl"
           gap={3}
-          border={plan.popular ? { size: 2, color: "#4f46e5" } : { size: 1, color: "default" }}
+          border={plan.popular ? { size: 2, color: "emphasis" } : { size: 1, color: "default" }}
           background={plan.popular ? "surface-elevated" : "surface"}
         >
           <Col gap={1}>
@@ -1562,13 +1535,13 @@ WIDGET DATA:
 
 ### Checkout
 
-Itemized cart with computed totals and purchase actions. (id: `checkout-summary`)
+One last look at something good. (id: `checkout-summary`)
 
 WIDGET TEMPLATE:
 
 ```
 <Scope values={{ itemCountLabel: String(size(items)) + " items" }}>
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Row align="center">
     <Title value="Checkout" size="sm" />
     <Spacer />
@@ -1578,7 +1551,7 @@ WIDGET TEMPLATE:
   <Col>
     <Show $when="size(items) > 0">
       <Each $of="items" item="item">
-        <Row align="center" gap={3} padding={{ y: 1 }}>
+        <Row align="center" gap={3} padding={{ y: 2 }}>
           <Image src={item.image} size={48} radius="lg" />
           <Col gap={0}>
             <Text value={item.title} size="sm" weight="semibold" color="emphasis" />
@@ -1599,7 +1572,7 @@ WIDGET TEMPLATE:
 
   <Col gap={2}>
     <Button label="Purchase" color="primary" block onClickAction={{ type: "purchase" }} />
-    <Button label="Save for later" variant="ghost" color="primary" block onClickAction={{ type: "cart.save" }} />
+    <Button label="Save for later" variant="outline" color="primary" block onClickAction={{ type: "cart.save" }} />
   </Col>
 </Card>
 </Scope>
@@ -1649,7 +1622,7 @@ WIDGET DATA:
 
 ### Purchase receipt
 
-Order confirmation with item, totals, and delivery note. (id: `receipt`)
+Everything you need, after the purchase. (id: `receipt`)
 
 WIDGET TEMPLATE:
 
@@ -1716,14 +1689,14 @@ WIDGET DATA:
 
 ### Delivery map
 
-Schematic map with courier route, progress steps, and drop-off details. (id: `delivery-map`)
+Your order, a little closer. (id: `delivery-map`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="md" padding={0}>
   <Map markers={markers} routes={routes} height={180} radius="none" frame={false} />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Row align="center">
       <Col gap={0}>
         <Title value="Courier en route" size="sm" />
@@ -1813,102 +1786,53 @@ WIDGET DATA:
 
 ### Flight booking
 
-A detailed booking review with segments, fare rules, and confirm actions. (id: `flight-booking`)
+Every detail of your next departure. (id: `flight-booking`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card
-  size="md"
-  padding={0}
-  confirm={{
-    label: "Confirm booking",
-    action: { type: "flight.booking.confirm", payload: { bookingId } }
-  }}
-  cancel={{
-    label: "Cancel",
-    action: { type: "flight.booking.cancel", payload: { bookingId } }
-  }}
->
-  <Image src={heroImage} alt="Destination" height={160} fit="cover" flush />
-
-  <Row align="center" padding={{ x: 4, top: 3, bottom: 2 }}>
-    <Col gap={0} flex="auto">
-      <Title value="Confirm international booking" size="sm" />
-      <Text value={tripSummary} size="sm" color="secondary" />
+<Card size="md" padding={0} gap={0}
+  confirm={{ label: "Confirm booking", action: { type: "flight.booking.confirm", payload: { bookingId } } }}
+  cancel={{ label: "Cancel", action: { type: "flight.booking.cancel", payload: { bookingId } } }}>
+  <Image src={heroImage} alt="Japan destination" height={145} fit="cover" flush />
+  <Col padding={5} gap={4}>
+    <Col gap={1}>
+      <Row align="center">
+        <Title value={route} size="lg" />
+        <Spacer />
+        <Caption value={tripSummary} size="sm" />
+      </Row>
+      <Caption value={dates + " · " + guests + " guests"} />
     </Col>
-    <Badge label={statusLabel} variant="soft" color="info" />
-  </Row>
-
-  <Divider flush />
-
-  <Row align="center" padding={{ x: 4, y: 3 }} gap={3}>
-    <Box size={18} radius="full" border={{ size: 2, color: "subtle" }} background="surface" />
-    <Col flex="auto" gap={0}>
-      <Text value={route} size="sm" weight="semibold" />
-      <Caption value={dates} />
-    </Col>
-    <Col align="end" gap={0}>
-      <Text value={cabinClass} size="sm" weight="semibold" />
-      <Caption value={`${guests} guests`} />
-    </Col>
-  </Row>
-
-  <Divider flush />
-
-  <Col padding={{ x: 4, y: 3 }} gap={3}>
-    <Row gap={2} align="center">
-      <Box background="surface-elevated-secondary" radius="full" padding={2}>
-        <Icon name="plane" size="lg" />
-      </Box>
-      <Text value="Flight details" size="sm" weight="semibold" />
-    </Row>
-
-    <Col gap={2}>
-      <Each $of="segments" item="seg">
-        <Row gap={3} align="start">
-          <Image src={seg.image} size={52} radius="md" frame />
-          <Col flex="auto" gap={1}>
-            <Row gap={2} align="center">
-              <Text value={seg.route} size="sm" weight="semibold" />
-              <Spacer />
-              <Badge label={seg.stopsLabel} variant="soft" />
-            </Row>
-            <Row gap={2} align="center">
-              <Text value={seg.flightNumber} size="sm" color="secondary" />
-              <Text value="•" size="sm" color="tertiary" />
-              <Text value={seg.aircraft} size="sm" color="secondary" />
-            </Row>
-            <Row gap={3} align="start">
-              <Col flex={1} gap={0}>
-                <Caption value="Depart" size="sm" />
-                <Text value={seg.departTime} weight="semibold" />
-                <Caption value={seg.departNote} />
-              </Col>
-              <Col flex={1} gap={0}>
-                <Caption value="Arrive" size="sm" />
-                <Text value={seg.arriveTime} weight="semibold" />
-                <Caption value={seg.arriveNote} />
-              </Col>
-            </Row>
+    <Divider />
+    <Each $of="segments" item="seg">
+      <Col gap={2}>
+        <Row justify="between" gap={2}>
+          <Caption value={seg.flightNumber + " · " + seg.stopsLabel} size="sm" />
+          <Caption value={seg.route} size="sm" />
+        </Row>
+        <Row justify="between" align="center" gap={3}>
+          <Col gap={0}>
+            <Text value={seg.departTime} weight="medium" />
+            <Caption value={seg.departNote} size="sm" />
+          </Col>
+          <Icon name="arrow-right" size="sm" color="tertiary" />
+          <Col gap={0} align="end">
+            <Text value={seg.arriveTime} weight="medium" />
+            <Caption value={seg.arriveNote} size="sm" />
           </Col>
         </Row>
-      </Each>
-    </Col>
-
-    <Divider flush />
-
-    <KeyValue rows={reviewRows} />
+      </Col>
+    </Each>
+    <Accordion items={[{ id: "fare", title: "Cabin & fare details", content: cabinClass + " · " + reviewRows[2].value + ". " + reviewRows[3].value + ". Aircraft: " + segments[0].aircraft + "." }]} />
+    <Row align="center" justify="between" gap={3}>
+      <Col gap={0}>
+        <Text value="Total" size="sm" />
+        <Caption value={priceNote} size="sm" />
+      </Col>
+      <Title value={totalPrice} size="sm" />
+    </Row>
   </Col>
-
-  <Row padding={{ x: 4, y: 4 }} background="surface-elevated-secondary" border={{ top: { size: 1 } }}>
-    <Col gap={0}>
-      <Text value="Total" size="sm" weight="semibold" />
-      <Caption value={priceNote} />
-    </Col>
-    <Spacer />
-    <Title value={totalPrice} size="sm" />
-  </Row>
 </Card>
 ```
 
@@ -1917,9 +1841,8 @@ WIDGET DATA:
 ```json
 {
   "bookingId": "bk-ua-893421",
-  "heroImage": "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80",
+  "heroImage": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
   "tripSummary": "Round-trip · International",
-  "statusLabel": "Review",
   "route": "SFO → NRT",
   "dates": "Mar 12 – Mar 20",
   "guests": "2",
@@ -1945,7 +1868,6 @@ WIDGET DATA:
   "segments": [
     {
       "id": "seg-1",
-      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
       "route": "SFO → NRT",
       "stopsLabel": "Nonstop",
       "flightNumber": "United 837",
@@ -1957,7 +1879,6 @@ WIDGET DATA:
     },
     {
       "id": "seg-2",
-      "image": "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80",
       "route": "NRT → SFO",
       "stopsLabel": "Nonstop",
       "flightNumber": "United 838",
@@ -1975,14 +1896,14 @@ WIDGET DATA:
 
 ### Trip itinerary
 
-Cover image, weather strip, and a day-by-day timeline. (id: `trip-itinerary`)
+A few days away, thoughtfully planned. (id: `trip-itinerary`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="md" padding={0}>
   <Image src={coverImage} alt={destination} height={150} fit="cover" flush />
-  <Col padding={4} gap={4}>
+  <Col padding={5} gap={4}>
     <Row align="center">
       <Col gap={0}>
         <Title value={destination} size="sm" />
@@ -2062,7 +1983,7 @@ WIDGET DATA:
 
 ### Hotel listing
 
-Rating, amenity chips, and nightly pricing. (id: `hotel-card`)
+Somewhere worth staying. (id: `hotel-card`)
 
 WIDGET TEMPLATE:
 
@@ -2125,7 +2046,7 @@ WIDGET DATA:
 
 ### Ride status
 
-Pickup progress with driver details and live ETA. (id: `rider-status`)
+Your pickup, down to the minute. (id: `rider-status`)
 
 WIDGET TEMPLATE:
 
@@ -2198,18 +2119,18 @@ WIDGET DATA:
 
 ### Weather
 
-Gradient conditions card with an hourly strip and detail stats. (id: `weather-now`)
+A small window into the day ahead. (id: `weather-now`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="sm" background="linear-gradient(170deg, #dbeafe 0%, #f0f9ff 70%)" gap={3}>
+<Card size="sm" background="#eef2f0" gap={3}>
   <Row align="start">
     <Col gap={0} flex="auto">
       <Title value={city} size="sm" />
       <Caption value={condition} />
     </Col>
-    <Icon name={conditionIcon} size="2xl" color="#2563eb" />
+    <Icon name={conditionIcon} size="2xl" color="#0066cc" />
   </Row>
 
   <Row align="baseline" gap={3}>
@@ -2222,9 +2143,9 @@ WIDGET TEMPLATE:
 
   <Row gap={2}>
     <Each $of="hourly" item="hour">
-      <Box flex={1} padding={{ y: 2 }} radius="lg" background="alpha-10" align="center" gap={1}>
+      <Box flex={1} padding={{ y: 2 }} radius="md" background="surface" align="center" gap={1}>
         <Caption value={hour.time} size="sm" />
-        <Icon name={hour.icon} size="sm" color="#3b82f6" />
+        <Icon name={hour.icon} size="sm" color="#007aff" />
         <Text value={hour.temp} size="sm" weight="semibold" />
       </Box>
     </Each>
@@ -2282,54 +2203,36 @@ WIDGET DATA:
 
 ### Smart home
 
-A control center with scenes, stats, and device toggles. (id: `smart-home`)
+A little control over your everyday. (id: `smart-home`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="md" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Good evening" size="sm" />
-      <Caption value="3 devices on · Home" />
-    </Col>
-    <Spacer />
-    <Badge label="Away mode off" variant="outline" color="secondary" />
+<Card size="md" gap={5}>
+  <Row align="center" justify="between">
+    <Title value="At home" size="sm" />
+    <Caption value="Living room" />
   </Row>
-
-  <Row gap={5}>
-    <Stat label="Inside" value={temperature} icon="thermometer" size="sm" />
-    <Stat label="Humidity" value={humidity} icon="droplet" size="sm" />
-    <Col flex={1} gap={1}>
-      <Stat label="Energy today" value={energyToday} size="sm" />
-      <Sparkline data={energyTrend} height={26} color="#10b981" />
+  <Row align="center" justify="between" gap={5}>
+    <Stat label="Indoor temperature" value={temperature} size="lg" />
+    <Col gap={3}>
+      <Stat label="Humidity" value={humidity} size="sm" />
+      <Caption value={energyToday + " today"} />
     </Col>
   </Row>
-
+  <ChipGroup name="scene" defaultValue="relax" options={scenes} size="sm"
+    onChangeAction={{ type: "home.scene.set" }} />
   <Divider />
-
-  <Col gap={2}>
-    <Caption value="SCENES" size="sm" />
-    <ChipGroup name="scene" defaultValue="relax" options={scenes}
-      onChangeAction={{ type: "home.scene.set" }} />
-  </Col>
-
   <Col gap={0}>
     <Each $of="devices" item="device">
       <Row align="center" gap={3} padding={{ y: 2 }}>
-        <Box size={34} radius="lg" background="surface-tertiary" align="center" justify="center">
-          <Icon name={device.icon} size="md" color={device.on ? "primary" : "tertiary"} />
-        </Box>
+        <Icon name={device.icon} size="md" color="secondary" />
         <Col flex="auto" gap={0}>
-          <Text value={device.name} size="sm" weight="semibold" />
-          <Caption value={device.room} />
+          <Text value={device.name} size="sm" weight="medium" />
+          <Caption value={device.room} size="sm" />
         </Col>
-        <Toggle
-          name={device.id}
-          label={device.on ? "On" : "Off"}
-          defaultPressed={device.on}
-          onChangeAction={{ type: "home.device.toggle", payload: { id: device.id } }}
-        />
+        <Toggle variant="switch" name={device.id} label={device.name} defaultPressed={device.on}
+          onChangeAction={{ type: "home.device.toggle", payload: { id: device.id } }} />
       </Row>
     </Each>
   </Col>
@@ -2343,19 +2246,6 @@ WIDGET DATA:
   "temperature": "72°",
   "humidity": "44%",
   "energyToday": "12.4 kWh",
-  "energyTrend": [
-    4,
-    5,
-    4,
-    6,
-    8,
-    7,
-    9,
-    8,
-    10,
-    9,
-    12
-  ],
   "scenes": [
     {
       "label": "Relax",
@@ -2406,7 +2296,7 @@ WIDGET DATA:
 
 ### Create task
 
-Inline-editable text, priority chips, date picker, and submit. (id: `task-create`)
+Turn a thought into the next thing to do. (id: `task-create`)
 
 WIDGET TEMPLATE:
 
@@ -2472,7 +2362,7 @@ WIDGET DATA:
 
 ### Sprint progress
 
-Progress bar with per-member status and completion stats. (id: `team-progress`)
+See how the sprint is coming together. (id: `team-progress`)
 
 WIDGET TEMPLATE:
 
@@ -2541,7 +2431,7 @@ WIDGET DATA:
 
 ### Onboarding checklist
 
-Interactive checklist — clicking items updates local widget state. (id: `onboarding-checklist`)
+Small steps toward getting started. (id: `onboarding-checklist`)
 
 WIDGET TEMPLATE:
 
@@ -2615,7 +2505,7 @@ WIDGET DATA:
 
 ### Confirm calendar event
 
-Day column with highlighted new events and confirm actions. (id: `calendar-confirm`)
+Make room for the next conversation. (id: `calendar-confirm`)
 
 WIDGET TEMPLATE:
 
@@ -2688,54 +2578,40 @@ WIDGET DATA:
 
 ### Analytics overview
 
-Stat row with sparklines, tabbed area chart, and a channel table. (id: `analytics-overview`)
+Traffic, growth, and the sources behind them. (id: `analytics-overview`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="lg" gap={4}>
+<Card size="md" gap={5}>
   <Row align="center">
-    <Col gap={0}>
-      <Title value="Site analytics" size="sm" />
-      <Caption value="Last 30 days · updated 5m ago" />
-    </Col>
+    <Title value="Site analytics" size="sm" />
     <Spacer />
-    <Badge label="Live" color="success" icon="activity" />
+    <Caption value="Last 30 days" size="sm" />
   </Row>
-
-  <Row gap={5} wrap="wrap">
-    <Each $of="stats" item="stat">
-      <Col flex={1} minWidth={120} gap={1}>
-        <Stat label={stat.label} value={stat.value} delta={stat.delta} size="sm" />
-        <Sparkline data={stat.trend} height={30} />
-      </Col>
-    </Each>
-  </Row>
-
   <Tabs tabs={[
-    { id: "traffic", label: "Traffic", icon: "trending-up" },
-    { id: "channels", label: "Channels", icon: "layers" }
+    { id: "traffic", label: "Traffic" },
+    { id: "channels", label: "Channels" }
   ]}>
     <Tabs.Panel id="traffic">
-      <AreaChart
-        data={series}
-        xAxis={{ dataKey: "week" }}
-        series={[
-          { dataKey: "visitors", label: "Visitors" },
-          { dataKey: "signups", label: "Signups", color: "#10b981" }
-        ]}
-        height={190}
-      />
+      <Col gap={4}>
+        <Stat label={stats[0].label} value={stats[0].value} delta={stats[0].delta} size="lg" deltaLabel="vs. last month" />
+        <AreaChart data={series} xAxis={{ dataKey: "week" }}
+          series={[{ dataKey: "visitors", label: "Visitors" }]}
+          height={150} showLegend={false} />
+        <Divider />
+        <Row gap={6}>
+          <Stat label={stats[1].label} value={stats[1].value} delta={stats[1].delta} size="sm" />
+          <Stat label={stats[2].label} value={stats[2].value} delta={stats[2].delta} upIsPositive={false} size="sm" />
+        </Row>
+      </Col>
     </Tabs.Panel>
     <Tabs.Panel id="channels">
-      <DataTable
-        columns={[
-          { key: "channel", label: "Channel" },
-          { key: "visitors", label: "Visitors", align: "end" },
-          { key: "change", label: "Change", align: "end" }
-        ]}
-        rows={channels}
-      />
+      <DataTable columns={[
+        { key: "channel", label: "Channel" },
+        { key: "visitors", label: "Visitors", align: "end" },
+        { key: "change", label: "Change", align: "end" }
+      ]} rows={channels} />
     </Tabs.Panel>
   </Tabs>
 </Card>
@@ -2749,47 +2625,17 @@ WIDGET DATA:
     {
       "label": "Visitors",
       "value": "48.2K",
-      "delta": "+12.4%",
-      "trend": [
-        30,
-        34,
-        32,
-        38,
-        41,
-        39,
-        44,
-        48
-      ]
+      "delta": "+12.4%"
     },
     {
       "label": "Signups",
       "value": "1,284",
-      "delta": "+8.1%",
-      "trend": [
-        10,
-        12,
-        11,
-        14,
-        13,
-        16,
-        17,
-        19
-      ]
+      "delta": "+8.1%"
     },
     {
       "label": "Bounce rate",
       "value": "31%",
-      "delta": "-2.3%",
-      "trend": [
-        40,
-        38,
-        39,
-        36,
-        35,
-        33,
-        32,
-        31
-      ]
+      "delta": "-2.3%"
     }
   ],
   "series": [
@@ -2851,18 +2697,17 @@ WIDGET DATA:
 
 ### Finance dashboard
 
-Composed chart, balance stat with sparkline, and budget progress. (id: `finance-dashboard`)
+A clearer picture of money in motion. (id: `finance-dashboard`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="lg" gap={4}>
-  <Row align="start">
-    <Col gap={1}>
+  <Row align="start" justify="between" wrap="wrap" gap={3}>
+    <Col gap={1} flex="1 1 180px" minWidth={0}>
       <Stat label="Total balance" value={balance} delta={balanceDelta} deltaLabel="vs last month" size="lg" />
       <Sparkline data={spendTrend} height={36} width={180} />
     </Col>
-    <Spacer />
     <SegmentedControl
       name="range"
       defaultValue="6m"
@@ -2879,9 +2724,9 @@ WIDGET TEMPLATE:
     data={months}
     xAxis={{ dataKey: "month" }}
     series={[
-      { type: "bar", dataKey: "income", label: "Income", color: "#6366f1" },
-      { type: "bar", dataKey: "spending", label: "Spending", color: "#f43f5e" },
-      { type: "line", dataKey: "savings", label: "Savings", color: "#10b981", strokeWidth: 2 }
+      { type: "bar", dataKey: "income", label: "Income", color: "var(--widget-chart-5)" },
+      { type: "bar", dataKey: "spending", label: "Spending", color: "var(--widget-chart-6)" },
+      { type: "line", dataKey: "savings", label: "Savings", color: "var(--widget-chart-3)", strokeWidth: 2 }
     ]}
     height={200}
   />
@@ -2979,7 +2824,7 @@ WIDGET DATA:
 
 ### Traffic breakdown
 
-Donut chart with per-slice colors and a key-value legend. (id: `traffic-donut`)
+See where your audience comes from. (id: `traffic-donut`)
 
 WIDGET TEMPLATE:
 
@@ -3015,22 +2860,22 @@ WIDGET DATA:
     {
       "name": "Organic",
       "value": 42,
-      "fill": "#6366f1"
+      "fill": "var(--widget-chart-5)"
     },
     {
       "name": "Direct",
       "value": 26,
-      "fill": "#0ea5e9"
+      "fill": "var(--widget-chart-6)"
     },
     {
       "name": "Referral",
       "value": 18,
-      "fill": "#10b981"
+      "fill": "var(--widget-chart-3)"
     },
     {
       "name": "Social",
       "value": 14,
-      "fill": "#f59e0b"
+      "fill": "var(--widget-chart-4)"
     }
   ],
   "legend": [
@@ -3056,7 +2901,7 @@ WIDGET DATA:
 
 ### Usage & billing
 
-Plan usage meters and an invoice table. (id: `usage-billing`)
+Your plan, usage, and invoices at a glance. (id: `usage-billing`)
 
 WIDGET TEMPLATE:
 
@@ -3141,7 +2986,7 @@ WIDGET DATA:
 
 ### Poll results
 
-Grouped bar chart comparing this year's survey against last year's. (id: `poll-results`)
+What people think, side by side. (id: `poll-results`)
 
 WIDGET TEMPLATE:
 
@@ -3156,8 +3001,8 @@ WIDGET TEMPLATE:
     data={results}
     xAxis={{ dataKey: "option" }}
     series={[
-      { dataKey: "thisYear", label: "2026", color: "#6366f1" },
-      { dataKey: "lastYear", label: "2025", color: "#c7d2fe" }
+      { dataKey: "thisYear", label: "2026" },
+      { dataKey: "lastYear", label: "2025" }
     ]}
     height={190}
   />
@@ -3197,7 +3042,7 @@ WIDGET DATA:
 
 ### Project setup
 
-A multi-field form with select, chips, and a submit action. (id: `project-setup`)
+A considered starting point for your project. (id: `project-setup`)
 
 WIDGET TEMPLATE:
 
@@ -3306,7 +3151,7 @@ WIDGET DATA:
 
 ### Campaign composer
 
-Steps, combobox, date picker, and textarea in a guided flow. (id: `campaign-composer`)
+Bring your next campaign together. (id: `campaign-composer`)
 
 WIDGET TEMPLATE:
 
@@ -3331,7 +3176,7 @@ WIDGET TEMPLATE:
       <Row gap={3} wrap="wrap">
         <Col flex={1} gap={2} minWidth={170}>
           <Label value="Audience" fieldName="campaign.audience" />
-          <Combobox name="campaign.audience" options={audiences} placeholder="Pick audience" />
+          <Combobox name="campaign.audience" options={audiences} placeholder="Pick audience" block />
         </Col>
         <Col flex={1} gap={2} minWidth={170}>
           <Label value="Send date" fieldName="campaign.date" />
@@ -3414,12 +3259,12 @@ WIDGET DATA:
 
 ### Feedback survey
 
-Radio scores, aspect chips, and a comment box. (id: `feedback-survey`)
+Make a little room for feedback. (id: `feedback-survey`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Form onSubmitAction={{ type: "feedback.submit" }}>
     <Col gap={4}>
       <Col gap={0}>
@@ -3429,7 +3274,7 @@ WIDGET TEMPLATE:
 
       <Col gap={2}>
         <Label value="Overall" fieldName="feedback.score" />
-        <RadioGroup name="feedback.score" options={scores} direction="row" />
+        <RadioGroup ariaLabel="Overall experience" name="feedback.score" options={scores} direction="row" />
       </Col>
 
       <Col gap={2}>
@@ -3454,19 +3299,19 @@ WIDGET DATA:
 {
   "scores": [
     {
-      "label": "😞",
+      "label": "Poor",
       "value": "1"
     },
     {
-      "label": "😐",
+      "label": "Fair",
       "value": "2"
     },
     {
-      "label": "🙂",
+      "label": "Good",
       "value": "3"
     },
     {
-      "label": "🤩",
+      "label": "Great",
       "value": "4"
     }
   ],
@@ -3497,12 +3342,12 @@ WIDGET DATA:
 
 ### Verification code
 
-OTP input with tooltip help and a submit action. (id: `verify-code`)
+A simple, focused verification step. (id: `verify-code`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Form onSubmitAction={{ type: "auth.verify" }}>
     <Col gap={4} align="center">
       <Box size={44} radius="full" background="surface-tertiary" align="center" justify="center">
@@ -3543,7 +3388,7 @@ WIDGET DATA:
 
 ### Playlist
 
-Cover art, numbered tracks, and play actions. (id: `playlist`)
+Something for the rest of your afternoon. (id: `playlist`)
 
 WIDGET TEMPLATE:
 
@@ -3553,7 +3398,7 @@ WIDGET TEMPLATE:
   <Col padding={{ y: 2, x: 3 }}>
     <Show $when="size(tracks) > 0">
       <Each $of="tracks" item="item" index="index">
-        <Row align="center" gap={3} padding={{ y: 1 }}>
+        <Row align="center" gap={3} padding={{ y: 2 }}>
           <Caption $value="String(index + 1)" />
           <Image src={item.cover} size={44} radius="md" />
           <Col flex="auto" gap={0}>
@@ -3612,33 +3457,30 @@ WIDGET DATA:
 
 ### Media carousel
 
-Carousel with media items, audio player, and video embed. (id: `media-carousel`)
+Browse photos, then switch between audio and video. (id: `media-carousel`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="md" padding={0}>
-  <BaseCarousel visibleItems={1.15} gap={3} snap="mandatory" flush>
+<Card size="md" padding={4} gap={4}>
+  <BaseCarousel ariaLabel="Field notes photos" visibleItems={1} gap={3} snap="mandatory">
     <Each $of="photos" item="photo">
-      <BaseCarousel.MediaItem
-        minWidth={260}
-        *media={<Image src={photo.src} alt={photo.title} height={180} fit="cover" frame />}
-      >
-        <Row gap={2}>
-          <Favicon url={photo.favicon} />
-          <Col gap={0}>
-            <Text value={photo.title} weight="semibold" size="sm" />
-            <Caption value={photo.source} />
-          </Col>
-        </Row>
+      <BaseCarousel.MediaItem src={photo.src} alt={photo.title} aspectRatio={1.6} radius="md" border={0}>
+        <Col gap={1}>
+          <Text value={photo.title} weight="medium" size="sm" />
+          <Caption value={photo.source} size="sm" />
+        </Col>
       </BaseCarousel.MediaItem>
     </Each>
   </BaseCarousel>
-
-  <Col padding={{ x: 4, y: 4 }} gap={3}>
-    <AudioPlayer src={audio.src} title={audio.title} subtitle={audio.subtitle} compact />
-    <YouTubeEmbed videoId={videoId} height={190} title="Video preview" />
-  </Col>
+  <Tabs tabs={[{ id: "audio", label: "Audio" }, { id: "video", label: "Video" }]}>
+    <Tabs.Panel id="audio">
+      <AudioPlayer src={audio.src} title={audio.title} subtitle={audio.subtitle} compact />
+    </Tabs.Panel>
+    <Tabs.Panel id="video">
+      <YouTubeEmbed videoId={videoId} aspectRatio={1.7777778} title="Embedded video demo" />
+    </Tabs.Panel>
+  </Tabs>
 </Card>
 ```
 
@@ -3651,15 +3493,13 @@ WIDGET DATA:
       "id": "p1",
       "title": "Field robotics lab",
       "src": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80",
-      "source": "Unsplash",
-      "favicon": "https://www.google.com/s2/favicons?domain=unsplash.com"
+      "source": "Unsplash"
     },
     {
       "id": "p2",
       "title": "Transit control wall",
       "src": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
-      "source": "Unsplash",
-      "favicon": "https://www.google.com/s2/favicons?domain=unsplash.com"
+      "source": "Unsplash"
     }
   ],
   "audio": {
@@ -3673,7 +3513,7 @@ WIDGET DATA:
 
 ### Podcast episode
 
-Audio player with chapter timeline. (id: `podcast-episode`)
+Listen in. Pick up where you left off. (id: `podcast-episode`)
 
 WIDGET TEMPLATE:
 
@@ -3733,23 +3573,23 @@ WIDGET DATA:
 
 ### Recipe card
 
-Photo header, rating, meta badges, and numbered steps. (id: `recipe-card`)
+Something worth making tonight. (id: `recipe-card`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={180} fit="cover" flush />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Col gap={1}>
       <Title value={name} size="sm" />
       <Rating value={rating} showValue count={reviews} />
     </Col>
 
     <Row gap={2} wrap="wrap">
-      <Badge label={time} icon="clock" color="secondary" variant="outline" />
-      <Badge label={calories} icon="flame" color="secondary" variant="outline" />
-      <Badge label={servings} icon="utensils" color="secondary" variant="outline" />
+      <Caption value={time} />
+      <Caption value={calories} />
+      <Caption value={servings} />
     </Row>
 
     <Divider />
@@ -3762,7 +3602,7 @@ WIDGET TEMPLATE:
       </Each>
     </List>
 
-    <Button label="Open full recipe" iconEnd="arrow-up-right" variant="soft" color="primary" block
+    <Button label="Open full recipe" iconEnd="arrow-up-right" color="primary" block
       onClickAction={{ type: "recipe.open" }} />
   </Col>
 </Card>
@@ -3791,12 +3631,12 @@ WIDGET DATA:
 
 ### Player profile
 
-Gradient profile card with a season stat row and form sparkline. (id: `player-profile`)
+A season in numbers. A player in focus. (id: `player-profile`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="sm" background="linear-gradient(165deg, #eef2ff 0%, #f8fafc 100%)" gap={3}>
+<Card size="sm" background="surface" gap={3}>
   <Row gap={3} align="center">
     <Avatar src={photo} name={name} size={56} />
     <Col flex="auto" gap={0}>
@@ -3816,7 +3656,7 @@ WIDGET TEMPLATE:
 
   <Col gap={1}>
     <Caption value="LAST 10 GAMES" size="sm" />
-    <Sparkline data={form} height={32} color="#6366f1" />
+    <Sparkline data={form} height={32} />
   </Col>
 </Card>
 ```
@@ -3865,7 +3705,7 @@ WIDGET DATA:
 
 ### Notifications
 
-Dismissible list that collapses into an empty state — all local state. (id: `notifications-inbox`)
+The updates that deserve your attention. (id: `notifications-inbox`)
 
 WIDGET TEMPLATE:
 
@@ -3938,7 +3778,7 @@ WIDGET DATA:
 
 ### Contact card
 
-Copy, email, and open-url client actions from one profile. (id: `contact-card`)
+A familiar face, a conversation away. (id: `contact-card`)
 
 WIDGET TEMPLATE:
 
@@ -3987,7 +3827,7 @@ WIDGET DATA:
 
 ### Event invite
 
-RSVP with local state plus an add-to-calendar client action. (id: `event-invite`)
+An invitation with all the details. (id: `event-invite`)
 
 WIDGET TEMPLATE:
 
@@ -4054,7 +3894,7 @@ WIDGET DATA:
 
 ### FAQ
 
-Accordion answers with a support callout and contact action. (id: `faq-accordion`)
+Useful answers, without the clutter. (id: `faq-accordion`)
 
 WIDGET TEMPLATE:
 
@@ -4104,7 +3944,7 @@ WIDGET DATA:
 
 ### Live status board
 
-RunInterval ticks patch local state; Animate and Show branch the UI. (id: `live-status`)
+A live view of a changing system. (id: `live-status`)
 
 WIDGET TEMPLATE:
 
@@ -4182,7 +4022,7 @@ WIDGET DATA:
 
 ### Local state 101
 
-The smallest stateful widget: patchState increments and appends. (id: `state-counter`)
+Small interactions that remember their state. (id: `state-counter`)
 
 WIDGET TEMPLATE:
 
@@ -4226,7 +4066,7 @@ WIDGET DATA:
 
 ### Route operations
 
-Structured Table, SegmentedControl, Popover, and Pressable surfaces. (id: `route-operations`)
+The route, its status, and the next stop. (id: `route-operations`)
 
 WIDGET TEMPLATE:
 
@@ -4315,7 +4155,7 @@ WIDGET DATA:
 
 ### Rich text & loading
 
-Inline marks, icon list markers, tag overflow, and loading states. (id: `rich-text`)
+A small study in type and information. (id: `rich-text`)
 
 WIDGET TEMPLATE:
 
@@ -4389,7 +4229,7 @@ WIDGET DATA:
 
 ### Tip calculator
 
-Slider writes local state; every total recomputes from expressions. (id: `tip-calculator`)
+Split the bill. Keep the math simple. (id: `tip-calculator`)
 
 WIDGET TEMPLATE:
 

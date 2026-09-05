@@ -14,16 +14,29 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
 - **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
 - **Component library**: 142 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
-  - `/gallery` — 52 categorized, searchable pre-built widgets
-  - `/docs` — per-component docs with live examples, prop tables, and deep links
-  - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed)
-- **Authoring guide**: `public/AGENTS.md` — the complete widget-authoring contract embedded into the generation prompt
+  - `/gallery` — 52 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
+  - `/docs` — per-component docs with live examples, prop tables, deep links, and a searchable component sidebar
+  - `/playground` — live template + JSON editing, plus AI widget generation (OpenAI-backed); starts with **Checkout**, and Reset restores it. Explicit example/component links open the requested demo
+- **Authoring guide**: [`public/AGENTS.md`](public/AGENTS.md) — the complete widget-authoring contract and design principles embedded into generation and repair prompts
 - **Example corpus**: `public/WIDGET_EXAMPLES.md` — every gallery widget as a template + data pair, generated from `src/examples/widgetExamples.ts` (regenerate with `node --experimental-strip-types scripts/build-widget-examples-doc.mjs`); an optional download for richer LLM context
 - **Featured example corpus**: `public/FEATURED_WIDGET_EXAMPLES.md` — the smaller, gallery-ranked featured set linked beside `AGENTS.md` in the navbar and used by Playground AI generation
 
-Built with **React**, **Tailwind v4**, **shadcn/ui-style primitives**, **Recharts** (lazy-loaded), and **Motion** (`motion/react`).
+Built with **React**, **Tailwind v4**, **shadcn/ui** and **Radix** primitives, **Recharts** (lazy-loaded), and **Motion** (`motion/react`).
 
 The agent-native and workspace primitives are independent implementations inspired by interaction concepts in the current [AIcss](https://www.aicss.dev/) and [Beautiful UI](https://www.beautifului.dev/) catalogs. No source code or assets from either project are copied.
+
+## Design principles
+
+Compose a compact widget around one useful task. Start with the existing components and shadcn variants; character should come from content, hierarchy, imagery, and spacing.
+
+- Use crisp white surfaces and near-black text in light mode, with theme tokens for dark mode. Separate groups with spacing or a fine divider; avoid nested gray panels, heavy outlines, and decorative glass effects.
+- Keep button borders subtle or use ghost actions. Give the primary action prominence and selected controls an unmistakable filled state. Keep icon buttons square and centered.
+- Use regular body and timeline text, medium weight for the active step, and stronger type only for headings and key values. Callouts and quotes have no decorative left stripe.
+- Use the vivid chart palette independently of the neutral UI: **blue** for one series, **yellow + green** for two, **blue + green + pinkish red** for three. Larger sets add purple and orange; do not pair yellow and orange. Keep tooltip text neutral.
+- Fit the available width: allow form fields to shrink or stack, align media and captions to one gutter, and use one full carousel slide at compact widths. Carousel navigation remains visible when content overflows.
+- Keep keyboard focus visible without heavy black rings: fields emphasize their border; other controls use one muted indicator. Verify selected, disabled, empty, long-content, narrow-width, and dark-theme states.
+
+The [authoring guide’s design guidelines](public/AGENTS.md#design-guidelines) explain composition, spacing, chart colors, media, and interaction details for template authors. Shared rendering fixes belong in the primitive or its tokens so every widget benefits.
 
 ## Install (for use in your app)
 
@@ -84,11 +97,11 @@ export function WidgetMessage() {
 ```tsx
 // valid
 <Text value="Hello" />
-<Button label="Continue" />
+<Button label="Continue" onClickAction={{ type: "flow.continue" }} />
 
 // also valid
 <Text>Hello</Text>
-<Button>Continue</Button>
+<Button onClickAction={{ type: "flow.continue" }}>Continue</Button>
 ```
 
 - **Declarative logic only**: bindings (`{title}`), conditions (`{ok ? <Badge ... /> : null}`), `.map(...)` loops, and DIL-style `$` expression props like `$value="item.label"`.
@@ -133,8 +146,14 @@ Server-side actions are intentionally host-owned. See `SERVER_SIDE_ACTION_PLAN.m
 - **Renderer**: `src/widget/WidgetRenderer.tsx`
 - **Template engine**: `src/widget/renderer/templateEngine.tsx`
 - **Widget components**: `src/widget/components/*`
+- **Shared UI primitives**: `src/components/ui/*`
+- **Theme tokens and portal theme context**: `src/widget/widget.css` + `src/widget/theme.tsx`
+- **Automatic chart combinations**: `src/widget/chartPalette.ts`
 - **Registry**: `src/widget/registry.ts`
 - **Example widgets**: `src/examples/widgetExamples.ts`
+- **Featured selection and ordering**: `src/examples/featuredExamples.ts`
+- **Component documentation and live demos**: `src/docs/componentDocs.ts` + `src/docs/componentExamples.ts`
+- **Gallery presentation**: `src/components/gallery/*` + `src/pages/gallery.css`
 - **Demo routes**: `src/pages/*` + `src/App.tsx`
 
 ## Extending the system
@@ -144,26 +163,44 @@ The published `WidgetRenderer` is intentionally a fixed DIL/component surface: p
 1. Add a component under `src/widget/components/*`
 2. Register it in `src/widget/registry.ts`
 3. Mirror the name in `api/widget-component-names.js` and document it in `public/AGENTS.md` — `npm test` enforces that all three stay in sync
-4. Add an example to `src/examples/widgetExamples.ts` (so it shows up in `/gallery`)
+4. Add the component's documentation and live example to `src/docs/componentDocs.ts` and `src/docs/componentExamples.ts`
+5. Add or update a composed gallery example in `src/examples/widgetExamples.ts` when it demonstrates a useful pattern
+6. Regenerate the example docs and run the checks below. If the registry or gallery count changes, update the counts in both READMEs and the demo metadata; the tests flag stale counts
+
+## Keeping authoring docs in sync
+
+Edit the authoring contract and design guidance in `public/AGENTS.md`. Edit gallery templates and data in `src/examples/widgetExamples.ts`, then regenerate both public example files:
+
+```bash
+node --experimental-strip-types scripts/build-widget-examples-doc.mjs
+```
+
+Do not hand-edit `public/WIDGET_EXAMPLES.md` or `public/FEATURED_WIDGET_EXAMPLES.md`. The generator preserves template/data pairs, filters Featured entries, and applies their gallery ordering. Playground generation and repair load **AGENTS + Featured examples**; the full corpus is available for larger contexts. The generated introductions link back to the design guidance instead of maintaining a second set of rules.
 
 ## Testing
 
 ```bash
 npm test
+npm run build
+npm run lint
 ```
 
-Builds the package, then runs the Node test suite: render smoke tests over every gallery example, list-marker rendering, and registry/manifest/AGENTS.md sync checks.
+`npm test` builds the package and runs gallery render smoke tests, form-default and accessibility checks, chart-palette and theme-contrast checks, registry/manifest/authoring-guide parity, and documentation synchronization checks. The other commands build the demo and lint the source. For visual changes, also inspect the affected widgets in the browser at compact and wide widths, in both themes, with mouse and keyboard interaction.
 
 ## Theming
 
-All widget styling flows through `--widget-*` CSS custom properties declared in `src/widget/widget.css` (single source of truth — the published `styles.css` imports it). Override any token from your app, e.g.:
+Widget design tokens are declared in `src/widget/widget.css` and included in the package's `styles.css`. Load host overrides after the package styles, for example:
 
 ```css
 .widget-root {
-  --widget-accent: #0ea5e9;
+  --widget-font-sans: "Inter", system-ui, sans-serif;
   --widget-radius: 12px;
 }
 ```
+
+For mode-specific overrides, use `.widget-root[data-theme="light"]` and `.widget-root[data-theme="dark"]`. Popovers, menus, dialogs, and other widget portals receive the widget's theme and `.widget-root` scope too; a selector tied only to an ancestor around the embedded card will not reach a portal rendered under `body`.
+
+If changing the action accent, coordinate `--widget-accent`, its strong/soft/border variants, and `--widget-on-accent` to preserve readable text and state contrast. Chart colors use separate `--widget-chart-1` through `--widget-chart-6` tokens; their numbers identify palette entries, not series order. Pie charts choose combinations by slice count. See the [chart reference](public/AGENTS.md#charts) for the palette and automatic combinations.
 
 ## License and project boundaries
 

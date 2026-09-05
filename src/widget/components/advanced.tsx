@@ -52,7 +52,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { Button as UiButton } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 
-import { buildChangePayload, getFormValue, useWidgetAction, useWidgetForm } from "../context";
+import { useFormDefaultValue, buildChangePayload, getFormValue, useWidgetAction, useWidgetForm } from "../context";
 
 type AccordionProps = {
   items: { id: string; title: string; content: string }[];
@@ -199,7 +199,8 @@ const TooltipWidget: React.FC<TooltipProps> = ({ label, content, delayDuration =
     <Tooltip>
       <TooltipTrigger asChild>
         <span
-          className="cursor-pointer text-sm underline decoration-dotted underline-offset-2"
+          tabIndex={0}
+          className="self-start rounded-sm cursor-pointer text-sm underline decoration-dotted underline-offset-2"
           style={{
             color: "var(--widget-text-primary)",
             textDecorationColor: "var(--widget-text-tertiary)"
@@ -216,6 +217,7 @@ const TooltipWidget: React.FC<TooltipProps> = ({ label, content, delayDuration =
 type ToggleProps = {
   name?: string;
   label: string;
+  variant?: "button" | "switch";
   defaultPressed?: boolean;
   disabled?: boolean;
   onChangeAction?: { type: string; payload?: Record<string, unknown> };
@@ -224,6 +226,7 @@ type ToggleProps = {
 const ToggleWidget: React.FC<ToggleProps> = ({
   name,
   label,
+  variant = "button",
   defaultPressed,
   disabled,
   onChangeAction
@@ -231,8 +234,9 @@ const ToggleWidget: React.FC<ToggleProps> = ({
   const action = useWidgetAction();
   const form = useWidgetForm();
   const [pressed, setPressed] = React.useState(defaultPressed ?? false);
-  const resolvedPressed =
-    typeof name === "string" && form ? Boolean(getFormValue(form.values, name)) : pressed;
+  useFormDefaultValue(name, defaultPressed);
+  const storedPressed = name && form ? getFormValue(form.values, name) : undefined;
+  const resolvedPressed = storedPressed === undefined ? pressed : Boolean(storedPressed);
 
   const handlePressedChange = (next: boolean) => {
     setPressed(next);
@@ -241,6 +245,22 @@ const ToggleWidget: React.FC<ToggleProps> = ({
       action(onChangeAction, buildChangePayload(name, next, { pressed: next }));
     }
   };
+
+  if (variant === "switch") {
+    return (
+      <button
+        type="button"
+        role="switch"
+        aria-label={label}
+        aria-checked={resolvedPressed}
+        disabled={disabled}
+        className="wg-switch"
+        onClick={() => handlePressedChange(!resolvedPressed)}
+      >
+        <span aria-hidden />
+      </button>
+    );
+  }
 
   return (
     <UiToggle
@@ -273,6 +293,7 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
   disabled,
   onChangeAction
 }) => {
+  useFormDefaultValue(name, type === "multiple" ? defaultValues : defaultValue);
   const action = useWidgetAction();
   const form = useWidgetForm();
   const [value, setValue] = React.useState<string | string[]>(
@@ -350,6 +371,7 @@ const SliderWidget: React.FC<SliderProps> = ({
   disabled,
   onChangeAction
 }) => {
+  useFormDefaultValue(name, Array.isArray(defaultValue) ? defaultValue : [defaultValue]);
   const action = useWidgetAction();
   const form = useWidgetForm();
   const [value, setValue] = React.useState<number[]>(
@@ -397,9 +419,9 @@ const SheetWidget: React.FC<SheetProps> = ({
     <SheetTrigger asChild>
       <UiButton variant="outline">{triggerLabel}</UiButton>
     </SheetTrigger>
-    <SheetContent side={side}>
+    <SheetContent side={side} {...(!description ? { "aria-describedby": undefined } : {})}>
       <SheetHeader>
-        {title ? <SheetTitle>{title}</SheetTitle> : null}
+        <SheetTitle className={title ? undefined : "sr-only"}>{title ?? "Details"}</SheetTitle>
         {description ? <SheetDescription>{description}</SheetDescription> : null}
       </SheetHeader>
       {content ? (
@@ -423,9 +445,9 @@ const DrawerWidget: React.FC<DrawerProps> = ({ triggerLabel, title, description,
     <DrawerTrigger asChild>
       <UiButton variant="outline">{triggerLabel}</UiButton>
     </DrawerTrigger>
-    <DrawerContent>
+    <DrawerContent {...(!description ? { "aria-describedby": undefined } : {})}>
       <DrawerHeader>
-        {title ? <DrawerTitle>{title}</DrawerTitle> : null}
+        <DrawerTitle className={title ? undefined : "sr-only"}>{title ?? "Details"}</DrawerTitle>
         {description ? <DrawerDescription>{description}</DrawerDescription> : null}
       </DrawerHeader>
       {content ? (
@@ -445,6 +467,7 @@ type ComboboxProps = {
   searchPlaceholder?: string;
   emptyLabel?: string;
   defaultValue?: string;
+  block?: boolean;
   disabled?: boolean;
   onChangeAction?: { type: string; payload?: Record<string, unknown> };
 };
@@ -456,9 +479,11 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
   searchPlaceholder = "Search...",
   emptyLabel = "No results found.",
   defaultValue,
+  block = false,
   disabled,
   onChangeAction
 }) => {
+  useFormDefaultValue(name, defaultValue);
   const action = useWidgetAction();
   const form = useWidgetForm();
   const [open, setOpen] = React.useState(false);
@@ -481,14 +506,15 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <UiButton
+          id={name}
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-[220px] justify-between", disabled && "opacity-50")}
+          className={cn("wg-field-control h-8 min-w-0 max-w-full justify-between", block ? "w-full" : "w-[220px]", disabled && "opacity-50")}
           disabled={disabled}
         >
-          {selectedLabel ?? placeholder}
-          <span className="ml-2 text-xs text-slate-400">⌄</span>
+          <span className="min-w-0 truncate">{selectedLabel ?? placeholder}</span>
+          <span className="ml-2 shrink-0 text-xs text-[var(--widget-text-secondary)]" aria-hidden>⌄</span>
         </UiButton>
       </PopoverTrigger>
       <PopoverContent className="w-[240px] p-0" align="start">
@@ -516,6 +542,7 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
 
 type InputOtpProps = {
   name?: string;
+  ariaLabel?: string;
   length?: number;
   groupSize?: number;
   defaultValue?: string;
@@ -525,12 +552,14 @@ type InputOtpProps = {
 
 const InputOtpWidget: React.FC<InputOtpProps> = ({
   name,
+  ariaLabel = "Verification code",
   length = 6,
   groupSize = 3,
   defaultValue = "",
   disabled,
   onChangeAction
 }) => {
+  useFormDefaultValue(name, defaultValue);
   const action = useWidgetAction();
   const form = useWidgetForm();
   const [value, setValue] = React.useState(defaultValue);
@@ -548,6 +577,8 @@ const InputOtpWidget: React.FC<InputOtpProps> = ({
 
   return (
     <InputOTP
+      id={name}
+      aria-label={ariaLabel}
       maxLength={length}
       value={resolved}
       onChange={handleChange}

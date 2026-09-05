@@ -19,6 +19,7 @@ import { format, isValid, parseISO, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import {
+  useFormDefaultValue,
   buildChangePayload,
   getFormValue,
   useWidgetAction,
@@ -317,7 +318,11 @@ const Select: React.FC<SelectProps> = ({
   const [value, setValue] = useFieldValue(name, defaultValue);
   const height = controlHeights[size] ?? controlHeights.md;
 
-  const handleValueChange = (next: string) => {
+  let clearValue = "__widget_clear_selection__";
+  while (options.some((option) => option.value === clearValue)) clearValue += "_";
+
+  const handleValueChange = (selectedValue: string) => {
+    const next = clearable && selectedValue === clearValue ? "" : selectedValue;
     setValue(next);
     if (onChangeAction && action) {
       const option = options.find((item) => item.value === next);
@@ -328,7 +333,8 @@ const Select: React.FC<SelectProps> = ({
   return (
     <UiSelect value={value} onValueChange={handleValueChange} disabled={disabled}>
       <SelectTrigger
-        className="wg-input"
+        id={name}
+        className="wg-input shadow-none"
         data-variant={variant}
         style={{
           height,
@@ -340,8 +346,8 @@ const Select: React.FC<SelectProps> = ({
       </SelectTrigger>
       <SelectContent>
         {clearable && (
-          <SelectItem value="">
-            <SelectItemText>Clear</SelectItemText>
+          <SelectItem value={clearValue}>
+            <SelectItemText>Clear selection</SelectItemText>
           </SelectItem>
         )}
         {options.map((option) => (
@@ -470,8 +476,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-2" style={{ width: block ? "100%" : undefined }}>
-      <div className={cn("relative", block ? "w-full" : "w-auto")} style={block ? undefined : { width }}>
+    <div className="flex min-w-0 max-w-full items-center gap-2" style={{ width: block ? "100%" : undefined }}>
+      <div className={cn("relative min-w-0 max-w-full", block ? "w-full" : "w-auto")} style={block ? undefined : { width }}>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <UiButton
@@ -480,7 +486,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
               variant={buttonVariant as "default" | "secondary" | "outline" | "ghost"}
               disabled={disabled}
               className={cn(
-                "w-full justify-between font-normal cursor-pointer",
+                "wg-field-control min-w-0 max-w-full justify-between font-normal cursor-pointer",
                 variantClasses
               )}
               style={{
@@ -491,6 +497,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
               }}
             >
               <span
+                className="min-w-0 truncate"
                 style={
                   resolvedDate ? undefined : { color: "var(--widget-text-tertiary)" }
                 }
@@ -563,7 +570,9 @@ const Checkbox: React.FC<CheckboxProps> = ({
   const action = useWidgetAction();
   const form = useWidgetForm();
   const [checked, setChecked] = React.useState(defaultChecked ?? false);
-  const resolvedChecked = form ? Boolean(getFormValue(form.values, name)) : checked;
+  useFormDefaultValue(name, defaultChecked);
+  const storedChecked = form ? getFormValue(form.values, name) : undefined;
+  const resolvedChecked = storedChecked === undefined ? checked : Boolean(storedChecked);
 
   const handleCheckedChange = (next: boolean) => {
     setChecked(next);
@@ -627,14 +636,14 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
       aria-label={ariaLabel ?? name}
       value={value}
       onValueChange={handleChange}
-      className={`flex ${direction === "row" ? "flex-row" : "flex-col"} gap-2`}
+      className={`flex ${direction === "row" ? "flex-row flex-wrap" : "flex-col"} gap-2`}
       disabled={disabled}
       required={required}
     >
       {options?.map((option) => (
         <label
           key={option.value}
-          className="flex items-center gap-2 text-sm"
+          className="flex cursor-pointer items-center gap-2 whitespace-nowrap text-sm"
           style={{ color: "var(--widget-text-primary)" }}
         >
           <RadioGroupItem value={option.value} disabled={disabled || option.disabled} />

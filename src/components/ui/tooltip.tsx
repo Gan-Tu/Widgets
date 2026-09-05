@@ -1,3 +1,4 @@
+import { useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
@@ -13,9 +14,11 @@ const TooltipContent = React.forwardRef<
 >(({ className, sideOffset = 4, ...props }, ref) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
+      data-theme={useWidgetTheme()}
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
+        "widget-root wg-portal wg-tooltip",
         // Render in a portal to avoid being trapped under stacking contexts in widget previews.
         "z-[100] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-text-emphasis)] px-3 py-1.5 text-xs text-[var(--widget-surface)] shadow-md",
         className

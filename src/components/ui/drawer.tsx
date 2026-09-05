@@ -1,3 +1,4 @@
+import { useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
@@ -27,9 +28,11 @@ const DrawerContent = React.forwardRef<
   <DrawerPortal>
     <DrawerOverlay />
     <DrawerPrimitive.Content
+      data-theme={useWidgetTheme()}
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 rounded-t-2xl border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-6 shadow-lg",
+        "widget-root wg-portal",
+        "fixed inset-x-0 bottom-0 z-50 mt-24 max-h-[calc(100svh-2rem)] overflow-y-auto rounded-t-2xl border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-6 shadow-lg",
         className
       )}
       {...props}

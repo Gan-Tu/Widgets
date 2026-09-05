@@ -5,12 +5,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const toggleVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--widget-ring-color)] disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-[var(--widget-accent-soft)] data-[state=on]:text-[var(--widget-accent)]",
+  "wg-focusable inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:border-[var(--widget-accent)] data-[state=on]:bg-[var(--widget-accent)] data-[state=on]:text-[var(--widget-on-accent)] data-[state=on]:enabled:hover:border-[var(--widget-accent-strong)] data-[state=on]:enabled:hover:bg-[var(--widget-accent-strong)]",
   {
     variants: {
       variant: {
-        default: "bg-[var(--widget-surface-tertiary)] text-[var(--widget-text-primary)] hover:bg-[var(--widget-surface-active)]",
-        outline: "border border-[var(--widget-border-default)] bg-[var(--widget-surface)] text-[var(--widget-text-primary)] hover:bg-[var(--widget-surface-hover)]"
+        default: "border border-transparent bg-transparent text-[var(--widget-text-primary)] enabled:hover:bg-[var(--widget-surface-secondary)]",
+        outline: "border border-[var(--widget-border-default)] bg-transparent text-[var(--widget-text-primary)] enabled:hover:bg-[var(--widget-surface-secondary)]"
       },
       size: {
         default: "h-9 px-3",

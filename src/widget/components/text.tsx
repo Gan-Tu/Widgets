@@ -202,10 +202,10 @@ type TitleProps = BaseTextProps & {
 };
 
 const titleTrackingMap: Record<TitleSize, string> = {
-  sm: "-0.006em",
-  md: "-0.01em",
-  lg: "-0.014em",
-  xl: "-0.017em",
+  sm: "-0.025em",
+  md: "-0.03em",
+  lg: "-0.035em",
+  xl: "-0.04em",
   "2xl": "-0.02em",
   "3xl": "-0.022em",
   "4xl": "-0.024em",
@@ -250,7 +250,7 @@ const Caption: React.FC<CaptionProps> = ({
   const style: React.CSSProperties = {
     fontSize: captionSizeMap[size],
     fontWeight: resolveWeight(weight),
-    letterSpacing: "0.01em",
+    letterSpacing: "0",
     color: resolveColor(color, theme),
     ...buildTextStyle({ ...props, lineHeight: 1.4 })
   };

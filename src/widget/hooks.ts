@@ -34,7 +34,9 @@ export function useResizeObserver<T extends HTMLElement>(
   onMeasure: (node: T) => void
 ) {
   const callbackRef = React.useRef(onMeasure);
-  callbackRef.current = onMeasure;
+  useIsomorphicLayoutEffect(() => {
+    callbackRef.current = onMeasure;
+  }, [onMeasure]);
 
   useIsomorphicLayoutEffect(() => {
     const node = ref.current;

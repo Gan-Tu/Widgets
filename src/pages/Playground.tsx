@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { WidgetRenderer } from "@/widget";
+import { widgetExamples } from "@/examples/widgetExamples";
 import type { ActionConfig } from "@/widget";
 
 const PlaygroundSchema = z.any();
@@ -51,38 +52,11 @@ class PlaygroundErrorBoundary extends React.Component<
   }
 }
 
-const defaultTemplate = `
-<Card size="sm">
-<Title value={ eta } size="xl" />
-
-  <Row align="center">
-    <Col minWidth="auto">
-      <Caption value="Pick up" />
-      <Text value={address} truncate />
-    </Col>
-    <Spacer />
-    <Col align="end">
-      <Caption value="Driver" />
-      <Text value={driver.name} />
-    </Col>
-
-    <Image
-      src={driver.photo}
-      size={40}
-      radius="full"
-    />
-  </Row>
-</Card>
-`.trim();
-
-const defaultData = {
-  eta: "1 min",
-  address: "1008 Mission St",
-  driver: {
-    name: "Jonathan",
-    photo: "https://cdn.openai.com/API/storybook/driver.png"
-  }
-};
+const defaultExample = widgetExamples.find((example) => example.id === "checkout-summary");
+if (!defaultExample) throw new Error("The default Checkout example is missing.");
+const defaultTemplate = defaultExample.template;
+const defaultData = defaultExample.data;
+const defaultExampleId = defaultExample.id;
 
 type AuthorWidgetResponse = {
   template: string;
@@ -112,14 +86,6 @@ type GenerationStreamEvent =
       type: "error";
       error: string;
     };
-
-type PlaygroundExample = {
-  id: string;
-  title: string;
-  template: string;
-  data: unknown;
-  theme?: "light" | "dark";
-};
 
 const maxReferenceImages = 3;
 const maxReferenceImageBytes = 5 * 1024 * 1024;
@@ -203,7 +169,7 @@ function SegmentedControl<T extends string>({
     <div
       role="group"
       aria-label={label}
-      className="inline-flex items-center rounded-full border border-slate-200/70 bg-white p-0.5 shadow-sm"
+      className="inline-flex items-center rounded-lg bg-[var(--plinth)] p-0.5"
     >
       {options.map((option) => (
         <button
@@ -212,10 +178,10 @@ function SegmentedControl<T extends string>({
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            "cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200",
+            "cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium transition-colors  ",
             value === option.value
-              ? "bg-indigo-600 text-white"
-              : "text-slate-600 hover:text-slate-900"
+              ? "bg-[#111114] text-white"
+              : "text-[var(--mid)] hover:text-[var(--ink)]"
           )}
         >
           {option.label}
@@ -236,7 +202,7 @@ function EditorActionButton({
     <button
       type="button"
       onClick={onClick}
-      className="cursor-pointer rounded-md px-2 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200"
+      className="cursor-pointer rounded-md px-2 py-1 text-[11px] font-medium text-[var(--ink)] transition-colors hover:bg-slate-100 hover:text-slate-800  "
     >
       {children}
     </button>
@@ -273,8 +239,8 @@ export function PlaygroundPage() {
   const [referenceImages, setReferenceImages] = React.useState<ReferenceImage[]>([]);
 
   const [previewKey, setPreviewKey] = React.useState(0);
-  const [examples, setExamples] = React.useState<PlaygroundExample[]>([]);
-  const [selectedExampleId, setSelectedExampleId] = React.useState("");
+  const examples = widgetExamples;
+  const [selectedExampleId, setSelectedExampleId] = React.useState(defaultExampleId);
   const [copied, setCopied] = React.useState<"template" | "json" | null>(null);
 
   const lastLoadedExampleIdRef = React.useRef<string | null>(null);
@@ -300,32 +266,6 @@ export function PlaygroundPage() {
     []
   );
 
-  // Populate the example picker (lazy, same chunk the gallery uses).
-  React.useEffect(() => {
-    let cancelled = false;
-
-    void import("@/examples/widgetExamples")
-      .then((mod) => {
-        if (cancelled) return;
-        setExamples(
-          mod.widgetExamples.map(({ id, title, template, data, theme }) => ({
-            id,
-            title,
-            template,
-            data,
-            theme
-          }))
-        );
-      })
-      .catch(() => {
-        // Picker simply stays empty if the examples chunk fails to load.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   React.useEffect(() => {
     // Prefer reading from location.search so this effect reliably re-runs when the
     // query string changes (even if the URLSearchParams instance identity is stable).
@@ -333,17 +273,23 @@ export function PlaygroundPage() {
     const exampleId = params.get("example");
     const componentId = params.get("component");
 
-    const key = exampleId ? `example:${exampleId}` : componentId ? `component:${componentId}` : null;
-    if (!key) return;
+    const key = exampleId ? `example:${exampleId}` : componentId ? `component:${componentId}` : "default";
     if (lastLoadedExampleIdRef.current === key) return;
 
     let cancelled = false;
 
     const load = async () => {
       try {
+        if (!exampleId && !componentId) {
+          lastLoadedExampleIdRef.current = key;
+          applyContent(defaultTemplate, defaultData, "light");
+          setSelectedExampleId(defaultExampleId);
+          setDesignSpec(null);
+          return;
+        }
+
         if (exampleId) {
-          const mod = await import("@/examples/widgetExamples");
-          const match = mod.widgetExamples.find((ex) => ex.id === exampleId);
+          const match = widgetExamples.find((ex) => ex.id === exampleId);
           if (!match || cancelled) return;
 
           lastLoadedExampleIdRef.current = key;
@@ -438,9 +384,9 @@ export function PlaygroundPage() {
   };
 
   const resetPlayground = () => {
-    lastLoadedExampleIdRef.current = null;
+    lastLoadedExampleIdRef.current = "default";
     applyContent(defaultTemplate, defaultData, "light");
-    setSelectedExampleId("");
+    setSelectedExampleId(defaultExampleId);
     setDesignSpec(null);
     setAiError(null);
     setAiStatus(null);
@@ -627,15 +573,14 @@ export function PlaygroundPage() {
     : null;
 
   return (
-    <div className="space-y-6">
+    <div className="playground-page space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-[40px] font-medium tracking-[-0.045em] text-[var(--ink)]">
             Playground
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Describe a widget, or edit the template and data directly — the
-            preview updates live.
+          <p className="mt-1 text-sm text-[var(--mid)]">
+            A place to try things. Edit a template and watch it come to life.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -679,7 +624,7 @@ export function PlaygroundPage() {
             type="button"
             onClick={resetPlayground}
             disabled={isGenerating}
-            className="cursor-pointer rounded-full border border-slate-200/70 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-lg border border-[var(--control-border)] bg-white px-3.5 py-2 text-xs font-medium text-[var(--mid)] transition-colors hover:bg-slate-50  disabled:cursor-not-allowed disabled:opacity-50"
           >
             Reset
           </button>
@@ -687,11 +632,11 @@ export function PlaygroundPage() {
       </header>
 
       <form className="space-y-2" onSubmit={generateWidget}>
-        <div className="flex items-center gap-2 rounded-full border border-slate-200/70 bg-white py-1.5 pl-4 pr-1.5 shadow-sm focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-600/10">
-          <Sparkles className="h-4 w-4 shrink-0 text-indigo-600" aria-hidden />
+        <div className="playground-prompt flex items-center gap-3 rounded-xl border border-[var(--hairline)] bg-[var(--plinth)] py-2.5 pl-4 pr-2.5 focus-within:border-stone-400">
+          <Sparkles className="h-4 w-4 shrink-0 text-[var(--ink)]" aria-hidden />
           <input
             type="text"
-            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 disabled:opacity-60"
+            className="min-w-0 flex-1 bg-transparent text-sm text-[var(--ink)] outline-none placeholder:text-stone-500 disabled:opacity-60"
             placeholder="Describe a widget — e.g. 'flight status card for SFO→JFK'"
             aria-label="Describe the widget to generate"
             value={aiPrompt}
@@ -722,7 +667,7 @@ export function PlaygroundPage() {
           <Button
             type="submit"
             disabled={!aiPrompt.trim() || isGenerating}
-            className="h-8 shrink-0 cursor-pointer rounded-full bg-indigo-600 px-4 text-xs font-semibold text-white hover:bg-indigo-700"
+            className="h-9 shrink-0 cursor-pointer rounded-lg bg-[var(--ink)] px-4 text-xs font-medium text-white hover:bg-stone-700"
           >
             {isGenerating ? "Generating…" : "Generate"}
           </Button>
@@ -748,7 +693,7 @@ export function PlaygroundPage() {
                 <button
                   type="button"
                   aria-label={`Remove ${image.name}`}
-                  className="absolute right-0.5 top-0.5 inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[11px] font-semibold text-slate-600 shadow-sm transition-colors hover:bg-white hover:text-slate-900"
+                  className="absolute right-0.5 top-0.5 inline-flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[11px] font-semibold text-[var(--mid)] shadow-sm transition-colors hover:bg-white hover:text-[var(--ink)]"
                   onClick={() => removeReferenceImage(image.id)}
                   disabled={isGenerating}
                 >
@@ -764,7 +709,7 @@ export function PlaygroundPage() {
             <summary className="cursor-pointer select-none text-xs font-semibold text-slate-700">
               Design spec
             </summary>
-            <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">
+            <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-[var(--mid)]">
               {designSpec}
             </p>
           </details>
@@ -778,12 +723,12 @@ export function PlaygroundPage() {
             "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
         )}
       >
-        <section className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+        <section className="playground-editor min-w-0 rounded-xl border border-[var(--hairline)] bg-white p-5">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <h2 className="text-sm font-semibold text-slate-800">Editors</h2>
             <select
               aria-label="Load example"
-              className="h-8 max-w-56 cursor-pointer rounded-lg border border-slate-200/70 bg-white px-2 text-xs font-medium text-slate-700 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200"
+              className="h-8 w-[min(50%,14rem)] cursor-pointer rounded-lg border border-slate-200/70 bg-white px-2 text-xs font-medium text-slate-700 shadow-sm  "
               value={selectedExampleId}
               onChange={(event) => {
                 if (event.target.value) loadExample(event.target.value);
@@ -866,7 +811,7 @@ export function PlaygroundPage() {
 
         <section
           className={cn(
-            "rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm",
+            "playground-preview min-w-0 rounded-xl bg-[var(--plinth)] p-5",
             // Sticky only helps when the preview sits beside a tall editor
             // column; stacked, it would pin over the page as you scroll.
             previewPlacement === "side" && "lg:sticky lg:top-20",
@@ -880,7 +825,7 @@ export function PlaygroundPage() {
             {lastAction && lastActionJson ? (
               <div className="flex min-w-0 items-center gap-1 rounded-full border border-slate-200/70 bg-slate-50 py-0.5 pl-2.5 pr-1">
                 <code
-                  className="truncate font-mono text-[11px] text-slate-600"
+                  className="truncate font-mono text-[11px] text-[var(--mid)]"
                   title={lastActionJson}
                 >
                   {lastActionJson}
@@ -889,13 +834,13 @@ export function PlaygroundPage() {
                   type="button"
                   aria-label="Clear last action"
                   onClick={() => setLastAction(null)}
-                  className="inline-flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                  className="inline-flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-stone-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
                 >
                   ×
                 </button>
               </div>
             ) : (
-              <span className="text-[11px] text-slate-400">No actions yet</span>
+              <span className="text-[11px] text-stone-500">No actions yet</span>
             )}
           </div>
 
@@ -910,11 +855,11 @@ export function PlaygroundPage() {
             </p>
           ) : null}
 
-          <div className="mt-4 flex justify-center">
+          <div className="playground-preview-stage mt-4 flex min-w-0 justify-center">
             {isGenerating ? (
               <div className="flex min-h-48 w-full max-w-md items-center justify-center rounded-xl border border-slate-200/70 bg-slate-50 p-6 text-center">
                 <div className="space-y-2">
-                  <div className="mx-auto h-2 w-2 rounded-full bg-indigo-600 motion-safe:animate-pulse" />
+                  <div className="mx-auto h-2 w-2 rounded-full bg-[#111114] motion-safe:animate-pulse" />
                   <p className="text-sm font-medium text-slate-700">
                     {aiStatus ?? "Generating the widget interface"}
                   </p>
@@ -933,7 +878,7 @@ export function PlaygroundPage() {
                     // cap and let it fill the preview. The cap is an inline
                     // style on the widget root, so only `!important` beats it.
                     previewPlacement !== "side" && "[&>*]:max-w-none!",
-                    theme === "dark" && "rounded-xl bg-[#0c101a] p-6"
+                    theme === "dark" && "rounded-xl bg-[#08080a] p-6"
                   )}
                 >
                   <PlaygroundErrorBoundary

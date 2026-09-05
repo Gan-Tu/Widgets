@@ -1,3 +1,4 @@
+import { useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as MenubarPrimitive from "@radix-ui/react-menubar";
 import { Check, ChevronRight, Circle } from "lucide-react";
@@ -66,8 +67,10 @@ const MenubarSubContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MenubarPrimitive.SubContent>
 >(({ className, ...props }, ref) => (
   <MenubarPrimitive.SubContent
+      data-theme={useWidgetTheme()}
     ref={ref}
     className={cn(
+        "widget-root wg-portal",
       "z-50 min-w-[10rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-1 text-[var(--widget-text-primary)] shadow-md",
       className
     )}
@@ -82,11 +85,13 @@ const MenubarContent = React.forwardRef<
 >(({ className, align = "start", alignOffset = -4, sideOffset = 8, ...props }, ref) => (
   <MenubarPrimitive.Portal>
     <MenubarPrimitive.Content
+      data-theme={useWidgetTheme()}
       ref={ref}
       align={align}
       alignOffset={alignOffset}
       sideOffset={sideOffset}
       className={cn(
+        "widget-root wg-portal",
         "z-50 min-w-[12rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-1 text-[var(--widget-text-primary)] shadow-md",
         className
       )}
@@ -105,7 +110,7 @@ const MenubarItem = React.forwardRef<
   <MenubarPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -121,7 +126,7 @@ const MenubarCheckboxItem = React.forwardRef<
   <MenubarPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -144,7 +149,7 @@ const MenubarRadioItem = React.forwardRef<
   <MenubarPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

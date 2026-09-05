@@ -2,247 +2,12 @@ import React from "react";
 import { Star } from "lucide-react";
 
 import { buildChangePayload, getFormValue, useWidgetAction, useWidgetForm, useWidgetTheme } from "../context";
-import type { ActionConfig, TextAlign, ThemeColor, Tone, WidgetIcon } from "../types";
+import type { ActionConfig, ThemeColor, Tone, WidgetIcon } from "../types";
 import { resolveColor, resolveGap, sizeToCss, spaceToCss } from "../style";
 import { Icon, PlainButton } from "./content";
-
-const toneSoftBg: Record<Tone, string> = {
-  neutral: "var(--widget-surface-tertiary)",
-  accent: "var(--widget-accent-soft)",
-  info: "var(--widget-info-soft-bg)",
-  success: "var(--widget-success-soft-bg)",
-  warning: "var(--widget-warning-soft-bg)",
-  danger: "var(--widget-danger-soft-bg)",
-  discovery: "var(--widget-discovery-soft-bg)"
-};
-
-const toneSoftFg: Record<Tone, string> = {
-  neutral: "var(--widget-text-secondary)",
-  accent: "var(--widget-accent)",
-  info: "var(--widget-info-soft-fg)",
-  success: "var(--widget-success-soft-fg)",
-  warning: "var(--widget-warning-soft-fg)",
-  danger: "var(--widget-danger-soft-fg)",
-  discovery: "var(--widget-discovery-soft-fg)"
-};
-
-const toneSolid: Record<Tone, string> = {
-  neutral: "var(--widget-text-tertiary)",
-  accent: "var(--widget-accent)",
-  info: "var(--widget-info)",
-  success: "var(--widget-success)",
-  warning: "var(--widget-warning)",
-  danger: "var(--widget-danger)",
-  discovery: "var(--widget-discovery)"
-};
-
-const toneSoftBorder: Record<Tone, string> = {
-  neutral: "var(--widget-border-subtle)",
-  accent: "var(--widget-accent-border)",
-  info: "var(--widget-info-soft-border)",
-  success: "var(--widget-success-soft-border)",
-  warning: "var(--widget-warning-soft-border)",
-  danger: "var(--widget-danger-soft-border)",
-  discovery: "var(--widget-discovery-soft-border)"
-};
-
-/* ------------------------------------------------------------------
-   Stat — a single metric with optional trend delta and helper text.
-   ------------------------------------------------------------------ */
-
-type StatProps = {
-  label: string;
-  value: string | number;
-  delta?: string | number;
-  deltaLabel?: string;
-  /** Force the delta tone; inferred from the sign by default. */
-  trend?: "up" | "down" | "flat";
-  /** Semantic direction: is "up" good (default) or bad (e.g. costs)? */
-  upIsPositive?: boolean;
-  icon?: WidgetIcon;
-  helpText?: string;
-  align?: TextAlign;
-  size?: "sm" | "md" | "lg";
-};
-
-const statValueSizes = { sm: "1.25rem", md: "1.6rem", lg: "2rem" };
-
-function inferTrend(delta: string | number | undefined): "up" | "down" | "flat" {
-  if (delta === undefined) return "flat";
-  const numeric =
-    typeof delta === "number"
-      ? delta
-      : Number(
-          String(delta)
-            // Normalize typographic minus signs (U+2212, en/em dash) — common in
-            // formatted/LLM output — before stripping non-numerics.
-            .replace(/[−–—]/g, "-")
-            .replace(/[^\d.-]/g, "")
-        );
-  if (Number.isNaN(numeric) || numeric === 0) return "flat";
-  return numeric > 0 ? "up" : "down";
-}
-
-const Stat: React.FC<StatProps> = ({
-  label,
-  value,
-  delta,
-  deltaLabel,
-  trend,
-  upIsPositive = true,
-  icon,
-  helpText,
-  align = "start",
-  size = "md"
-}) => {
-  const resolvedTrend = trend ?? inferTrend(delta);
-  const deltaTone: Tone =
-    resolvedTrend === "flat"
-      ? "neutral"
-      : (resolvedTrend === "up") === upIsPositive
-      ? "success"
-      : "danger";
-  const alignItems = align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start";
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem", alignItems, minWidth: 0 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.35rem",
-          fontSize: "0.75rem",
-          fontWeight: 500,
-          letterSpacing: "0.01em",
-          color: "var(--widget-text-secondary)"
-        }}
-      >
-        {icon ? <Icon name={icon} size="xs" color="tertiary" /> : null}
-        <span>{label}</span>
-      </div>
-      <div
-        className="wg-tabular"
-        style={{
-          fontSize: statValueSizes[size],
-          fontWeight: 650,
-          letterSpacing: "-0.02em",
-          lineHeight: 1.1,
-          color: "var(--widget-text-emphasis)"
-        }}
-      >
-        {value}
-      </div>
-      {delta !== undefined || helpText ? (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.35rem",
-            fontSize: "0.75rem",
-            marginTop: "0.1rem"
-          }}
-        >
-          {delta !== undefined ? (
-            <span
-              className="wg-tabular"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.15rem",
-                fontWeight: 600,
-                color: toneSoftFg[deltaTone]
-              }}
-            >
-              {resolvedTrend !== "flat" ? (
-                <Icon
-                  name={resolvedTrend === "up" ? "trending-up" : "trending-down"}
-                  size="xs"
-                  color="currentColor"
-                />
-              ) : null}
-              {delta}
-            </span>
-          ) : null}
-          {deltaLabel || helpText ? (
-            <span style={{ color: "var(--widget-text-tertiary)" }}>{deltaLabel ?? helpText}</span>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  );
-};
-
-/* ------------------------------------------------------------------
-   Sparkline — dependency-free inline trend line with gradient fill.
-   ------------------------------------------------------------------ */
-
-type SparklineProps = {
-  data: number[];
-  color?: string | ThemeColor;
-  width?: number | string;
-  height?: number | string;
-  fill?: boolean;
-  strokeWidth?: number;
-};
-
-const Sparkline: React.FC<SparklineProps> = ({
-  data,
-  color,
-  width = "100%",
-  height = 36,
-  fill = true,
-  strokeWidth = 2
-}) => {
-  const theme = useWidgetTheme();
-  const gradientId = React.useId().replace(/[^a-zA-Z0-9]/g, "");
-  const resolved = (color ? resolveColor(color, theme) : undefined) ?? "var(--widget-accent)";
-
-  if (!Array.isArray(data) || data.length < 2) return null;
-
-  const w = 100;
-  const h = 32;
-  const pad = strokeWidth + 1;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = Math.max(max - min, 1e-9);
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * (w - pad * 2) + pad;
-    const y = h - pad - ((value - min) / range) * (h - pad * 2);
-    return [Number(x.toFixed(2)), Number(y.toFixed(2))] as const;
-  });
-  const line = points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
-  const area = `${line} L${points[points.length - 1][0]},${h - pad} L${points[0][0]},${h - pad} Z`;
-
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      preserveAspectRatio="none"
-      style={{ width: sizeToCss(width), height: sizeToCss(height), display: "block" }}
-      aria-hidden
-    >
-      {fill ? (
-        <>
-          <defs>
-            <linearGradient id={`wgSpark${gradientId}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={resolved} stopOpacity={0.25} />
-              <stop offset="100%" stopColor={resolved} stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <path d={area} fill={`url(#wgSpark${gradientId})`} />
-        </>
-      ) : null}
-      <path
-        d={line}
-        fill="none"
-        stroke={resolved}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-};
+import { toneSoftBg, toneSoftFg, toneSolid } from "./tones";
+import { Stat, Sparkline, type StatProps, type SparklineProps } from "./metrics";
+import { Tabs, TabPanel, type TabsProps } from "./tabs";
 
 /* ------------------------------------------------------------------
    Callout — inline banner for info / success / warning / danger.
@@ -286,9 +51,8 @@ const Callout: React.FC<CalloutProps> = ({
         gap: "0.6rem",
         alignItems: "flex-start",
         padding: "0.75rem 0.9rem",
-        borderRadius: "12px",
-        background: toneSoftBg[color],
-        border: `1px solid ${toneSoftBorder[color]}`
+        borderRadius: "var(--widget-radius-control)",
+        background: toneSoftBg[color]
       }}
     >
       {resolvedIcon ? (
@@ -388,7 +152,7 @@ const Timeline: React.FC<TimelineProps> = ({ items, gap = 0 }) => {
               {!isLast ? (
                 <span
                   style={{
-                    width: "2px",
+                    width: "1px",
                     flex: 1,
                     minHeight: "12px",
                     marginTop: "0.2rem",
@@ -407,10 +171,10 @@ const Timeline: React.FC<TimelineProps> = ({ items, gap = 0 }) => {
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.1rem",
-                paddingBottom: isLast ? 0 : "0.9rem",
+                paddingBottom: isLast ? 0 : "1.15rem",
                 minWidth: 0,
                 flex: 1,
-                opacity: state === "upcoming" ? 0.65 : 1
+                opacity: 1
               }}
             >
               <div
@@ -424,7 +188,7 @@ const Timeline: React.FC<TimelineProps> = ({ items, gap = 0 }) => {
                 <span
                   style={{
                     fontSize: "0.85rem",
-                    fontWeight: 600,
+                    fontWeight: state === "active" ? 500 : 400,
                     color: "var(--widget-text-primary)"
                   }}
                 >
@@ -586,7 +350,9 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
   // default is read through a ref: template evaluation produces a fresh array
   // identity every render, which as an effect dep would re-run this each time.
   const defaultPayloadRef = React.useRef(type === "multiple" ? defaultValues : defaultValue);
-  defaultPayloadRef.current = type === "multiple" ? defaultValues : defaultValue;
+  React.useLayoutEffect(() => {
+    defaultPayloadRef.current = type === "multiple" ? defaultValues : defaultValue;
+  }, [type, defaultValues, defaultValue]);
   React.useEffect(() => {
     const defaultPayload = defaultPayloadRef.current;
     if (!name || !form || defaultPayload === undefined) return;
@@ -617,7 +383,7 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
     }
   };
 
-  const chipHeight = size === "sm" ? "26px" : "30px";
+  const chipHeight = size === "sm" ? "30px" : "36px";
   const chipFont = size === "sm" ? "0.72rem" : "0.8rem";
 
   if (!Array.isArray(options)) return null;
@@ -630,7 +396,7 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
           <button
             key={option.value}
             type="button"
-            className="wg-interactive"
+            className="wg-interactive wg-choice"
             aria-pressed={active}
             disabled={disabled || option.disabled}
             style={{
@@ -638,15 +404,15 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
               alignItems: "center",
               gap: "0.3rem",
               height: chipHeight,
-              padding: "0 0.7rem",
-              borderRadius: "999px",
+              padding: size === "sm" ? "0 0.45rem" : "0 0.7rem",
+              borderRadius: "7px",
               fontSize: chipFont,
               fontWeight: 550,
               cursor: disabled || option.disabled ? "not-allowed" : "pointer",
               opacity: disabled || option.disabled ? 0.5 : 1,
-              border: `1px solid ${active ? "var(--widget-accent-border)" : "var(--widget-border-default)"}`,
-              background: active ? "var(--widget-accent-soft)" : "var(--widget-surface)",
-              color: active ? "var(--widget-accent)" : "var(--widget-text-secondary)"
+              border: `1px solid ${active ? "var(--widget-accent)" : "var(--widget-border-default)"}`,
+              background: active ? "var(--widget-accent)" : "var(--widget-surface)",
+              color: active ? "var(--widget-on-accent)" : "var(--widget-text-secondary)"
             }}
             onClick={() => toggle(option.value)}
           >
@@ -766,7 +532,7 @@ const Steps: React.FC<StepsProps> = ({ items, current = 0, color = "accent" }) =
           >
             <span
               style={{
-                height: "4px",
+                height: "3px",
                 borderRadius: "999px",
                 background:
                   state === "upcoming" ? "var(--widget-surface-tertiary)" : toneSolid[color],
@@ -777,16 +543,15 @@ const Steps: React.FC<StepsProps> = ({ items, current = 0, color = "accent" }) =
             <span
               style={{
                 fontSize: "0.72rem",
-                fontWeight: state === "active" ? 600 : 500,
+                fontWeight: state === "active" ? 500 : 400,
                 color:
                   state === "active"
                     ? "var(--widget-text-primary)"
                     : state === "done"
                     ? "var(--widget-text-secondary)"
                     : "var(--widget-text-tertiary)",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis"
+                lineHeight: 1.4,
+                overflowWrap: "anywhere"
               }}
             >
               {item.label}
@@ -874,94 +639,6 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   );
 };
 
-/* ------------------------------------------------------------------
-   Tabs — lightweight in-widget tab switcher. Panels register by id.
-   ------------------------------------------------------------------ */
-
-type TabsContextValue = { active: string };
-const TabsContext = React.createContext<TabsContextValue | undefined>(undefined);
-
-type TabsProps = {
-  tabs: { id: string; label: string; icon?: WidgetIcon }[];
-  defaultTab?: string;
-  name?: string;
-  onChangeAction?: ActionConfig;
-  children?: React.ReactNode;
-};
-
-const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, name, onChangeAction, children }) => {
-  const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [active, setActive] = React.useState(defaultTab ?? tabs?.[0]?.id ?? "");
-
-  if (!Array.isArray(tabs) || tabs.length === 0) return null;
-
-  // Reconcile against the current tabs: a mismatched defaultTab (case typo in a
-  // model-authored template) or a state-driven tabs change would otherwise
-  // leave `active` pointing at a nonexistent id and every panel blank.
-  const activeTab = tabs.some((tab) => tab.id === active) ? active : tabs[0]?.id ?? "";
-
-  const select = (id: string) => {
-    setActive(id);
-    if (name && form) form.setValue(name, id);
-    if (onChangeAction && action) {
-      action(onChangeAction, buildChangePayload(name, id, { tab: id }));
-    }
-  };
-
-  return (
-    <TabsContext.Provider value={{ active: activeTab }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-        <div
-          role="tablist"
-          style={{
-            display: "flex",
-            gap: "1rem",
-            borderBottom: "1px solid var(--widget-border-subtle)"
-          }}
-        >
-          {tabs.map((tab) => {
-            const isActive = tab.id === activeTab;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                className="wg-interactive"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                  padding: "0.4rem 0.1rem 0.55rem",
-                  marginBottom: "-1px",
-                  fontSize: "0.85rem",
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "var(--widget-text-emphasis)" : "var(--widget-text-secondary)",
-                  background: "transparent",
-                  border: "none",
-                  borderBottom: `2px solid ${isActive ? "var(--widget-accent)" : "transparent"}`,
-                  cursor: "pointer"
-                }}
-                onClick={() => select(tab.id)}
-              >
-                {tab.icon ? <Icon name={tab.icon} size="sm" color="currentColor" /> : null}
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-        {children}
-      </div>
-    </TabsContext.Provider>
-  );
-};
-
-const TabPanel: React.FC<{ id: string; children?: React.ReactNode }> = ({ id, children }) => {
-  const context = React.useContext(TabsContext);
-  if (!context || context.active !== id) return null;
-  return <div role="tabpanel">{children}</div>;
-};
 
 export {
   Callout,

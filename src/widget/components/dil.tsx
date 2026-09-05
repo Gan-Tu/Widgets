@@ -1,8 +1,6 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  ChevronLeft,
-  ChevronRight,
   Download,
   MapPin,
   Pause,
@@ -38,12 +36,12 @@ import {
   resolveColor,
   resolveGap,
   resolveRadius,
-  sizeToCss,
-  spaceToCss
+  sizeToCss
 } from "../style";
 import { Box, Col, Row } from "./layout";
 import { Badge, Icon, Image } from "./content";
 import { Text, Caption } from "./text";
+import { BaseCarousel, BaseCarouselItem, BaseCarouselMediaItem, CardCarousel, CardLinkItem } from "./carousel";
 
 type ChildrenProps = { children?: React.ReactNode };
 
@@ -510,11 +508,12 @@ function resolveYouTubeEmbedSrc(src?: string, videoId?: string) {
   return watchId ? toEmbedUrl(watchId) : "";
 }
 
-const YouTubeEmbed: React.FC<{ videoId?: string; src?: string; title?: string; height?: number | string }> = ({
+const YouTubeEmbed: React.FC<{ videoId?: string; src?: string; title?: string; height?: number | string; aspectRatio?: number | string }> = ({
   videoId,
   src,
   title = "YouTube video",
-  height = 220
+  height = 220,
+  aspectRatio
 }) => {
   const embedSrc = resolveYouTubeEmbedSrc(src, videoId);
   if (!embedSrc) return null;
@@ -523,7 +522,7 @@ const YouTubeEmbed: React.FC<{ videoId?: string; src?: string; title?: string; h
       src={embedSrc}
       title={title}
       className="w-full rounded-xl border"
-      style={{ height: toCssSize(height), borderColor: "var(--widget-border-default)" }}
+      style={{ height: aspectRatio === undefined ? toCssSize(height) : undefined, aspectRatio, borderColor: "var(--widget-border-default)" }}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       // allow-same-origin is safe here only because the frame is always a
       // cross-origin YouTube document; the pair would be an escape hatch if the
@@ -603,172 +602,6 @@ const Map: React.FC<{
         </div>
       ))}
     </div>
-  );
-};
-
-type CarouselContextValue = { gap: string; visibleItems?: number | Record<string, number>; snapAlign: "start" | "center" | "end" };
-const CarouselContext = React.createContext<CarouselContextValue | undefined>(undefined);
-
-const BaseCarousel: React.FC<ChildrenProps & {
-  gap?: number | string;
-  visibleItems?: number | Record<string, number>;
-  showArrows?: boolean;
-  snap?: "none" | "proximity" | "mandatory";
-  snapAlign?: "start" | "center" | "end";
-  flush?: boolean;
-}> = ({ children, gap = 2, visibleItems = 1, showArrows = true, snap = "proximity", snapAlign = "start", flush }) => {
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const gapCss = spaceToCss(gap) ?? "0.5rem";
-  const scrollBy = (direction: number) => {
-    ref.current?.scrollBy({ left: direction * (ref.current.clientWidth * 0.86), behavior: "smooth" });
-  };
-
-  return (
-    <CarouselContext.Provider value={{ gap: gapCss, visibleItems, snapAlign }}>
-      <div className="group relative" style={flush ? { marginInline: "calc(var(--widget-card-padding, 1rem) * -1)" } : undefined}>
-        <div
-          ref={ref}
-          className="flex overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{
-            boxSizing: "border-box",
-            gap: gapCss,
-            scrollSnapType: snap === "none" ? undefined : `x ${snap}`
-          }}
-        >
-          {children}
-        </div>
-        {showArrows ? (
-          <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10 flex items-center justify-between px-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-            <button
-              type="button"
-              className="wg-interactive pointer-events-auto flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border backdrop-blur"
-              style={{
-                borderColor: "var(--widget-border-default)",
-                background: "var(--widget-surface-elevated)",
-                color: "var(--widget-text-primary)",
-                boxShadow: "var(--widget-shadow-sm)"
-              }}
-              onClick={() => scrollBy(-1)}
-              aria-label="Previous item"
-            >
-              <ChevronLeft size={15} />
-            </button>
-            <button
-              type="button"
-              className="wg-interactive pointer-events-auto flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border backdrop-blur"
-              style={{
-                borderColor: "var(--widget-border-default)",
-                background: "var(--widget-surface-elevated)",
-                color: "var(--widget-text-primary)",
-                boxShadow: "var(--widget-shadow-sm)"
-              }}
-              onClick={() => scrollBy(1)}
-              aria-label="Next item"
-            >
-              <ChevronRight size={15} />
-            </button>
-          </div>
-        ) : null}
-      </div>
-    </CarouselContext.Provider>
-  );
-};
-
-type BaseCarouselItemProps = ChildrenProps & {
-  variant?: "none" | "outline" | "soft" | "elevated";
-  padding?: number | string | Padding;
-  radius?: RadiusValue;
-  minWidth?: number | string;
-};
-
-const useCarouselItemStyle = ({
-  variant = "outline",
-  padding = 3,
-  radius = "lg",
-  minWidth
-}: Omit<BaseCarouselItemProps, "children"> = {}) => {
-  const context = React.useContext(CarouselContext);
-  const visibleCount =
-    typeof context?.visibleItems === "number"
-      ? context.visibleItems
-      : context?.visibleItems?.default ?? 1;
-  const style: React.CSSProperties = {
-    flex: `0 0 calc((100% - (${context?.gap ?? "0.5rem"} * ${Math.max(visibleCount - 1, 0)})) / ${visibleCount || 1})`,
-    minWidth: toCssSize(minWidth, "220px"),
-    scrollSnapAlign: context?.snapAlign,
-    borderRadius: resolveRadius(radius),
-    border: variant === "outline" || variant === "elevated" ? "1px solid var(--widget-border-default)" : undefined,
-    background:
-      variant === "soft"
-        ? "var(--widget-surface-secondary)"
-        : variant === "elevated"
-        ? "var(--widget-surface-elevated)"
-        : undefined,
-    boxShadow: variant === "elevated" ? "var(--widget-shadow)" : undefined
-  };
-  applyPadding(style, padding);
-  return style;
-};
-
-const BaseCarouselItem: React.FC<BaseCarouselItemProps> = ({ children, variant = "outline", padding = 3, radius = "lg", minWidth }) => {
-  const style = useCarouselItemStyle({ variant, padding, radius, minWidth });
-  return <div style={style}>{children}</div>;
-};
-
-const BaseCarouselMediaItem: React.FC<ChildrenProps & React.ComponentProps<typeof Image> & {
-  media?: React.ReactNode;
-  itemPadding?: number | string | Padding;
-  itemRadius?: RadiusValue;
-  minWidth?: number | string;
-}> = ({
-  children,
-  media,
-  itemPadding = 0,
-  itemRadius = "lg",
-  minWidth,
-  ...props
-}) => (
-  <BaseCarouselItem variant="none" padding={itemPadding} radius={itemRadius} minWidth={minWidth}>
-    {media ?? (props.src ? <Image {...props} width="100%" height={props.height ?? 180} /> : null)}
-    {children ? <div style={{ padding: "0.65rem 0.75rem" }}>{children}</div> : null}
-  </BaseCarouselItem>
-);
-
-const CardCarousel: React.FC<React.ComponentProps<typeof BaseCarousel> & { onVisibleAction?: ActionConfig }> = ({
-  onVisibleAction,
-  ...props
-}) => {
-  const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
-  return (
-    <div ref={ref}>
-      <BaseCarousel visibleItems={props.visibleItems ?? 1} {...props} />
-    </div>
-  );
-};
-
-const CardLinkItem: React.FC<ChildrenProps & { href?: string; onClickAction?: ActionConfig }> = ({
-  children,
-  href,
-  onClickAction
-}) => {
-  const action = useWidgetAction();
-  const style = useCarouselItemStyle({ variant: "elevated" });
-  if (onClickAction) {
-    return (
-      <button type="button" className="cursor-pointer appearance-none text-left text-inherit" style={style} onClick={() => action?.(onClickAction)}>
-        {children}
-      </button>
-    );
-  }
-  // Untrusted template input: fall back to a plain (non-navigating) item
-  // rather than emitting a link to a `data:`/`blob:` target.
-  const safeHref = safeHttpHref(href);
-  return safeHref ? (
-    <a href={safeHref} target="_blank" rel="noreferrer" className="block cursor-pointer text-inherit no-underline" style={style}>
-      {children}
-    </a>
-  ) : (
-    <BaseCarouselItem variant="elevated">{children}</BaseCarouselItem>
   );
 };
 
@@ -1285,9 +1118,17 @@ const SegmentedControl: React.FC<{
   const action = useWidgetAction();
   const form = useWidgetForm();
   const formValue = name && form ? getFormValue(form.values, name) : undefined;
-  const [localValue, setLocalValue] = React.useState(defaultValue ?? options[0]?.value ?? "");
+  const initialValue = defaultValue ?? options[0]?.value ?? "";
+  const [localValue, setLocalValue] = React.useState(initialValue);
   const selected = value ?? (typeof formValue === "string" ? formValue : localValue);
   const height = controlHeights[size] ?? controlHeights.md;
+
+  React.useEffect(() => {
+    if (!name || !form) return;
+    // Controlled values remain authoritative; defaults only seed missing fields.
+    const nextValue = value ?? (formValue === undefined ? initialValue : undefined);
+    if (nextValue !== undefined && nextValue !== formValue) form.setValue(name, nextValue);
+  }, [name, form, formValue, value, initialValue]);
 
   return (
     <div
@@ -1315,13 +1156,13 @@ const SegmentedControl: React.FC<{
               flex: block ? 1 : undefined,
               borderRadius: pill ? "999px" : "9px",
               fontSize: textSizeToCss(textSize),
-              background: active ? "var(--widget-surface-elevated)" : "transparent",
-              color: active ? "var(--widget-text-primary)" : "var(--widget-text-secondary)",
-              boxShadow: active && variant !== "ghost" ? "0 1px 3px rgba(15,23,42,0.12)" : undefined
+              background: active ? "var(--widget-accent)" : "transparent",
+              color: active ? "var(--widget-on-accent)" : "var(--widget-text-secondary)",
+              boxShadow: active && variant !== "ghost" ? "var(--widget-shadow-xs)" : undefined
             }}
             onClick={() => {
               setLocalValue(option.value);
-              if (name && form) form.setValue(name, option.value);
+              if (name && form) form.setValue(name, value ?? option.value);
               if (onChangeAction && action) {
                 action(onChangeAction, buildChangePayload(name, option.value, { option }));
               }

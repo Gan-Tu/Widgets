@@ -14,6 +14,8 @@ type ComponentDoc = {
   props: PropDoc[];
 };
 
+const chartColorGuidance = "Without explicit colors: blue for one series, yellow + green for two, blue + green + pinkish red for three; larger sets add purple and orange. The palette is independent of the action accent and never automatically pairs yellow with orange.";
+
 const thinkingReasoningProps: PropDoc[] = [
   { name: "label", description: "Heading shown while reasoning is active.", type: "string", default: '"Thinking"' },
   { name: "summary", description: "Completed-state heading; overrides the elapsed-time summary.", type: "string" },
@@ -84,7 +86,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "asForm", description: "Treat the card as a form and attach form values to actions.", type: "boolean", default: "false" },
       { name: "background", description: "Surface/background color token or CSS string.", type: "string | ThemeColor", default: "surface-elevated" },
       { name: "size", description: "Card size preset.", type: "\"sm\" | \"md\" | \"lg\" | \"full\"", default: '"sm"' },
-      { name: "padding", description: "Inner padding.", type: "number | string | Padding", default: "4" },
+      { name: "padding", description: "Inner padding.", type: "number | string | Padding", default: "5" },
       { name: "status", description: "Optional status header: { text, icon? } with a WidgetIcon, or { text, favicon?, frame? } with an image URL.", type: "WidgetStatus" },
       { name: "collapsed", description: "Collapse the card body with a toggle.", type: "boolean", default: "false" },
       { name: "confirm", description: "Confirm action button config.", type: "{ label: string; action: ActionConfig }" },
@@ -93,7 +95,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "onVisibleAction", description: "Action fired once when the card enters the viewport.", type: "ActionConfig" },
       { name: "id", description: "DOM id and fallback card id.", type: "string" },
       { name: "cardId", description: "Stable card id used by card.open.", type: "string" },
-      { name: "gap", description: "Gap between card children.", type: "number | string" },
+      { name: "gap", description: "Gap between card children.", type: "number | string", default: "4" },
       { name: "width", description: "Explicit card width.", type: "number | string" },
       { name: "height", description: "Explicit card height.", type: "number | string" },
       { name: "shadow", description: "Toggle card shadow.", type: "boolean", default: "true" },
@@ -225,7 +227,7 @@ export const componentDocs: ComponentDoc[] = [
     props: [
       { name: "color", description: "Divider color.", type: "string | ThemeColor", default: '"default"' },
       { name: "size", description: "Thickness.", type: "number | string", default: "1" },
-      { name: "spacing", description: "Spacing above and below.", type: "number | string" },
+      { name: "spacing", description: "Extra spacing above and below; the parent gap provides the default rhythm.", type: "number | string", default: "0" },
       { name: "flush", description: "Bleed to card edges.", type: "boolean", default: "false" }
     ]
   },
@@ -387,6 +389,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Button label="Continue" style="primary" />`,
     props: [
+      { name: "ariaLabel", description: "Accessible name for icon-only buttons.", type: "string" },
       { name: "submit", description: "Configure as a submit button for the nearest form.", type: "boolean", default: "false" },
       { name: "label", description: "Button label text; preferred for portable templates.", type: "string" },
       { name: "children", description: "Optional simple text content when label is omitted.", type: "ReactNode" },
@@ -398,7 +401,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "iconSize", description: "Icon size token.", type: "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\"", default: '"md"' },
       { name: "variant", description: "Visual variant.", type: "ControlVariant", default: '"solid"' },
       { name: "size", description: "Control size.", type: "ControlSize", default: '"lg"' },
-      { name: "pill", description: "Pill shape.", type: "boolean", default: "true" },
+      { name: "pill", description: "Pill shape.", type: "boolean", default: "false" },
       { name: "uniform", description: "Make the button square (icon button).", type: "boolean", default: "false" },
       { name: "block", description: "Full width.", type: "boolean", default: "false" },
       { name: "disabled", description: "Disable interactions. When omitted, the button auto-disables if it has neither onClickAction nor submit.", type: "boolean" }
@@ -570,7 +573,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
       {
         name: "series",
-        description: "Bars to render: { dataKey, label?, color?, stack?, radius? }. Colors accept theme tokens or CSS colors.",
+        description: `Bars to render: { dataKey, label?, color?, stack?, radius? }. Colors accept theme tokens or CSS colors. ${chartColorGuidance}`,
         type: "BarSeries[]"
       },
       {
@@ -601,7 +604,7 @@ export const componentDocs: ComponentDoc[] = [
     usage: `<LineChart data={data} series={[{ dataKey: "Mobile" }]} xAxis={{ dataKey: "day" }} />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Lines to render: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }. Colors accept theme tokens or CSS colors.", type: "LineSeries[]" },
+      { name: "series", description: `Lines to render: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }. Colors accept theme tokens or CSS colors. ${chartColorGuidance}`, type: "LineSeries[]" },
       { name: "xAxis", description: "X-axis config.", type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }" },
       { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
       { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
@@ -624,7 +627,7 @@ export const componentDocs: ComponentDoc[] = [
     usage: `<AreaChart data={data} series={[{ dataKey: "Desktop" }]} xAxis={{ dataKey: "day" }} />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Areas to render: { dataKey, label?, color?, stack?, curveType?, fillOpacity? }. Colors accept theme tokens or CSS colors.", type: "AreaSeries[]" },
+      { name: "series", description: `Areas to render: { dataKey, label?, color?, stack?, curveType?, fillOpacity? }. Colors accept theme tokens or CSS colors. ${chartColorGuidance}`, type: "AreaSeries[]" },
       { name: "xAxis", description: "X-axis config.", type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }" },
       { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
       { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
@@ -646,7 +649,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Charts",
     usage: `<PieChart data={data} series={[{ dataKey: "value", nameKey: "name", innerRadius: "60%" }]} />`,
     props: [
-      { name: "data", description: "Tabular dataset. For per-slice colors, add a `fill` field per row (theme tokens or CSS colors).", type: "Array<Record<string, string | number>>" },
+      { name: "data", description: "Tabular dataset. For per-slice colors, add a `fill` field per row (theme tokens or CSS colors). Without overrides, one slice uses blue, two use yellow + green, and three use blue + green + pinkish red; larger sets add purple and orange.", type: "Array<Record<string, string | number>>" },
       { name: "series", description: "Pies to render: { dataKey, nameKey?, innerRadius?, outerRadius?, paddingAngle?, cornerRadius?, color? }. `color` sets the default slice color (theme token or CSS color); per-row `fill` overrides it.", type: "PieSeries[]" },
       { name: "showLegend", description: "Show legend.", type: "boolean", default: "true" },
       { name: "showTooltip", description: "Show tooltip.", type: "boolean", default: "true" },
@@ -665,7 +668,7 @@ export const componentDocs: ComponentDoc[] = [
     usage: `<Chart data={data} series={[{ type: "bar", dataKey: "Desktop" }, { type: "line", dataKey: "Mobile" }]} xAxis={{ dataKey: "day" }} />`,
     props: [
       { name: "data", description: "Tabular dataset.", type: "Array<Record<string, string | number>>" },
-      { name: "series", description: "Mixed series: { type: 'bar' | 'line' | 'area', ... }. Colors accept theme tokens or CSS colors.", type: "ComposedSeries[]" },
+      { name: "series", description: `Mixed series: { type: 'bar' | 'line' | 'area', ... }. Colors accept theme tokens or CSS colors. ${chartColorGuidance}`, type: "ComposedSeries[]" },
       { name: "xAxis", description: "X-axis config.", type: "{ dataKey: string; hide?: boolean; labels?: Record<string | number, string> }" },
       { name: "xAxis.hide", description: "Hide the x-axis entirely.", type: "boolean", default: "false" },
       { name: "xAxis.labels", description: "Map raw axis values to display labels.", type: "Record<string | number, string>" },
@@ -791,10 +794,11 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Toggle",
     name: "Toggle",
-    description: "Binary toggle button.",
+    description: "Binary toggle button or compact on/off switch, with a filled selected state and quiet unselected state.",
     category: "Forms & controls",
     usage: `<Toggle name="subscribe" label="Subscribe" />`,
     props: [
+      { name: "variant", description: "Text button or a compact on/off switch. The label names the switch for assistive technology.", type: '"button" | "switch"', default: '"button"' },
       { name: "name", description: "Form field name.", type: "string" },
       { name: "label", description: "Button label.", type: "string" },
       { name: "defaultPressed", description: "Initial pressed state.", type: "boolean" },
@@ -868,6 +872,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Combobox name="assignee" options={[{ label: "Alex", value: "alex" }]} />`,
     props: [
+      { name: "block", description: "Fill the available field width. Otherwise uses 220px, capped to the parent width. Long selections truncate inside the control.", type: "boolean", default: "false" },
       { name: "name", description: "Form field name.", type: "string" },
       { name: "options", description: "Selectable options.", type: "Array<{ label: string; value: string }>" },
       { name: "placeholder", description: "Trigger placeholder.", type: "string" },
@@ -885,6 +890,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<InputOTP name="code" length={6} />`,
     props: [
+      { name: "ariaLabel", description: "Accessible label for the verification input.", type: "string", default: '"Verification code"' },
       { name: "name", description: "Form field name.", type: "string" },
       { name: "length", description: "OTP length.", type: "number", default: "6" },
       { name: "groupSize", description: "Slot group size.", type: "number", default: "3" },
@@ -941,22 +947,23 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "BaseCarousel",
     name: "BaseCarousel",
-    description: "Horizontally scrollable carousel with snap behavior and item/media child components.",
+    description: "Horizontally scrollable carousel with snap behavior, footer navigation, and item/media child components. Focus the track to navigate with Left/Right/Home/End.",
     category: "Media",
-    usage: `<BaseCarousel visibleItems={2}>\n  <BaseCarousel.Item><Text value="Item" /></BaseCarousel.Item>\n</BaseCarousel>`,
+    usage: `<BaseCarousel ariaLabel="Highlights" visibleItems={1}>\n  <BaseCarousel.Item><Text value="First highlight" /></BaseCarousel.Item>\n  <BaseCarousel.Item><Text value="Second highlight" /></BaseCarousel.Item>\n</BaseCarousel>`,
     props: [
+      { name: "ariaLabel", description: "Accessible name for the carousel region.", type: "string", default: '"Carousel"' },
       { name: "children", description: "Carousel items.", type: "ReactNode" },
-      { name: "visibleItems", description: "Approximate number of items visible.", type: "number | Record<string, number>" },
+      { name: "visibleItems", description: "Approximate number of items visible. Use one full slide at compact widths; fractional values deliberately reveal part of the next slide.", type: "number | Record<string, number>", default: "1" },
       { name: "gap", description: "Gap between items.", type: "number | string", default: "2" },
-      { name: "showArrows", description: "Show scroll arrows.", type: "boolean", default: "true" },
+      { name: "showArrows", description: "Show navigation below overflowing slides; arrows disable at either end.", type: "boolean", default: "true" },
       { name: "snap", description: "Scroll snap behavior.", type: "\"none\" | \"proximity\" | \"mandatory\"", default: '"proximity"' },
       { name: "snapAlign", description: "Scroll snap alignment for items.", type: '"start" | "center" | "end"', default: '"start"' },
       { name: "flush", description: "Bleed carousel to card edges.", type: "boolean", default: "false" },
       { name: "BaseCarousel.Item.variant", description: "Item surface style.", type: '"none" | "outline" | "soft" | "elevated"', default: '"outline"' },
       { name: "BaseCarousel.Item.padding", description: "Item padding.", type: "number | string | Padding", default: "3" },
       { name: "BaseCarousel.Item.radius", description: "Item corner radius.", type: "RadiusValue", default: '"lg"' },
-      { name: "BaseCarousel.Item.minWidth", description: "Minimum item width.", type: "number | string", default: '"220px"' },
-      { name: "BaseCarousel.MediaItem.media", description: "Custom media node; otherwise Image props are used.", type: "ReactNode" },
+      { name: "BaseCarousel.Item.minWidth", description: "Minimum item width, capped to the carousel viewport.", type: "number | string", default: "0" },
+      { name: "BaseCarousel.MediaItem.media", description: "Custom media node; set its width to 100%. Otherwise Image props fill the slide automatically. Caption spacing is supplied by the component.", type: "ReactNode" },
       { name: "BaseCarousel.MediaItem.itemPadding", description: "Media item padding.", type: "number | string | Padding", default: "0" },
       { name: "BaseCarousel.MediaItem.itemRadius", description: "Media item radius.", type: "RadiusValue", default: '"lg"' }
     ]
@@ -1150,6 +1157,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Media",
     usage: `<YouTubeEmbed videoId="dQw4w9WgXcQ" title="Demo video" height={220} />`,
     props: [
+      { name: "aspectRatio", description: "Responsive width-to-height ratio; takes precedence over the fixed height.", type: "number | string" },
       { name: "videoId", description: "YouTube video id; used to build embed URL.", type: "string" },
       { name: "src", description: "Explicit embed URL override.", type: "string" },
       { name: "title", description: "Iframe title.", type: "string", default: '"YouTube video"' },
@@ -1181,7 +1189,7 @@ export const componentDocs: ComponentDoc[] = [
     props: [
       { name: "name", description: "Form field name.", type: "string" },
       { name: "options", description: "Selectable options.", type: "Array<{ label: string; value: string }>" },
-      { name: "value", description: "Controlled selected value.", type: "string" },
+      { name: "value", description: "Controlled selection; also determines the captured form value. Update it through onChangeAction and widget state to accept a new selection.", type: "string" },
       { name: "defaultValue", description: "Initial selected value.", type: "string" },
       { name: "onChangeAction", description: "Action dispatched when selection changes.", type: "ActionConfig" },
       { name: "ariaLabel", description: "Accessible group label override.", type: "string" },
@@ -1334,7 +1342,7 @@ export const componentDocs: ComponentDoc[] = [
     usage: `<Sparkline data={[4, 8, 6, 12, 10, 16]} height={36} />`,
     props: [
       { name: "data", description: "Numeric series to plot. Renders nothing with fewer than 2 points.", type: "number[]" },
-      { name: "color", description: "Line color token or CSS color.", type: "string | ThemeColor", default: "accent" },
+      { name: "color", description: "Line color token or CSS color.", type: "string | ThemeColor", default: "Blue chart-palette color" },
       { name: "width", description: "Sparkline width.", type: "number | string", default: '"100%"' },
       { name: "height", description: "Sparkline height.", type: "number | string", default: "36" },
       { name: "fill", description: "Draw a gradient area fill under the line.", type: "boolean", default: "true" },
@@ -1357,7 +1365,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Timeline",
     name: "Timeline",
-    description: "Vertical sequence of events with a connector rail.",
+    description: "Vertical sequence of events with a connector rail. Labels use regular weight, with medium weight for the active event.",
     category: "Data display",
     usage: `<Timeline items={[{ title: "Shipped", time: "9:41 AM", state: "done" }, { title: "Out for delivery", state: "active" }]} />`,
     props: [
@@ -1368,7 +1376,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Steps",
     name: "Steps",
-    description: "Horizontal progress indicator for multi-step flows.",
+    description: "Horizontal progress indicator for multi-step flows. Labels use regular weight, with medium weight for the active step.",
     category: "Data display",
     usage: `<Steps current={1} items={[{ label: "Cart" }, { label: "Shipping" }, { label: "Payment" }]} />`,
     props: [
@@ -1380,7 +1388,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Callout",
     name: "Callout",
-    description: "Inline banner for info, success, warning, or danger messages.",
+    description: "Inline banner for info, success, warning, or danger messages. Uses a subtle surface without a decorative left border.",
     category: "Feedback",
     usage: `<Callout color="warning" title="Usage limit" description="You are at 92% of the plan quota." />`,
     props: [

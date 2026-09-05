@@ -1,22 +1,28 @@
 # Featured widget examples
 
-The curated gallery showcase — every demo shown by the gallery's `Featured` filter as a `template` + `data` pair. Use this focused companion to `AGENTS.md` when a compact set of representative widget patterns is more useful than the complete gallery corpus.
+The curated gallery showcase — every demo shown by the gallery's `Featured` filter as a `template` + `data` pair. Use this focused companion to [AGENTS.md](AGENTS.md) when a compact set of representative widget patterns is more useful than the complete gallery corpus.
 
 > Generated from `src/examples/widgetExamples.ts` by `scripts/build-widget-examples-doc.mjs` — do not edit by hand.
 
 16 featured widgets.
 
+## Using these examples
+
+Read the [authoring contract and design guidelines](AGENTS.md#design-guidelines) alongside these templates. Start with the closest pattern and adapt its content, data bindings, and actions to the task. Preserve the built-in control states, subtle borders, consistent gutters, and responsive sizing.
+
+Omit explicit chart colors to use the automatic combinations: blue for one series, yellow + green for two, and blue + green + pinkish red for three. Larger sets add purple and orange without pairing yellow with orange. For pie charts, use the slice count. Keep tooltip text neutral. Check the result at compact widths, in both themes, and with keyboard interaction; examples are starting points, not a reason to add more panels or actions than the task needs.
+
 ## Featured
 
 ### Checkout
 
-Itemized cart with computed totals and purchase actions. (id: `checkout-summary`)
+One last look at something good. (id: `checkout-summary`)
 
 WIDGET TEMPLATE:
 
 ```
 <Scope values={{ itemCountLabel: String(size(items)) + " items" }}>
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Row align="center">
     <Title value="Checkout" size="sm" />
     <Spacer />
@@ -26,7 +32,7 @@ WIDGET TEMPLATE:
   <Col>
     <Show $when="size(items) > 0">
       <Each $of="items" item="item">
-        <Row align="center" gap={3} padding={{ y: 1 }}>
+        <Row align="center" gap={3} padding={{ y: 2 }}>
           <Image src={item.image} size={48} radius="lg" />
           <Col gap={0}>
             <Text value={item.title} size="sm" weight="semibold" color="emphasis" />
@@ -47,7 +53,7 @@ WIDGET TEMPLATE:
 
   <Col gap={2}>
     <Button label="Purchase" color="primary" block onClickAction={{ type: "purchase" }} />
-    <Button label="Save for later" variant="ghost" color="primary" block onClickAction={{ type: "cart.save" }} />
+    <Button label="Save for later" variant="outline" color="primary" block onClickAction={{ type: "cart.save" }} />
   </Col>
 </Card>
 </Scope>
@@ -97,7 +103,7 @@ WIDGET DATA:
 
 ### Thinking & reasoning
 
-A finished reasoning trace that expands into steps, then a cited answer. (id: `agent-thinking`)
+Follow the thinking behind an answer. (id: `agent-thinking`)
 
 WIDGET TEMPLATE:
 
@@ -153,23 +159,23 @@ WIDGET DATA:
 
 ### Recipe card
 
-Photo header, rating, meta badges, and numbered steps. (id: `recipe-card`)
+Something worth making tonight. (id: `recipe-card`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={180} fit="cover" flush />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Col gap={1}>
       <Title value={name} size="sm" />
       <Rating value={rating} showValue count={reviews} />
     </Col>
 
     <Row gap={2} wrap="wrap">
-      <Badge label={time} icon="clock" color="secondary" variant="outline" />
-      <Badge label={calories} icon="flame" color="secondary" variant="outline" />
-      <Badge label={servings} icon="utensils" color="secondary" variant="outline" />
+      <Caption value={time} />
+      <Caption value={calories} />
+      <Caption value={servings} />
     </Row>
 
     <Divider />
@@ -182,7 +188,7 @@ WIDGET TEMPLATE:
       </Each>
     </List>
 
-    <Button label="Open full recipe" iconEnd="arrow-up-right" variant="soft" color="primary" block
+    <Button label="Open full recipe" iconEnd="arrow-up-right" color="primary" block
       onClickAction={{ type: "recipe.open" }} />
   </Col>
 </Card>
@@ -209,7 +215,7 @@ WIDGET DATA:
 
 ### Playlist
 
-Cover art, numbered tracks, and play actions. (id: `playlist`)
+Something for the rest of your afternoon. (id: `playlist`)
 
 WIDGET TEMPLATE:
 
@@ -219,7 +225,7 @@ WIDGET TEMPLATE:
   <Col padding={{ y: 2, x: 3 }}>
     <Show $when="size(tracks) > 0">
       <Each $of="tracks" item="item" index="index">
-        <Row align="center" gap={3} padding={{ y: 1 }}>
+        <Row align="center" gap={3} padding={{ y: 2 }}>
           <Caption $value="String(index + 1)" />
           <Image src={item.cover} size={44} radius="md" />
           <Col flex="auto" gap={0}>
@@ -278,12 +284,12 @@ WIDGET DATA:
 
 ### Verification code
 
-OTP input with tooltip help and a submit action. (id: `verify-code`)
+A simple, focused verification step. (id: `verify-code`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="sm">
+<Card size="sm" gap={4}>
   <Form onSubmitAction={{ type: "auth.verify" }}>
     <Col gap={4} align="center">
       <Box size={44} radius="full" background="surface-tertiary" align="center" justify="center">
@@ -322,7 +328,7 @@ WIDGET DATA:
 
 ### Tasks & tool calls
 
-Live task rows with child steps beside collapsible tool activity. (id: `agent-tasks`)
+The plan, the progress, and what comes next. (id: `agent-tasks`)
 
 WIDGET TEMPLATE:
 
@@ -408,14 +414,14 @@ WIDGET DATA:
 
 ### Product detail
 
-Rating, size selector chips, pricing, and purchase actions. (id: `product-detail`)
+A closer look before adding to your cart. (id: `product-detail`)
 
 WIDGET TEMPLATE:
 
 ```
 <Card size="sm" padding={0}>
   <Image src={image} alt={name} height={210} fit="cover" flush />
-  <Col padding={4} gap={3}>
+  <Col padding={5} gap={4}>
     <Col gap={1}>
       <Caption value={brand} />
       <Title value={name} size="sm" />
@@ -433,7 +439,7 @@ WIDGET TEMPLATE:
       <ChipGroup name="size" defaultValue="m" options={sizes} />
     </Col>
 
-    <Callout color="success" icon="truck" description={shippingNote} />
+    <Row align="start" gap={2}><Icon name="truck" size="sm" color="secondary" /><Caption value={shippingNote} size="sm" /></Row>
 
     <Row gap={2}>
       <Button
@@ -444,6 +450,7 @@ WIDGET TEMPLATE:
       />
       <Button
         iconStart="heart"
+        ariaLabel="Save to wishlist"
         variant="outline"
         uniform
         onClickAction={{ type: "wishlist.add", payload: { product: name } }}
@@ -488,7 +495,7 @@ WIDGET DATA:
 
 ### Streaming answer
 
-Progressive text with a blinking caret, collapsible sources, and follow-ups. (id: `agent-response`)
+An answer taking shape, word by word. (id: `agent-response`)
 
 WIDGET TEMPLATE:
 
@@ -538,7 +545,7 @@ WIDGET DATA:
 
 ### Working states
 
-Shimmering thinking line, a staged loading surface, and all 25 orb variants. (id: `agent-working`)
+A quiet signal that work is underway. (id: `agent-working`)
 
 WIDGET TEMPLATE:
 
@@ -647,7 +654,7 @@ WIDGET DATA:
 
 ### Pricing plans
 
-Three plan cards with a highlighted popular tier. (id: `pricing-plans`)
+Find the right plan for what comes next. (id: `pricing-plans`)
 
 WIDGET TEMPLATE:
 
@@ -660,7 +667,7 @@ WIDGET TEMPLATE:
           padding={4}
           radius="xl"
           gap={3}
-          border={plan.popular ? { size: 2, color: "#4f46e5" } : { size: 1, color: "default" }}
+          border={plan.popular ? { size: 2, color: "emphasis" } : { size: 1, color: "default" }}
           background={plan.popular ? "surface-elevated" : "surface"}
         >
           <Col gap={1}>
@@ -751,7 +758,7 @@ WIDGET DATA:
 
 ### FAQ
 
-Accordion answers with a support callout and contact action. (id: `faq-accordion`)
+Useful answers, without the clutter. (id: `faq-accordion`)
 
 WIDGET TEMPLATE:
 
@@ -799,44 +806,25 @@ WIDGET DATA:
 
 ### Order tracking
 
-Steps, a live timeline, and order details for a shipment. (id: `order-tracking`)
+Follow a delivery, from checkout to doorstep. (id: `order-tracking`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card size="md" gap={4}>
-  <Row align="center">
-    <Col gap={0}>
-      <Title value="Your order is on its way" size="sm" />
-      <Caption value={`Order ${orderId}`} />
-    </Col>
-    <Spacer />
-    <Badge label={eta} color="accent" icon="truck" />
+<Card size="md" gap={5}>
+  <Row align="center" justify="between" gap={3}>
+    <Caption value={"Order " + orderId} />
+    <Badge label="On the way" color="success" />
   </Row>
-
-  <Steps items={steps} current={currentStep} />
-
-  <Callout
-    color="info"
-    icon="map-pin"
-    title="Out for delivery"
-    description="Your courier is 4 stops away. Someone should be available to receive the package."
-  />
-
+  <Col gap={1}>
+    <Title value="Arriving today" size="lg" />
+    <Caption value={eta + " · Your courier is 4 stops away."} />
+  </Col>
   <Timeline items={events} />
-
   <Divider />
-
   <KeyValue rows={details} />
-
-  <Button
-    label="View live map"
-    iconStart="navigation"
-    variant="soft"
-    color="primary"
-    block
-    onClickAction={{ type: "order.track.map", payload: { orderId } }}
-  />
+  <Button label="View live map" iconEnd="arrow-up-right" color="primary" block
+    onClickAction={{ type: "order.track.map", payload: { orderId } }} />
 </Card>
 ```
 
@@ -846,21 +834,6 @@ WIDGET DATA:
 {
   "orderId": "#84213",
   "eta": "Today, 2–4 PM",
-  "currentStep": 2,
-  "steps": [
-    {
-      "label": "Ordered"
-    },
-    {
-      "label": "Shipped"
-    },
-    {
-      "label": "Out for delivery"
-    },
-    {
-      "label": "Delivered"
-    }
-  ],
   "events": [
     {
       "title": "Out for delivery",
@@ -906,102 +879,53 @@ WIDGET DATA:
 
 ### Flight booking
 
-A detailed booking review with segments, fare rules, and confirm actions. (id: `flight-booking`)
+Every detail of your next departure. (id: `flight-booking`)
 
 WIDGET TEMPLATE:
 
 ```
-<Card
-  size="md"
-  padding={0}
-  confirm={{
-    label: "Confirm booking",
-    action: { type: "flight.booking.confirm", payload: { bookingId } }
-  }}
-  cancel={{
-    label: "Cancel",
-    action: { type: "flight.booking.cancel", payload: { bookingId } }
-  }}
->
-  <Image src={heroImage} alt="Destination" height={160} fit="cover" flush />
-
-  <Row align="center" padding={{ x: 4, top: 3, bottom: 2 }}>
-    <Col gap={0} flex="auto">
-      <Title value="Confirm international booking" size="sm" />
-      <Text value={tripSummary} size="sm" color="secondary" />
+<Card size="md" padding={0} gap={0}
+  confirm={{ label: "Confirm booking", action: { type: "flight.booking.confirm", payload: { bookingId } } }}
+  cancel={{ label: "Cancel", action: { type: "flight.booking.cancel", payload: { bookingId } } }}>
+  <Image src={heroImage} alt="Japan destination" height={145} fit="cover" flush />
+  <Col padding={5} gap={4}>
+    <Col gap={1}>
+      <Row align="center">
+        <Title value={route} size="lg" />
+        <Spacer />
+        <Caption value={tripSummary} size="sm" />
+      </Row>
+      <Caption value={dates + " · " + guests + " guests"} />
     </Col>
-    <Badge label={statusLabel} variant="soft" color="info" />
-  </Row>
-
-  <Divider flush />
-
-  <Row align="center" padding={{ x: 4, y: 3 }} gap={3}>
-    <Box size={18} radius="full" border={{ size: 2, color: "subtle" }} background="surface" />
-    <Col flex="auto" gap={0}>
-      <Text value={route} size="sm" weight="semibold" />
-      <Caption value={dates} />
-    </Col>
-    <Col align="end" gap={0}>
-      <Text value={cabinClass} size="sm" weight="semibold" />
-      <Caption value={`${guests} guests`} />
-    </Col>
-  </Row>
-
-  <Divider flush />
-
-  <Col padding={{ x: 4, y: 3 }} gap={3}>
-    <Row gap={2} align="center">
-      <Box background="surface-elevated-secondary" radius="full" padding={2}>
-        <Icon name="plane" size="lg" />
-      </Box>
-      <Text value="Flight details" size="sm" weight="semibold" />
-    </Row>
-
-    <Col gap={2}>
-      <Each $of="segments" item="seg">
-        <Row gap={3} align="start">
-          <Image src={seg.image} size={52} radius="md" frame />
-          <Col flex="auto" gap={1}>
-            <Row gap={2} align="center">
-              <Text value={seg.route} size="sm" weight="semibold" />
-              <Spacer />
-              <Badge label={seg.stopsLabel} variant="soft" />
-            </Row>
-            <Row gap={2} align="center">
-              <Text value={seg.flightNumber} size="sm" color="secondary" />
-              <Text value="•" size="sm" color="tertiary" />
-              <Text value={seg.aircraft} size="sm" color="secondary" />
-            </Row>
-            <Row gap={3} align="start">
-              <Col flex={1} gap={0}>
-                <Caption value="Depart" size="sm" />
-                <Text value={seg.departTime} weight="semibold" />
-                <Caption value={seg.departNote} />
-              </Col>
-              <Col flex={1} gap={0}>
-                <Caption value="Arrive" size="sm" />
-                <Text value={seg.arriveTime} weight="semibold" />
-                <Caption value={seg.arriveNote} />
-              </Col>
-            </Row>
+    <Divider />
+    <Each $of="segments" item="seg">
+      <Col gap={2}>
+        <Row justify="between" gap={2}>
+          <Caption value={seg.flightNumber + " · " + seg.stopsLabel} size="sm" />
+          <Caption value={seg.route} size="sm" />
+        </Row>
+        <Row justify="between" align="center" gap={3}>
+          <Col gap={0}>
+            <Text value={seg.departTime} weight="medium" />
+            <Caption value={seg.departNote} size="sm" />
+          </Col>
+          <Icon name="arrow-right" size="sm" color="tertiary" />
+          <Col gap={0} align="end">
+            <Text value={seg.arriveTime} weight="medium" />
+            <Caption value={seg.arriveNote} size="sm" />
           </Col>
         </Row>
-      </Each>
-    </Col>
-
-    <Divider flush />
-
-    <KeyValue rows={reviewRows} />
+      </Col>
+    </Each>
+    <Accordion items={[{ id: "fare", title: "Cabin & fare details", content: cabinClass + " · " + reviewRows[2].value + ". " + reviewRows[3].value + ". Aircraft: " + segments[0].aircraft + "." }]} />
+    <Row align="center" justify="between" gap={3}>
+      <Col gap={0}>
+        <Text value="Total" size="sm" />
+        <Caption value={priceNote} size="sm" />
+      </Col>
+      <Title value={totalPrice} size="sm" />
+    </Row>
   </Col>
-
-  <Row padding={{ x: 4, y: 4 }} background="surface-elevated-secondary" border={{ top: { size: 1 } }}>
-    <Col gap={0}>
-      <Text value="Total" size="sm" weight="semibold" />
-      <Caption value={priceNote} />
-    </Col>
-    <Spacer />
-    <Title value={totalPrice} size="sm" />
-  </Row>
 </Card>
 ```
 
@@ -1010,9 +934,8 @@ WIDGET DATA:
 ```json
 {
   "bookingId": "bk-ua-893421",
-  "heroImage": "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80",
+  "heroImage": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80",
   "tripSummary": "Round-trip · International",
-  "statusLabel": "Review",
   "route": "SFO → NRT",
   "dates": "Mar 12 – Mar 20",
   "guests": "2",
@@ -1038,7 +961,6 @@ WIDGET DATA:
   "segments": [
     {
       "id": "seg-1",
-      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
       "route": "SFO → NRT",
       "stopsLabel": "Nonstop",
       "flightNumber": "United 837",
@@ -1050,7 +972,6 @@ WIDGET DATA:
     },
     {
       "id": "seg-2",
-      "image": "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80",
       "route": "NRT → SFO",
       "stopsLabel": "Nonstop",
       "flightNumber": "United 838",
@@ -1068,7 +989,7 @@ WIDGET DATA:
 
 ### Project setup
 
-A multi-field form with select, chips, and a submit action. (id: `project-setup`)
+A considered starting point for your project. (id: `project-setup`)
 
 WIDGET TEMPLATE:
 
@@ -1177,7 +1098,7 @@ WIDGET DATA:
 
 ### Agent decisions
 
-Approval questions with keyed options beside a confidence-aware recommendation. (id: `agent-decisions`)
+Clear choices when your input matters. (id: `agent-decisions`)
 
 WIDGET TEMPLATE:
 
@@ -1278,7 +1199,7 @@ WIDGET DATA:
 
 ### Knowledge workspace
 
-Context chunks, plan comparison, and selectable proposed changes. (id: `knowledge-workspace`)
+Sources, comparisons, and proposed changes. (id: `knowledge-workspace`)
 
 WIDGET TEMPLATE:
 

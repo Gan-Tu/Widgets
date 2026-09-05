@@ -51,6 +51,28 @@ function appendExample(lines, example) {
   lines.push(dataFence);
 }
 
+function appendAuthoringNotes(lines) {
+  lines.push("");
+  lines.push("## Using these examples");
+  lines.push("");
+  lines.push(
+    "Read the [authoring contract and design guidelines](AGENTS.md#design-guidelines)" +
+      " alongside these templates. Start with the closest pattern and adapt its" +
+      " content, data bindings, and actions to the task. Preserve the built-in" +
+      " control states, subtle borders, consistent gutters, and responsive sizing."
+  );
+  lines.push("");
+  lines.push(
+    "Omit explicit chart colors to use the automatic combinations: blue for one" +
+      " series, yellow + green for two, and blue + green + pinkish red for three." +
+      " Larger sets add purple and orange without pairing yellow with orange." +
+      " For pie charts, use the slice count." +
+      " Keep tooltip text neutral. Check the result at compact widths, in both" +
+      " themes, and with keyboard interaction; examples are starting points," +
+      " not a reason to add more panels or actions than the task needs."
+  );
+}
+
 export function buildWidgetExamplesMarkdown() {
   const lines = [];
   lines.push("# Widget examples");
@@ -58,7 +80,7 @@ export function buildWidgetExamplesMarkdown() {
   lines.push(
     "The complete gallery corpus — every demo widget from the gallery as a" +
       " `template` + `data` pair. This is the optional companion to" +
-      " `AGENTS.md`: the guide defines the authoring contract and a curated" +
+      " [AGENTS.md](AGENTS.md): the guide defines the authoring contract and a curated" +
       " example set; this file provides the full corpus for richer LLM" +
       " context windows, retrieval, or fine-tuning."
   );
@@ -69,6 +91,7 @@ export function buildWidgetExamplesMarkdown() {
   );
   lines.push("");
   lines.push(`${widgetExamples.length} widgets across ${widgetCategories.length} categories.`);
+  appendAuthoringNotes(lines);
 
   for (const category of widgetCategories) {
     const entries = widgetExamples.filter((example) => example.category === category);
@@ -93,7 +116,7 @@ export function buildFeaturedWidgetExamplesMarkdown() {
   lines.push(
     "The curated gallery showcase — every demo shown by the gallery's" +
       " `Featured` filter as a `template` + `data` pair. Use this focused" +
-      " companion to `AGENTS.md` when a compact set of representative widget" +
+      " companion to [AGENTS.md](AGENTS.md) when a compact set of representative widget" +
       " patterns is more useful than the complete gallery corpus."
   );
   lines.push("");
@@ -103,6 +126,7 @@ export function buildFeaturedWidgetExamplesMarkdown() {
   );
   lines.push("");
   lines.push(`${featuredExamples.length} featured widgets.`);
+  appendAuthoringNotes(lines);
   lines.push("");
   lines.push("## Featured");
   for (const example of featuredExamples) {

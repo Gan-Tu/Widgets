@@ -10,23 +10,24 @@
     Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #17170f;
-  background-color: #fbfbf8;
+  color: #111114;
+  background-color: #ffffff;
 
-  /* Showroom palette — monochrome warm chrome; color belongs to the widgets. */
-  --paper: #fbfbf8;
-  --ink: #141410;
-  --mid: #6d6d63;
-  --faint: #a3a396;
-  --hairline: #e5e5dc;
-  --panel: #17170f;
-  --panel-text: #ededdf;
-  --panel-dim: #8a8a7a;
+  /* Showroom palette — crisp black and white; semantic color belongs to content. */
+  --paper: #ffffff;
+  --ink: #09090b;
+  --mid: #515157;
+  --faint: #63636b;
+  --hairline: #d8d8dd;
+  --section-border: #e4e4e7;
+  --control-border: #e4e4e7;
+  --panel: #111114;
+  --panel-text: #f5f5f7;
+  --panel-dim: #a3a3ad;
   --panel-string: #9d9cf5;
-  --plinth: #f3f3ec;
-  /* The one accent the chrome is allowed: the product's indigo, reserved for
-     calling out the Featured showcase. */
-  --signal: #4f46e5;
+  --plinth: #fafafa;
+  /* Black anchors navigation and primary actions. */
+  --signal: #111114;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -256,7 +257,7 @@ body {
 /* Wider variant for browsing-heavy pages (gallery): at 1440px the three
    masonry columns are ~445px — a comfortable fit for 440px "md" cards. */
 .app-container--wide {
-  max-width: 1440px;
+  max-width: 1640px;
 }
 
 @theme inline {
@@ -300,3 +301,53 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Shared application chrome; the examples keep their own theme tokens. */
+.app-shell .widget-root { --widget-font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif; }
+.app-shell :where(a, button, summary, [role="region"][tabindex]):focus-visible { outline: 2px solid var(--widget-focus-outline); outline-offset: 2px; }
+.app-shell select:focus-visible { outline: none; border-color: var(--widget-border-strong); }
+.studio-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 42px; border: 1px solid var(--control-border); border-radius: 6px; padding: 10px 17px; font-size: 13px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); background: white; cursor: pointer; transition: background 160ms, border-color 160ms, transform 160ms; }
+.studio-button:hover { background: var(--plinth); border-color: #c7c7cc; }
+.studio-button:active { transform: translateY(1px); }
+.studio-button--primary { background: var(--ink); color: white; border-color: var(--ink); }
+.studio-button--primary:hover { background: #2c2c30; border-color: #2c2c30; }
+.studio-brand { display: flex; align-items: center; gap: 11px; color: var(--ink); font-size: 20px; font-weight: 550; letter-spacing: -0.045em; cursor: pointer; }
+.studio-brand-mark { display: grid; grid-template-columns: repeat(2, 10px); gap: 2px; }
+.studio-brand-mark i { width: 10px; height: 10px; background: currentColor; border-radius: 2px; }
+.studio-brand-mark i:last-child { border-radius: 2px 2px 5px 2px; opacity: .65; }
+.studio-nav-link { display: flex; min-height: 42px; align-items: center; justify-content: center; border-bottom: 1px solid transparent; color: var(--mid); font-size: 13px; font-weight: 450; cursor: pointer; transition: color 150ms, border-color 150ms; }
+.studio-nav-link:hover, .studio-nav-link[aria-current="page"] { color: var(--ink); }
+.studio-nav-link[aria-current="page"] { border-bottom-color: var(--ink); }
+.studio-meta-link { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; gap: 6px; color: var(--mid); font-size: 12px; cursor: pointer; transition: color 150ms; }
+.studio-meta-link:hover { color: var(--ink); }
+.studio-skip-link { position: fixed; top: 8px; left: 12px; z-index: 100; transform: translateY(-200%); background: var(--ink); color: white; border-radius: 6px; padding: 12px; font-size: 13px; }
+.studio-skip-link:focus { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .studio-button { transition: none; } }
+.docs-preview { min-height: 300px; padding: clamp(20px, 4vw, 40px); border-radius: 12px; background: var(--plinth); align-items: center; }
+.docs-page pre { background: #111114; border-radius: 8px; }
+.playground-editor textarea { background: #141416; color: #f5f5f7; border-color: transparent; border-radius: 8px; padding: 18px; box-shadow: none; font-family: "Fragment Mono", ui-monospace, monospace; font-size: 12px; line-height: 1.8; tab-size: 2; }
+.playground-editor textarea:focus-visible { border-color: #8e8e93; outline: none; box-shadow: none; }
+.playground-preview-stage { min-height: 440px; align-items: center; padding-block: 20px; }
+@media (max-width: 639px) { .playground-preview-stage { min-height: 300px; padding-block: 8px; } .playground-preview, .playground-editor { padding: 14px; } .docs-preview { padding: 16px; } }
+
+/* Use the same plain surfaces as the underlying shadcn components. */
+.studio-header { background: #ffffff; border-bottom: 1px solid var(--hairline); }
+.docs-preview, .playground-preview { background: var(--plinth); border: 1px solid var(--section-border); }
+
+.playground-editor { border-color: var(--section-border); }
+.playground-editor > div:first-child, .playground-preview > div:first-child { border-bottom-color: var(--section-border); }
+.playground-page select[aria-label="Load example"] { border-color: var(--control-border); box-shadow: none; }
+
+/* Docs keep search stationary and reserve room for a quiet native scrollbar. */
+.docs-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.docs-scroll-area:hover, .docs-scroll-area:focus-within { scrollbar-color: #a1a1aa transparent; }
+.docs-scroll-area::-webkit-scrollbar { width: 6px; height: 6px; }
+.docs-scroll-area::-webkit-scrollbar-track { background: transparent; }
+.docs-scroll-area::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 999px; }
+.docs-scroll-area:hover::-webkit-scrollbar-thumb { background: #a1a1aa; }
+.docs-component-link:focus-visible { outline-offset: -2px; }

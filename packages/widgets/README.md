@@ -42,7 +42,7 @@ export function WidgetMessage() {
 
 - `template: string` — Widget UI template (a strict JSX-like language)
 - `schema?: z.ZodTypeAny` — optional Zod schema for widget data (validated before render when provided)
-- `data: unknown` — widget state/data; when `schema` is provided, it must match the schema
+- `data: unknown` — widget state/data; when `schema` is provided, it must match the schema. Keep the reference stable between renders; a new object resets widget-local state
 - `onAction?: (action, formData?) => void` — receives declarative actions, optional captured form state, and client-action results
 - `theme?: "light" | "dark"` — force theme for the widget subtree
 - `debug?: boolean` — render validated data under the widget
@@ -64,6 +64,34 @@ Guide-style `$` expression props are supported:
 Built-in client actions: `copy`, `add_to_calendar`, `request_location_permission`, `open_url`, `email.mailto`, and `card.open`. Other actions are forwarded to the host through `onAction`.
 
 The published renderer intentionally does not accept consumer-supplied custom/client-defined widget components. Extend the library by adding built-ins to the source registry, not by passing a runtime component map.
+
+## Authoring and examples
+
+- [Authoring guide](https://widgets.gan.dev/AGENTS.md) — template rules, actions, component APIs, and design principles
+- [Featured examples](https://widgets.gan.dev/FEATURED_WIDGET_EXAMPLES.md) — the curated template + data pairs used with the guide for generation
+- [All examples](https://widgets.gan.dev/WIDGET_EXAMPLES.md) — the complete gallery corpus
+- [Gallery](https://widgets.gan.dev/gallery) — opens on Featured
+- [Playground](https://widgets.gan.dev/playground) — edit a template and its data, starting with Checkout
+- [Component docs](https://widgets.gan.dev/docs) — prop references and live demos
+
+For documentation matching a source checkout, use that checkout's `public/AGENTS.md` and generated example files. The hosted demo follows the site's deployed version, which can differ from an installed npm version.
+
+## Design and theming
+
+Use the built-in shadcn-based controls, light borders, neutral surfaces, and deliberate spacing. Compose one clear task with one primary action; selected toggles should read clearly, and media should share the content gutter. Fields emphasize their border on focus, while keyboard-operated controls retain a muted focus indicator. The [design guidelines](https://widgets.gan.dev/AGENTS.md#design-guidelines) cover hierarchy, compact layouts, and interaction states.
+
+Pass `theme="light"` or `theme="dark"` to `WidgetRenderer`. Widget popovers, menus, and dialogs inherit that theme. Customize `--widget-*` CSS variables after importing the stylesheet:
+
+```css
+.widget-root {
+  --widget-font-sans: "Inter", system-ui, sans-serif;
+  --widget-radius: 12px;
+}
+```
+
+Use `.widget-root[data-theme="light"]` or `.widget-root[data-theme="dark"]` for mode-specific overrides. Widget portals also carry these attributes; an ancestor selector around only the card will not reach portals mounted under `body`. When changing the action accent, update its strong/soft/border variants and `--widget-on-accent` together for readable text and states.
+
+Charts have their own vivid palette, independent of the monochrome action accent. With no explicit series colors, one series uses blue, two use yellow + green, and three use blue + green + pinkish red. Larger sets add purple and orange without pairing yellow with orange. Pie charts choose combinations by slice count. Override `--widget-chart-1` through `--widget-chart-6` to customize palette entries; their numbers are not series positions. Keep chart labels and tooltip text neutral and readable.
 
 ## License
 

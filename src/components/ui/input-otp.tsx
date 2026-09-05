@@ -9,7 +9,7 @@ const InputOTP = React.forwardRef<
 >(({ className, containerClassName, ...props }, ref) => (
   <OTPInput
     ref={ref}
-    containerClassName={cn("flex items-center gap-2", containerClassName)}
+    containerClassName={cn("flex min-w-0 max-w-full items-center gap-2", containerClassName)}
     className={cn("disabled:cursor-not-allowed", className)}
     {...props}
   />
@@ -20,7 +20,7 @@ const InputOTPGroup = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex items-center gap-2", className)} {...props} />
+  <div ref={ref} className={cn("flex min-w-0 max-w-full items-center gap-2", className)} {...props} />
 ));
 InputOTPGroup.displayName = "InputOTPGroup";
 
@@ -34,9 +34,11 @@ const InputOTPSlot = React.forwardRef<
   return (
     <div
       ref={ref}
+      data-slot="input-otp-slot"
+      data-active={slot?.isActive || undefined}
       className={cn(
-        "relative flex h-10 w-10 items-center justify-center rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface)] text-sm font-medium text-[var(--widget-text-primary)]",
-        slot?.isActive && "ring-2 ring-[var(--widget-ring-color)]",
+        "relative flex min-w-0 h-10 w-10 items-center justify-center rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface)] text-sm font-medium text-[var(--widget-text-primary)]",
+
         className
       )}
       {...props}

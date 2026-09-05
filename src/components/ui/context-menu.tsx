@@ -1,3 +1,4 @@
+import { useWidgetTheme } from "../../widget/theme";
 import * as React from "react";
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
@@ -18,7 +19,7 @@ const ContextMenuSubTrigger = React.forwardRef<
   <ContextMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm text-[var(--widget-text-primary)] outline-none focus:bg-[var(--widget-surface-hover)] data-[state=open]:bg-[var(--widget-surface-hover)]",
+      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm text-[var(--widget-text-primary)] outline-none focus:bg-[var(--widget-surface-active)] data-[state=open]:bg-[var(--widget-surface-hover)]",
       inset && "pl-8",
       className
     )}
@@ -35,8 +36,10 @@ const ContextMenuSubContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.SubContent>
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.SubContent
+      data-theme={useWidgetTheme()}
     ref={ref}
     className={cn(
+        "widget-root wg-portal",
       "z-50 min-w-[12rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-1 text-[var(--widget-text-primary)] shadow-md",
       className
     )}
@@ -51,8 +54,10 @@ const ContextMenuContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.Portal>
     <ContextMenuPrimitive.Content
+      data-theme={useWidgetTheme()}
       ref={ref}
       className={cn(
+        "widget-root wg-portal",
         "z-50 min-w-[12rem] overflow-hidden rounded-md border border-[var(--widget-border-default)] bg-[var(--widget-surface-elevated)] p-1 text-[var(--widget-text-primary)] shadow-md",
         className
       )}
@@ -69,7 +74,7 @@ const ContextMenuItem = React.forwardRef<
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -85,7 +90,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
   <ContextMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -108,7 +113,7 @@ const ContextMenuRadioItem = React.forwardRef<
   <ContextMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-[var(--widget-surface-active)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

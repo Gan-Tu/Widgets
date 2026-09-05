@@ -662,6 +662,7 @@ type ButtonColor =
 type ButtonProps = {
   submit?: boolean;
   label?: string;
+  ariaLabel?: string;
   children?: React.ReactNode;
   onClickAction?: ActionConfig;
   iconStart?: WidgetIcon;
@@ -727,7 +728,7 @@ const PlainButton: React.FC<PlainButtonProps> = ({
   variant = "solid",
   color = "primary",
   size = "lg",
-  pill = true,
+  pill = false,
   block = false,
   disabled = false,
   submit = false,
@@ -756,6 +757,7 @@ const PlainButton: React.FC<PlainButtonProps> = ({
 const Button: React.FC<ButtonProps> = ({
   submit = false,
   label,
+  ariaLabel,
   children,
   onClickAction,
   iconStart,
@@ -765,7 +767,7 @@ const Button: React.FC<ButtonProps> = ({
   iconSize = "md",
   variant = "solid",
   size = "lg",
-  pill = true,
+  pill = false,
   uniform = false,
   block = false,
   disabled
@@ -796,6 +798,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       type={submit ? "submit" : "button"}
       className="wg-btn"
+      aria-label={ariaLabel ?? (!(children ?? label) ? (iconStart ?? iconEnd)?.replaceAll("-", " ") : undefined)}
       data-variant={variant}
       data-color={resolvedColor}
       style={style}

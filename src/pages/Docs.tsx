@@ -113,35 +113,29 @@ export function DocsPage() {
         .filter(([, items]) => items.length > 0)
     : categories;
 
-  const sidebarContent = (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <div>
-          <h2 className="text-sm font-semibold text-slate-700">Components</h2>
-          <p className="mt-1 text-xs text-slate-500">
-            Widget UI components available in templates.
-          </p>
-        </div>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search components"
-            aria-label="Search components"
-            className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-8 pr-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20"
-          />
-        </div>
-      </div>
+  const sidebarSearch = (
+    <div className="relative">
+      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-500" />
+      <input
+        type="search"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search components"
+        aria-label="Search components"
+        className="w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-8 pr-2.5 text-sm text-[var(--ink)] placeholder:text-stone-500 focus:border-stone-400 focus:outline-none"
+      />
+    </div>
+  );
 
+  const sidebarContent = (
+    <nav aria-label="Component documentation" className="flex flex-col gap-6">
       {filteredCategories.length === 0 ? (
-        <p className="text-sm text-slate-500">No components match “{query.trim()}”.</p>
+        <p className="text-sm text-stone-500">No components match “{query.trim()}”.</p>
       ) : null}
 
       {filteredCategories.map(([category, items]) => (
         <div key={category} className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
             {category}
           </p>
           <div className="space-y-1">
@@ -150,10 +144,11 @@ export function DocsPage() {
                 key={item.id}
                 type="button"
                 onClick={() => selectComponent(item.id)}
-                className={`w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+                aria-current={activeId === item.id ? "page" : undefined}
+                className={`docs-component-link w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors ${
                   activeId === item.id
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-[#eeeef0] text-[var(--ink)]"
+                    : "text-[var(--mid)] hover:bg-slate-100"
                 }`}
               >
                 {item.name}
@@ -162,16 +157,16 @@ export function DocsPage() {
           </div>
         </div>
       ))}
-    </div>
+    </nav>
   );
 
   return (
-    <div className="grid gap-8 lg:h-[calc(100svh-9rem)] lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:overflow-hidden">
+    <div className="docs-page grid gap-8 lg:h-[calc(100svh-9rem)] lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start lg:overflow-hidden">
       {/* Mobile navigation: avoids sticky/transparent overlap on small screens */}
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm lg:hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--hairline)] pb-4 lg:hidden">
         <div>
-          <div className="text-sm font-semibold text-slate-900">Docs</div>
-          <div className="text-xs text-slate-500">{active?.name ?? "Components"}</div>
+          <div className="text-sm font-semibold text-[var(--ink)]">Docs</div>
+          <div className="text-xs text-stone-500">{active?.name ?? "Components"}</div>
         </div>
         <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
           <SheetTrigger asChild>
@@ -185,14 +180,15 @@ export function DocsPage() {
               Menu
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0">
+          <SheetContent side="left" className="flex flex-col overflow-hidden p-0">
             <SheetHeader className="border-b border-slate-200 p-5">
               <SheetTitle>Components</SheetTitle>
               <SheetDescription>
                 Choose a component to view its example, usage, and props.
               </SheetDescription>
             </SheetHeader>
-            <div className="max-h-[calc(100vh-72px)] overflow-y-auto p-5">
+            <div className="shrink-0 px-5 py-4">{sidebarSearch}</div>
+            <div className="docs-scroll-area min-h-0 flex-1 overflow-y-auto px-5 pb-5">
               {sidebarContent}
             </div>
           </SheetContent>
@@ -200,19 +196,24 @@ export function DocsPage() {
       </div>
 
       {/* Desktop navigation */}
-      <aside className="hidden min-h-0 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm lg:flex lg:h-full lg:flex-col">
-        <div className="min-h-0 overflow-y-auto pr-1">
+      <aside className="hidden min-h-0 min-w-0 border-r border-[var(--hairline)] pr-4 lg:flex lg:h-full lg:flex-col">
+        <div className="shrink-0 px-1 pb-5">
+          <h2 className="text-sm font-semibold text-slate-700">Components</h2>
+          <p className="mt-1 text-xs leading-relaxed text-stone-500">Widget UI components available in templates.</p>
+          <div className="mt-3">{sidebarSearch}</div>
+        </div>
+        <div className="docs-scroll-area min-h-0 flex-1 overflow-y-auto p-1">
           {sidebarContent}
         </div>
       </aside>
 
       {active ? (
-        <section ref={contentRef} className="min-w-0 space-y-6 lg:h-full lg:overflow-y-auto lg:pr-2">
-          <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+        <section ref={contentRef} className="docs-scroll-area min-w-0 space-y-6 lg:h-full lg:overflow-y-auto lg:pr-3">
+          <div className="border-b border-[var(--hairline)] pb-7">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-semibold text-slate-900">{active.name}</h1>
-                <p className="mt-2 text-sm text-slate-600">{active.description}</p>
+                <h1 className="text-[40px] font-medium tracking-[-0.045em] text-[var(--ink)]">{active.name}</h1>
+                <p className="mt-2 text-sm text-[var(--mid)]">{active.description}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -239,7 +240,7 @@ export function DocsPage() {
                   asChild
                   variant="outline"
                   size="sm"
-                  className="cursor-pointer gap-2 border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-50"
+                  className="cursor-pointer gap-2 border-[var(--hairline)] bg-white text-[var(--ink)] hover:bg-[var(--plinth)]"
                 >
                   <Link
                     className="cursor-pointer"
@@ -255,7 +256,7 @@ export function DocsPage() {
 
           {example ? (
             <>
-              <div className="flex flex-wrap justify-center gap-4">
+              <div className="docs-preview flex flex-wrap justify-center gap-4">
                 {/* Keyed so switching components remounts the whole widget tree —
                     otherwise component-local state (toggles, tabs, collapsed
                     cards) leaks between structurally similar examples. */}
@@ -268,12 +269,12 @@ export function DocsPage() {
                 />
               </div>
 
-              <details key={active.id} className="rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-                <summary className="cursor-pointer select-none rounded-2xl px-6 py-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-50">
+              <details key={active.id} className="rounded-lg border border-[var(--hairline)] bg-white">
+                <summary className="cursor-pointer select-none rounded-lg px-4 py-3.5 text-sm font-semibold text-[var(--ink)] transition hover:bg-slate-50">
                   View template
                 </summary>
-                <div className="px-6 pb-6">
-                  <pre className="overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs leading-relaxed text-slate-100">
+                <div className="px-4 pb-4">
+                  <pre className="overflow-x-auto rounded-xl bg-[#111114] p-4 text-xs leading-relaxed text-slate-100">
 {example.template}
                   </pre>
                 </div>
@@ -282,19 +283,19 @@ export function DocsPage() {
           ) : null}
 
           {showUsage ? (
-            <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-900">Usage</h2>
-              <pre className="mt-4 overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs leading-relaxed text-slate-100">
+            <div className="border-b border-[var(--hairline)] pb-7">
+              <h2 className="text-xl font-semibold text-[var(--ink)]">Usage</h2>
+              <pre className="mt-4 overflow-x-auto rounded-xl bg-[#111114] p-4 text-xs leading-relaxed text-slate-100">
 {active.usage}
               </pre>
             </div>
           ) : null}
 
-          <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">Props</h2>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200">
+          <div className="border-b border-[var(--hairline)] pb-7">
+            <h2 className="text-xl font-semibold text-[var(--ink)]">Props</h2>
+            <div className="mt-4 overflow-x-auto border-y border-[var(--hairline)]">
               <div className="min-w-[560px]">
-                <div className="grid grid-cols-[160px_1fr_140px] gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
+                <div className="grid grid-cols-[160px_1fr_140px] gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-stone-500">
                   <span>Name</span>
                   <span>Description</span>
                   <span>Default</span>
@@ -304,24 +305,24 @@ export function DocsPage() {
                   return (
                     <div
                       key={prop.name}
-                      className="grid grid-cols-[160px_1fr_140px] gap-4 border-b border-slate-100 px-4 py-3 text-xs text-slate-600 last:border-b-0"
+                      className="grid grid-cols-[160px_1fr_140px] gap-4 border-b border-slate-100 px-4 py-3 text-xs text-[var(--mid)] last:border-b-0"
                     >
                       <div>
-                        <span className="rounded-md bg-slate-900/5 px-2 py-0.5 font-mono text-[11px] text-slate-700">
+                        <span className="rounded-md bg-[#111114]/5 px-2 py-0.5 font-mono text-[11px] text-slate-700">
                           {prop.name}
                         </span>
-                        <div className="mt-1 text-[11px] text-slate-400">
+                        <div className="mt-1 text-[11px] text-stone-500">
                           {prop.type}
                         </div>
                       </div>
-                      <div className="text-sm text-slate-600">
+                      <div className="text-sm text-[var(--mid)]">
                         <div>{prop.description}</div>
                         {allowed ? (
                           <div className="mt-2 flex flex-wrap gap-1.5">
                             {allowed.map((value) => (
                               <span
                                 key={value}
-                                className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-slate-600"
+                                className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-[var(--mid)]"
                               >
                                 {value}
                               </span>
@@ -329,7 +330,7 @@ export function DocsPage() {
                           </div>
                         ) : null}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-stone-500">
                         {prop.default ?? "—"}
                       </div>
                     </div>
@@ -341,10 +342,10 @@ export function DocsPage() {
 
           {active.id === "Icon" ? (
             <div className="mt-2">
-              <div className="text-sm font-semibold text-slate-900">
+              <div className="text-sm font-semibold text-[var(--ink)]">
                 Icon library
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-stone-500">
                 Browse all available icon names.
               </p>
               <div className="mt-4 flex flex-wrap justify-center gap-4">
