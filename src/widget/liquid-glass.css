@@ -53,17 +53,36 @@
   --widget-glass-hover-tint: 7%;
   --widget-glass-press-tint: 10%;
   --widget-glass-selected: rgb(0 0 0 / 7%);
-  --widget-glass-highlight: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(255 255 255 / 0) 60%);
+  --widget-glass-highlight: none;
   --widget-glass-pane-shadow: inset 0 1px 0 rgb(255 255 255 / 95%), inset 0 0 0 1px rgb(255 255 255 / 45%), inset 0 -1px 0 rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 5%), 0 14px 34px -14px rgb(0 0 0 / 22%);
-  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 1px 2px rgb(0 0 0 / 7%), 0 3px 8px -4px rgb(0 0 0 / 10%);
+  --widget-glass-control-shadow: 0 0 0 0.5px rgb(0 0 0 / 10%), inset 0 1px 0 #fff, 0 1px 2px rgb(0 0 0 / 5%), 0 6px 14px -8px rgb(0 0 0 / 16%);
   --widget-glass-prominent: #161618;
   --widget-glass-prominent-text: #ffffff;
   --widget-glass-prominent-gloss: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 0) 52%);
   --widget-glass-prominent-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), inset 0 -1px 0 rgb(0 0 0 / 50%), 0 1px 2px rgb(0 0 0 / 22%), 0 5px 14px -6px rgb(0 0 0 / 40%);
-  --widget-glass-segment: #ffffff;
+  --widget-glass-segment: rgb(255 255 255 / 88%);
   --widget-glass-thumb: #ffffff;
   --widget-glass-thumb-shadow: inset 0 1px 0 #ffffff, 0 1px 2px rgb(0 0 0 / 14%), 0 3px 8px -2px rgb(0 0 0 / 12%);
-  --widget-glass-blur: blur(22px) saturate(1.8);
+  --widget-glass-blur: blur(20px) saturate(1.8);
+  --widget-glass-lens-blur: blur(6px) saturate(1.8);
+  --widget-glass-bevel: inset 2px 3px 5px -1px rgb(255 255 255 / 75%), inset -2px -3px 6px -2px rgb(0 0 0 / 14%), inset 0 0 0 0.5px rgb(255 255 255 / 30%);
+  --widget-glass-rim: conic-gradient(from 315deg, rgb(255 255 255 / 95%) 0deg, rgb(255 255 255 / 15%) 55deg, rgb(255 255 255 / 10%) 125deg, rgb(255 255 255 / 70%) 180deg, rgb(255 255 255 / 12%) 235deg, rgb(255 255 255 / 10%) 305deg, rgb(255 255 255 / 95%) 360deg);
+  --widget-glass-control-fill: rgb(255 255 255 / 58%);
+  --widget-glass-control-edge: rgb(255 255 255 / 85%);
+  --widget-glass-control-outline: rgb(255 255 255 / 30%);
+  --widget-glass-control-hover: rgb(255 255 255 / 78%);
+  --widget-glass-control-press: rgb(255 255 255 / 88%);
+  --widget-glass-control-hairline: 0 0 0 0.5px rgb(0 0 0 / 10%);
+  --widget-glass-control-inset: inset 0 1px 0 #fff;
+  --widget-glass-selection: var(--widget-glass-segment);
+  --widget-glass-selection-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(0 0 0 / 7%), 0 4px 12px -6px rgb(0 0 0 / 16%);
+  --widget-glass-panel: rgb(255 255 255 / 48%);
+  --widget-glass-panel-wash: rgb(255 255 255 / 36%);
+  --widget-glass-panel-shadow: 0 0 0 0.5px rgb(0 0 0 / 7%), inset 0 1px 0 rgb(255 255 255 / 95%), 0 18px 40px -24px rgb(0 0 0 / 28%);
+  --widget-glass-panel-inset: inset 0 1px 0 rgb(255 255 255 / 95%);
+  --widget-glass-panel-hairline: 0 0 0 0.5px rgb(0 0 0 / 7%);
+  --widget-glass-sticky-header: rgb(255 255 255 / 72%);
+
 }
 .widget-root[data-appearance="glass"][data-theme="dark"] {
   --widget-text-prose: #f5f5f7;
@@ -108,16 +127,34 @@
   --widget-glass-hover-tint: 6%;
   --widget-glass-press-tint: 9%;
   --widget-glass-selected: rgb(255 255 255 / 12%);
-  --widget-glass-highlight: linear-gradient(180deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 0) 60%);
+  --widget-glass-highlight: none;
   --widget-glass-pane-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), inset 0 0 0 1px rgb(255 255 255 / 6%), 0 18px 40px -18px rgb(0 0 0 / 65%);
-  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 2px 6px -2px rgb(0 0 0 / 45%);
+  --widget-glass-control-shadow: 0 0 0 0.5px rgb(0 0 0 / 45%), inset 0 1px 0 rgb(255 255 255 / 14%), 0 6px 14px -8px rgb(0 0 0 / 55%);
   --widget-glass-prominent: #f5f5f7;
   --widget-glass-prominent-text: #111113;
   --widget-glass-prominent-gloss: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(255 255 255 / 0) 60%);
   --widget-glass-prominent-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgb(0 0 0 / 14%), 0 5px 14px -6px rgb(0 0 0 / 60%);
-  --widget-glass-segment: rgb(255 255 255 / 20%);
+  --widget-glass-segment: rgb(255 255 255 / 16%);
   --widget-glass-thumb: #f5f5f7;
   --widget-glass-thumb-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), 0 2px 6px rgb(0 0 0 / 40%);
+  --widget-glass-lens-blur: blur(8px) saturate(1.6);
+  --widget-glass-bevel: inset 2px 3px 5px -1px rgb(255 255 255 / 30%), inset -2px -3px 6px -2px rgb(0 0 0 / 40%), inset 0 0 0 0.5px rgb(255 255 255 / 18%);
+  --widget-glass-rim: conic-gradient(from 315deg, rgb(255 255 255 / 57%) 0deg, rgb(255 255 255 / 9%) 55deg, rgb(255 255 255 / 6%) 125deg, rgb(255 255 255 / 42%) 180deg, rgb(255 255 255 / 7.2%) 235deg, rgb(255 255 255 / 6%) 305deg, rgb(255 255 255 / 57%) 360deg);
+  --widget-glass-control-fill: rgb(255 255 255 / 10%);
+  --widget-glass-control-edge: rgb(255 255 255 / 16%);
+  --widget-glass-control-outline: rgb(255 255 255 / 5%);
+  --widget-glass-control-hover: rgb(255 255 255 / 16%);
+  --widget-glass-control-press: rgb(255 255 255 / 20%);
+  --widget-glass-control-hairline: 0 0 0 0.5px rgb(0 0 0 / 45%);
+  --widget-glass-control-inset: inset 0 1px 0 rgb(255 255 255 / 14%);
+  --widget-glass-selection-shadow: inset 0 1px 0 rgb(255 255 255 / 16%), 0 4px 12px -6px rgb(0 0 0 / 55%);
+  --widget-glass-panel: rgb(30 30 32 / 55%);
+  --widget-glass-panel-wash: rgb(255 255 255 / 5%);
+  --widget-glass-panel-shadow: 0 0 0 0.5px rgb(0 0 0 / 45%), inset 0 1px 0 rgb(255 255 255 / 14%), 0 18px 40px -24px rgb(0 0 0 / 60%);
+  --widget-glass-panel-inset: inset 0 1px 0 rgb(255 255 255 / 14%);
+  --widget-glass-panel-hairline: 0 0 0 0.5px rgb(0 0 0 / 45%);
+  --widget-glass-sticky-header: rgb(30 30 32 / 78%);
+
 }
 
 /* Semantic surface hooks cover Cards and token-backed Boxes, including pricing
@@ -129,7 +166,7 @@
   -webkit-backdrop-filter: var(--widget-glass-blur);
   backdrop-filter: var(--widget-glass-blur);
 }
-.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-widget-surface],
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) [data-widget-surface],
 .widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-widget-surface] {
   background: var(--widget-glass-wash) !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%) !important;
@@ -141,13 +178,13 @@
   border-color: color-mix(in srgb, var(--widget-glass-tint) 35%, transparent) !important;
   background: var(--widget-glass-sheen), color-mix(in srgb, var(--widget-glass-tint) 5%, var(--widget-glass-pane)) !important;
 }
-.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-surface-emphasis="true"],
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) [data-surface-emphasis="true"],
 .widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-surface-emphasis="true"] {
   background: var(--widget-glass-selected) !important;
 }
 .widget-root[data-appearance="glass"].wg-card[data-surface-shadow="false"] { box-shadow: none !important; }
 /* Additional inset groups share their parent's finish instead of accumulating paint. */
-.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-widget-surface] [data-widget-surface]:not([data-surface-emphasis]),
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) [data-widget-surface] [data-widget-surface]:not([data-surface-emphasis]),
 .widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-widget-surface] [data-widget-surface]:not([data-surface-emphasis]) {
   background: transparent !important;
   box-shadow: none !important;
@@ -176,10 +213,14 @@
 ) {
   --_glass-tint: var(--widget-glass-neutral);
   --_glass-text: var(--widget-text-primary);
-  --_glass-fill: var(--widget-glass-wash);
-  --_glass-edge: var(--widget-border-control);
+  --_glass-fill: var(--widget-glass-control-fill);
+  --_glass-edge: var(--widget-glass-control-edge);
   --_glass-gloss: var(--widget-glass-highlight);
   --_glass-shadow: var(--widget-glass-control-shadow);
+  --_glass-hover-fill: var(--widget-glass-control-hover);
+  --_glass-press-fill: var(--widget-glass-control-press);
+  --_glass-hover-shadow: var(--_glass-shadow);
+  --_glass-press-shadow: var(--widget-glass-control-hairline), var(--widget-glass-control-inset);
   background-color: var(--_glass-fill) !important;
   background-image: var(--_glass-gloss) !important;
   color: var(--_glass-text) !important;
@@ -187,7 +228,7 @@
   border-radius: var(--widget-radius-control);
   box-shadow: var(--_glass-shadow) !important;
   filter: none;
-  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 100ms ease;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 180ms var(--widget-ease), translate 180ms var(--widget-ease);
 }
 /* Solid primary actions and on-states are glossy ink; segments and tabs lift a raised thumb. */
 .widget-root[data-appearance="glass"] :is(
@@ -200,43 +241,47 @@
   --_glass-text: var(--widget-glass-prominent-text);
   --_glass-fill: var(--widget-glass-prominent);
   --_glass-edge: var(--widget-glass-prominent);
-  --_glass-hover-mix: var(--widget-glass-prominent-text);
+  --_glass-hover-fill: color-mix(in srgb, var(--widget-glass-prominent) calc(100% - var(--widget-glass-hover-tint)), var(--widget-glass-prominent-text) var(--widget-glass-hover-tint));
+  --_glass-press-fill: color-mix(in srgb, var(--widget-glass-prominent) calc(100% - var(--widget-glass-press-tint)), var(--widget-glass-prominent-text) var(--widget-glass-press-tint));
+  --_glass-press-shadow: inset 0 1px 3px rgb(0 0 0 / 14%);
   --_glass-hover-edge: var(--widget-glass-prominent);
   --_glass-gloss: var(--widget-glass-prominent-gloss);
   --_glass-shadow: var(--widget-glass-prominent-shadow);
 }
 .widget-root[data-appearance="glass"] :is(.wg-segmented-control > :where(button)[aria-checked="true"], .wg-tabs-tab[aria-selected="true"]) {
-  --_glass-fill: var(--widget-glass-segment);
+  --_glass-fill: var(--widget-glass-selection);
+  border: 0;
   --_glass-edge: transparent;
-  --_glass-shadow: var(--widget-glass-thumb-shadow);
+  --_glass-shadow: var(--widget-glass-selection-shadow);
 }
 .widget-root[data-appearance="glass"] .wg-btn[data-color="info"] { --_glass-tint: var(--widget-info); }
 .widget-root[data-appearance="glass"] .wg-btn[data-color="success"] { --_glass-tint: var(--widget-success); }
 .widget-root[data-appearance="glass"] :is(.wg-btn[data-color="danger"], [data-slot="button"][data-variant="destructive"]) { --_glass-tint: var(--widget-danger); --_glass-text: var(--widget-danger-soft-fg); }
 .widget-root[data-appearance="glass"] :is(.wg-btn[data-color="warning"], .wg-btn[data-color="caution"]) { --_glass-tint: var(--widget-warning); --_glass-text: var(--widget-warning-soft-fg); }
 .widget-root[data-appearance="glass"] .wg-btn[data-color="discovery"] { --_glass-tint: var(--widget-discovery); }
-.widget-root[data-appearance="glass"] :is(.wg-btn[data-color="info"], .wg-btn[data-color="success"], .wg-btn[data-color="danger"], .wg-btn[data-color="warning"], .wg-btn[data-color="caution"], .wg-btn[data-color="discovery"], [data-slot="button"][data-variant="destructive"]) { --_glass-fill: color-mix(in srgb, var(--_glass-tint) 6%, var(--widget-glass-wash)); --_glass-edge: color-mix(in srgb, var(--_glass-tint) 18%, transparent); }
-.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="outline"], [data-slot="button"][data-variant="outline"]) { --_glass-fill: transparent; --_glass-edge: var(--widget-border-control); }
-.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="ghost"], [data-slot="button"][data-variant="ghost"], [data-slot="button"][data-variant="link"], .wg-tabs-tab:not([aria-selected="true"]), .wg-segmented-control > :where(button):not([aria-checked="true"])) {
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-color="info"], .wg-btn[data-color="success"], .wg-btn[data-color="danger"], .wg-btn[data-color="warning"], .wg-btn[data-color="caution"], .wg-btn[data-color="discovery"], [data-slot="button"][data-variant="destructive"]) { --_glass-fill: color-mix(in srgb, var(--_glass-tint) 6%, var(--widget-glass-control-fill)); }
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="outline"], [data-slot="button"][data-variant="outline"]) { --_glass-fill: var(--widget-glass-control-outline); --_glass-edge: var(--widget-glass-control-edge); }
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="ghost"], .wg-btn[data-variant="link"], [data-slot="button"][data-variant="ghost"], [data-slot="button"][data-variant="link"], .wg-tabs-tab:not([aria-selected="true"]), .wg-segmented-control > :where(button):not([aria-checked="true"])) {
   --_glass-fill: transparent;
   --_glass-edge: transparent;
-  background-image: none !important;
-  box-shadow: none !important;
+  --_glass-gloss: none;
+  --_glass-shadow: none;
+  --_glass-hover-shadow: var(--widget-glass-control-hairline);
 }
 @media (hover: hover) {
   .widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, .wg-tabs-tab, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit, .wg-table-footer button):hover:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
-    background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-hover-tint)), var(--_glass-hover-mix, var(--_glass-tint)) var(--widget-glass-hover-tint)) !important;
-    border-color: var(--_glass-hover-edge, color-mix(in srgb, var(--_glass-tint) 30%, transparent)) !important;
-    box-shadow: var(--_glass-shadow, var(--widget-glass-control-shadow)), inset 0 0 0 1px rgb(255 255 255 / 10%) !important;
+    background-color: var(--_glass-hover-fill) !important;
+    border-color: var(--_glass-hover-edge, var(--widget-glass-control-edge)) !important;
+    box-shadow: var(--_glass-hover-shadow) !important;
     opacity: 1;
     filter: none;
     transform: none;
   }
 }
-.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit):active:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
-  background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-press-tint)), var(--_glass-hover-mix, var(--_glass-tint)) var(--widget-glass-press-tint)) !important;
-  box-shadow: inset 0 1px 3px rgb(0 0 0 / 14%) !important;
-  transform: scale(.985);
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, .wg-tabs-tab, .wg-table-footer button, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit):active:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
+  background-color: var(--_glass-press-fill) !important;
+  box-shadow: var(--_glass-press-shadow) !important;
+  transform: scale(.98);
 }
 
 /* Recessed fields stay matte. Keyboard focus still uses one border cue. */
@@ -252,40 +297,122 @@
   box-shadow: none !important;
   border-color: var(--widget-border-strong) !important;
 }
-.widget-root[data-appearance="glass"] .wg-tabs-list { gap: 4px; padding: 4px; border: 0; border-radius: 14px; background: var(--widget-surface-secondary); }
+.widget-root[data-appearance="glass"] .wg-tabs-list { width: fit-content; max-width: 100%; gap: 4px; padding: 4px; border: 0; border-radius: 14px; background: var(--widget-surface-secondary); }
 .widget-root[data-appearance="glass"] .wg-tabs-tab { padding: 7px 12px; border: 1px solid transparent; border-radius: 10px; }
 .widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%); }
 .widget-root[data-appearance="glass"] :is(.wg-switch, .wg-slider-track, [data-slot="checkbox"], [data-slot="radio-group-item"]) { background: var(--widget-surface-tertiary); border-color: var(--widget-border-control); box-shadow: inset 0 1px 3px rgb(0 0 0 / 10%); }
 .widget-root[data-appearance="glass"] :is(.wg-switch[aria-checked="true"], [data-slot="checkbox"][data-state="checked"], [data-slot="radio-group-item"][data-state="checked"]) { background: var(--widget-glass-prominent); border-color: var(--widget-glass-prominent); color: var(--widget-glass-prominent-text); }
 .widget-root[data-appearance="glass"] .wg-switch > span,
 .widget-root[data-appearance="glass"] .wg-slider-thumb { background: var(--widget-glass-thumb); border: 1px solid rgb(0 0 0 / 4%); box-shadow: var(--widget-glass-thumb-shadow); }
-.widget-root[data-appearance="glass"] .wg-slider-thumb { width: 22px; height: 22px; }
+.widget-root[data-appearance="glass"] .wg-slider-thumb { width: 34px; height: 22px; border-radius: 11px; }
 .widget-root[data-appearance="glass"] .wg-badge[data-variant="solid"] { background: var(--_badge-soft-bg); color: var(--_badge-soft-fg); border-color: var(--_badge-border); }
 
 /* Dense data shares one surface; selected headers and cells use the same tint. */
-.widget-root[data-appearance="glass"] :is(.wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) { background: var(--widget-glass-wash); box-shadow: none; }
 .widget-root[data-appearance="glass"] :is(.wg-comparison-table, .wg-workspace-table) thead th { background: var(--widget-surface-secondary); }
 .widget-root[data-appearance="glass"] .wg-comparison-table [data-highlighted],
 .widget-root[data-appearance="glass"] .wg-workspace-table tr[data-selected] { background: var(--widget-glass-selected); }
 .widget-root[data-appearance="glass"] .wg-comparison-table thead th[data-highlighted] { color: var(--widget-glass-tint-text); }
-.widget-root[data-appearance="glass"] :is(.wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar) { background-color: var(--widget-glass-wash); box-shadow: var(--widget-shadow-xs); }
-.widget-root[data-appearance="glass"] :is(.wg-task-row, .wg-context-card, .wg-approval-options label):hover { background: var(--widget-surface-hover); border-color: var(--widget-border-control); box-shadow: var(--widget-shadow-sm); transform: none; }
+.widget-root[data-appearance="glass"] .wg-approval-options label:hover { background: var(--widget-surface-hover); border-color: var(--widget-border-control); box-shadow: var(--widget-shadow-sm); transform: none; }
 .widget-root[data-appearance="glass"] .recharts-default-tooltip { background: var(--widget-glass-popup) !important; border-color: var(--widget-border-default) !important; border-radius: 12px !important; box-shadow: var(--widget-glass-pane-shadow); -webkit-backdrop-filter: var(--widget-glass-blur); backdrop-filter: var(--widget-glass-blur); }
+
+
+/* Standalone groups are panes; groups within a pane are only a wash. */
+.widget-root[data-appearance="glass"] :is(.wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) {
+  background: var(--widget-glass-panel);
+  border-color: var(--widget-glass-control-edge);
+  box-shadow: var(--widget-glass-panel-shadow);
+  -webkit-backdrop-filter: var(--widget-glass-blur);
+  backdrop-filter: var(--widget-glass-blur);
+}
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) :is(.wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table),
+.widget-root[data-appearance="glass"]:is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) :is(.wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) {
+  background: var(--widget-glass-panel-wash);
+  box-shadow: var(--widget-glass-panel-hairline), var(--widget-glass-panel-inset);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.widget-root[data-appearance="glass"] .wg-sidebar-section button[data-active] {
+  background: var(--widget-glass-selection);
+  border: 0;
+  box-shadow: var(--widget-glass-selection-shadow);
+}
+/* Zero specificity supplies positioning only when the component has none. */
+:where(.widget-root[data-appearance="glass"]:is([data-widget-surface], .wg-portal)),
+:where(.widget-root[data-appearance="glass"] :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table, .wg-segmented-control > button[aria-checked="true"], .wg-tabs-tab[aria-selected="true"], .wg-slider-thumb, .wg-switch > span)) { position: relative; }
+.widget-root[data-appearance="glass"]:is([data-widget-surface], .wg-portal),
+.widget-root[data-appearance="glass"] :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) { isolation: isolate; }
+.widget-root[data-appearance="glass"]:is([data-widget-surface], .wg-portal)::before,
+.widget-root[data-appearance="glass"]:is([data-widget-surface], .wg-portal)::after,
+.widget-root[data-appearance="glass"] :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::before,
+.widget-root[data-appearance="glass"] :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::after,
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled)::before,
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.widget-root[data-appearance="glass"]:is([data-widget-surface], .wg-portal)::before,
+.widget-root[data-appearance="glass"] :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::before,
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled)::before { box-shadow: var(--widget-glass-bevel); }
+.widget-root[data-appearance="glass"]:is([data-widget-surface], .wg-portal)::after,
+.widget-root[data-appearance="glass"] :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::after,
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled)::after {
+  padding: 1.5px;
+  background: var(--widget-glass-rim);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::before,
+.widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::after,
+.widget-root[data-appearance="glass"]:is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::before,
+.widget-root[data-appearance="glass"]:is(.wg-card, [data-widget-surface], .wg-portal, .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) :is([data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table)::after { content: none; }
+/* The controller owns data-lens and clears it on eviction or preference changes. */
+.widget-root[data-appearance="glass"][data-lens],
+.widget-root[data-appearance="glass"] [data-lens] {
+  -webkit-backdrop-filter: var(--wg-lens) var(--widget-glass-lens-blur);
+  backdrop-filter: var(--wg-lens) var(--widget-glass-lens-blur);
+}
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"], .wg-tabs-tab[aria-selected="true"], .wg-slider-thumb, .wg-switch > span) {
+  transition: background-color 180ms var(--widget-ease), box-shadow 180ms var(--widget-ease), transform 180ms var(--widget-ease), translate 180ms var(--widget-ease);
+}
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled) {
+  background-color: rgb(255 255 255 / 10%) !important;
+  background-image: none !important;
+  box-shadow: var(--widget-glass-thumb-shadow) !important;
+  transform: var(--_glass-lens-scale, scale(1.12));
+}
+.widget-root[data-appearance="glass"] .wg-switch > span { --_glass-lens-scale: scaleX(1.18) scaleY(1.08); }
+/* Individual translate preserves the switch's on-position while its lens scales. */
+.widget-root[data-appearance="glass"] .wg-switch[aria-checked="true"] > span { translate: 14px 0; transform: none; }
+.widget-root[data-appearance="glass"] .wg-table[data-sticky-header] :is(thead, tbody tr[data-header]) {
+  background: var(--widget-glass-sticky-header);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  backdrop-filter: blur(12px) saturate(1.6);
+}
 
 /* Solid material is reserved for requested accessibility and browser fallback. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .widget-root[data-appearance="glass"] { --widget-glass-pane: #f7f7f8; --widget-glass-popup: #f7f7f8; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c1c1e; --widget-glass-popup: #1c1c1e; }
+  .widget-root[data-appearance="glass"] { --widget-glass-pane: #f7f7f8; --widget-glass-popup: #f7f7f8; --widget-glass-panel: #f7f7f8; --widget-glass-panel-wash: #f2f2f4; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c1c1e; --widget-glass-popup: #1c1c1e; --widget-glass-panel: #1c1c1e; --widget-glass-panel-wash: #2c2c2e; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .widget-root[data-appearance="glass"] { --widget-glass-pane: #ffffff; --widget-glass-popup: #ffffff; --widget-glass-wash: #f2f2f4; --widget-glass-field: #f2f2f4; --widget-glass-selected: #e5e5ea; --widget-glass-sheen: none; --widget-glass-highlight: none; --widget-glass-prominent-gloss: none; --widget-glass-blur: none; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c1c1e; --widget-glass-popup: #1c1c1e; --widget-glass-wash: #2c2c2e; --widget-glass-field: #2c2c2e; --widget-glass-selected: #3a3a3c; --widget-glass-segment: #48484a; }
+  .widget-root[data-appearance="glass"] { --widget-glass-pane: #ffffff; --widget-glass-popup: #ffffff; --widget-glass-wash: #f2f2f4; --widget-glass-field: #f2f2f4; --widget-glass-selected: #e5e5ea; --widget-glass-sheen: none; --widget-glass-highlight: none; --widget-glass-prominent-gloss: none; --widget-glass-blur: none; --widget-glass-lens-blur: none; --widget-glass-bevel: none; --widget-glass-rim: none; --widget-glass-panel: #fff; --widget-glass-panel-wash: #f2f2f4; --widget-glass-control-fill: #fff; --widget-glass-control-outline: #fff; --widget-glass-control-hover: #f2f2f4; --widget-glass-control-press: #e5e5ea; --widget-glass-selection: #fff; --widget-glass-sticky-header: #fff; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c1c1e; --widget-glass-popup: #1c1c1e; --widget-glass-panel: #1c1c1e; --widget-glass-panel-wash: #2c2c2e; --widget-glass-wash: #2c2c2e; --widget-glass-field: #2c2c2e; --widget-glass-selected: #3a3a3c; --widget-glass-segment: #48484a; --widget-glass-control-fill: #2c2c2e; --widget-glass-control-outline: #2c2c2e; --widget-glass-control-hover: #3a3a3c; --widget-glass-control-press: #48484a; --widget-glass-selection: #48484a; --widget-glass-sticky-header: #1c1c1e; --widget-glass-bevel: none; --widget-glass-rim: none; --widget-glass-lens-blur: none; }
+  .widget-root[data-appearance="glass"][data-lens], .widget-root[data-appearance="glass"] [data-lens],
+  .widget-root[data-appearance="glass"] .wg-table[data-sticky-header] :is(thead, tbody tr[data-header]) { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled) { background-color: var(--widget-glass-selection) !important; }
 }
 @media (prefers-contrast: more) {
-  .widget-root[data-appearance="glass"] { --widget-border-default: #86868b; --widget-border-subtle: #86868b; --widget-border-control: #86868b; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-border-default: #98989d; --widget-border-subtle: #98989d; --widget-border-control: #98989d; }
+  .widget-root[data-appearance="glass"] { --widget-border-default: #86868b; --widget-border-subtle: #86868b; --widget-border-control: #86868b; --widget-glass-control-edge: #86868b; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-border-default: #98989d; --widget-border-subtle: #98989d; --widget-border-control: #98989d; --widget-glass-control-edge: #98989d; }
 }
 @media (prefers-reduced-motion: reduce) {
   .widget-root[data-appearance="glass"] :is(button, [role="button"]) { transition: none; }
   .widget-root[data-appearance="glass"] :is(button, [role="button"]):active { transform: none; }
+  .widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"], .wg-tabs-tab[aria-selected="true"], .wg-slider-thumb, .wg-switch > span) { transition: none !important; }
+  .widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled) { transform: none !important; }
 }

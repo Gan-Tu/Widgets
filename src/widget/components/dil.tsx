@@ -43,6 +43,7 @@ import { Badge, Icon, Image } from "./content";
 import { Text, Caption } from "./text";
 import { BaseCarousel, BaseCarouselItem, BaseCarouselMediaItem, CardCarousel, CardLinkItem } from "./carousel";
 import { useWidgetAppearance } from "../theme";
+import { useLiquidGlassRoot } from "../liquidGlass/useLiquidGlass";
 
 type ChildrenProps = { children?: React.ReactNode };
 
@@ -72,6 +73,7 @@ const Response: React.FC<
   const inheritedTheme = useWidgetTheme();
   const resolvedTheme = theme ?? inheritedTheme;
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  useLiquidGlassRoot(visibleRef);
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -1169,7 +1171,8 @@ const SegmentedControl: React.FC<{
       aria-label={ariaLabel ?? name}
       className="wg-segmented-control inline-flex gap-1 rounded-xl p-1"
       style={{
-        width: block ? "100%" : undefined,
+        width: block ? "100%" : "fit-content",
+        maxWidth: "100%",
         borderRadius: pill ? "999px" : "12px",
         background: variant === "ghost" ? "transparent" : "var(--widget-surface-secondary)"
       }}

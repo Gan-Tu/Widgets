@@ -1,6 +1,7 @@
 export { WidgetRenderer } from "./WidgetRenderer";
 export type { WidgetRendererProps } from "./WidgetRenderer";
 export { WidgetAppearanceProvider } from "./theme";
+export { setLiquidGlassRefraction } from "./liquidGlass/lensFilter";
 
 export * from "./types";
 export * from "./actions";

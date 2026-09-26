@@ -2,6 +2,7 @@ import React from "react";
 
 import { useWidgetAction, useWidgetForm, useWidgetTheme, WidgetFormProvider, WidgetThemeProvider } from "../context";
 import { useWidgetAppearance } from "../theme";
+import { useLiquidGlassRoot } from "../liquidGlass/useLiquidGlass";
 import type { ActionConfig, Alignment, Justification, Padding, ThemeColor, WidgetStatus } from "../types";
 import { useVisibleAction } from "../hooks";
 import { applyPadding, isSurfaceColor, resolveColor, resolveGap, spaceToCss } from "../style";
@@ -33,6 +34,7 @@ const Basic: React.FC<BasicProps> = ({
   const appearance = useWidgetAppearance();
   const resolvedTheme = theme ?? inheritedTheme;
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  useLiquidGlassRoot(visibleRef);
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: direction === "row" ? "row" : "column",
@@ -146,6 +148,7 @@ const CardInner: React.FC<CardProps> = ({
   const resolvedTheme = theme ?? inheritedTheme;
   const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  useLiquidGlassRoot(visibleRef);
 
   const style: React.CSSProperties = {
     width: "100%",
@@ -281,6 +284,7 @@ const ListView: React.FC<ListViewProps> = ({
   const appearance = useWidgetAppearance();
   const resolvedTheme = theme ?? inheritedTheme;
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
+  useLiquidGlassRoot(visibleRef);
   const [expanded, setExpanded] = React.useState(false);
   const items = React.Children.toArray(children);
   const computedLimit = limit === "auto" ? 6 : limit;
