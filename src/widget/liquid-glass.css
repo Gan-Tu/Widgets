@@ -298,8 +298,9 @@
   box-shadow: none !important;
   border-color: var(--widget-border-strong) !important;
 }
-.widget-root[data-appearance="glass"] .wg-tabs-list { width: fit-content; max-width: 100%; gap: 4px; padding: 4px; border: 0; border-radius: 14px; background: var(--widget-surface-secondary); }
-.widget-root[data-appearance="glass"] .wg-tabs-tab { padding: 7px 12px; border: 1px solid transparent; border-radius: 10px; }
+/* A compact track: pill tabs should cost little more width than the underline style. */
+.widget-root[data-appearance="glass"] .wg-tabs-list { width: fit-content; max-width: 100%; gap: 2px; padding: 3px; border: 0; border-radius: 12px; background: var(--widget-surface-secondary); }
+.widget-root[data-appearance="glass"] .wg-tabs-tab { padding: 6px 8px; border: 0; border-radius: 9px; }
 .widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%); }
 .widget-root[data-appearance="glass"] :is(.wg-switch, .wg-slider-track, [data-slot="checkbox"], [data-slot="radio-group-item"]) { background: var(--widget-surface-tertiary); border-color: var(--widget-border-control); box-shadow: inset 0 1px 3px rgb(0 0 0 / 10%); }
 .widget-root[data-appearance="glass"] :is(.wg-switch[aria-checked="true"], [data-slot="checkbox"][data-state="checked"], [data-slot="radio-group-item"][data-state="checked"]) { background: var(--widget-glass-prominent); border-color: var(--widget-glass-prominent); color: var(--widget-glass-prominent-text); }
