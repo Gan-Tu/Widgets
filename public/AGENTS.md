@@ -34,7 +34,7 @@ These are enforced by a validator; a template that breaks any of them is rejecte
 3. **No `className`, no `style`, no `dangerouslySetInnerHTML`** props. All styling flows through component props and design tokens.
 4. **Event props must end in `Action`** (`onClickAction`, `onSubmitAction`, `onChangeAction`, `onTickAction`, `onVisibleAction`). Any other `on*` prop is rejected. Action values are plain objects, never functions.
 5. **No JavaScript beyond expressions.** No arrow functions (except callbacks of the whitelisted array methods), no assignments, no `new`, no `await`, no spread (`{...props}`), no tagged templates, no IIFEs.
-6. **Only these helper functions** may be called: `size`, `String`, `Number`, `Boolean`, `min`, `max`, `round`, `floor`, `ceil`, `now`, `set`, `append`, `prepend`, `remove`, `has`, `read`, `bp`, `isMobile`, `isDark`, `bind`, `expr`, `format`, `formatDate`, `sum`, `avg`, `sortBy`, `range`, `clamp`, `abs`, `pluralize`, `theme`, plus the whitelisted methods below.
+6. **Only these helper functions** may be called: `size`, `String`, `Number`, `Boolean`, `min`, `max`, `round`, `floor`, `ceil`, `now`, `set`, `append`, `prepend`, `remove`, `has`, `read`, `bp`, `isMobile`, `isDark`, `format`, `formatDate`, `sum`, `avg`, `sortBy`, `range`, `clamp`, `abs`, `pluralize`, `theme`, plus the whitelisted methods below. (To wire a control to state, use the `bind` prop — see Binding controls to state.)
 7. **No `data:` URLs** anywhere (template or data). Image URLs must come from the `availableImages` list when one is provided; never invent image URLs. When no images are available, design without photos (icons, initials, color) rather than hallucinating a URL.
 8. **Every identifier must come from `data`, `State` defaults, or a local scope.** Prefer binding text through data over hard-coding it in the template, so the widget is reusable with different data.
 
@@ -112,6 +112,18 @@ Array callbacks must be arrow functions with named parameters and an expression 
 
 `Show.ElseIf when={condition}` adds an ordered branch before `Show.Else`; the first true branch renders. An ElseIf without `when` is false. Branch markers are direct children of Show and inert outside it.
 
+```
+<Show $when="status === 'done'">
+  <Badge label="Done" color="success" />
+  <Show.ElseIf $when="status === 'blocked'">
+    <Badge label="Blocked" color="danger" />
+  </Show.ElseIf>
+  <Show.Else>
+    <Badge label="Open" />
+  </Show.Else>
+</Show>
+```
+
 `Show` renders the main branch when `when` is truthy (omit the prop entirely to always render) — so `$when="item.popular"` works even when the field is missing.
 
 **`<Scope values={{...}}>`** — introduce derived values for children:
@@ -183,6 +195,16 @@ Use `bind` by default for a control whose value other parts of the widget displa
 
 Here `items` comes from data (for example `[{ title: "Review draft", done: false }]`). Missing paths read the nearest State default, then the control default; defaults seed state once on mount. An explicit controlled prop wins for display. **Use one of `bind`, a controlled prop, or a default — do not combine them.** Bound controls still join Forms; without `name`, the bind path is the field name and its sanitized form is the DOM id. Slider binds a number for one thumb or a pair for a range; its form/change payload remains an array.
 
+Controls that accept `bind`: `Input`, `Textarea`, `Select`, `Combobox`, `DatePicker` (`YYYY-MM-DD`), `InputOTP`, `RadioGroup`, and `SegmentedControl` bind strings; `ChipGroup` and `ToggleGroup` bind a string, or a string array with `type="multiple"`; `Slider` binds a number or `[lo, hi]`; `Checkbox` and `Toggle` bind booleans; `Tabs` binds the active tab id; `Collapsible` binds whether it is open; `BaseCarousel` binds the slide index.
+
+Reactive rules:
+
+- Bind every control whose value is displayed or used elsewhere in the widget, so the display always matches the control.
+- Derive counts, totals, and filtered lists with expressions or `Scope` (`filter`, `sum`, `pluralize`, `format`); never keep a second copy of a value that can be computed.
+- Keep states truthful: `loading`, `disabled`, and `invalid` reflect real conditions, and nothing claims success ("Copied", "Sent") before the action runs.
+- Give every control a real effect: it changes what the widget shows, submits a form, or sends an action the host handles.
+- Keep essential information visible; hover (`tooltip`, `showOnHover`) only adds detail, since touch users cannot hover.
+
 ### Host conversation action
 
 `{ type: "send_message", payload: { text: "Make this shorter" } }` asks the host to send text as the user's next chat message. It starts a new conversation turn; it is not evidence that any external task ran. Label the control with what will be sent, for example "Ask for a shorter version". The renderer forwards this action to `onAction`.
@@ -209,9 +231,9 @@ Wrap controls in `<Form onSubmitAction={{ type: "..." }}>`. Every named control 
 
 Provide `defaultValue`/`defaultValues`, `defaultChecked`, or `defaultPressed` when the initial selection should be submitted before the user interacts. Defaults initialize missing form values without overwriting an existing value, including `false`. A Slider submits a number array even when it has only one thumb.
 
-For a controlled `SegmentedControl`, `value` determines both the displayed selection and the submitted field value. Update it through `onChangeAction` and widget state to accept a new selection; use `defaultValue` when the control should manage its own selection.
+When a control's selection drives other parts of the widget, prefer `bind` (see Binding controls to state). A controlled `value` determines both the displayed selection and the submitted field value, so update it through `onChangeAction` and widget state; use `defaultValue` when the control should manage its own selection.
 
-Every control's `onChangeAction` fires with the new value under both its `name` key (the literal name, even when dotted — nesting applies only to form submits) and a uniform `value` key. Control-specific extras: Checkbox adds `checked`; Select/RadioGroup add `option`; DatePicker adds `date`; Toggle adds `pressed`; Tabs adds `tab`; Slider's value is a number array — read one thumb with `value[0]`. In `$onChangeAction` expressions, reference `value` directly.
+Every control's `onChangeAction` fires with the new value under both its `name` key (the literal name, even when dotted — nesting applies only to form submits) and a uniform `value` key. Control-specific extras: Checkbox adds `checked`; Select/RadioGroup add `option`; DatePicker adds `date`; Toggle adds `pressed`; Tabs adds `tab`; Collapsible adds `open`; BaseCarousel adds `index`; Slider's value is a number array — read one thumb with `value[0]`. In `$onChangeAction` expressions, reference `value` directly.
 
 ## Design system
 
@@ -219,7 +241,7 @@ Every control's `onChangeAction` fires with the new value under both its `name` 
 
 The host can render the same template with standard styling or an experimental liquid-glass material. This is a `WidgetRenderer`/host setting, separate from light/dark theme. **Do not add appearance keys to the output JSON or template props.** Compose with the same tokens, components, and actions; the optional stylesheet supplies the material, including floating menus and dialogs. Avoid recreating glass with nested translucent Boxes or extra decorative borders. Switching the host appearance preserves the widget's data and interaction state.
 
-Use surface tokens for panels so the material can adapt: an outer pane provides frosting, a nested pane uses a thin matte wash, and deeper groups stay clear. Ordinary actions use nearly clear neutral glass; reserve faint color for meaningful semantic states. Ghost actions stay transparent at rest. The material uses actual transparency and backdrop blur, with only subtle highlights. Tables share one finish with a quiet selection, and popovers form a separate, denser layer. Explicit photo/brand backgrounds remain authored content. This follows [Apple's material hierarchy and tinting guidance](https://developer.apple.com/videos/play/wwdc2025/219/); avoid adding duplicate glass layers or hard outlines to simulate selection.
+Use surface tokens for panels so the material can adapt: an outer pane provides frosting, a nested pane uses a thin wash, and deeper groups stay clear. Workspace panels such as `SidebarNav`, context cards, and tables become frosted panes on the host background and washes inside a card, so don't wrap them in extra Boxes with backgrounds. The palette is neutral: ordinary actions are flat, nearly clear capsules with a luminous edge; solid primary actions and on-states are glossy ink; the selected segment, tab, or sidebar item is a raised white pill; gray is reserved for tracks and recessed fields. Reserve faint color for meaningful semantic states, and keep ghost actions transparent at rest. Where the browser supports it, the host adds edge refraction with a faint chromatic fringe to panes and control thumbs, so keep components' default padding rather than placing text against a pane's edge. Tables share one finish with a quiet selection, sticky headers frost what scrolls beneath them, and popovers form a separate, denser layer. Explicit photo/brand backgrounds remain authored content. This follows [Apple's material hierarchy and tinting guidance](https://developer.apple.com/videos/play/wwdc2025/219/); avoid adding duplicate glass layers or hard outlines to simulate selection.
 
 ### Spacing & sizing units — read carefully
 

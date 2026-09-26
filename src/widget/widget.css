@@ -1071,6 +1071,8 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-code-line[data-highlighted] { background: var(--widget-accent-soft); box-shadow: inset 2px 0 0 var(--widget-accent); }
 .wg-code-number { padding-right: 0.7rem; color: var(--widget-text-tertiary); text-align: right; font-variant-numeric: tabular-nums; user-select: none; opacity: 0.75; }
 .wg-code-line code { white-space: pre; color: var(--widget-text-prose); }
+/* Without the number gutter, code spans the line and keeps the gutter's inset. */
+.wg-code-line > code:first-child { grid-column: 1 / -1; padding-left: 0.75rem; }
 @keyframes wg-code-enter { from { opacity: 0; filter: blur(3px); transform: translateY(3px); } }
 .wg-diff-stats { display: inline-flex; margin-left: auto; gap: 0.3rem; font-family: var(--widget-font-mono); font-size: 0.6875rem; font-variant-numeric: tabular-nums; }
 .wg-diff-stats b { color: var(--widget-success-soft-fg); font-weight: 600; }
