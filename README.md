@@ -15,7 +15,7 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
 - **Component library**: 144 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
   - `/` — an exploded-view SVG of a widget being built: the model's template streams in, tokens cross a validation layer that binds data and rejects an injected unsafe line, and the rendered card turns to face the viewer and fires `onAction`. Below it, a live template-to-widget exhibit. The hero supports pause, pointer tilt, reduced motion, and automatic suspension offscreen or in hidden tabs
-  - `/gallery` — 52 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
+  - `/gallery` — 53 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
   - `/docs` — per-component docs with live examples, prop tables, deep links, and a searchable component sidebar
   - `/playground` — live template + JSON editing, plus AI widget generation using **`gpt-6-sol`** through the OpenAI Responses API; starts with **Checkout**, and Reset restores it. Explicit example/component links open the requested demo
 - **Authoring guide**: [`public/AGENTS.md`](public/AGENTS.md) — the complete widget-authoring contract and design principles embedded into generation and repair prompts

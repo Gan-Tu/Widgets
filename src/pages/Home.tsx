@@ -49,14 +49,14 @@ const pipeline = [
 // tests/doc-counts.test.mjs — when it fails, update the numbers here.
 // "Featured" is the flag-driven showcase wall; the rest are data categories.
 const collection = [
-  { name: "Featured", note: "the sixteen signature demos", count: 16 },
+  { name: "Featured", note: "the curated signature demos", count: 17 },
   { name: "Agent UI", note: "thinking · streaming · approvals · orbs", count: 13 },
   { name: "Commerce", note: "carts · checkout · receipts", count: 6 },
   { name: "Analytics", note: "charts · stats · sparklines", count: 5 },
   { name: "Communication", note: "chat · citations · profiles", count: 5 },
   { name: "Engine", note: "control flow · state · expressions", count: 5 },
   { name: "Productivity", note: "tasks · steps · smart home", count: 5 },
-  { name: "Travel", note: "itineraries · bookings · weather", count: 5 },
+  { name: "Travel", note: "itineraries · bookings · weather", count: 6 },
   { name: "Forms", note: "inputs · pickers · validation", count: 4 },
   { name: "Media", note: "audio · video · image grids", count: 4 }
 ];
@@ -629,7 +629,7 @@ export function HomePage() {
 
       {/* Collection */}
       <section aria-labelledby="collection-title" className="mt-20 md:mt-32">
-        <SectionEyebrow route="/gallery" meta="52 widgets · 10 categories" />
+        <SectionEyebrow route="/gallery" meta="53 widgets · 10 categories" />
         <SectionTitle id="collection-title">The collection</SectionTitle>
         <div className="mt-7 border-t border-[var(--ink)] md:mt-10">
           {collection.map((row) => {
