@@ -1018,7 +1018,7 @@
 .wg-text-response :where(code) { border-radius: 5px; background: var(--widget-surface-tertiary); padding: 0.08rem 0.3rem; font-family: var(--widget-font-mono); font-size: 0.85em; }
 
 .wg-inline-citations { color: var(--widget-text-prose); font-size: 0.875rem; line-height: 1.65; }
-.wg-citation-marker { display: inline-flex; min-width: 15px; height: 15px; align-items: center; justify-content: center; margin: 0 0.14rem; border-radius: 5px; background: var(--widget-surface-tertiary); color: var(--widget-text-secondary); font-size: 0.625rem; font-weight: 650; font-variant-numeric: tabular-nums; vertical-align: super; }
+.wg-citation-marker { display: inline-flex; min-width: 15px; height: 15px; align-items: center; justify-content: center; margin: 0 0 0 0.14rem; border-radius: 5px; background: var(--widget-surface-tertiary); color: var(--widget-text-secondary); font-size: 0.625rem; font-weight: 650; font-variant-numeric: tabular-nums; vertical-align: super; }
 .wg-citation-sources { display: flex; flex-direction: column; gap: 0.1rem; margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px solid var(--widget-border-subtle); }
 .wg-citation-source { display: flex; min-width: 0; min-height: 30px; align-items: center; gap: 0.42rem; border-radius: 7px; color: var(--widget-text-secondary); padding: 0.2rem 0.3rem; text-decoration: none; font-size: 0.75rem; }
 a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var(--widget-text-primary); }
