@@ -1,8 +1,9 @@
 import React from "react";
+import { useControlValue, fieldId } from "../binding";
 import { useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button as UiButton } from "../../components/ui/button";
-import { useWidgetAction } from "../context";
+import { useWidgetAction, buildChangePayload } from "../context";
 import { useIsomorphicLayoutEffect, useResizeObserver, useVisibleAction } from "../hooks";
 import { applyPadding, resolveRadius, sizeToCss, spaceToCss } from "../style";
 import { safeHttpHref } from "../url";
@@ -16,6 +17,11 @@ type CarouselContextValue = { gap: string; visibleItems?: number | Record<string
 const CarouselContext = React.createContext<CarouselContextValue | undefined>(undefined);
 
 const BaseCarousel: React.FC<ChildrenProps & {
+  bind?: string;
+  name?: string;
+  activeIndex?: number;
+  defaultIndex?: number;
+  onChangeAction?: ActionConfig;
   gap?: number | string;
   visibleItems?: number | Record<string, number>;
   showArrows?: boolean;
@@ -23,7 +29,12 @@ const BaseCarousel: React.FC<ChildrenProps & {
   snapAlign?: "start" | "center" | "end";
   flush?: boolean;
   ariaLabel?: string;
-}> = ({ children, gap = 2, visibleItems = 1, showArrows = true, snap = "proximity", snapAlign = "start", flush, ariaLabel = "Carousel" }) => {
+}> = ({ children, bind, name: explicitName, activeIndex: controlledIndex, defaultIndex, onChangeAction, gap = 2, visibleItems = 1, showArrows = true, snap = "proximity", snapAlign = "start", flush, ariaLabel = "Carousel" }) => {
+  const action = useWidgetAction();
+  const [activeIndex, setActiveIndex, name] = useControlValue({ bind, name: explicitName, value: controlledIndex, defaultValue: defaultIndex, fallback: 0 });
+  const programmaticTarget = React.useRef<number | null>(null);
+  const lastIndex = React.useRef(-1);
+  const lastIncomingIndex = React.useRef<number | undefined>(undefined);
   const ref = React.useRef<HTMLDivElement | null>(null);
   const trackId = React.useId();
   const reducedMotion = useReducedMotion();
@@ -54,6 +65,31 @@ const BaseCarousel: React.FC<ChildrenProps & {
     if (ref.current) measure(ref.current);
   }, [children, measure]);
 
+  useIsomorphicLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const positions = slidePositions(node);
+    const index = Math.max(0, Math.min(positions.length - 1, Math.trunc(activeIndex)));
+    const left = positions[index] ?? 0;
+    // Only a changed incoming index can request an external jump. Re-renders
+    // with a stale controlled value must not undo local user navigation.
+    const incomingChanged = lastIncomingIndex.current !== activeIndex;
+    lastIncomingIndex.current = activeIndex;
+    if (incomingChanged && lastIndex.current !== index) {
+      lastIndex.current = index;
+      programmaticTarget.current = Math.abs(node.scrollLeft - left) > 1 ? left : null;
+      node.scrollTo({ left, behavior: "auto" });
+    }
+    measure(node);
+  }, [activeIndex, children, measure, slidePositions]);
+
+  const selectIndex = (index: number) => {
+    if (index === lastIndex.current) return;
+    lastIndex.current = index;
+    setActiveIndex(index);
+    if (onChangeAction) action?.(onChangeAction, buildChangePayload(name, index, { index }));
+  };
+
   const scrollTo = (direction: number | "start" | "end") => {
     const node = ref.current;
     if (!node) return;
@@ -61,12 +97,15 @@ const BaseCarousel: React.FC<ChildrenProps & {
     const position = direction === "start" ? 0 : direction === "end" ? node.scrollWidth - node.clientWidth
       : direction > 0 ? positions.find(p => p > node.scrollLeft + 1) ?? node.scrollWidth - node.clientWidth
       : [...positions].reverse().find(p => p < node.scrollLeft - 1) ?? 0;
+    const index = positions.findIndex(p => p === position);
+    selectIndex(Math.max(0, index));
+    programmaticTarget.current = position;
     node.scrollTo({ left: position, behavior: reducedMotion ? "auto" : "smooth" });
   };
 
   return (
     <CarouselContext.Provider value={{ gap: gapCss, visibleItems, snapAlign }}>
-      <div className="wg-carousel min-w-0" role="region" aria-roledescription="carousel" aria-label={ariaLabel}>
+      <div id={fieldId(name)} className="wg-carousel min-w-0" role="region" aria-roledescription="carousel" aria-label={ariaLabel}>
         <div
           ref={ref}
           id={trackId}
@@ -81,7 +120,19 @@ const BaseCarousel: React.FC<ChildrenProps & {
             scrollPaddingInline: flush ? "var(--widget-card-padding, 1rem)" : undefined,
             scrollSnapType: snap === "none" ? undefined : `x ${snap}`
           }}
-          onScroll={event => measure(event.currentTarget)}
+          onPointerDown={() => { programmaticTarget.current = null; }}
+          onWheel={() => { programmaticTarget.current = null; }}
+          onScroll={event => {
+            const node = event.currentTarget;
+            measure(node);
+            if (programmaticTarget.current !== null) {
+              if (Math.abs(node.scrollLeft - programmaticTarget.current) <= 1) programmaticTarget.current = null;
+              return;
+            }
+            const positions = slidePositions(node);
+            const index = positions.reduce((best, position, i) => Math.abs(position - node.scrollLeft) < Math.abs(positions[best] - node.scrollLeft) ? i : best, 0);
+            selectIndex(index);
+          }}
           onKeyDown={event => {
             if (event.target !== event.currentTarget) return;
             const direction = ({ ArrowLeft: -1, ArrowRight: 1, Home: "start", End: "end" } as Record<string, number | "start" | "end">)[event.key];

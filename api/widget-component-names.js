@@ -23,6 +23,8 @@ export const widgetComponentNames = [
   "Scope",
   "Show",
   "Show.Else",
+  "Show.ElseIf",
+  "State",
   "RunInterval",
   "Box",
   "Row",

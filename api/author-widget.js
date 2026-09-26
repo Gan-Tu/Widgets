@@ -44,6 +44,7 @@ const finalGenerationStatuses = [
 
 const rootComponents = new Set(["Basic", "Card", "ListView", "Response"]);
 const supportedFunctionCalls = new Set([
+  "format", "formatDate", "sum", "avg", "sortBy", "range", "clamp", "abs", "pluralize", "theme",
   "append",
   "bind",
   "Boolean",
@@ -69,6 +70,13 @@ const supportedFunctionCalls = new Set([
   "size",
   "String"
 ]);
+
+const callbackMethods = new Set(["map", "filter", "find", "findIndex", "some", "every", "reduce"]);
+const supportedMethods = new Set([...callbackMethods, "slice", "join", "includes", "indexOf", "concat", "at", "flat", "substring", "toUpperCase", "toLowerCase", "trim", "startsWith", "endsWith", "split", "padStart", "padEnd", "replaceAll", "toFixed"]);
+function methodName(callee) {
+  if (!["MemberExpression", "OptionalMemberExpression"].includes(callee?.type)) return undefined;
+  return callee.computed ? callee.property?.value : callee.property?.name;
+}
 
 const imageUrlPropsByComponent = new Map([
   ["Avatar", new Set(["src"])],
@@ -1028,7 +1036,13 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
     throw new Error("Widget template must have a root Widget UI component.");
   }
 
-  const rootName = getJSXComponentName(ast.openingElement.name);
+  let root = ast;
+  while (["Scope", "State"].includes(getJSXComponentName(root.openingElement.name))) {
+    const children = root.children.filter(child => child.type !== "JSXText" || child.value.trim());
+    if (children.length !== 1 || children[0].type !== "JSXElement") throw new Error("Root wrappers must contain one root component.");
+    root = children[0];
+  }
+  const rootName = getJSXComponentName(root.openingElement.name);
   if (!rootComponents.has(rootName)) {
     throw new Error(
       `Widget template root must be one of: ${Array.from(rootComponents).join(", ")}.`
@@ -1103,14 +1117,14 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
       node.type === "NewExpression" ||
       node.type === "AwaitExpression" ||
       node.type === "YieldExpression" ||
-      node.type === "TaggedTemplateExpression"
+      node.type === "TaggedTemplateExpression" ||
+      node.type === "RegExpLiteral" ||
+      node.type === "SpreadElement"
     ) {
       if (
         !(
-          parent?.type === "CallExpression" &&
-          parent.callee?.type === "MemberExpression" &&
-          parent.callee.property?.type === "Identifier" &&
-          parent.callee.property.name === "map" &&
+          ["CallExpression", "OptionalCallExpression"].includes(parent?.type) &&
+          callbackMethods.has(methodName(parent.callee)) &&
           node.type === "ArrowFunctionExpression"
         )
       ) {
@@ -1118,7 +1132,7 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
       }
     }
 
-    if (node.type === "CallExpression") {
+    if (node.type === "CallExpression" || node.type === "OptionalCallExpression") {
       if (
         node.callee.type === "Identifier" &&
         supportedFunctionCalls.has(node.callee.name)
@@ -1126,13 +1140,11 @@ function validateTemplate(template, allowedImageUrls, allowedComponents) {
         return;
       }
       if (
-        node.callee.type === "MemberExpression" &&
-        node.callee.property?.type === "Identifier" &&
-        node.callee.property.name === "map"
+        supportedMethods.has(methodName(node.callee))
       ) {
         return;
       }
-      throw new Error("Only renderer-supported helper calls and .map() are allowed.");
+      throw new Error("Only renderer-supported helpers and whitelisted methods are allowed.");
     }
   });
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { useControlValue, fieldId } from "../binding";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Download,
@@ -11,9 +12,7 @@ import {
 import {
   buildChangePayload,
   useWidgetAction,
-  useWidgetForm,
   useWidgetTheme,
-  getFormValue,
   WidgetThemeProvider
 } from "../context";
 import { useActionHandler, useResizeObserver, useVisibleAction } from "../hooks";
@@ -1104,6 +1103,7 @@ TableSection.displayName = "Table.Section";
 
 const SegmentedControl: React.FC<{
   name?: string;
+  bind?: string;
   options: { label: string; value: string; disabled?: boolean }[];
   value?: string;
   defaultValue?: string;
@@ -1115,24 +1115,14 @@ const SegmentedControl: React.FC<{
   size?: ControlSize;
   textSize?: TextSize;
   variant?: "default" | "ghost";
-}> = ({ name, options, value, defaultValue, onChangeAction, ariaLabel, block, disabled, pill, size = "md", textSize = "sm", variant = "default" }) => {
+}> = ({ name: explicitName, bind, options, value, defaultValue, onChangeAction, ariaLabel, block, disabled, pill, size = "md", textSize = "sm", variant = "default" }) => {
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const formValue = name && form ? getFormValue(form.values, name) : undefined;
-  const initialValue = defaultValue ?? options[0]?.value ?? "";
-  const [localValue, setLocalValue] = React.useState(initialValue);
-  const selected = value ?? (typeof formValue === "string" ? formValue : localValue);
+  const [selected, setSelected, name] = useControlValue({ name: explicitName, bind, value, defaultValue: defaultValue ?? options[0]?.value, fallback: "" });
   const height = controlHeights[size] ?? controlHeights.md;
-
-  React.useEffect(() => {
-    if (!name || !form) return;
-    // Controlled values remain authoritative; defaults only seed missing fields.
-    const nextValue = value ?? (formValue === undefined ? initialValue : undefined);
-    if (nextValue !== undefined && nextValue !== formValue) form.setValue(name, nextValue);
-  }, [name, form, formValue, value, initialValue]);
 
   return (
     <div
+      id={fieldId(name)}
       role="radiogroup"
       aria-label={ariaLabel ?? name}
       className="wg-segmented-control inline-flex gap-1 rounded-xl p-1"
@@ -1162,8 +1152,7 @@ const SegmentedControl: React.FC<{
               boxShadow: active && variant !== "ghost" ? "var(--widget-shadow-xs)" : undefined
             }}
             onClick={() => {
-              setLocalValue(option.value);
-              if (name && form) form.setValue(name, value ?? option.value);
+              setSelected(option.value);
               if (onChangeAction && action) {
                 action(onChangeAction, buildChangePayload(name, option.value, { option }));
               }

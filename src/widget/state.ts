@@ -6,6 +6,15 @@ export type StatePatch =
   | { op: "prepend"; path: string | Array<string | number>; value: unknown }
   | { op: "remove"; path: string | Array<string | number> };
 
+export const forbiddenProperties = new Set(["constructor", "prototype", "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__"]);
+
+export function safeLookup(source: unknown, key: unknown): unknown {
+  if (source == null || (typeof key !== "string" && typeof key !== "number") || forbiddenProperties.has(String(key))) return undefined;
+  const descriptor = Object.getOwnPropertyDescriptor(Object(source), String(key));
+  const value = descriptor && "value" in descriptor ? descriptor.value : undefined;
+  return typeof value === "function" ? undefined : value;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -59,7 +68,7 @@ function updateAtPath(
   updater: (current: unknown, parent: Record<string, unknown> | unknown[], key: string) => void
 ) {
   const segments = normalizePath(path);
-  if (!segments.length) return source;
+  if (!segments.length || segments.some(segment => forbiddenProperties.has(segment))) return source;
 
   const root = cloneContainer(source);
   let cursor = root as Record<string, unknown> | unknown[];
@@ -124,11 +133,9 @@ export function read(source: unknown, path: string | Array<string | number>, fal
   let cursor = source;
   for (const segment of normalizePath(path)) {
     if (cursor == null) return fallback;
-    cursor = Array.isArray(cursor)
-      ? cursor[Number(segment)]
-      : (cursor as Record<string, unknown>)[segment];
+    cursor = safeLookup(cursor, segment);
   }
-  return cursor ?? fallback;
+  return cursor === undefined ? fallback : cursor;
 }
 
 export function applyStateAction(state: unknown, action: ActionConfig) {

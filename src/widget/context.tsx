@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
+import { WidgetStateContext, type StateUpdater } from "./binding";
 import { isScopedClientAction, runWidgetClientAction } from "./actions";
 import { resolveDeferredActionExpression } from "./renderer/templateEngine";
-import { applyStateAction, hasStateAction } from "./state";
+import { useIsomorphicLayoutEffect } from "./hooks";
+import { applyStateAction, hasStateAction, read, set } from "./state";
 import type { ActionConfig } from "./types";
 
 type ActionDispatcher = (action: ActionConfig, formData?: Record<string, unknown>) => void;
@@ -26,9 +28,15 @@ export function WidgetActionProvider({
   children: React.ReactNode;
 }) {
   const stateRef = React.useRef(state);
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  const updateState = React.useCallback<StateUpdater>((updater) => {
+    stateRef.current = updater(stateRef.current);
+    onStateChange?.(updater);
+  }, [onStateChange]);
+  const stateContext = useMemo(() => ({ state, onStateChange: updateState }), [state, updateState]);
 
   const dispatcher = useMemo<ActionDispatcher>(() => {
     return (action, formData) => {
@@ -48,7 +56,7 @@ export function WidgetActionProvider({
       const carriesStateAction = hasStateAction(resolvedAction);
 
       if (carriesStateAction) {
-        onStateChange?.((previous) => applyStateAction(previous, resolvedAction));
+        updateState((previous) => applyStateAction(previous, resolvedAction));
       }
 
       if (isScopedClientAction(resolvedAction)) {
@@ -81,11 +89,11 @@ export function WidgetActionProvider({
         );
       }
     };
-  }, [onAction, onStateChange]);
+  }, [onAction, updateState]);
 
   return (
     <WidgetActionContext.Provider value={dispatcher}>
-      {children}
+      <WidgetStateContext.Provider value={stateContext}>{children}</WidgetStateContext.Provider>
     </WidgetActionContext.Provider>
   );
 }
@@ -108,19 +116,7 @@ function setValueAtPath(
   path: string,
   value: unknown
 ) {
-  const result = { ...source };
-  const segments = path.split(".");
-  let cursor: Record<string, unknown> = result;
-  for (let i = 0; i < segments.length - 1; i += 1) {
-    const key = segments[i];
-    const existing = cursor[key];
-    cursor[key] = typeof existing === "object" && existing !== null
-      ? Array.isArray(existing) ? [...existing] : { ...existing }
-      : {};
-    cursor = cursor[key] as Record<string, unknown>;
-  }
-  cursor[segments[segments.length - 1]] = value;
-  return result;
+  return applyStateAction(source, { patchState: set(path, value) }) as Record<string, unknown>;
 }
 
 export function WidgetFormProvider({
@@ -168,13 +164,7 @@ export function buildChangePayload(
 }
 
 export function getFormValue(values: Record<string, unknown>, name: string) {
-  const segments = name.split(".");
-  let cursor: unknown = values;
-  for (const segment of segments) {
-    if (typeof cursor !== "object" || cursor === null) return undefined;
-    cursor = (cursor as Record<string, unknown>)[segment];
-  }
-  return cursor;
+  return read(values, name);
 }
 
 /** Seed defaults once per named field, without overriding a user's existing value. */

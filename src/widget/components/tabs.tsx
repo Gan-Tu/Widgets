@@ -1,5 +1,6 @@
 import React from "react";
-import { buildChangePayload, useWidgetAction, useWidgetForm } from "../context";
+import { useControlValue, fieldId } from "../binding";
+import { buildChangePayload, useWidgetAction } from "../context";
 import type { ActionConfig, WidgetIcon } from "../types";
 import { Icon } from "./content";
 
@@ -9,22 +10,22 @@ const TabsContext = React.createContext<TabsContextValue | undefined>(undefined)
 type TabsProps = {
   tabs: { id: string; label: string; icon?: WidgetIcon }[];
   defaultTab?: string;
+  activeTab?: string;
+  bind?: string;
   name?: string;
   onChangeAction?: ActionConfig;
   children?: React.ReactNode;
 };
 
-const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, name, onChangeAction, children }) => {
+const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, activeTab: controlledTab, bind, name: explicitName, onChangeAction, children }) => {
   const action = useWidgetAction();
-  const form = useWidgetForm();
   const prefix = React.useId();
-  const [active, setActive] = React.useState(defaultTab ?? tabs?.[0]?.id ?? "");
+  const [active, setActive, name] = useControlValue({ bind, name: explicitName, value: controlledTab, defaultValue: defaultTab ?? tabs?.[0]?.id, fallback: "" });
   if (!Array.isArray(tabs) || tabs.length === 0) return null;
   const activeTab = tabs.some((tab) => tab.id === active) ? active : tabs[0].id;
 
   const select = (id: string) => {
     setActive(id);
-    if (name && form) form.setValue(name, id);
     if (onChangeAction && action) action(onChangeAction, buildChangePayload(name, id, { tab: id }));
   };
 
@@ -44,7 +45,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, name, onChangeAction, chi
 
   return (
     <TabsContext.Provider value={{ active: activeTab, prefix }}>
-      <div className="wg-tabs">
+      <div id={fieldId(name)} className="wg-tabs">
         <div role="tablist" className="wg-tabs-list">
           {tabs.map((tab, index) => (
             <button

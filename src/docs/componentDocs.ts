@@ -430,7 +430,8 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Input name="email" placeholder="you@example.com" />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "inputType", description: "Input type.", type: "\"text\" | \"email\" | \"number\" | \"password\" | \"tel\" | \"url\"", default: '"text"' },
       { name: "defaultValue", description: "Initial value.", type: "string" },
       { name: "value", description: "Controlled value override.", type: "string" },
@@ -455,7 +456,8 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Textarea name="notes" rows={4} />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "defaultValue", description: "Initial value.", type: "string" },
       { name: "value", description: "Controlled value override.", type: "string" },
       { name: "onChangeAction", description: "Action dispatched with the next value on change.", type: "ActionConfig" },
@@ -480,7 +482,9 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Select name="volume" options={[{ label: "10", value: "10" }]} />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "options", description: "Options list; each option may include disabled and description.", type: "Array<{ value: string; label: string; disabled?: boolean; description?: string }>" },
       { name: "onChangeAction", description: "Action dispatched with selected value and option.", type: "ActionConfig" },
       { name: "placeholder", description: "Placeholder text.", type: "string" },
@@ -500,7 +504,9 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<DatePicker name="due" placeholder="Due date" />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "placeholder", description: "Placeholder text.", type: "string" },
       { name: "onChangeAction", description: "Action when date changes.", type: "ActionConfig" },
       { name: "defaultValue", description: "Initial ISO date.", type: "string" },
@@ -523,7 +529,9 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Checkbox name="tos" label="Agree" />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "checked", description: "Controlled display value; takes precedence over bind.", type: "boolean" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "label", description: "Label text.", type: "string" },
       { name: "defaultChecked", description: "Initial checked state.", type: "boolean" },
       { name: "onChangeAction", description: "Action dispatched with checked state on change.", type: "ActionConfig" },
@@ -538,7 +546,9 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<RadioGroup name="size" options={[{ label: "Small", value: "sm" }]} />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "options", description: "Radio options; each option may include disabled.", type: "Array<{ label: string; value: string; disabled?: boolean }>" },
       { name: "ariaLabel", description: "Accessible group label override.", type: "string" },
       { name: "onChangeAction", description: "Action dispatched with selected value and option.", type: "ActionConfig" },
@@ -743,6 +753,10 @@ export const componentDocs: ComponentDoc[] = [
     category: "Disclosure & overlays",
     usage: `<Collapsible title="Details" content="Hidden text" />`,
     props: [
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "open", description: "Controlled display value; takes precedence over bind.", type: "boolean" },
+      { name: "name", description: "Optional form field name; defaults to bind.", type: "string" },
+      { name: "onChangeAction", description: "Change notification with value and open.", type: "ActionConfig" },
       { name: "title", description: "Trigger label.", type: "string" },
       { name: "content", description: "Collapsible content.", type: "string" },
       { name: "defaultOpen", description: "Initially open.", type: "boolean" }
@@ -798,8 +812,10 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Toggle name="subscribe" label="Subscribe" />`,
     props: [
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "pressed", description: "Controlled display value; takes precedence over bind.", type: "boolean" },
       { name: "variant", description: "Text button or a compact on/off switch. The label names the switch for assistive technology.", type: '"button" | "switch"', default: '"button"' },
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "label", description: "Button label.", type: "string" },
       { name: "defaultPressed", description: "Initial pressed state.", type: "boolean" },
       { name: "onChangeAction", description: "Action dispatched with pressed state on change.", type: "ActionConfig" },
@@ -813,7 +829,10 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<ToggleGroup name="view" type="single" options={[{ label: "Grid", value: "grid" }]} />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
+      { name: "values", description: "Controlled selection for multiple mode.", type: "string[]" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "type", description: "Selection mode.", type: "\"single\" | \"multiple\"", default: '"single"' },
       { name: "options", description: "Toggle options.", type: "Array<{ label: string; value: string }>" },
       { name: "defaultValue", description: "Initial value.", type: "string" },
@@ -829,7 +848,9 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Slider name="volume" defaultValue={45} />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "number | [number, number]" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "defaultValue", description: "Initial value.", type: "number | number[]" },
       { name: "min", description: "Minimum value.", type: "number", default: "0" },
       { name: "max", description: "Maximum value.", type: "number", default: "100" },
@@ -872,8 +893,10 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Combobox name="assignee" options={[{ label: "Alex", value: "alex" }]} />`,
     props: [
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
       { name: "block", description: "Fill the available field width. Otherwise uses 220px, capped to the parent width. Long selections truncate inside the control.", type: "boolean", default: "false" },
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "options", description: "Selectable options.", type: "Array<{ label: string; value: string }>" },
       { name: "placeholder", description: "Trigger placeholder.", type: "string" },
       { name: "searchPlaceholder", description: "Search input placeholder.", type: "string" },
@@ -890,8 +913,10 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<InputOTP name="code" length={6} />`,
     props: [
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
       { name: "ariaLabel", description: "Accessible label for the verification input.", type: "string", default: '"Verification code"' },
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "length", description: "OTP length.", type: "number", default: "6" },
       { name: "groupSize", description: "Slot group size.", type: "number", default: "3" },
       { name: "defaultValue", description: "Initial code value.", type: "string" },
@@ -951,6 +976,11 @@ export const componentDocs: ComponentDoc[] = [
     category: "Media",
     usage: `<BaseCarousel ariaLabel="Highlights" visibleItems={1}>\n  <BaseCarousel.Item><Text value="First highlight" /></BaseCarousel.Item>\n  <BaseCarousel.Item><Text value="Second highlight" /></BaseCarousel.Item>\n</BaseCarousel>`,
     props: [
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "activeIndex", description: "Jumps to a slide when it changes; user navigation still scrolls and reports onChangeAction. Takes precedence over bind.", type: "number" },
+      { name: "name", description: "Optional form field name; defaults to bind.", type: "string" },
+      { name: "onChangeAction", description: "Reports user navigation with value and index. Arrows, keyboard, and drag/snap scroll locally in bound, controlled, and uncontrolled modes.", type: "ActionConfig" },
+      { name: "defaultIndex", description: "Initial active slide index.", type: "number", default: "0" },
       { name: "ariaLabel", description: "Accessible name for the carousel region.", type: "string", default: '"Carousel"' },
       { name: "children", description: "Carousel items.", type: "ReactNode" },
       { name: "visibleItems", description: "Approximate number of items visible. Use one full slide at compact widths; fractional values deliberately reveal part of the next slide.", type: "number | Record<string, number>", default: "1" },
@@ -1096,6 +1126,17 @@ export const componentDocs: ComponentDoc[] = [
     ]
   },
   {
+    id: "State",
+    name: "State",
+    description: "Declare local UI defaults. Host data wins; initial changes after mount are ignored. May wrap the root.",
+    category: "Control flow & state",
+    usage: `<State initial={{ query: "" }}><Card><Input bind="query" /><Text value={query} /></Card></State>`,
+    props: [
+      { name: "initial", description: "Root-key defaults; only undefined state keys are seeded. Nested defaults layer inner over outer.", type: "Record<string, unknown>" },
+      { name: "children", description: "Children see defaults as identifiers and under state, including during SSR.", type: "ReactNode" }
+    ]
+  },
+  {
     id: "Each",
     name: "Each / Show / Scope",
     description: "DIL-style control-flow helpers powered by `$` expression props.",
@@ -1108,6 +1149,7 @@ export const componentDocs: ComponentDoc[] = [
       { name: "children", description: "Template rendered for each item.", type: "ReactNode" },
       { name: "$when", description: "Boolean expression for Show / Animate.Item.", type: "Expression<boolean>" },
       { name: "Show.children", description: "Rendered when condition is true.", type: "ReactNode" },
+      { name: "Show.ElseIf.when", description: "First true branch after the main condition wins; missing when is false. Inert outside Show.", type: "boolean" },
       { name: "Show.Else.children", description: "Fallback branch inside Show.", type: "ReactNode" },
       { name: "Scope.values", description: "Additional scoped values.", type: "Record<string, unknown>" },
       { name: "RunInterval.interval / intervalMs", description: "Tick interval; intervalMs overrides interval.", type: "number" },
@@ -1187,7 +1229,8 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<SegmentedControl name="view" options={[{ label: "List", value: "list" }]} />`,
     props: [
-      { name: "name", description: "Form field name.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "options", description: "Selectable options.", type: "Array<{ label: string; value: string }>" },
       { name: "value", description: "Controlled selection; also determines the captured form value. Update it through onChangeAction and widget state to accept a new selection.", type: "string" },
       { name: "defaultValue", description: "Initial selected value.", type: "string" },
@@ -1436,7 +1479,10 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<ChipGroup name="topics" type="multiple" options={[{ label: "Design", value: "design" }]} />`,
     props: [
-      { name: "name", description: "Form field name; the selection is written to the nearest form.", type: "string" },
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
+      { name: "values", description: "Controlled selection for multiple mode.", type: "string[]" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "options", description: "Chip options.", type: "Array<{ label: string; value: string; icon?: WidgetIcon; disabled?: boolean }>" },
       { name: "type", description: "Selection mode. Single mode allows deselecting the active chip.", type: "\"single\" | \"multiple\"", default: '"single"' },
       { name: "defaultValue", description: "Initial value (single mode).", type: "string" },
@@ -1453,9 +1499,11 @@ export const componentDocs: ComponentDoc[] = [
     category: "Disclosure & overlays",
     usage: `<Tabs tabs={[{ id: "a", label: "Tab A" }, { id: "b", label: "Tab B" }]}>\n  <Tabs.Panel id="a"><Text value="Panel A" /></Tabs.Panel>\n  <Tabs.Panel id="b"><Text value="Panel B" /></Tabs.Panel>\n</Tabs>`,
     props: [
+      { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
+      { name: "activeTab", description: "Controlled display value; takes precedence over bind.", type: "string" },
       { name: "tabs", description: "Tab definitions rendered in the tab list.", type: "Array<{ id: string; label: string; icon?: WidgetIcon }>" },
       { name: "defaultTab", description: "Initially active tab id; defaults to the first tab.", type: "string" },
-      { name: "name", description: "Form field name; the active tab id is written to the nearest form.", type: "string" },
+      { name: "name", description: "Optional form field name; defaults to bind when provided.", type: "string" },
       { name: "onChangeAction", description: "Action dispatched with the selected tab id on change.", type: "ActionConfig" },
       { name: "children", description: "Tabs.Panel nodes (one per tab).", type: "ReactNode" },
       { name: "Tabs.Panel.id", description: "Panel id; the panel renders only while it matches the active tab.", type: "string" },

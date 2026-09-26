@@ -1,4 +1,6 @@
 import React from "react";
+import { useControlValue, fieldId, normalizeSliderBinding } from "../binding";
+import type { ActionConfig } from "../types";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
@@ -52,7 +54,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { Button as UiButton } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 
-import { useFormDefaultValue, buildChangePayload, getFormValue, useWidgetAction, useWidgetForm } from "../context";
+import { buildChangePayload, useWidgetAction } from "../context";
 
 type AccordionProps = {
   items: { id: string; title: string; content: string }[];
@@ -79,11 +81,23 @@ type CollapsibleProps = {
   title: string;
   content: string;
   defaultOpen?: boolean;
+  open?: boolean;
+  bind?: string;
+  name?: string;
+  onChangeAction?: ActionConfig;
 };
 
-const CollapsibleWidget: React.FC<CollapsibleProps> = ({ title, content, defaultOpen }) => (
+const CollapsibleWidget: React.FC<CollapsibleProps> = ({ title, content, defaultOpen, open: controlledOpen, bind, name: explicitName, onChangeAction }) => {
+  const action = useWidgetAction();
+  const [open, setOpen, name] = useControlValue({ bind, name: explicitName, value: controlledOpen, defaultValue: defaultOpen, fallback: false });
+  return (
   <Collapsible
-    defaultOpen={defaultOpen}
+    id={fieldId(name)}
+    open={open}
+    onOpenChange={next => {
+      setOpen(next);
+      if (onChangeAction) action?.(onChangeAction, buildChangePayload(name, next, { open: next }));
+    }}
     className="w-full rounded-xl border p-3"
     style={{ borderColor: "var(--widget-border-default)" }}
   >
@@ -101,7 +115,8 @@ const CollapsibleWidget: React.FC<CollapsibleProps> = ({ title, content, default
       {content}
     </CollapsibleContent>
   </Collapsible>
-);
+  );
+};
 
 type MenuItem = {
   id: string;
@@ -216,15 +231,19 @@ const TooltipWidget: React.FC<TooltipProps> = ({ label, content, delayDuration =
 
 type ToggleProps = {
   name?: string;
+  bind?: string;
+  pressed?: boolean;
   label: string;
   variant?: "button" | "switch";
   defaultPressed?: boolean;
   disabled?: boolean;
-  onChangeAction?: { type: string; payload?: Record<string, unknown> };
+  onChangeAction?: ActionConfig;
 };
 
 const ToggleWidget: React.FC<ToggleProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  pressed: controlledValue,
   label,
   variant = "button",
   defaultPressed,
@@ -232,15 +251,10 @@ const ToggleWidget: React.FC<ToggleProps> = ({
   onChangeAction
 }) => {
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [pressed, setPressed] = React.useState(defaultPressed ?? false);
-  useFormDefaultValue(name, defaultPressed);
-  const storedPressed = name && form ? getFormValue(form.values, name) : undefined;
-  const resolvedPressed = storedPressed === undefined ? pressed : Boolean(storedPressed);
+  const [resolvedPressed, setPressed, name] = useControlValue<boolean>({ name: explicitName, bind, value: controlledValue, defaultValue: defaultPressed, fallback: false });
 
   const handlePressedChange = (next: boolean) => {
     setPressed(next);
-    if (name && form) form.setValue(name, next);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, next, { pressed: next }));
     }
@@ -249,6 +263,7 @@ const ToggleWidget: React.FC<ToggleProps> = ({
   if (variant === "switch") {
     return (
       <button
+        id={fieldId(name)}
         type="button"
         role="switch"
         aria-label={label}
@@ -264,6 +279,7 @@ const ToggleWidget: React.FC<ToggleProps> = ({
 
   return (
     <UiToggle
+      id={fieldId(name)}
       pressed={resolvedPressed}
       onPressedChange={handlePressedChange}
       disabled={disabled}
@@ -276,16 +292,22 @@ const ToggleWidget: React.FC<ToggleProps> = ({
 type ToggleGroupOption = { value: string; label: string; disabled?: boolean };
 type ToggleGroupProps = {
   name?: string;
+  bind?: string;
+  value?: string;
+  values?: string[];
   type?: "single" | "multiple";
   options: ToggleGroupOption[];
   defaultValue?: string;
   defaultValues?: string[];
   disabled?: boolean;
-  onChangeAction?: { type: string; payload?: Record<string, unknown> };
+  onChangeAction?: ActionConfig;
 };
 
 const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  value: controlledValue,
+  values: controlledValues,
   type = "single",
   options,
   defaultValue,
@@ -293,19 +315,11 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
   disabled,
   onChangeAction
 }) => {
-  useFormDefaultValue(name, type === "multiple" ? defaultValues : defaultValue);
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [value, setValue] = React.useState<string | string[]>(
-    type === "multiple" ? defaultValues ?? [] : defaultValue ?? ""
-  );
-
-  const resolvedValue =
-    name && form ? (getFormValue(form.values, name) as string | string[] | undefined) ?? value : value;
+  const [resolvedValue, setValue, name] = useControlValue<string | string[]>({ name: explicitName, bind, value: type === "multiple" ? controlledValues : controlledValue, defaultValue: type === "multiple" ? defaultValues : defaultValue, fallback: type === "multiple" ? [] : "" });
 
   const handleSingleChange = (next: string) => {
     setValue(next);
-    if (name && form) form.setValue(name, next);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, next));
     }
@@ -313,7 +327,6 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
 
   const handleMultipleChange = (next: string[]) => {
     setValue(next);
-    if (name && form) form.setValue(name, next);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, next));
     }
@@ -322,6 +335,7 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
   if (type === "multiple") {
     return (
       <UiToggleGroup
+        id={fieldId(name)}
         type="multiple"
         value={resolvedValue as string[]}
         onValueChange={handleMultipleChange}
@@ -338,6 +352,7 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
 
   return (
     <UiToggleGroup
+      id={fieldId(name)}
       type="single"
       value={resolvedValue as string}
       onValueChange={handleSingleChange}
@@ -354,16 +369,20 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
 
 type SliderProps = {
   name?: string;
+  bind?: string;
+  value?: number | number[];
   defaultValue?: number | number[];
   min?: number;
   max?: number;
   step?: number;
   disabled?: boolean;
-  onChangeAction?: { type: string; payload?: Record<string, unknown> };
+  onChangeAction?: ActionConfig;
 };
 
 const SliderWidget: React.FC<SliderProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  value: controlledValue,
   defaultValue = 50,
   min = 0,
   max = 100,
@@ -371,18 +390,12 @@ const SliderWidget: React.FC<SliderProps> = ({
   disabled,
   onChangeAction
 }) => {
-  useFormDefaultValue(name, Array.isArray(defaultValue) ? defaultValue : [defaultValue]);
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [value, setValue] = React.useState<number[]>(
-    Array.isArray(defaultValue) ? defaultValue : [defaultValue]
-  );
-  const resolvedValue =
-    name && form ? (getFormValue(form.values, name) as number[] | undefined) ?? value : value;
+  const [boundValue, setValue, name] = useControlValue<number | number[]>({ name: explicitName, bind, value: controlledValue, defaultValue: normalizeSliderBinding(defaultValue), fallback: 50, toForm: value => Array.isArray(value) ? value : [value] });
+  const resolvedValue = Array.isArray(boundValue) ? boundValue : [boundValue];
 
   const handleValueChange = (next: number[]) => {
-    setValue(next);
-    if (name && form) form.setValue(name, next);
+    setValue(normalizeSliderBinding(next));
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, next));
     }
@@ -390,6 +403,7 @@ const SliderWidget: React.FC<SliderProps> = ({
 
   return (
     <UiSlider
+      id={fieldId(name)}
       value={resolvedValue}
       onValueChange={handleValueChange}
       min={min}
@@ -462,6 +476,8 @@ const DrawerWidget: React.FC<DrawerProps> = ({ triggerLabel, title, description,
 type ComboboxOption = { value: string; label: string };
 type ComboboxProps = {
   name?: string;
+  bind?: string;
+  value?: string;
   options: ComboboxOption[];
   placeholder?: string;
   searchPlaceholder?: string;
@@ -469,11 +485,13 @@ type ComboboxProps = {
   defaultValue?: string;
   block?: boolean;
   disabled?: boolean;
-  onChangeAction?: { type: string; payload?: Record<string, unknown> };
+  onChangeAction?: ActionConfig;
 };
 
 const ComboboxWidget: React.FC<ComboboxProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  value: controlledValue,
   options,
   placeholder = "Select option",
   searchPlaceholder = "Search...",
@@ -483,19 +501,14 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
   disabled,
   onChangeAction
 }) => {
-  useFormDefaultValue(name, defaultValue);
   const action = useWidgetAction();
-  const form = useWidgetForm();
+  const [selected, setValue, name] = useControlValue<string>({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(defaultValue ?? "");
-  const selected =
-    name && form ? (getFormValue(form.values, name) as string | undefined) ?? value : value;
   const selectedLabel = options.find((option) => option.value === selected)?.label;
 
   const handleSelect = (next: string) => {
     const resolved = next === selected ? "" : next;
     setValue(resolved);
-    if (name && form) form.setValue(name, resolved);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, resolved));
     }
@@ -506,7 +519,7 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <UiButton
-          id={name}
+          id={fieldId(name)}
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -542,16 +555,20 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
 
 type InputOtpProps = {
   name?: string;
+  bind?: string;
+  value?: string;
   ariaLabel?: string;
   length?: number;
   groupSize?: number;
   defaultValue?: string;
   disabled?: boolean;
-  onChangeAction?: { type: string; payload?: Record<string, unknown> };
+  onChangeAction?: ActionConfig;
 };
 
 const InputOtpWidget: React.FC<InputOtpProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  value: controlledValue,
   ariaLabel = "Verification code",
   length = 6,
   groupSize = 3,
@@ -559,15 +576,11 @@ const InputOtpWidget: React.FC<InputOtpProps> = ({
   disabled,
   onChangeAction
 }) => {
-  useFormDefaultValue(name, defaultValue);
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [value, setValue] = React.useState(defaultValue);
-  const resolved = name && form ? (getFormValue(form.values, name) as string | undefined) ?? value : value;
+  const [resolved, setValue, name] = useControlValue<string>({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
 
   const handleChange = (next: string) => {
     setValue(next);
-    if (name && form) form.setValue(name, next);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, next));
     }
@@ -577,7 +590,7 @@ const InputOtpWidget: React.FC<InputOtpProps> = ({
 
   return (
     <InputOTP
-      id={name}
+      id={fieldId(name)}
       aria-label={ariaLabel}
       maxLength={length}
       value={resolved}

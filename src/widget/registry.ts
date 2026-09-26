@@ -1,3 +1,4 @@
+import { State } from "./binding";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from "react";
 
@@ -155,6 +156,8 @@ export const widgetRegistry: ComponentRegistry = {
   Scope,
   Show,
   "Show.Else": ShowElse,
+  "Show.ElseIf": ShowElse,
+  State,
   RunInterval,
   Box,
   Row,

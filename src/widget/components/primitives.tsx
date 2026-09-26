@@ -1,7 +1,8 @@
 import React from "react";
+import { useControlValue, fieldId } from "../binding";
 import { Star } from "lucide-react";
 
-import { buildChangePayload, getFormValue, useWidgetAction, useWidgetForm, useWidgetTheme } from "../context";
+import { buildChangePayload, useWidgetAction, useWidgetTheme } from "../context";
 import type { ActionConfig, ThemeColor, Tone, WidgetIcon } from "../types";
 import { resolveColor, resolveGap, sizeToCss, spaceToCss } from "../style";
 import { Icon, PlainButton } from "./content";
@@ -319,6 +320,9 @@ type ChipOption = { label: string; value: string; icon?: WidgetIcon; disabled?: 
 
 type ChipGroupProps = {
   name?: string;
+  bind?: string;
+  value?: string;
+  values?: string[];
   options: ChipOption[];
   type?: "single" | "multiple";
   defaultValue?: string;
@@ -329,7 +333,10 @@ type ChipGroupProps = {
 };
 
 const ChipGroup: React.FC<ChipGroupProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  value,
+  values,
   options,
   type = "single",
   defaultValue,
@@ -339,32 +346,12 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
   disabled
 }) => {
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [local, setLocal] = React.useState<string[]>(
-    type === "multiple" ? defaultValues ?? [] : defaultValue ? [defaultValue] : []
-  );
-  const formValue = name && form ? getFormValue(form.values, name) : undefined;
-
-  // Seed defaults into the enclosing form (mirrors useFieldValue in forms.tsx)
-  // so an untouched ChipGroup still contributes to the submit payload. The
-  // default is read through a ref: template evaluation produces a fresh array
-  // identity every render, which as an effect dep would re-run this each time.
-  const defaultPayloadRef = React.useRef(type === "multiple" ? defaultValues : defaultValue);
-  React.useLayoutEffect(() => {
-    defaultPayloadRef.current = type === "multiple" ? defaultValues : defaultValue;
-  }, [type, defaultValues, defaultValue]);
-  React.useEffect(() => {
-    const defaultPayload = defaultPayloadRef.current;
-    if (!name || !form || defaultPayload === undefined) return;
-    if (getFormValue(form.values, name) === undefined) {
-      form.setValue(name, defaultPayload);
-    }
-  }, [name, form, type]);
-  const selected: string[] = Array.isArray(formValue)
-    ? (formValue as string[])
-    : typeof formValue === "string" && formValue
-    ? [formValue]
-    : local;
+  const [selectedValue, setSelected, name] = useControlValue<string | string[]>({ name: explicitName, bind,
+    value: type === "multiple" ? values : value,
+    defaultValue: type === "multiple" ? defaultValues : defaultValue,
+    fallback: type === "multiple" ? [] : ""
+  });
+  const selected = Array.isArray(selectedValue) ? selectedValue : selectedValue ? [selectedValue] : [];
 
   const toggle = (value: string) => {
     let next: string[];
@@ -375,9 +362,8 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
     } else {
       next = selected.includes(value) ? [] : [value];
     }
-    setLocal(next);
     const payloadValue = type === "multiple" ? next : next[0] ?? "";
-    if (name && form) form.setValue(name, payloadValue);
+    setSelected(payloadValue);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, payloadValue));
     }
@@ -389,7 +375,7 @@ const ChipGroup: React.FC<ChipGroupProps> = ({
   if (!Array.isArray(options)) return null;
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }} role="group">
+    <div id={fieldId(name)} style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }} role="group">
       {options.map((option) => {
         const active = selected.includes(option.value);
         return (

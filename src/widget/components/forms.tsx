@@ -1,4 +1,5 @@
 import React from "react";
+import { useControlValue, fieldId } from "../binding";
 
 import { Checkbox as UiCheckbox } from "../../components/ui/checkbox";
 import { Label as UiLabel } from "../../components/ui/label";
@@ -19,9 +20,7 @@ import { format, isValid, parseISO, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import {
-  useFormDefaultValue,
   buildChangePayload,
-  getFormValue,
   useWidgetAction,
   useWidgetForm,
   useWidgetTheme,
@@ -109,28 +108,9 @@ const Form: React.FC<FormProps> = (props) => {
   );
 };
 
-function useFieldValue(name: string, defaultValue?: string) {
-  const form = useWidgetForm();
-  const [localValue, setLocalValue] = React.useState(defaultValue ?? "");
-  const formValue = form ? getFormValue(form.values, name) : undefined;
-  const value = typeof formValue === "string" ? formValue : localValue;
-
-  const update = (next: string) => {
-    setLocalValue(next);
-    form?.setValue(name, next);
-  };
-
-  React.useEffect(() => {
-    if (defaultValue !== undefined && form && formValue === undefined) {
-      form.setValue(name, defaultValue);
-    }
-  }, [defaultValue, form, formValue, name]);
-
-  return [value, update] as const;
-}
-
 type InputProps = {
-  name: string;
+  name?: string;
+  bind?: string;
   inputType?: "number" | "email" | "text" | "password" | "tel" | "url";
   defaultValue?: string;
   value?: string;
@@ -149,7 +129,8 @@ type InputProps = {
 };
 
 const Input: React.FC<InputProps> = ({
-  name,
+  name: explicitName,
+  bind,
   inputType = "text",
   defaultValue,
   value: controlledValue,
@@ -167,19 +148,18 @@ const Input: React.FC<InputProps> = ({
   pill
 }) => {
   const action = useWidgetAction();
-  const [value, setValue] = useFieldValue(name, defaultValue);
-  const resolvedValue = controlledValue ?? value;
+  const [value, setValue, name] = useControlValue({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
   const height = controlHeights[size] ?? controlHeights.md;
   const paddingX = controlGutters[gutterSize ?? size] ?? controlGutters.md;
 
   return (
     <input
-      id={name}
+      id={fieldId(name)}
       name={name}
       type={inputType}
       className="wg-input"
       data-variant={variant}
-      value={resolvedValue}
+      value={value}
       onChange={(event) => {
         const next = event.target.value;
         setValue(next);
@@ -203,7 +183,8 @@ const Input: React.FC<InputProps> = ({
 };
 
 type TextareaProps = {
-  name: string;
+  name?: string;
+  bind?: string;
   defaultValue?: string;
   value?: string;
   onChangeAction?: ActionConfig;
@@ -222,7 +203,8 @@ type TextareaProps = {
 };
 
 const Textarea: React.FC<TextareaProps> = ({
-  name,
+  name: explicitName,
+  bind,
   defaultValue,
   value: controlledValue,
   onChangeAction,
@@ -240,18 +222,17 @@ const Textarea: React.FC<TextareaProps> = ({
   allowAutofillExtensions
 }) => {
   const action = useWidgetAction();
-  const [value, setValue] = useFieldValue(name, defaultValue);
-  const resolvedValue = controlledValue ?? value;
+  const [value, setValue, name] = useControlValue({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
   const height = controlHeights[size] ?? controlHeights.md;
   const paddingX = controlGutters[gutterSize ?? size] ?? controlGutters.md;
 
   return (
     <textarea
-      id={name}
+      id={fieldId(name)}
       name={name}
       className="wg-input"
       data-variant={variant}
-      value={resolvedValue}
+      value={value}
       onChange={(event) => {
         const next = event.target.value;
         setValue(next);
@@ -288,11 +269,13 @@ type SelectOption = {
 };
 
 type SelectProps = {
-  name: string;
+  name?: string;
+  bind?: string;
   options: SelectOption[];
   onChangeAction?: ActionConfig;
   placeholder?: string;
   defaultValue?: string;
+  value?: string;
   variant?: ControlVariant;
   size?: ControlSize;
   pill?: boolean;
@@ -302,11 +285,13 @@ type SelectProps = {
 };
 
 const Select: React.FC<SelectProps> = ({
-  name,
+  name: explicitName,
+  bind,
   options,
   onChangeAction,
   placeholder,
   defaultValue,
+  value: controlledValue,
   variant = "outline",
   size = "md",
   pill = false,
@@ -315,7 +300,7 @@ const Select: React.FC<SelectProps> = ({
   disabled
 }) => {
   const action = useWidgetAction();
-  const [value, setValue] = useFieldValue(name, defaultValue);
+  const [value, setValue, name] = useControlValue({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
   const height = controlHeights[size] ?? controlHeights.md;
 
   let clearValue = "__widget_clear_selection__";
@@ -333,7 +318,7 @@ const Select: React.FC<SelectProps> = ({
   return (
     <UiSelect value={value} onValueChange={handleValueChange} disabled={disabled}>
       <SelectTrigger
-        id={name}
+        id={fieldId(name)}
         className="wg-input shadow-none"
         data-variant={variant}
         style={{
@@ -376,10 +361,12 @@ const Select: React.FC<SelectProps> = ({
 };
 
 type DatePickerProps = {
-  name: string;
+  name?: string;
+  bind?: string;
   onChangeAction?: ActionConfig;
   placeholder?: string;
   defaultValue?: string;
+  value?: string;
   min?: string;
   max?: string;
   variant?: ControlVariant;
@@ -393,10 +380,12 @@ type DatePickerProps = {
 };
 
 const DatePicker: React.FC<DatePickerProps> = ({
-  name,
+  name: explicitName,
+  bind,
   onChangeAction,
   placeholder,
   defaultValue,
+  value: controlledValue,
   min,
   max,
   variant = "outline",
@@ -409,7 +398,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   disabled
 }) => {
   const action = useWidgetAction();
-  const [value, setValue] = useFieldValue(name, defaultValue);
+  const [value, setValue, name] = useControlValue({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
   const [open, setOpen] = React.useState(false);
   const height = controlHeights[size] ?? controlHeights.md;
   const width =
@@ -481,7 +470,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <UiButton
-              id={name}
+              id={fieldId(name)}
               type="button"
               variant={buttonVariant as "default" | "secondary" | "outline" | "ghost"}
               disabled={disabled}
@@ -551,16 +540,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
 };
 
 type CheckboxProps = {
-  name: string;
+  name?: string;
+  bind?: string;
   label?: string;
   defaultChecked?: boolean;
+  checked?: boolean;
   onChangeAction?: ActionConfig;
   disabled?: boolean;
   required?: boolean;
 };
 
 const Checkbox: React.FC<CheckboxProps> = ({
-  name,
+  name: explicitName,
+  bind,
+  checked: controlledChecked,
   label,
   defaultChecked,
   onChangeAction,
@@ -568,15 +561,10 @@ const Checkbox: React.FC<CheckboxProps> = ({
   required
 }) => {
   const action = useWidgetAction();
-  const form = useWidgetForm();
-  const [checked, setChecked] = React.useState(defaultChecked ?? false);
-  useFormDefaultValue(name, defaultChecked);
-  const storedChecked = form ? getFormValue(form.values, name) : undefined;
-  const resolvedChecked = storedChecked === undefined ? checked : Boolean(storedChecked);
+  const [resolvedChecked, setChecked, name] = useControlValue({ name: explicitName, bind, value: controlledChecked, defaultValue: defaultChecked, fallback: false });
 
   const handleCheckedChange = (next: boolean) => {
     setChecked(next);
-    form?.setValue(name, next);
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, next, { checked: next }));
     }
@@ -588,6 +576,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
       style={{ color: "var(--widget-text-primary)" }}
     >
       <UiCheckbox
+        id={fieldId(name)}
         name={name}
         checked={resolvedChecked}
         onCheckedChange={(next) => handleCheckedChange(Boolean(next))}
@@ -600,28 +589,32 @@ const Checkbox: React.FC<CheckboxProps> = ({
 };
 
 type RadioGroupProps = {
-  name: string;
+  name?: string;
+  bind?: string;
   options?: { label: string; value: string; disabled?: boolean }[];
   ariaLabel?: string;
   onChangeAction?: ActionConfig;
   defaultValue?: string;
+  value?: string;
   direction?: "row" | "col";
   disabled?: boolean;
   required?: boolean;
 };
 
 const RadioGroup: React.FC<RadioGroupProps> = ({
-  name,
+  name: explicitName,
+  bind,
   options,
   ariaLabel,
   onChangeAction,
   defaultValue,
+  value: controlledValue,
   direction = "row",
   disabled,
   required
 }) => {
   const action = useWidgetAction();
-  const [value, setValue] = useFieldValue(name, defaultValue);
+  const [value, setValue, name] = useControlValue({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
 
   const handleChange = (next: string) => {
     setValue(next);
@@ -633,6 +626,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 
   return (
     <UiRadioGroup
+      id={fieldId(name)}
       aria-label={ariaLabel ?? name}
       value={value}
       onValueChange={handleChange}
@@ -679,7 +673,7 @@ const Label: React.FC<LabelProps> = ({
     color: resolveColor(color, theme)
   };
   return (
-    <UiLabel htmlFor={fieldName} style={style}>
+    <UiLabel htmlFor={fieldId(fieldName)} style={style}>
       {value}
     </UiLabel>
   );

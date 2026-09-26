@@ -3,10 +3,13 @@ import { parseExpression } from "@babel/parser";
 import type * as t from "@babel/types";
 
 import type { ComponentRegistry } from "../registry";
-import { append, has, prepend, read, remove, set } from "../state";
+import { append, has, prepend, read, remove, set, safeLookup, forbiddenProperties } from "../state";
 import type { ActionConfig } from "../types";
 
-type Scope = Record<string, unknown>;
+import { aggregate, formatDate, formatNumber, range, sortBy } from "./expressionHelpers";
+
+export const WIDGET_THEME = Symbol("widgetTheme");
+type Scope = Record<string | symbol, unknown>;
 type JSXChild =
   | t.JSXText
   | t.JSXExpressionContainer
@@ -75,6 +78,69 @@ function currentBreakpoint() {
   return "base";
 }
 
+const callbackMethods = new Set(["map", "filter", "find", "findIndex", "some", "every", "reduce"]);
+const arrayMethods = new Set([...callbackMethods, "slice", "join", "includes", "indexOf", "concat", "at", "flat"]);
+const stringMethods = new Set(["slice", "substring", "toUpperCase", "toLowerCase", "trim", "includes", "startsWith", "endsWith", "split", "padStart", "padEnd", "replaceAll", "at"]);
+
+function callSafeMethod(target: unknown, method: string, args: unknown[]): unknown {
+  const number = (index: number, fallback?: number) => {
+    const value = args[index] === undefined ? fallback : args[index];
+    if (value !== undefined && (typeof value !== "number" || !Number.isFinite(value))) throw new Error(`${method} requires numeric arguments`);
+    return value;
+  };
+  const string = (index: number, fallback?: string) => {
+    const value = args[index] === undefined ? fallback : args[index];
+    if (value !== undefined && typeof value !== "string") throw new Error(`${method} requires string arguments`);
+    return value as string;
+  };
+  const primitive = (index: number) => {
+    const value = args[index];
+    if (value !== null && !["undefined", "string", "number", "boolean"].includes(typeof value)) throw new Error(`${method} requires primitive arguments`);
+    return value;
+  };
+  if (Array.isArray(target)) {
+    switch (method) {
+      case "slice": return Array.prototype.slice.call(target, number(0), number(1));
+      case "join": return Array.prototype.join.call(target, string(0));
+      case "includes": return Array.prototype.includes.call(target, primitive(0), number(1));
+      case "indexOf": return Array.prototype.indexOf.call(target, primitive(0), number(1));
+      case "concat": return Array.prototype.concat.call(target, ...args);
+      case "at": return Array.prototype.at.call(target, number(0, 0)!);
+      case "flat": {
+        const depth = number(0, 1)!;
+        if (depth < 0 || depth > 2) throw new Error("flat depth must be between 0 and 2");
+        return Array.prototype.flat.call(target, depth);
+      }
+    }
+  }
+  if (typeof target === "string") {
+    switch (method) {
+      case "slice": return String.prototype.slice.call(target, number(0), number(1));
+      case "substring": return String.prototype.substring.call(target, number(0, 0)!, number(1));
+      case "toUpperCase": return String.prototype.toUpperCase.call(target);
+      case "toLowerCase": return String.prototype.toLowerCase.call(target);
+      case "trim": return String.prototype.trim.call(target);
+      case "includes": return String.prototype.includes.call(target, string(0), number(1));
+      case "startsWith": return String.prototype.startsWith.call(target, string(0), number(1));
+      case "endsWith": return String.prototype.endsWith.call(target, string(0), number(1));
+      case "split": return (String.prototype.split as (separator?: string, limit?: number) => string[]).call(target, string(0), number(1));
+      case "padStart": return String.prototype.padStart.call(target, number(0, 0)!, string(1));
+      case "padEnd": return String.prototype.padEnd.call(target, number(0, 0)!, string(1));
+      case "replaceAll": {
+        if (typeof args[0] !== "string" || typeof args[1] !== "string") throw new Error("replaceAll requires string arguments");
+        return (String.prototype.replaceAll as (search: string, replacement: string) => string).call(target, args[0], args[1]);
+      }
+      case "at": return String.prototype.at.call(target, number(0, 0)!);
+    }
+  }
+  if (typeof target === "number" && method === "toFixed") {
+    const digits = number(0, 0)!;
+    if (!Number.isInteger(digits) || digits < 0 || digits > 20) throw new Error("toFixed digits must be between 0 and 20");
+    return Number.prototype.toFixed.call(target, digits);
+  }
+  throw new Error(`Unsupported method: ${method}`);
+}
+
 function evaluateExpression(
   node: t.Node,
   scope: Scope,
@@ -92,7 +158,7 @@ function evaluateExpression(
     case "Identifier": {
       if (node.name === "undefined") return undefined;
       if (node.name === "null") return null;
-      return scope[node.name];
+      return safeLookup(scope, node.name);
     }
     case "TemplateLiteral": {
       let result = "";
@@ -152,6 +218,7 @@ function evaluateExpression(
       if (node.operator === "||") {
         return left || evaluateExpression(node.right, scope, registry);
       }
+      if (node.operator === "??") return left ?? evaluateExpression(node.right, scope, registry);
       throw new Error(`Unsupported logical operator: ${node.operator}`);
     }
     case "ConditionalExpression": {
@@ -160,14 +227,14 @@ function evaluateExpression(
         ? evaluateExpression(node.consequent, scope, registry)
         : evaluateExpression(node.alternate, scope, registry);
     }
+    case "OptionalMemberExpression":
     case "MemberExpression": {
       const object = evaluateExpression(node.object, scope, registry);
+      if (object == null) return undefined;
       const property = node.computed
         ? evaluateExpression(node.property, scope, registry)
         : (node.property as t.Identifier).name;
-      if (object == null) return undefined;
-      const record = object as Record<string, unknown>;
-      return record[property as string];
+      return safeLookup(object, property);
     }
     case "ArrayExpression":
       return node.elements.map((element) =>
@@ -178,12 +245,14 @@ function evaluateExpression(
       node.properties.forEach((property) => {
         if (property.type === "ObjectProperty") {
           const key =
-            property.key.type === "Identifier"
+            property.computed ? String(evaluateExpression(property.key, scope, registry)) : property.key.type === "Identifier"
               ? property.key.name
               : property.key.type === "StringLiteral"
               ? property.key.value
               : String(evaluateExpression(property.key, scope, registry));
-          result[key] = evaluateExpression(property.value, scope, registry);
+          if (!forbiddenProperties.has(key)) result[key] = evaluateExpression(property.value, scope, registry);
+        } else {
+          throw new Error(`Unsupported expression: ${property.type}`);
         }
       });
       return result;
@@ -204,12 +273,23 @@ function evaluateExpression(
           throw new Error(`Unsupported unary operator: ${node.operator}`);
       }
     }
+    case "OptionalCallExpression":
     case "CallExpression": {
       if (node.callee.type === "Identifier") {
         const args = node.arguments.map((argument) =>
-          argument.type === "SpreadElement" ? undefined : evaluateExpression(argument, scope, registry)
+          evaluateExpression(argument, scope, registry)
         );
         switch (node.callee.name) {
+          case "format": return formatNumber(args[0], args[1], args[2]);
+          case "formatDate": return formatDate(args[0], args[1], args[2]);
+          case "sum": return aggregate(args[0], args[1]);
+          case "avg": return aggregate(args[0], args[1], true);
+          case "sortBy": return sortBy(args[0], args[1], args[2]);
+          case "range": return range(...args);
+          case "clamp": return Math.min(Number(args[2]), Math.max(Number(args[1]), Number(args[0])));
+          case "abs": return Math.abs(Number(args[0]));
+          case "pluralize": return `${formatNumber(args[0])} ${args[0] === 1 ? args[1] : args[2] ?? `${args[1]}s`}`;
+          case "theme": return scope[WIDGET_THEME] ?? "light";
           case "size": {
             const target = args[0];
             if (Array.isArray(target) || typeof target === "string") return target.length;
@@ -268,38 +348,48 @@ function evaluateExpression(
         }
       }
 
-      if (
-        node.callee.type === "MemberExpression" &&
-        node.callee.property.type === "Identifier" &&
-        node.callee.property.name === "map"
-      ) {
-        const target = evaluateExpression(node.callee.object, scope, registry);
-        if (!Array.isArray(target)) return [];
-        const callback = node.arguments[0];
-        if (!callback || callback.type !== "ArrowFunctionExpression") {
-          throw new Error("Only arrow functions are supported in map().");
+      if (node.callee.type === "MemberExpression" || node.callee.type === "OptionalMemberExpression") {
+        const member = node.callee;
+        const target = evaluateExpression(member.object, scope, registry);
+        if (target == null && (node.type === "OptionalCallExpression" || (member.type === "OptionalMemberExpression" && member.optional))) return undefined;
+        const method = member.computed ? evaluateExpression(member.property, scope, registry) : (member.property as t.Identifier).name;
+        if (typeof method !== "string" || forbiddenProperties.has(method)) throw new Error(`Unsupported method: ${String(method)}`);
+        const supported = Array.isArray(target) ? arrayMethods.has(method)
+          : typeof target === "string" ? stringMethods.has(method)
+          : typeof target === "number" && method === "toFixed";
+        if (!supported) throw new Error(`Unsupported method: ${method}`);
+        if (Array.isArray(target) && callbackMethods.has(method)) {
+          const callback = node.arguments[0];
+          if (!callback || callback.type !== "ArrowFunctionExpression" || callback.async || callback.params.some(param => param.type !== "Identifier")) {
+            throw new Error(`Only arrow functions with named parameters are supported in ${method}().`);
+          }
+          if (method === "reduce" && node.arguments.length < 2) throw new Error("reduce requires an initial value");
+          const invoke = (...values: unknown[]) => {
+            const childScope = { ...scope };
+            callback.params.forEach((param, index) => { if (param.type === "Identifier") childScope[param.name] = values[index]; });
+            if (callback.body.type === "BlockStatement") {
+              if (callback.body.body.some(statement => statement.type !== "ReturnStatement" && statement.type !== "EmptyStatement")) throw new Error("Only a return statement is supported in callbacks");
+              const returned = callback.body.body.find(statement => statement.type === "ReturnStatement");
+              return returned?.argument ? evaluateExpression(returned.argument, childScope, registry) : undefined;
+            }
+            return evaluateExpression(callback.body, childScope, registry);
+          };
+          switch (method) {
+            case "map": return Array.prototype.map.call(target, invoke);
+            case "filter": return Array.prototype.filter.call(target, invoke);
+            case "find": return Array.prototype.find.call(target, invoke);
+            case "findIndex": return Array.prototype.findIndex.call(target, invoke);
+            case "some": return Array.prototype.some.call(target, invoke);
+            case "every": return Array.prototype.every.call(target, invoke);
+            case "reduce": return Array.prototype.reduce.call(target, invoke, evaluateExpression(node.arguments[1], scope, registry));
+          }
         }
-        return target.map((item, index) => {
-          const childScope: Scope = { ...scope };
-          const params = callback.params;
-          if (params[0] && params[0].type === "Identifier") {
-            childScope[params[0].name] = item;
-          }
-          if (params[1] && params[1].type === "Identifier") {
-            childScope[params[1].name] = index;
-          }
-          if (callback.body.type === "BlockStatement") {
-            const returnStatement = callback.body.body.find(
-              (statement) => statement.type === "ReturnStatement"
-            ) as t.ReturnStatement | undefined;
-            if (!returnStatement || !returnStatement.argument) return null;
-            return evaluateExpression(returnStatement.argument, childScope, registry);
-          }
-          return evaluateExpression(callback.body, childScope, registry);
-        });
+        const args = node.arguments.map(argument => evaluateExpression(argument, scope, registry));
+        return callSafeMethod(target, method, args);
       }
-      throw new Error("Only .map() calls are supported in templates.");
+      throw new Error("Unsupported function call");
     }
+
     case "ParenthesizedExpression":
       return evaluateExpression(node.expression, scope, registry);
     case "JSXElement":
@@ -327,7 +417,7 @@ function evaluateStringExpression(
   registry: ComponentRegistry
 ) {
   try {
-    return evaluateTemplateExpression(expression, scope, registry);
+    return evaluateExpression(parseTemplate(expression), scope, registry);
   } catch (error) {
     console.warn(
       `[WidgetRenderer] Failed to evaluate expression "${expression}":`,
@@ -390,17 +480,20 @@ function normalizeChild(
   scope: Scope,
   registry: ComponentRegistry
 ): React.ReactNode[] {
-  if (child.type === "JSXSpreadChild") {
-    return [];
-  }
+  if (child.type === "JSXSpreadChild") throw new Error("Spread children are unsupported");
   if (child.type === "JSXText") {
     const text = child.value.replace(/\s+/g, " ").trim();
     return text ? [text] : [];
   }
   if (child.type === "JSXExpressionContainer") {
     const value = evaluateExpression(child.expression, scope, registry);
-    if (Array.isArray(value)) return value as React.ReactNode[];
-    if (value === false || value === null || value === undefined) return [];
+    if (Array.isArray(value)) {
+      const dropFunctions = (value: unknown): React.ReactNode => Array.isArray(value)
+        ? value.map(dropFunctions)
+        : typeof value === "function" ? null : value as React.ReactNode;
+      return value.map(dropFunctions);
+    }
+    if (typeof value === "function" || value === false || value === null || value === undefined) return [];
     return [value as React.ReactNode];
   }
   if (child.type === "JSXFragment") {
@@ -432,7 +525,7 @@ function buildProps(
 ) {
   const props: Record<string, unknown> = {};
   node.openingElement.attributes.forEach((attr) => {
-    if (attr.type !== "JSXAttribute") return;
+    if (attr.type !== "JSXAttribute") throw new Error("Spread attributes are unsupported");
     const rawKey = attr.name.name as string;
     const isComponentProp = rawKey.startsWith("__dilComponentProp_");
     const isExpressionProp = rawKey.startsWith("$");
@@ -458,6 +551,9 @@ function buildProps(
       props[key] = evaluateExpression(attr.value.expression, scope, registry);
     }
   });
+  for (const key of Object.keys(props)) {
+    if (typeof props[key] === "function") props[key] = undefined;
+  }
   return props;
 }
 
@@ -488,7 +584,7 @@ function renderRepeatedChildren(
 function isElseElement(child: JSXChild) {
   return (
     child.type === "JSXElement" &&
-    getJSXComponentName(child.openingElement.name) === "Show.Else"
+    ["Show.Else", "Show.ElseIf"].includes(getJSXComponentName(child.openingElement.name))
   );
 }
 
@@ -508,7 +604,10 @@ function renderShow(
   const shouldShow =
     "when" in props || "visible" in props ? Boolean(props.when ?? props.visible) : true;
   const mainChildren = node.children.filter((child) => !isElseElement(child));
-  const elseNode = node.children.find(isElseElement) as t.JSXElement | undefined;
+  const branches = node.children.filter(isElseElement) as t.JSXElement[];
+  const elseNode = shouldShow ? undefined : branches.find(child =>
+    getJSXComponentName(child.openingElement.name) === "Show.ElseIf" && Boolean(buildProps(child, scope, registry).when)
+  ) ?? branches.find(child => getJSXComponentName(child.openingElement.name) === "Show.Else");
   const children = shouldShow
     ? renderChildren(mainChildren, scope, registry)
     : elseNode
@@ -566,13 +665,24 @@ function renderJSX(
   if (componentName === "Show") {
     return renderShow(node, props, scope, registry);
   }
+  if (componentName === "State") {
+    return React.createElement(registry.State, {
+      ...props,
+      renderChildren: (state: unknown, defaults: Scope) => {
+        const declared = Object.fromEntries(Object.keys(defaults).map(key => [key, safeLookup(state, key)]));
+        return withImplicitKeys(renderChildren(node.children, {
+          ...scope, ...declared, state, [WIDGET_THEME]: scope[WIDGET_THEME]
+        }, registry), "state");
+      }
+    });
+  }
   if (componentName === "Scope") {
     return renderScoped(node, props, scope, registry);
   }
   if (componentName === "Animate") {
     return renderAnimate(node, props, scope, registry);
   }
-  if (componentName === "Show.Else" || componentName === "Animate.Item") {
+  if (componentName === "Show.Else" || componentName === "Show.ElseIf" || componentName === "Animate.Item") {
     return null;
   }
 

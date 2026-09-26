@@ -1016,6 +1016,11 @@ export const componentExamples: Record<string, ComponentExample> = {
       ]
     }
   },
+  State: {
+    template: `<State initial={{ query: "Release notes" }}><Card><Input bind="query" placeholder="Search" /><Text value={query} /><Caption value={state.query} /></Card></State>`,
+    schema: EmptySchema,
+    data: emptyData
+  },
   Each: {
     template: `
 <Card size="md" gap={3}>
@@ -1029,6 +1034,9 @@ export const componentExamples: Record<string, ComponentExample> = {
           <Spacer />
           <Caption $value="String(metric.score) + '%'" />
         </Row>
+        <Show.ElseIf when={metric.score >= 80}>
+          <Text value={metric.name + ": in review"} />
+        </Show.ElseIf>
         <Show.Else>
           <Row gap={2}>
             <Badge $label="'#' + String(index + 1)" color="warning" />
@@ -1135,11 +1143,11 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   SegmentedControl: {
     template: `
+<State initial={{ view: "live" }}>
 <Card size="sm" gap={3}>
   <Text value="Switch the operational view." weight="semibold" />
   <SegmentedControl
-    name="view"
-    defaultValue="live"
+    bind="view"
     pill
     block
     options={[
@@ -1149,7 +1157,9 @@ export const componentExamples: Record<string, ComponentExample> = {
     ]}
     onChangeAction={{ type: "view.change" }}
   />
+  <Caption value={"Selected view: " + view} />
 </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { WidgetActionProvider, WidgetThemeProvider } from "./context";
 import { widgetRegistry } from "./registry";
-import { renderTemplate } from "./renderer/templateEngine";
+import { renderTemplate, WIDGET_THEME } from "./renderer/templateEngine";
 import { Card } from "./components/containers";
 import { Text, Title } from "./components/text";
 import { useWidgetAppearance, WidgetAppearanceProvider } from "./theme";
@@ -84,12 +84,12 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
         : { value: stateForRender, state: stateForRender };
 
     try {
-      return { ok: true, node: renderTemplate(template.trim(), scope, widgetRegistry) };
+      return { ok: true, node: renderTemplate(template.trim(), { ...scope, [WIDGET_THEME]: theme }, widgetRegistry) };
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       return { ok: false, message: message || "Unknown error" };
     }
-  }, [stateForRender, template]);
+  }, [stateForRender, template, theme]);
 
   let rendered: React.ReactNode;
   if (!parseResult.success) {
@@ -108,7 +108,7 @@ const WidgetRenderer = <T extends z.ZodTypeAny>({
     <WidgetThemeProvider theme={theme}>
       <WidgetActionProvider
         onAction={onAction}
-        state={localState}
+        state={stateForRender}
         onStateChange={setLocalState}
       >
         {rendered}

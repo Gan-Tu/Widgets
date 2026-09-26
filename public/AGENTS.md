@@ -20,7 +20,7 @@ Return a single JSON object with exactly these keys:
 
 - `designSpec` (string) — 1–3 sentences describing the layout and design intent of the widget you built.
 - `template` (string) — the widget template: a single JSX-like element tree (see Template language).
-- `data` (object) — the data the template reads. Every identifier the template references must exist here.
+- `data` (object) — the data the template reads. Identifiers must come from data, State defaults, or a local scope.
 - `theme` (string) — `"light"` or `"dark"`. Use `"dark"` only when the widget is deliberately designed dark (media, night dashboards, branded looks).
 
 Do not wrap the JSON in markdown fences or prose. Do not include any other keys.
@@ -29,14 +29,14 @@ Do not wrap the JSON in markdown fences or prose. Do not include any other keys.
 
 These are enforced by a validator; a template that breaks any of them is rejected.
 
-1. **Root component** must be one of: `Card`, `ListView`, `Basic`, `Response`.
+1. **Root component** must be one of: `Card`, `ListView`, `Basic`, `Response`; `Scope` and `State` may wrap it.
 2. **Only registered components** may appear (every component in the reference below, including dotted children like `Table.Row`). Anything else — including plain HTML tags like `div`, `span`, `img` — is rejected.
 3. **No `className`, no `style`, no `dangerouslySetInnerHTML`** props. All styling flows through component props and design tokens.
 4. **Event props must end in `Action`** (`onClickAction`, `onSubmitAction`, `onChangeAction`, `onTickAction`, `onVisibleAction`). Any other `on*` prop is rejected. Action values are plain objects, never functions.
-5. **No JavaScript beyond expressions.** No arrow functions (except directly inside `.map()`), no assignments, no `new`, no `await`, no spread (`{...props}`), no tagged templates, no IIFEs.
-6. **Only these helper functions** may be called: `size`, `String`, `Number`, `Boolean`, `min`, `max`, `round`, `floor`, `ceil`, `now`, `set`, `append`, `prepend`, `remove`, `has`, `read`, `bp`, `isMobile`, `isDark`, `bind`, `expr`, plus `.map()` on arrays.
+5. **No JavaScript beyond expressions.** No arrow functions (except callbacks of the whitelisted array methods), no assignments, no `new`, no `await`, no spread (`{...props}`), no tagged templates, no IIFEs.
+6. **Only these helper functions** may be called: `size`, `String`, `Number`, `Boolean`, `min`, `max`, `round`, `floor`, `ceil`, `now`, `set`, `append`, `prepend`, `remove`, `has`, `read`, `bp`, `isMobile`, `isDark`, `bind`, `expr`, `format`, `formatDate`, `sum`, `avg`, `sortBy`, `range`, `clamp`, `abs`, `pluralize`, `theme`, plus the whitelisted methods below.
 7. **No `data:` URLs** anywhere (template or data). Image URLs must come from the `availableImages` list when one is provided; never invent image URLs. When no images are available, design without photos (icons, initials, color) rather than hallucinating a URL.
-8. **Every value the template references must exist in `data`.** Prefer binding text through data over hard-coding it in the template, so the widget is reusable with different data.
+8. **Every identifier must come from `data`, `State` defaults, or a local scope.** Prefer binding text through data over hard-coding it in the template, so the widget is reusable with different data.
 
 ## Template language
 
@@ -59,9 +59,15 @@ Three ways to bind values:
 
 ### Expressions
 
-Supported inside `{...}` and `$prop` strings: literals, identifiers, member access (`a.b`, `a[0]`), arithmetic (`+ - * / %`), comparisons (`== != === !== > < >= <=`), logical `&&` / `||`, ternary `cond ? a : b`, array/object literals, the whitelisted helpers, and `.map()`.
+Supported inside `{...}` and `$prop` strings: literals, identifiers, member access (`a.b`, `a[0]`), optional chaining (`a?.b`, `a?.[k]`, `a?.filter(...)`), arithmetic (`+ - * / %`), comparisons (`== != === !== > < >= <=`), logical `&&` / `||` / `??`, ternaries, array/object literals, helpers, and these methods:
 
-**Not supported** (these throw and blank the widget): optional chaining `?.`, nullish coalescing `??`, assignments, method calls other than `.map()`, and spread. Guard with `&&` / ternaries instead: `{user && user.name}`.
+- Arrays: `map`, `filter`, `find`, `findIndex`, `some`, `every`, `reduce` (initial value required), `slice`, `join`, `includes`, `indexOf`, `concat`, `at`, `flat` (depth ≤ 2).
+- Strings: `slice`, `substring`, `toUpperCase`, `toLowerCase`, `trim`, `includes`, `startsWith`, `endsWith`, `split`, `padStart`, `padEnd`, `replaceAll` (string arguments only), `at`.
+- Numbers: `toFixed` (0–20 digits).
+
+Array callbacks must be arrow functions with named parameters and an expression or a block containing a return statement. Callbacks receive `(item, index, array)`; `reduce` receives `(acc, item, index, array)`. Methods use built-in implementations, never functions from data. Prototype properties and function-valued lookups evaluate to `undefined`.
+
+**Not supported:** assignments, spread, `new`, arbitrary function calls, and regex.
 
 ### Helpers
 
@@ -71,6 +77,14 @@ Supported inside `{...}` and `$prop` strings: literals, identifiers, member acce
 - `has(x)` — true when non-empty (arrays/strings/objects) or truthy.
 - `read(obj, "a.b.0", fallback)` — safe deep read.
 - `bp()` — current breakpoint (`"base" | "sm" | "md" | "lg" | "xl"`); `isMobile()` — viewport < 768px; `isDark()` — OS dark preference.
+- `format(value, style?, options?)` — number formatting; styles `number` (default), `compact`, `currency` (USD default), `percent` (ratio), `decimal`; options `locale` (en-US), `currency`, `digits` (max fraction digits), `minDigits`, `sign` (auto|always|exceptZero|never). Non-finite values return `""`.
+- `formatDate(value, style?, options?)` — ISO date/date-time or epoch ms; styles short|medium (default)|long|weekday|time|datetime|iso|relative; options `locale` (en-US), `timeZone`. Date-only strings use UTC; invalid values return `""`.
+- `sum(list, key?)`, `avg(list, key?)` — finite numeric values, optionally read by path; empty mean is 0.
+- `sortBy(list, key?, direction?)` — stable sorted copy, optional path and asc|desc; null/missing values last.
+- `range(end)` / `range(start, end, step?)` — end exclusive, nonzero step (default 1), at most 1000 numbers.
+- `clamp(value, min, max)`, `abs(x)` — bounded value and absolute value.
+- `pluralize(count, singular, plural?)` — formatted count plus noun; default plural appends "s".
+- `theme()` — resolved renderer theme (light|dark); prefer this over `isDark()`, which reads the OS preference.
 - `set`, `append`, `prepend`, `remove` — build state patches (see Actions & state).
 
 ### Control flow
@@ -85,7 +99,7 @@ Supported inside `{...}` and `$prop` strings: literals, identifiers, member acce
 
 `$of` names the array in scope; `item` / `index` name the loop variables (defaults `item` / `index`).
 
-**`<Show>` / `<Show.Else>`** — conditional branches:
+**`<Show>` / `<Show.ElseIf>` / `<Show.Else>`** — conditional branches:
 
 ```
 <Show $when="size(items) > 0">
@@ -96,6 +110,8 @@ Supported inside `{...}` and `$prop` strings: literals, identifiers, member acce
 </Show>
 ```
 
+`Show.ElseIf when={condition}` adds an ordered branch before `Show.Else`; the first true branch renders. An ElseIf without `when` is false. Branch markers are direct children of Show and inert outside it.
+
 `Show` renders the main branch when `when` is truthy (omit the prop entirely to always render) — so `$when="item.popular"` works even when the field is missing.
 
 **`<Scope values={{...}}>`** — introduce derived values for children:
@@ -105,6 +121,8 @@ Supported inside `{...}` and `$prop` strings: literals, identifiers, member acce
   <Caption $value="countLabel" />
 </Scope>
 ```
+
+**`<State initial={{ query: "", mode: "weekly" }}>`** — declare local UI defaults. Only root keys are declared; a key is missing when `state[key] === undefined`, and host data wins. Children see defaults as both `{query}` and `state.query`, including during SSR. Nested States layer inner defaults over outer defaults. Defaults seed real state on mount; subsequent `initial` changes are ignored. State may wrap the root or appear within it.
 
 **`<Animate>` / `<Animate.Item $when=...>`** — animated branch switching; the first `Animate.Item` whose `when` is truthy renders, with a fade/slide transition. An item without a `when` always matches — use one as a fallback and put it LAST, or it will shadow every conditional item after it. **`<AnimateGroup $of="..." item="...">`** — like `Each` with enter/exit animations; give rows stable `key`s. **`<RunInterval interval={ms} $onTickAction='...' />`** — dispatches an action every `interval` ms (the action expression sees `tick.count`, `tick.elapsedMs`).
 
@@ -145,6 +163,29 @@ Handled locally by the renderer; everything else is forwarded to the host app:
 - `add_to_calendar` — `payload.item.{title, date_str, end_date_str?, location?, description?}` (dates `YYYY-MM-DD`); opens Google Calendar.
 - `request_location_permission` — browser geolocation prompt.
 - `card.open` — scrolls to / signals the card with `payload.card_id`.
+
+### Binding controls to state
+
+Use `bind` by default for a control whose value other parts of the widget display. It reads/writes a state path using `read`/`set` notation. Writes stay local; `onChangeAction` still fires afterward with the existing change payload. Keep `$onChangeAction` expressions for host notifications that need the new `value`.
+
+```
+<State initial={{ query: "", mode: "weekly" }}>
+  <Card>
+    <Input bind="query" placeholder="Search" />
+    <SegmentedControl bind="mode" options={[{ label: "Weekly", value: "weekly" }, { label: "Monthly", value: "monthly" }]} />
+    <Each of={items} item="item" index="index">
+      <Checkbox bind={`items.${index}.done`} label={item.title} />
+    </Each>
+    <Text value={`${query} · ${mode}`} />
+  </Card>
+</State>
+```
+
+Here `items` comes from data (for example `[{ title: "Review draft", done: false }]`). Missing paths read the nearest State default, then the control default; defaults seed state once on mount. An explicit controlled prop wins for display. **Use one of `bind`, a controlled prop, or a default — do not combine them.** Bound controls still join Forms; without `name`, the bind path is the field name and its sanitized form is the DOM id. Slider binds a number for one thumb or a pair for a range; its form/change payload remains an array.
+
+### Host conversation action
+
+`{ type: "send_message", payload: { text: "Make this shorter" } }` asks the host to send text as the user's next chat message. It starts a new conversation turn; it is not evidence that any external task ran. Label the control with what will be sent, for example "Ask for a shorter version". The renderer forwards this action to `onAction`.
 
 ### Local state
 
@@ -449,19 +490,19 @@ Chart guidance: use the default vivid palette or complementary saturated colors 
 
 - `Form` — `onSubmitAction`, `direction?`, `align?`, `justify?`, `gap?`, `padding?`.
 - `Button` — `label`/children, `ariaLabel?` (accessible name for icon-only controls), `onClickAction?`, `submit?`, `color?` ("primary"|"secondary"|"accent"|"info"|"discovery"|"success"|"caution"|"warning"|"danger"), `variant?` ("solid"|"soft"|"outline"|"ghost"), `size?` ("lg"), `pill?` (false), `iconStart?`, `iconEnd?`, `iconSize?`, `uniform?` (square icon button), `block?`, `disabled?`. Auto-disables without an action or `submit`.
-- `Input` — `name`, `inputType?` ("text"|"email"|"number"|"password"|"tel"|"url"), `placeholder?`, `defaultValue?`, `required?`, `pattern?`, `variant?` ("outline"|"soft"), `size?` ("md"), `pill?`, `disabled?`, `onChangeAction?`.
-- `Textarea` — as Input plus `rows?` (3), `autoResize?` (true), `maxRows?`.
-- `Select` — `name`, `options` ({ value, label, disabled?, description? }[]), `placeholder?`, `defaultValue?`, `variant?`, `size?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`.
-- `Combobox` — searchable select. `block?` (false; fills the field when true, otherwise 220px capped to parent width), `name?`, `options` ({ value, label }[]), `placeholder?`, `searchPlaceholder?`, `emptyLabel?`, `defaultValue?`, `disabled?`, `onChangeAction?`.
-- `DatePicker` — calendar popover. `name`, `placeholder?`, `defaultValue?` (`YYYY-MM-DD`), `min?`, `max?`, `variant?`, `size?`, `side?`, `align?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`.
-- `Checkbox` — `name`, `label?`, `defaultChecked?`, `required?`, `disabled?`, `onChangeAction?`.
-- `RadioGroup` — `name`, `options` ({ label, value, disabled? }[]), `direction?` ("row"), `ariaLabel?`, `defaultValue?`, `required?`, `disabled?`, `onChangeAction?`.
-- `ChipGroup` — wrapping selectable chips. `name?`, `options` ({ label, value, icon?, disabled? }[]), `type?` ("single"|"multiple"), `defaultValue?`/`defaultValues?`, `size?` ("md"|"sm"), `disabled?`, `onChangeAction?`.
-- `Toggle` — pressed/unpressed button or on/off switch. `variant?` ("button"|"switch", default "button"), `label` (accessible name for switch), `name?`, `defaultPressed?`, `disabled?`, `onChangeAction?`.
-- `ToggleGroup` — `options`, `type?` ("single"|"multiple"), `name?`, `defaultValue?`/`defaultValues?`, `disabled?`, `onChangeAction?`.
-- `Slider` — `name?`, `defaultValue?` (50; number or [lo, hi]), `min?` (0), `max?` (100), `step?` (1), `disabled?`, `onChangeAction?`.
-- `SegmentedControl` — exclusive segmented switcher. `name?`, `options`, `value?`/`defaultValue?`, `size?`, `textSize?`, `block?`, `pill?`, `variant?` ("default"|"ghost"), `ariaLabel?`, `disabled?`, `onChangeAction?`.
-- `InputOTP` — one-time-code boxes. `name?`, `ariaLabel?` ("Verification code"), `length?` (6), `groupSize?` (3), `defaultValue?`, `disabled?`, `onChangeAction?`.
+- `Input` — `name?`, `inputType?` ("text"|"email"|"number"|"password"|"tel"|"url"), `placeholder?`, `defaultValue?`, `required?`, `pattern?`, `variant?` ("outline"|"soft"), `size?` ("md"), `pill?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `Textarea` — as Input plus `rows?` (3), `autoResize?` (true), `maxRows?`. `bind?` (state path), `value?`.
+- `Select` — `name?`, `options` ({ value, label, disabled?, description? }[]), `placeholder?`, `defaultValue?`, `variant?`, `size?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `Combobox` — searchable select. `block?` (false; fills the field when true, otherwise 220px capped to parent width), `name?`, `options` ({ value, label }[]), `placeholder?`, `searchPlaceholder?`, `emptyLabel?`, `defaultValue?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `DatePicker` — calendar popover. `name?`, `placeholder?`, `defaultValue?` (`YYYY-MM-DD`), `min?`, `max?`, `variant?`, `size?`, `side?`, `align?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `Checkbox` — `name?`, `label?`, `defaultChecked?`, `required?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `checked?`.
+- `RadioGroup` — `name?`, `options` ({ label, value, disabled? }[]), `direction?` ("row"), `ariaLabel?`, `defaultValue?`, `required?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `ChipGroup` — wrapping selectable chips. `name?`, `options` ({ label, value, icon?, disabled? }[]), `type?` ("single"|"multiple"), `defaultValue?`/`defaultValues?`, `size?` ("md"|"sm"), `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`/`values?`.
+- `Toggle` — pressed/unpressed button or on/off switch. `variant?` ("button"|"switch", default "button"), `label` (accessible name for switch), `name?`, `defaultPressed?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `pressed?`.
+- `ToggleGroup` — `options`, `type?` ("single"|"multiple"), `name?`, `defaultValue?`/`defaultValues?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`/`values?`.
+- `Slider` — `name?`, `defaultValue?` (50; number or [lo, hi]), `min?` (0), `max?` (100), `step?` (1), `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `SegmentedControl` — exclusive segmented switcher. `name?`, `options`, `value?`/`defaultValue?`, `size?`, `textSize?`, `block?`, `pill?`, `variant?` ("default"|"ghost"), `ariaLabel?`, `disabled?`, `onChangeAction?`. `bind?` (state path).
+- `InputOTP` — one-time-code boxes. `name?`, `ariaLabel?` ("Verification code"), `length?` (6), `groupSize?` (3), `defaultValue?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
 - `Label` — form label. `value`, `fieldName` (matches a control's `name`), `size?`, `weight?` ("medium"), `textAlign?`, `color?` ("secondary").
 
 ### Feedback
@@ -522,8 +563,8 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 ### Disclosure & overlays
 
 - `Accordion` — `items` ({ id, title, content }[]), `type?` ("single"|"multiple"), `collapsible?` (true).
-- `Collapsible` — `title`, `content`, `defaultOpen?`.
-- `Tabs` — `tabs` ({ id, label, icon? }[]), `defaultTab?`, `name?`, `onChangeAction?`. Children: `Tabs.Panel id="..."` wrapping each panel's content.
+- `Collapsible` — `title`, `content`, `defaultOpen?`. `bind?` (state path), `open?`. `name?`, `onChangeAction?` ({ open, value: open }).
+- `Tabs` — `tabs` ({ id, label, icon? }[]), `defaultTab?`, `name?`, `onChangeAction?`. Children: `Tabs.Panel id="..."` wrapping each panel's content. `bind?` (state path), `activeTab?`.
 - `Popover` — inline popover. `open?`, `showOnHover?`, `hoverOpenDelay?`. Children: `Popover.Trigger` (`onClickAction?`) and `Popover.Content` (`side?`, `align?`, `width?` 260).
 - `Sheet` — side sheet. `triggerLabel`, `title?`, `description?`, `content?`, `side?` ("right").
 - `Drawer` — bottom drawer. `triggerLabel`, `title?`, `description?`, `content?`.
@@ -535,7 +576,7 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 - `AudioPlayer` (alias `Audio`) — `src`, `title`, `subtitle?`, `compact?` (hides native controls), `autoPlay?`, `loop?`, `muted?`, `downloadUrl?`, `downloadFilename?`.
 - `YouTubeEmbed` — `videoId` or `src`, `title?`, `height?` (220), `aspectRatio?` (overrides fixed height for responsive video sizing).
 - `Map` — schematic (non-tile) map. `markers?` ({ latitude, longitude, label?, color?, style?: "dot"|"pin" }[]), `routes?` ({ coordinates: [lng, lat][], color? }[]), `height?` (220), `width?`, `radius?` ("lg"), `frame?` (true), `background?`. For spatial gestures, not navigation.
-- `BaseCarousel` — horizontal snap scroller with footer navigation when content overflows and keyboard Left/Right/Home/End navigation on the focused track. `ariaLabel?` ("Carousel"), `visibleItems?` (1; fractional like 1.15 shows a peek), `gap?` (2), `showArrows?` (true), `snap?` ("proximity"|"mandatory"|"none"), `snapAlign?` ("start"|"center"|"end"), `flush?`. Children: `BaseCarousel.Item` (`variant?` "outline"|"soft"|"elevated"|"none", `padding?` 3, `radius?` "lg", `minWidth?` 0; explicit minimums are capped to the viewport) and `BaseCarousel.MediaItem` (`*media={<Image width="100%" .../>}` or Image props, caption children, `itemPadding?` 0, `itemRadius?` "lg", `minWidth?`). MediaItem fills the slide width and supplies spacing above its caption.
+- `BaseCarousel` — horizontal snap scroller with footer navigation when content overflows and keyboard Left/Right/Home/End navigation on the focused track. `ariaLabel?` ("Carousel"), `visibleItems?` (1; fractional like 1.15 shows a peek), `gap?` (2), `showArrows?` (true), `snap?` ("proximity"|"mandatory"|"none"), `snapAlign?` ("start"|"center"|"end"), `flush?`. Children: `BaseCarousel.Item` (`variant?` "outline"|"soft"|"elevated"|"none", `padding?` 3, `radius?` "lg", `minWidth?` 0; explicit minimums are capped to the viewport) and `BaseCarousel.MediaItem` (`*media={<Image width="100%" .../>}` or Image props, caption children, `itemPadding?` 0, `itemRadius?` "lg", `minWidth?`). MediaItem fills the slide width and supplies spacing above its caption. `bind?` (state path), `activeIndex?`, `defaultIndex?`. `name?`, `onChangeAction?` ({ index, value: index }). `activeIndex` jumps to a slide when it changes; user navigation still scrolls and reports `onChangeAction`. Arrows, keyboard, and drag/snap navigation scroll locally in bound, controlled, and uncontrolled modes.
 - `CardCarousel` — carousel preset (+ `onVisibleAction?`); `CardLinkItem` — clickable/linked carousel card (`href?` or `onClickAction?`).
 
 ### Control flow & motion
@@ -553,6 +594,39 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 # Examples
 
 Each example shows the user request, the template, and the data. Study the composition patterns, the data-driven binding (no hard-coded display text), and the restraint.
+
+## Example: live filter (State + bind)
+
+WIDGET TEMPLATE:
+
+```
+<State initial={{ query: "", status: "all" }}>
+  <Card>
+    <Title value="Project tasks" />
+    <Input bind="query" placeholder="Filter tasks" />
+    <SegmentedControl bind="status" options={[{ label: "All", value: "all" }, { label: "Open", value: "open" }, { label: "Done", value: "done" }]} />
+    <Scope values={{ filtered: tasks.filter(task => task.title.toLowerCase().includes(query.toLowerCase()) && (status === "all" || task.status === status)) }}>
+      <Caption value={`${pluralize(size(filtered), "task")} · ${format(sum(filtered, "hours"))} hours`} />
+      <Show when={size(filtered) > 0}>
+        <Each of={filtered} item="task"><Text value={task.title} /></Each>
+        <Show.Else><EmptyState title="No matching tasks" description="Try another search or status." /></Show.Else>
+      </Show>
+    </Scope>
+  </Card>
+</State>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "tasks": [
+    { "title": "Review checkout flow", "status": "open", "hours": 2 },
+    { "title": "Write release notes", "status": "open", "hours": 1.5 },
+    { "title": "Update icons", "status": "done", "hours": 1 }
+  ]
+}
+```
 
 ## Example: metric dashboard
 
