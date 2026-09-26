@@ -115,7 +115,7 @@ const Debug: React.FC<ChildrenProps & { value?: unknown; label?: string; onVisib
       <div className="mb-2 font-semibold" style={{ color: "var(--widget-text-secondary)" }}>
         {label}
       </div>
-      {value !== undefined ? JSON.stringify(value, null, 2) : children}
+      {value !== undefined ? <pre className="wg-debug-value">{JSON.stringify(value, null, 2)}</pre> : children}
     </div>
   );
 };
@@ -296,23 +296,6 @@ const FootballLocationIndicator: React.FC<{ label?: string; side?: "home" | "awa
     color={side === "home" ? "success" : side === "away" ? "info" : "secondary"}
     variant="soft"
   />
-);
-
-const Hermes: React.FC<ChildrenProps & { title?: string; subtitle?: string }> = ({
-  children,
-  title = "Hermes",
-  subtitle
-}) => (
-  <Box border={{ size: 1, color: "subtle" }} background="surface-secondary" radius="lg" padding={3} gap={2}>
-    <Row gap={2}>
-      <Icon name="sparkle" color="discovery" />
-      <Col gap={0}>
-        <Text value={title} weight="semibold" />
-        {subtitle ? <Caption value={subtitle} /> : null}
-      </Col>
-    </Row>
-    {children}
-  </Box>
 );
 
 const Favicon: React.FC<{ url?: string; src?: string; size?: number | string; frame?: boolean; alt?: string }> = ({
@@ -1321,7 +1304,6 @@ export {
   FootballLocationIndicator,
   Grid,
   GridItem,
-  Hermes,
   Highlight,
   Inline,
   Italic,

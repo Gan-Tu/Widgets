@@ -12,7 +12,6 @@ export const widgetComponentNames = [
   "CardLinkItem",
   "Response",
   "Debug",
-  "Hermes",
   "CotResolvedIcon",
   "FootballLocationIndicator",
   "ListView",

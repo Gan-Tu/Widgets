@@ -12,7 +12,7 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
 ## What’s in this repo
 
 - **Reusable renderer**: `WidgetRenderer` (published as `@tugan/widgets`)
-- **Component library**: 145 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
+- **Component library**: 144 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
   - `/` — an exploded-view SVG of a widget being built: the model's template streams in, tokens cross a validation layer that binds data and rejects an injected unsafe line, and the rendered card turns to face the viewer and fires `onAction`. Below it, a live template-to-widget exhibit. The hero supports pause, pointer tilt, reduced motion, and automatic suspension offscreen or in hidden tabs
   - `/gallery` — 52 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
@@ -106,12 +106,12 @@ export function WidgetMessage() {
 <Button onClickAction={{ type: "flow.continue" }}>Continue</Button>
 ```
 
-- **Declarative logic only**: bindings (`{title}`), conditions (`{ok ? <Badge ... /> : null}`), `.map(...)` loops, and DIL-style `$` expression props like `$value="item.label"`.
+- **Declarative logic only**: bindings (`{title}`), conditions (`{ok ? <Badge ... /> : null}`), `.map(...)` loops, and `$` expression props like `$value="item.label"`.
 - **No arbitrary JS**: the template engine is intentionally conservative for safety and predictability.
 - **Dotted child components are supported**: use names like `<BaseCarousel.Item>`, `<Table.Row>`, `<Table.Cell>`, `<Popover.Trigger>`, and `<Show.Else>`.
 - **Client actions run locally**: `copy`, `add_to_calendar`, `request_location_permission`, `open_url`, `email.mailto`, and `card.open`. Other actions are forwarded to the host through `onAction`.
 
-## DIL-style control flow
+## Control flow
 
 ```tsx
 <Each $of="state.items" item="item">
@@ -160,7 +160,7 @@ Server-side actions are intentionally host-owned. See `SERVER_SIDE_ACTION_PLAN.m
 
 ## Extending the system
 
-The published `WidgetRenderer` is intentionally a fixed DIL/component surface: package consumers cannot pass custom/client-defined widget components into the renderer. To add built-in components for this library itself:
+The published `WidgetRenderer` is intentionally a fixed component surface: package consumers cannot pass custom/client-defined widget components into the renderer. To add built-in components for this library itself:
 
 1. Add a component under `src/widget/components/*`
 2. Register it in `src/widget/registry.ts`

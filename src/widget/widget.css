@@ -1081,6 +1081,8 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-diff-line > span { color: var(--widget-text-tertiary); text-align: right; padding-right: 0.45rem; font-variant-numeric: tabular-nums; user-select: none; opacity: 0.75; }
 .wg-diff-line > b { font-weight: 600; text-align: center; user-select: none; }
 .wg-diff-line > code { white-space: pre; color: var(--widget-text-prose); }
+/* Debug keeps JSON indentation and ignores host `pre` styling. */
+.widget-root .wg-debug-value { overflow-x: auto; margin: 0; border-radius: 0; background: none; color: inherit; font: inherit; white-space: pre; }
 .wg-diff-line[data-type="add"] { background: var(--widget-success-soft-bg); }
 .wg-diff-line[data-type="add"] > b { color: var(--widget-success-soft-fg); }
 .wg-diff-line[data-type="add"] > code { color: var(--widget-success-soft-fg); }

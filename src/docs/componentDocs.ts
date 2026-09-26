@@ -1050,8 +1050,8 @@ export const componentDocs: ComponentDoc[] = [
   },
   {
     id: "Response",
-    name: "Response / Debug / Hermes",
-    description: "Root-compatible DIL wrappers and runtime fallback blocks. Response/Debug render children; Hermes renders a compact runtime badge.",
+    name: "Response / Debug",
+    description: "Response is a root that stacks its children as one answer. Debug prints a value as formatted JSON for development.",
     category: "Containers",
     usage: `<Response><Card><Text value="Rendered response" /></Card></Response>`,
     props: [
@@ -1062,8 +1062,6 @@ export const componentDocs: ComponentDoc[] = [
       { name: "Debug.value", description: "Unknown value rendered as JSON.", type: "unknown" },
       { name: "Debug.label", description: "Debug panel label.", type: "string", default: '"Debug"' },
       { name: "Debug.onVisibleAction", description: "Action fired when debug block enters the viewport.", type: "ActionConfig" },
-      { name: "Hermes.title", description: "Runtime fallback title.", type: "string", default: '"Hermes"' },
-      { name: "Hermes.subtitle", description: "Runtime fallback subtitle.", type: "string" },
       { name: "CotResolvedIcon.resolved", description: "Whether to show resolved state.", type: "boolean" },
       { name: "CotResolvedIcon.label", description: "Resolved icon label.", type: "string" },
       { name: "FootballLocationIndicator.label", description: "Location indicator label.", type: "string" },
@@ -1223,7 +1221,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Table",
     name: "Table",
-    description: "Structured DIL table using Table.Row, Table.Cell, and Table.Section children.",
+    description: "Structured table using Table.Row, Table.Cell, and Table.Section children.",
     category: "Data display",
     usage: `<Table><Table.Row><Table.Cell><Text value="Metric" /></Table.Cell></Table.Row></Table>`,
     props: [
@@ -1259,7 +1257,7 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "Each",
     name: "Each / Show / Scope",
-    description: "DIL-style control-flow helpers powered by `$` expression props.",
+    description: "Control-flow helpers powered by `$` expression props.",
     category: "Control flow & state",
     usage: `<Each $of="state.items" item="item"><Text $value="item.label" /></Each>`,
     props: [

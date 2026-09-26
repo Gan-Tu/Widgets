@@ -612,7 +612,7 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 
 ### Runtime fallbacks (avoid in new designs)
 
-`Debug` (dev JSON dump), `Hermes`, `CotResolvedIcon`, `FootballLocationIndicator` — legacy compatibility components; don't reach for them.
+`Debug` (dev JSON dump), `CotResolvedIcon`, `FootballLocationIndicator` — legacy compatibility components; don't reach for them.
 
 # Examples
 
