@@ -11,6 +11,7 @@ import type { ThemeColor } from "../types";
 
 type XAxisConfig = {
   dataKey: string;
+  label?: string;
   hide?: boolean;
   labels?: Record<string | number, string>;
 };
@@ -46,7 +47,16 @@ type ChartFrameProps = {
   aspectRatio?: number | string;
 };
 
-type BaseCartesianChartProps = ChartFrameProps & {
+type ValueFormatProps = {
+  valueFormat?: "number" | "compact" | "currency" | "percent";
+  valuePrefix?: string;
+  valueSuffix?: string;
+};
+type ChartValueProps = ValueFormatProps & { currency?: string };
+type YAxisConfig = { min?: number; max?: number; label?: string; tickCount?: number };
+
+type BaseCartesianChartProps = ChartFrameProps & ChartValueProps & {
+  yAxis?: YAxisConfig;
   data: Record<string, number | string>[];
   xAxis: XAxisConfig;
   showYAxis?: boolean;
@@ -59,7 +69,7 @@ type BaseCartesianChartProps = ChartFrameProps & {
   showGrid?: boolean;
 };
 
-type BarSeries = {
+type BarSeries = ValueFormatProps & {
   dataKey: string;
   label?: string;
   color?: string | ThemeColor;
@@ -67,7 +77,7 @@ type BarSeries = {
   radius?: number | [number, number, number, number];
 };
 
-type LineSeries = {
+type LineSeries = ValueFormatProps & {
   dataKey: string;
   label?: string;
   color?: string | ThemeColor;
@@ -76,7 +86,7 @@ type LineSeries = {
   dot?: boolean;
 };
 
-type AreaSeries = {
+type AreaSeries = ValueFormatProps & {
   dataKey: string;
   label?: string;
   color?: string | ThemeColor;
@@ -85,7 +95,7 @@ type AreaSeries = {
   fillOpacity?: number;
 };
 
-type PieSeries = {
+type PieSeries = ValueFormatProps & {
   /**
    * Reads the numeric value from each row.
    */
@@ -126,6 +136,7 @@ type ComposedSeries =
   | ({ type: "area" } & AreaSeries);
 
 type BarChartProps = BaseCartesianChartProps & {
+  layout?: "horizontal" | "vertical";
   series: BarSeries[];
   barGap?: number;
   barCategoryGap?: number;
@@ -139,7 +150,7 @@ type AreaChartProps = BaseCartesianChartProps & {
   series: AreaSeries[];
 };
 
-type PieChartProps = ChartFrameProps & {
+type PieChartProps = ChartFrameProps & ChartValueProps & {
   data: Record<string, number | string>[];
   /**
    * One or more pies (rarely more than one in compact widgets).
@@ -155,6 +166,11 @@ type ChartProps = BaseCartesianChartProps & {
   barCategoryGap?: number;
 };
 
+type ScatterChartProps = Omit<BaseCartesianChartProps, "xAxis"> & {
+  xAxis: { dataKey: string; label?: string; min?: number; max?: number };
+  series: (ValueFormatProps & { dataKey: string; label?: string; color?: string | ThemeColor; sizeKey?: string })[];
+};
+
 function ChartSkeleton(frame: ChartFrameProps) {
   // Must mirror ChartFrame's size resolution (chartImpl.tsx) so the skeleton
   // reserves exactly the box the chart will occupy.
@@ -162,20 +178,25 @@ function ChartSkeleton(frame: ChartFrameProps) {
     <div
       className="wg-skeleton"
       style={{
-        flex: frame.flex,
+        ...(frame.flex != null ? { flex: frame.flex } : {}),
         height: normalizeCssSize(frame.size ?? frame.height ?? 220),
         width: normalizeCssSize(frame.size ?? frame.width) ?? "100%",
         minWidth: normalizeCssSize(frame.minWidth ?? frame.minSize) ?? 0,
-        minHeight: normalizeCssSize(frame.minHeight ?? frame.minSize),
-        maxWidth: normalizeCssSize(frame.maxWidth ?? frame.maxSize),
-        maxHeight: normalizeCssSize(frame.maxHeight ?? frame.maxSize),
-        aspectRatio: frame.aspectRatio,
+        ...((frame.minHeight ?? frame.minSize) != null ? { minHeight: normalizeCssSize(frame.minHeight ?? frame.minSize) } : {}),
+        ...((frame.maxWidth ?? frame.maxSize) != null ? { maxWidth: normalizeCssSize(frame.maxWidth ?? frame.maxSize) } : {}),
+        ...((frame.maxHeight ?? frame.maxSize) != null ? { maxHeight: normalizeCssSize(frame.maxHeight ?? frame.maxSize) } : {}),
+        ...(frame.aspectRatio != null ? { aspectRatio: frame.aspectRatio } : {}),
         borderRadius: "12px"
       }}
       aria-hidden
     />
   );
 }
+
+const LazyScatterChart = React.lazy(() => import("./chartImpl").then(m => ({ default: m.ScatterChartImpl })));
+export const ScatterChart: React.FC<ScatterChartProps> = props => (
+  <React.Suspense fallback={<ChartSkeleton {...props} />}><LazyScatterChart {...props} /></React.Suspense>
+);
 
 const LazyBarChart = React.lazy(() =>
   import("./chartImpl").then((m) => ({ default: m.BarChartImpl }))
@@ -228,6 +249,10 @@ export const Chart: React.FC<ChartProps> = (props) => (
 );
 
 export type {
+  ScatterChartProps,
+  ValueFormatProps,
+  ChartValueProps,
+  YAxisConfig,
   XAxisConfig,
   CurveType,
   ChartFrameProps,

@@ -26,6 +26,10 @@ import {
 } from "../style";
 
 type BoxProps = BlockProps & {
+  clip?: boolean;
+  scrollable?: true | "x" | "y";
+  rowGap?: number | string;
+  columnGap?: number | string;
   children?: React.ReactNode;
   direction?: "row" | "col";
   align?: Alignment;
@@ -40,7 +44,13 @@ type BoxProps = BlockProps & {
 };
 
 function buildBlockStyles(props: BoxProps, theme: "light" | "dark") {
-  const style: React.CSSProperties = {};
+  const style: React.CSSProperties = {
+    ...(props.clip ? { overflow: "hidden" } : {}),
+    ...(props.scrollable === "x" ? { overflowX: "auto" } : {}),
+    ...(props.scrollable && props.scrollable !== "x" ? { overflowY: "auto" } : {}),
+    ...(props.rowGap != null ? { rowGap: resolveGap(props.rowGap) } : {}),
+    ...(props.columnGap != null ? { columnGap: resolveGap(props.columnGap) } : {})
+  };
 
   if (props.size !== undefined) {
     const size = sizeToCss(props.size);
@@ -128,15 +138,16 @@ const Box: React.FC<BoxProps> = ({
   return (
     <div
       ref={visibleRef}
+      className={props.scrollable ? "wg-scrollable" : undefined}
       data-widget-surface={materialSurface ? "panel" : undefined}
       data-surface-emphasis={materialSurface && materialEmphasis ? "true" : undefined}
       style={{
         display: "flex",
         flexDirection: direction === "row" ? "row" : "column",
-        alignItems: resolveAlign(align),
-        justifyContent: resolveJustify(justify),
+        ...(align ? { alignItems: resolveAlign(align) } : {}),
+        ...(justify ? { justifyContent: resolveJustify(justify) } : {}),
         flexWrap: wrap,
-        flex,
+        ...(flex != null ? { flex } : {}),
         gap: resolveGap(gap),
         ...style
       }}

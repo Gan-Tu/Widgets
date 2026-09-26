@@ -1,3 +1,4 @@
+import { Spinner } from "../../components/ui/spinner";
 import {
   Activity,
   AlertCircle,
@@ -231,6 +232,7 @@ type BadgeColor =
   | "discovery";
 
 type BadgeProps = {
+  maxWidth?: number;
   label?: string;
   children?: React.ReactNode;
   color?: BadgeColor;
@@ -255,17 +257,19 @@ const Badge: React.FC<BadgeProps> = ({
   variant = "soft",
   size = "sm",
   pill = true,
+  maxWidth,
   icon
 }) => {
   const style: React.CSSProperties = {
     borderRadius: pill ? "999px" : "7px",
-    ...badgeSizeStyles[size]
+    ...badgeSizeStyles[size],
+    ...(maxWidth != null ? { maxWidth } : {})
   };
 
   return (
-    <span className="wg-badge" data-variant={variant} data-color={color} style={style}>
+    <span className="wg-badge" title={maxWidth === undefined ? undefined : (typeof (children ?? label) === "string" ? String(children ?? label) : label)} data-variant={variant} data-color={color} style={style}>
       {icon ? <Icon name={icon} size={badgeIconSizes[size]} color="currentColor" /> : null}
-      {children ?? label}
+      <span className={maxWidth === undefined ? undefined : "wg-badge-label"}>{children ?? label}</span>
     </span>
   );
 };
@@ -660,6 +664,7 @@ type ButtonColor =
   | "danger";
 
 type ButtonProps = {
+  loading?: boolean;
   submit?: boolean;
   label?: string;
   ariaLabel?: string;
@@ -770,25 +775,26 @@ const Button: React.FC<ButtonProps> = ({
   pill = false,
   uniform = false,
   block = false,
-  disabled
+  disabled,
+  loading
 }) => {
   const action = useWidgetAction();
-  const isDisabled = disabled ?? (!onClickAction && !submit);
+  const isDisabled = disabled ?? (!loading && !onClickAction && !submit);
   const resolvedColor = color ?? stylePreset;
   const height = controlHeights[size] ?? controlHeights.lg;
 
   const style: React.CSSProperties = {
     height,
     padding: `0 ${uniform ? "0px" : buttonPaddingX[size] ?? "1.1rem"}`,
-    width: uniform ? height : block ? "100%" : undefined,
+    ...(uniform || block ? { width: uniform ? height : "100%" } : {}),
     borderRadius: pill ? "999px" : "var(--widget-radius-control)",
     fontSize: buttonFontSizes[size] ?? "0.875rem"
   };
 
   const iconToken = (iconSize === "2xl" ? "2xl" : iconSize) as IconSize;
 
-  const handleClick = () => {
-    if (isDisabled) return;
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (loading || isDisabled) { event.preventDefault(); return; }
     // If this is a submit button, let the nearest <Form> handle submission.
     if (submit) return;
     if (onClickAction && action) action(onClickAction);
@@ -798,6 +804,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       type={submit ? "submit" : "button"}
       className="wg-btn"
+      aria-busy={loading || undefined}
       aria-label={ariaLabel ?? (!(children ?? label) ? (iconStart ?? iconEnd)?.replaceAll("-", " ") : undefined)}
       data-variant={variant}
       data-color={resolvedColor}
@@ -805,7 +812,7 @@ const Button: React.FC<ButtonProps> = ({
       onClick={handleClick}
       disabled={isDisabled}
     >
-      {iconStart && <Icon name={iconStart} size={iconToken} color="currentColor" />}
+      {loading ? <Spinner size="sm" className="wg-button-spinner" style={{ width: iconSizes[iconToken], height: iconSizes[iconToken] }} aria-hidden /> : iconStart ? <Icon name={iconStart} size={iconToken} color="currentColor" /> : null}
       {(children ?? label) && <span>{children ?? label}</span>}
       {iconEnd && <Icon name={iconEnd} size={iconToken} color="currentColor" />}
     </button>

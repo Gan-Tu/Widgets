@@ -5,7 +5,7 @@ import type React from "react";
 import { Badge, Button, Icon, Image } from "./components/content";
 import { Basic, Card, ListView, ListViewItem } from "./components/containers";
 import { Box, Col, Divider, Row, Spacer } from "./components/layout";
-import { AreaChart, BarChart, Chart, LineChart, PieChart } from "./components/chart";
+import { AreaChart, BarChart, Chart, LineChart, PieChart, ScatterChart } from "./components/chart";
 import { Checkbox, DatePicker, Form, Input, Label, RadioGroup, Select, Textarea } from "./components/forms";
 import { Text, Title, Caption, Markdown } from "./components/text";
 import { Transition } from "./components/transition";
@@ -189,6 +189,7 @@ export const widgetRegistry: ComponentRegistry = {
   LineChart,
   AreaChart,
   PieChart,
+  ScatterChart,
   Spacer,
   Select,
   DatePicker,

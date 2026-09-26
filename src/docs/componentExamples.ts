@@ -470,6 +470,22 @@ export const componentExamples: Record<string, ComponentExample> = {
     schema: EmptySchema,
     data: emptyData
   },
+  ScatterChart: {
+    template: `<Card size="full"><Title value="Wireless headphones" size="sm" /><Caption value="Price vs. customer rating · point area shows review count" /><ScatterChart data={products} height={280} xAxis={{ dataKey: "price", label: "Price ($)", min: 0, max: 400 }} yAxis={{ min: 0, max: 5, label: "Rating", tickCount: 6 }} series={[{ dataKey: "rating", label: "Customer rating", sizeKey: "reviews", valueSuffix: " / 5" }]} showLegend={false} /></Card>`,
+    schema: z.strictObject({ products: z.array(z.strictObject({ name: z.string(), price: z.number(), rating: z.number(), reviews: z.number() })) }),
+    data: { products: [
+      { name: "Metro", price: 49, rating: 3.7, reviews: 860 },
+      { name: "Air", price: 79, rating: 4.0, reviews: 1420 },
+      { name: "Studio", price: 129, rating: 4.3, reviews: 2100 },
+      { name: "Travel", price: 159, rating: 4.1, reviews: 760 },
+      { name: "Focus", price: 199, rating: 4.5, reviews: 1800 },
+      { name: "Wave", price: 229, rating: 4.2, reviews: 540 },
+      { name: "Quiet", price: 279, rating: 4.7, reviews: 3200 },
+      { name: "Pro", price: 299, rating: 4.4, reviews: 970 },
+      { name: "Reference", price: 349, rating: 4.8, reviews: 410 },
+      { name: "Elite", price: 379, rating: 4.6, reviews: 280 }
+    ] }
+  },
   PieChart: {
     template: `
 <Card size="sm">
@@ -985,7 +1001,7 @@ export const componentExamples: Record<string, ComponentExample> = {
     template: `
 <Card size="md" gap={3}>
   <Title value="Structured DIL table" size="sm" />
-  <Table columnSizing="equal">
+  <Table columnSizing="equal" stickyHeader maxHeight={160}>
     <Table.Section label="Current run">
       <Table.Row header>
         <Table.Cell header><Text value="Metric" weight="semibold" /></Table.Cell>

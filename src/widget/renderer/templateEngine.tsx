@@ -6,7 +6,8 @@ import type { ComponentRegistry } from "../registry";
 import { append, has, prepend, read, remove, set, safeLookup, forbiddenProperties } from "../state";
 import type { ActionConfig } from "../types";
 
-import { aggregate, formatDate, formatNumber, range, sortBy } from "./expressionHelpers";
+import { formatNumber } from "../format";
+import { aggregate, formatDate, range, sortBy } from "./expressionHelpers";
 
 export const WIDGET_THEME = Symbol("widgetTheme");
 type Scope = Record<string | symbol, unknown>;

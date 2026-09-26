@@ -55,6 +55,7 @@ export const widgetComponentNames = [
   "LineChart",
   "AreaChart",
   "PieChart",
+  "ScatterChart",
   "Spacer",
   "Select",
   "DatePicker",

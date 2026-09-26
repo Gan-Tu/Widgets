@@ -1,5 +1,8 @@
 import React from "react";
 import {
+  Scatter,
+  ScatterChart as ReScatterChart,
+  ZAxis,
   CartesianGrid,
   Cell,
   Legend,
@@ -17,11 +20,16 @@ import {
   PieChart as RePieChart
 } from "recharts";
 
+import { formatNumber, formatNumberTick } from "../format";
 import { getDefaultChartColors } from "../chartPalette";
 import { useWidgetTheme } from "../context";
 import { useResizeObserver } from "../hooks";
 import { normalizeCssSize, resolveColor } from "../style";
 import type {
+  ScatterChartProps,
+  ChartValueProps,
+  ValueFormatProps,
+  YAxisConfig,
   AreaChartProps,
   BarChartProps,
   ChartFrameProps,
@@ -167,16 +175,16 @@ function ChartFrame({
     <div
       ref={frameRef}
       style={{
-        flex: frame.flex,
+        ...(frame.flex != null ? { flex: frame.flex } : {}),
         height: resolvedHeight,
         width: resolvedWidth,
         // In flex layouts, `min-width: auto` lets content force overflow;
         // `minWidth: 0` keeps the measured frame able to shrink with its row.
         minWidth: normalizeCssSize(frame.minWidth ?? frame.minSize) ?? 0,
-        minHeight: normalizeCssSize(frame.minHeight ?? frame.minSize),
-        maxWidth: normalizeCssSize(frame.maxWidth ?? frame.maxSize),
-        maxHeight: normalizeCssSize(frame.maxHeight ?? frame.maxSize),
-        aspectRatio: frame.aspectRatio
+        ...((frame.minHeight ?? frame.minSize) != null ? { minHeight: normalizeCssSize(frame.minHeight ?? frame.minSize) } : {}),
+        ...((frame.maxWidth ?? frame.maxSize) != null ? { maxWidth: normalizeCssSize(frame.maxWidth ?? frame.maxSize) } : {}),
+        ...((frame.maxHeight ?? frame.maxSize) != null ? { maxHeight: normalizeCssSize(frame.maxHeight ?? frame.maxSize) } : {}),
+        ...(frame.aspectRatio != null ? { aspectRatio: frame.aspectRatio } : {})
       }}
     >
       {dimensions && React.isValidElement(children)
@@ -193,16 +201,54 @@ function defaultXAxisTickFormatter(xAxis: XAxisConfig) {
     String(xAxis.labels ? xAxis.labels[value as string | number] ?? value : value);
 }
 
+function valueFormatter(props: ChartValueProps, series?: ValueFormatProps, ticks = false) {
+  const format = ticks ? formatNumberTick : formatNumber;
+  return (value: unknown) => format(value, series?.valueFormat ?? props.valueFormat, {
+    currency: props.currency,
+    prefix: series?.valuePrefix ?? props.valuePrefix,
+    suffix: series?.valueSuffix ?? props.valueSuffix
+  });
+}
+
+function tooltipFormatter(props: ChartValueProps, series: (ValueFormatProps & { dataKey: string })[]) {
+  return (value: unknown, _name: unknown, item: { dataKey?: unknown }) =>
+    valueFormatter(props, series.find(s => s.dataKey === item.dataKey))(value);
+}
+
+function valueAxisProps(axis: YAxisConfig | undefined, format: (value: unknown) => string) {
+  return {
+    domain: [axis?.min ?? 0, axis?.max ?? "auto"] as [number, number | "auto"],
+    tickCount: axis?.tickCount,
+    allowDataOverflow: axis?.min !== undefined || axis?.max !== undefined,
+    tickFormatter: format,
+    label: axis?.label ? { value: axis.label, angle: -90, position: "insideLeft" as const, ...axisTickStyle } : undefined
+  };
+}
+
+function categoryLabel(label?: string) {
+  return label ? { value: label, position: "insideBottom" as const, offset: 8, ...axisTickStyle } : undefined;
+}
+
+// The legend's measured padding reserves space below the axis title.
+function cartesianLegendProps(hasBottomTitle: boolean) {
+  return {
+    ...legendProps,
+    wrapperStyle: { ...legendStyle, ...(hasBottomTitle ? { paddingTop: 8 } : {}) }
+  };
+}
+
 export const BarChartImpl: React.FC<BarChartProps> = ({
   data,
   series,
   xAxis,
+  yAxis,
   showYAxis = false,
   showLegend = true,
   showTooltip = true,
   showGrid = true,
   barGap,
   barCategoryGap,
+  layout = "horizontal",
   ...frame
 }) => {
   const theme = useWidgetTheme();
@@ -211,6 +257,7 @@ export const BarChartImpl: React.FC<BarChartProps> = ({
   const safeSeries = ensureSeries<BarChartProps["series"][number]>("BarChart", series);
   const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
+  const formatValue = valueFormatter(frame, safeSeries.length === 1 ? safeSeries[0] : undefined, true);
   // For stacked bars, only round the top segment in each stack.
   // Otherwise inner segments have rounded corners which creates a visible "gap" between stacks.
   const topBarDataKeyByStack = new Map<string, string>();
@@ -220,22 +267,22 @@ export const BarChartImpl: React.FC<BarChartProps> = ({
 
   return (
     <ChartFrame {...frame}>
-      <ReBarChart data={safeData} barGap={barGap} barCategoryGap={barCategoryGap}>
-        {showGrid ? <CartesianGrid {...gridProps} /> : null}
-        <XAxis
-          dataKey={safeXAxis.dataKey}
-          hide={safeXAxis.hide}
-          tickFormatter={defaultXAxisTickFormatter(safeXAxis)}
-          {...sharedAxisProps}
-        />
-        {showYAxis ? <YAxis width={36} {...sharedAxisProps} /> : null}
-        {showTooltip ? <Tooltip {...tooltipProps} /> : null}
-        {showLegend ? <Legend {...legendProps} /> : null}
+      <ReBarChart layout={layout} data={safeData} barGap={barGap} barCategoryGap={barCategoryGap}>
+        {showGrid ? <CartesianGrid {...gridProps} vertical={layout === "vertical"} horizontal={layout !== "vertical"} /> : null}
+        {layout === "vertical" ? <>
+          <XAxis type="number" hide={!showYAxis} {...sharedAxisProps} {...valueAxisProps(yAxis, formatValue)} label={categoryLabel(yAxis?.label)} height={yAxis?.label ? 56 : undefined} />
+          <YAxis type="category" dataKey={safeXAxis.dataKey} tickFormatter={defaultXAxisTickFormatter(safeXAxis)} {...sharedAxisProps} width={safeXAxis.label ? 80 : 64} label={safeXAxis.label ? { value: safeXAxis.label, angle: -90, position: "insideLeft" as const, ...axisTickStyle } : undefined} />
+        </> : <>
+          <XAxis dataKey={safeXAxis.dataKey} hide={safeXAxis.hide} tickFormatter={defaultXAxisTickFormatter(safeXAxis)} {...sharedAxisProps} label={categoryLabel(safeXAxis.label)} height={safeXAxis.label ? 56 : undefined} />
+          <YAxis hide={!showYAxis} width={yAxis?.label ? 64 : 36} {...sharedAxisProps} {...valueAxisProps(yAxis, formatValue)} />
+        </>}
+        {showTooltip ? <Tooltip {...tooltipProps} formatter={tooltipFormatter(frame, safeSeries)} /> : null}
+        {showLegend ? <Legend {...cartesianLegendProps(Boolean(layout === "vertical" ? showYAxis && yAxis?.label : !safeXAxis.hide && safeXAxis.label))} /> : null}
         {safeSeries.map((s, index) => {
           const color =
             resolveColor(s.color ?? defaultSeriesColors[index % defaultSeriesColors.length], theme) ??
             defaultSeriesColors[index % defaultSeriesColors.length];
-          const defaultRadius: [number, number, number, number] = [5, 5, 0, 0];
+          const defaultRadius: [number, number, number, number] = layout === "vertical" ? [0, 5, 5, 0] : [5, 5, 0, 0];
           const isStacked = Boolean(s.stack);
           const isTopOfStack =
             typeof s.stack === "string" ? topBarDataKeyByStack.get(s.stack) === s.dataKey : false;
@@ -261,6 +308,7 @@ export const LineChartImpl: React.FC<LineChartProps> = ({
   data,
   series,
   xAxis,
+  yAxis,
   showYAxis = false,
   showLegend = true,
   showTooltip = true,
@@ -273,22 +321,25 @@ export const LineChartImpl: React.FC<LineChartProps> = ({
   const safeSeries = ensureSeries<LineChartProps["series"][number]>("LineChart", series);
   const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
+  const formatValue = valueFormatter(frame, safeSeries.length === 1 ? safeSeries[0] : undefined, true);
 
   return (
     <ChartFrame {...frame}>
       <ReLineChart data={safeData}>
         {showGrid ? <CartesianGrid {...gridProps} /> : null}
         <XAxis
+          label={categoryLabel(safeXAxis.label)}
+          height={safeXAxis.label ? 56 : undefined}
           dataKey={safeXAxis.dataKey}
           hide={safeXAxis.hide}
           tickFormatter={defaultXAxisTickFormatter(safeXAxis)}
           {...sharedAxisProps}
         />
-        {showYAxis ? <YAxis width={36} {...sharedAxisProps} /> : null}
+        <YAxis hide={!showYAxis} width={yAxis?.label ? 64 : 36} {...sharedAxisProps} {...valueAxisProps(yAxis, formatValue)} />
         {showTooltip ? (
-          <Tooltip {...tooltipProps} cursor={{ stroke: "var(--widget-border-default)", strokeDasharray: "3 3" }} />
+          <Tooltip {...tooltipProps} formatter={tooltipFormatter(frame, safeSeries)} cursor={{ stroke: "var(--widget-border-default)", strokeDasharray: "3 3" }} />
         ) : null}
-        {showLegend ? <Legend {...legendProps} /> : null}
+        {showLegend ? <Legend {...cartesianLegendProps(Boolean(!safeXAxis.hide && safeXAxis.label))} /> : null}
         {safeSeries.map((s, index) => {
           const color =
             resolveColor(s.color ?? defaultSeriesColors[index % defaultSeriesColors.length], theme) ??
@@ -316,6 +367,7 @@ export const AreaChartImpl: React.FC<AreaChartProps> = ({
   data,
   series,
   xAxis,
+  yAxis,
   showYAxis = false,
   showLegend = true,
   showTooltip = true,
@@ -329,6 +381,7 @@ export const AreaChartImpl: React.FC<AreaChartProps> = ({
   const safeSeries = ensureSeries<AreaChartProps["series"][number]>("AreaChart", series);
   const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
+  const formatValue = valueFormatter(frame, safeSeries.length === 1 ? safeSeries[0] : undefined, true);
 
   return (
     <ChartFrame {...frame}>
@@ -355,16 +408,18 @@ export const AreaChartImpl: React.FC<AreaChartProps> = ({
         </defs>
         {showGrid ? <CartesianGrid {...gridProps} /> : null}
         <XAxis
+          label={categoryLabel(safeXAxis.label)}
+          height={safeXAxis.label ? 56 : undefined}
           dataKey={safeXAxis.dataKey}
           hide={safeXAxis.hide}
           tickFormatter={defaultXAxisTickFormatter(safeXAxis)}
           {...sharedAxisProps}
         />
-        {showYAxis ? <YAxis width={36} {...sharedAxisProps} /> : null}
+        <YAxis hide={!showYAxis} width={yAxis?.label ? 64 : 36} {...sharedAxisProps} {...valueAxisProps(yAxis, formatValue)} />
         {showTooltip ? (
-          <Tooltip {...tooltipProps} cursor={{ stroke: "var(--widget-border-default)", strokeDasharray: "3 3" }} />
+          <Tooltip {...tooltipProps} formatter={tooltipFormatter(frame, safeSeries)} cursor={{ stroke: "var(--widget-border-default)", strokeDasharray: "3 3" }} />
         ) : null}
-        {showLegend ? <Legend {...legendProps} /> : null}
+        {showLegend ? <Legend {...cartesianLegendProps(Boolean(!safeXAxis.hide && safeXAxis.label))} /> : null}
         {safeSeries.map((s, index) => {
           const color =
             resolveColor(s.color ?? defaultSeriesColors[index % defaultSeriesColors.length], theme) ??
@@ -404,7 +459,7 @@ export const PieChartImpl: React.FC<PieChartProps> = ({
   return (
     <ChartFrame {...frame}>
       <RePieChart>
-        {showTooltip ? <Tooltip {...tooltipProps} cursor={false} /> : null}
+        {showTooltip ? <Tooltip {...tooltipProps} formatter={tooltipFormatter(frame, safeSeries)} cursor={false} /> : null}
         {showLegend ? <Legend {...legendProps} /> : null}
         {safeSeries.map((s, seriesIndex) => {
           const defaultColor =
@@ -450,6 +505,7 @@ export const ComposedChartImpl: React.FC<ChartProps> = ({
   data,
   series,
   xAxis,
+  yAxis,
   showYAxis = false,
   showLegend = true,
   showTooltip = true,
@@ -465,6 +521,7 @@ export const ComposedChartImpl: React.FC<ChartProps> = ({
   const safeSeries = ensureSeries<ChartProps["series"][number]>("Chart", series);
   const defaultSeriesColors = getDefaultChartColors(safeSeries.length);
   const safeXAxis = ensureXAxis(xAxis);
+  const formatValue = valueFormatter(frame, safeSeries.length === 1 ? safeSeries[0] : undefined, true);
   const topBarDataKeyByStack = new Map<string, string>();
   safeSeries.forEach((s) => {
     if (s.type === "bar" && s.stack) topBarDataKeyByStack.set(s.stack, s.dataKey);
@@ -496,14 +553,16 @@ export const ComposedChartImpl: React.FC<ChartProps> = ({
         </defs>
         {showGrid ? <CartesianGrid {...gridProps} /> : null}
         <XAxis
+          label={categoryLabel(safeXAxis.label)}
+          height={safeXAxis.label ? 56 : undefined}
           dataKey={safeXAxis.dataKey}
           hide={safeXAxis.hide}
           tickFormatter={defaultXAxisTickFormatter(safeXAxis)}
           {...sharedAxisProps}
         />
-        {showYAxis ? <YAxis width={36} {...sharedAxisProps} /> : null}
-        {showTooltip ? <Tooltip {...tooltipProps} /> : null}
-        {showLegend ? <Legend {...legendProps} /> : null}
+        <YAxis hide={!showYAxis} width={yAxis?.label ? 64 : 36} {...sharedAxisProps} {...valueAxisProps(yAxis, formatValue)} />
+        {showTooltip ? <Tooltip {...tooltipProps} formatter={tooltipFormatter(frame, safeSeries)} /> : null}
+        {showLegend ? <Legend {...cartesianLegendProps(Boolean(!safeXAxis.hide && safeXAxis.label))} /> : null}
         {safeSeries.map((item, index) => {
           const baseColor =
             resolveColor(
@@ -565,3 +624,32 @@ export const ComposedChartImpl: React.FC<ChartProps> = ({
   );
 };
 
+
+export const ScatterChartImpl: React.FC<ScatterChartProps> = ({
+  data, series, xAxis, yAxis, showYAxis = true, showLegend = true, showTooltip = true, showGrid = true, ...frame
+}) => {
+  const theme = useWidgetTheme();
+  const safeData = ensureArrayData<Record<string, number | string>>("ScatterChart", data);
+  const safeSeries = ensureSeries<ScatterChartProps["series"][number]>("ScatterChart", series);
+  const safeXAxis = (xAxis ?? { dataKey: "" });
+  const colors = getDefaultChartColors(safeSeries.length);
+  const formatValue = valueFormatter(frame, safeSeries.length === 1 ? safeSeries[0] : undefined, true);
+  return <ChartFrame {...frame}>
+    <ReScatterChart>
+      {showGrid ? <CartesianGrid {...gridProps} vertical /> : null}
+      <XAxis type="number" dataKey="x" name={safeXAxis.label ?? safeXAxis.dataKey} domain={[safeXAxis.min ?? 0, safeXAxis.max ?? "auto"]} allowDataOverflow={safeXAxis.min !== undefined || safeXAxis.max !== undefined} {...sharedAxisProps} tickFormatter={valueFormatter(frame, undefined, true)} label={categoryLabel(safeXAxis.label)} height={safeXAxis.label ? 56 : undefined} />
+      <YAxis type="number" dataKey="y" name={yAxis?.label ?? "Value"} hide={!showYAxis} width={yAxis?.label ? 64 : 36} {...sharedAxisProps} {...valueAxisProps(yAxis, formatValue)} />
+      {safeSeries.map((s, index) => <ZAxis key={s.dataKey} zAxisId={index} name={s.sizeKey} dataKey={s.sizeKey ? "z" : undefined} range={s.sizeKey ? [40, 400] : [64, 64]} />)}
+      {showTooltip ? <Tooltip {...tooltipPropsByTheme[theme]} formatter={(value, _name, item) => {
+        const series = safeSeries.find(s => s.dataKey === item.payload?.seriesKey);
+        return item.dataKey === "y" ? valueFormatter(frame, series)(value) : formatNumber(value, "number");
+      }} /> : null}
+      {showLegend ? <Legend {...cartesianLegendProps(Boolean(safeXAxis.label))} /> : null}
+      {safeSeries.map((s, index) => <Scatter key={s.dataKey} name={s.label ?? s.dataKey} zAxisId={index}
+        fill={resolveColor(s.color ?? colors[index % colors.length], theme)}
+        data={safeData.filter(row => typeof row[safeXAxis.dataKey] === "number" && Number.isFinite(row[safeXAxis.dataKey]) && typeof row[s.dataKey] === "number" && Number.isFinite(row[s.dataKey])).map(row => ({
+          ...row, x: row[safeXAxis.dataKey], y: row[s.dataKey], z: s.sizeKey && typeof row[s.sizeKey] === "number" && Number.isFinite(row[s.sizeKey]) ? row[s.sizeKey] : undefined, seriesKey: s.dataKey
+        }))} />)}
+    </ReScatterChart>
+  </ChartFrame>;
+};

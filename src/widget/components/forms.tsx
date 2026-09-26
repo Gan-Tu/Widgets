@@ -125,6 +125,7 @@ type InputProps = {
   autoSelect?: boolean;
   autoFocus?: boolean;
   disabled?: boolean;
+  invalid?: boolean;
   pill?: boolean;
 };
 
@@ -144,6 +145,7 @@ const Input: React.FC<InputProps> = ({
   allowAutofillExtensions,
   autoSelect,
   autoFocus,
+  invalid,
   disabled,
   pill
 }) => {
@@ -159,6 +161,7 @@ const Input: React.FC<InputProps> = ({
       type={inputType}
       className="wg-input"
       data-variant={variant}
+      aria-invalid={invalid || undefined}
       value={value}
       onChange={(event) => {
         const next = event.target.value;
@@ -193,6 +196,7 @@ type TextareaProps = {
   autoSelect?: boolean;
   autoFocus?: boolean;
   disabled?: boolean;
+  invalid?: boolean;
   variant?: "soft" | "outline";
   size?: ControlSize;
   gutterSize?: keyof typeof controlGutters;
@@ -212,6 +216,7 @@ const Textarea: React.FC<TextareaProps> = ({
   placeholder,
   autoSelect,
   autoFocus,
+  invalid,
   disabled,
   variant = "outline",
   size = "md",
@@ -232,6 +237,7 @@ const Textarea: React.FC<TextareaProps> = ({
       name={name}
       className="wg-input"
       data-variant={variant}
+      aria-invalid={invalid || undefined}
       value={value}
       onChange={(event) => {
         const next = event.target.value;
@@ -282,6 +288,7 @@ type SelectProps = {
   block?: boolean;
   clearable?: boolean;
   disabled?: boolean;
+  invalid?: boolean;
 };
 
 const Select: React.FC<SelectProps> = ({
@@ -297,6 +304,7 @@ const Select: React.FC<SelectProps> = ({
   pill = false,
   block,
   clearable,
+  invalid,
   disabled
 }) => {
   const action = useWidgetAction();
@@ -321,6 +329,7 @@ const Select: React.FC<SelectProps> = ({
         id={fieldId(name)}
         className="wg-input shadow-none"
         data-variant={variant}
+        aria-invalid={invalid || undefined}
         style={{
           height,
           borderRadius: pill ? "999px" : "var(--widget-radius-control)",
@@ -543,6 +552,8 @@ type CheckboxProps = {
   name?: string;
   bind?: string;
   label?: string;
+  lineThrough?: boolean;
+  shape?: "square" | "circle";
   defaultChecked?: boolean;
   checked?: boolean;
   onChangeAction?: ActionConfig;
@@ -555,6 +566,8 @@ const Checkbox: React.FC<CheckboxProps> = ({
   bind,
   checked: controlledChecked,
   label,
+  lineThrough,
+  shape = "square",
   defaultChecked,
   onChangeAction,
   disabled,
@@ -576,6 +589,8 @@ const Checkbox: React.FC<CheckboxProps> = ({
       style={{ color: "var(--widget-text-primary)" }}
     >
       <UiCheckbox
+        className="wg-checkbox"
+        data-shape={shape}
         id={fieldId(name)}
         name={name}
         checked={resolvedChecked}
@@ -583,7 +598,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         disabled={disabled}
         required={required}
       />
-      {label}
+      <span className={lineThrough && resolvedChecked ? "wg-checkbox-completed" : undefined}>{label}</span>
     </label>
   );
 };

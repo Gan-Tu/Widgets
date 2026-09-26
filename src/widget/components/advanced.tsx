@@ -372,6 +372,7 @@ type SliderProps = {
   bind?: string;
   value?: number | number[];
   defaultValue?: number | number[];
+  marks?: (number | { value: number; label?: string })[];
   min?: number;
   max?: number;
   step?: number;
@@ -384,6 +385,7 @@ const SliderWidget: React.FC<SliderProps> = ({
   bind,
   value: controlledValue,
   defaultValue = 50,
+  marks,
   min = 0,
   max = 100,
   step = 1,
@@ -401,16 +403,22 @@ const SliderWidget: React.FC<SliderProps> = ({
     }
   };
 
+  const ticks = (marks ?? []).map(mark => typeof mark === "number" ? { value: mark } : mark).filter(mark => Number.isFinite(mark.value) && mark.value >= min && mark.value <= max);
+  const position = (value: number) => max > min ? (value - min) / (max - min) * 100 : 0;
   return (
+    <div className="wg-slider-marked">
     <UiSlider
       id={fieldId(name)}
       value={resolvedValue}
       onValueChange={handleValueChange}
+      marks={ticks.map(mark => position(mark.value))}
       min={min}
       max={max}
       step={step}
       disabled={disabled}
     />
+    {ticks.some(mark => mark.label !== undefined) ? <div className="wg-slider-labels">{ticks.map((mark, index) => mark.label !== undefined ? <span key={index} style={{ left: `${position(mark.value)}%`, transform: `translateX(-${position(mark.value)}%)` }}>{mark.label}</span> : null)}</div> : null}
+    </div>
   );
 };
 

@@ -1593,3 +1593,34 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
   outline: none;
   box-shadow: none;
 }
+
+/* DIL presentation and control props. */
+.widget-root { --widget-highlight: #fef08a; }
+.widget-root[data-theme="dark"] { --widget-highlight: color-mix(in srgb, var(--widget-chart-1) 25%, var(--widget-surface)); }
+.wg-highlight { border-radius: 6px; padding: 0 0.2em; background: var(--widget-highlight); color: inherit; }
+.wg-badge-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wg-btn .wg-button-spinner { flex-shrink: 0; border-color: color-mix(in srgb, currentColor 25%, transparent); border-top-color: currentColor; }
+.wg-checkbox[data-shape="circle"] { border-radius: 50%; }
+.wg-checkbox-completed { text-decoration: line-through; color: var(--widget-text-tertiary); }
+.widget-root .wg-input[aria-invalid="true"],
+.widget-root .wg-input[aria-invalid="true"]:focus,
+.widget-root .wg-input[aria-invalid="true"]:focus-visible,
+.widget-root[data-appearance="glass"] .wg-input[aria-invalid="true"],
+.widget-root[data-appearance="glass"] .wg-input[aria-invalid="true"]:focus-visible { border-color: var(--widget-danger) !important; }
+.wg-slider-marked { width: 100%; min-width: 0; }
+.wg-slider-tick { position: absolute; top: 0; bottom: 0; width: 2px; transform: translateX(-50%); background: var(--widget-text-tertiary); pointer-events: none; }
+.wg-slider-labels { position: relative; min-height: 1.25rem; margin-top: 0.5rem; color: var(--widget-text-tertiary); font-size: 0.75rem; }
+.wg-slider-labels > span { position: absolute; max-width: 100%; overflow-wrap: anywhere; }
+.wg-scrollable { scrollbar-width: thin; scrollbar-color: var(--widget-border-default) transparent; }
+.wg-table-scroll { overflow: auto; }
+.wg-table[data-sticky-header] thead { position: sticky; top: 0; z-index: 1; background: var(--widget-surface); }
+.wg-table[data-dividers="false"] tbody tr:not([data-header]) { border-bottom: 0; }
+.wg-table-empty { padding: 0.75rem; color: var(--widget-text-secondary); }
+.wg-list-label { font-weight: 600; }
+.wg-list-description { color: var(--widget-text-secondary); }
+.wg-list-item[aria-disabled="true"], .wg-list-item[aria-disabled="true"] .wg-list-description { color: var(--widget-text-tertiary); }
+.wg-popover-close { position: absolute; top: 0.25rem; right: 0.25rem; width: 1.75rem; height: 1.75rem; padding: 0; }
+
+.wg-table[data-sticky-header] tbody tr[data-header] { position: sticky; top: 0; z-index: 1; background: var(--widget-surface); }
+
+.wg-table thead tr:last-child { border-bottom: 1px solid var(--widget-border-subtle); }

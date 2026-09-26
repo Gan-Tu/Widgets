@@ -1,3 +1,4 @@
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
 import React from "react";
 import { useControlValue, fieldId } from "../binding";
 import { AnimatePresence, motion } from "motion/react";
@@ -202,17 +203,12 @@ const MathText: React.FC<React.ComponentProps<typeof Emphasis>> = ({ value, chil
 const Highlight: React.FC<React.ComponentProps<typeof Emphasis> & { color?: string | ThemeColor }> = ({
   value,
   children,
-  color = "yellow"
+  color
 }) => {
   const theme = useWidgetTheme();
   return (
-    <mark
-      style={{
-        borderRadius: 6,
-        padding: "0 0.2em",
-        background: resolveColor(color, theme) ?? "#fef08a",
-        color: "inherit"
-      }}
+    <mark className="wg-highlight"
+      style={color ? { background: resolveColor(color, theme) } : undefined}
     >
       {value ?? children}
     </mark>
@@ -613,16 +609,20 @@ function toTrackCount(value: number | string | undefined) {
 }
 
 const Grid: React.FC<ChildrenProps & {
+  minChildWidth?: number;
+  rows?: number | string;
+  rowGap?: number | string;
+  columnGap?: number | string;
   columns?: number | string;
   gap?: number | string;
   padding?: number | string | Padding;
   onVisibleAction?: ActionConfig;
-}> = ({ children, columns = 2, gap = 2, padding, onVisibleAction }) => {
+}> = ({ children, columns = 2, gap = 2, padding, onVisibleAction, minChildWidth, rows, rowGap, columnGap }) => {
   const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const resolvedColumns = toTrackCount(columns);
   const style: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns:
+    gridTemplateColumns: minChildWidth !== undefined ? `repeat(auto-fit, minmax(min(100%, ${minChildWidth}px), 1fr))` :
       typeof resolvedColumns === "number"
         ? `repeat(${resolvedColumns}, minmax(0, 1fr))`
         : resolvedColumns,
@@ -630,7 +630,10 @@ const Grid: React.FC<ChildrenProps & {
     // column when the grid is sized by its contents (e.g. inside centered
     // flex parents).
     width: "100%",
-    gap: resolveGap(gap)
+    gap: resolveGap(gap),
+    ...(rowGap != null ? { rowGap: resolveGap(rowGap) } : {}),
+    ...(columnGap != null ? { columnGap: resolveGap(columnGap) } : {}),
+    ...(rows != null ? { gridTemplateRows: typeof rows === "number" ? `repeat(${rows}, auto)` : rows } : {})
   };
   applyPadding(style, padding);
   return <div ref={ref} style={style}>{children}</div>;
@@ -773,13 +776,14 @@ const OverflowRow: React.FC<ChildrenProps & { rows?: number; gap?: number | stri
 };
 
 const Pressable: React.FC<ChildrenProps & {
+  tooltip?: string;
   onClickAction: ActionConfig;
   onVisibleAction?: ActionConfig;
   disabled?: boolean;
   padding?: number | string | Padding;
   radius?: RadiusValue;
   background?: string | ThemeColor;
-}> = ({ children, onClickAction, onVisibleAction, disabled, padding, radius, background }) => {
+}> = ({ children, tooltip, onClickAction, onVisibleAction, disabled, padding, radius, background }) => {
   const action = useWidgetAction();
   const visibleRef = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const theme = useWidgetTheme();
@@ -787,14 +791,15 @@ const Pressable: React.FC<ChildrenProps & {
     cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.55 : 1,
     borderRadius: resolveRadius(radius),
-    background: background ? resolveColor(background, theme) : undefined
+    ...(background ? { background: resolveColor(background, theme) } : {})
   };
   applyPadding(style, padding);
 
-  return (
+  const control = (
     <div
       ref={visibleRef}
       role="button"
+      aria-disabled={disabled || undefined}
       tabIndex={disabled ? undefined : 0}
       style={style}
       onClick={() => !disabled && action?.(onClickAction)}
@@ -809,6 +814,7 @@ const Pressable: React.FC<ChildrenProps & {
       {children}
     </div>
   );
+  return tooltip ? <TooltipProvider><Tooltip><TooltipTrigger asChild>{control}</TooltipTrigger><TooltipContent>{tooltip}</TooltipContent></Tooltip></TooltipProvider> : control;
 };
 
 type PopoverContextValue = {
@@ -874,37 +880,35 @@ const PopoverTrigger: React.FC<ChildrenProps & { onClickAction?: ActionConfig }>
   );
 };
 
-const PopoverContent: React.FC<ChildrenProps & { side?: "top" | "bottom" | "left" | "right"; align?: "start" | "center" | "end"; width?: number | string }> = ({
+const PopoverContent: React.FC<ChildrenProps & { side?: "top" | "bottom" | "left" | "right"; align?: "start" | "center" | "end"; showCloseButton?: boolean; sideOffset?: number; width?: number | string }> = ({
   children,
   side = "bottom",
   align = "center",
+  showCloseButton,
+  sideOffset = 8,
   width = 260
 }) => {
   const context = React.useContext(PopoverContext);
   if (!context?.open) return null;
   const position: React.CSSProperties = {
     width: toCssSize(width),
-    top: side === "bottom" ? "calc(100% + 8px)" : side === "top" ? undefined : "50%",
-    bottom: side === "top" ? "calc(100% + 8px)" : undefined,
-    left: side === "right" ? "calc(100% + 8px)" : align === "start" ? 0 : align === "end" ? undefined : "50%",
-    right: side === "left" ? "calc(100% + 8px)" : align === "end" ? 0 : undefined,
-    transform:
-      side === "left" || side === "right"
-        ? "translateY(-50%)"
-        : align === "center"
-        ? "translateX(-50%)"
-        : undefined
+    ...(side === "bottom" ? { top: `calc(100% + ${sideOffset}px)` } : side === "top" ? { bottom: `calc(100% + ${sideOffset}px)` } : { top: "50%" }),
+    ...(side === "right" ? { left: `calc(100% + ${sideOffset}px)` } : align === "start" ? { left: 0 } : align === "end" ? {} : { left: "50%" }),
+    ...(side === "left" ? { right: `calc(100% + ${sideOffset}px)` } : align === "end" ? { right: 0 } : {}),
+    ...(side === "left" || side === "right" ? { transform: "translateY(-50%)" } : align === "center" ? { transform: "translateX(-50%)" } : {})
   };
   return (
     <span
       className="absolute z-50 block rounded-xl border p-3 text-left"
       style={{
         ...position,
+        ...(showCloseButton ? { paddingRight: "2.5rem" } : {}),
         borderColor: "var(--widget-border-default)",
         background: "var(--widget-surface-elevated)",
         boxShadow: "var(--widget-shadow-lg)"
       }}
     >
+      {showCloseButton ? <button type="button" className="wg-btn wg-popover-close" data-variant="ghost" data-color="secondary" aria-label="Close" onClick={() => context.setOpen(false)}><Icon name="x" size="sm" color="currentColor" /></button> : null}
       {children}
     </span>
   );
@@ -955,20 +959,24 @@ function renderListMarker(marker: React.ReactNode | string) {
   return marker;
 }
 
-const List: React.FC<ChildrenProps & { marker?: string; connector?: "none" | "solid"; gap?: number | string; maxMarkerSize?: "md" | "lg" | "xl" }> = ({
+const List: React.FC<ChildrenProps & { start?: number; marker?: string; connector?: "none" | "solid"; gap?: number | string; maxMarkerSize?: "md" | "lg" | "xl" }> = ({
   children,
   marker = "disc",
+  start = 1,
   connector = "none",
   gap = 2,
   maxMarkerSize = "md"
 }) => (
   <ListContext.Provider value={{ marker, connector, maxMarkerSize }}>
-    <div className="widget-list flex flex-col" style={{ gap: resolveGap(gap) }}>{children}</div>
+    <div className="widget-list flex flex-col" style={{ gap: resolveGap(gap), ...(marker === "decimal" ? { counterReset: `widget-list-item ${start - 1}` } : {}) }}>{children}</div>
   </ListContext.Provider>
 );
 
-const ListItem: React.FC<ChildrenProps & { marker?: React.ReactNode | string; onVisibleAction?: ActionConfig }> = ({
+const ListItem: React.FC<ChildrenProps & { label?: string; description?: string; disabled?: boolean; marker?: React.ReactNode | string; onVisibleAction?: ActionConfig }> = ({
   children,
+  label,
+  description,
+  disabled,
   marker,
   onVisibleAction
 }) => {
@@ -977,7 +985,7 @@ const ListItem: React.FC<ChildrenProps & { marker?: React.ReactNode | string; on
   const resolvedMarker = marker ?? context?.marker ?? "disc";
   const renderedMarker = renderListMarker(resolvedMarker);
   return (
-    <div ref={ref} className="widget-list-item grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
+    <div ref={ref} aria-disabled={disabled || undefined} className="wg-list-item widget-list-item grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
       <span
         aria-hidden={isInternalListMarker(resolvedMarker) ? true : undefined}
         className="flex h-6 items-center justify-center text-sm"
@@ -985,7 +993,7 @@ const ListItem: React.FC<ChildrenProps & { marker?: React.ReactNode | string; on
       >
         {renderedMarker}
       </span>
-      <div>{children}</div>
+      <div>{label !== undefined ? <div className="wg-list-label">{label}</div> : null}{description !== undefined ? <div className="wg-list-description">{description}</div> : null}{children}</div>
     </div>
   );
 };
@@ -994,7 +1002,8 @@ const TableContext = React.createContext<{ columnCount: number }>({ columnCount:
 
 function countTableCellSpan(cell: React.ReactNode) {
   if (!React.isValidElement(cell)) return 1;
-  const props = cell.props as { columnSpan?: unknown };
+  const cellProps = cell.props as { columnSpan?: unknown; colSpan?: unknown };
+  const props = { columnSpan: cellProps.columnSpan ?? cellProps.colSpan };
   const span =
     typeof props.columnSpan === "number"
       ? props.columnSpan
@@ -1031,17 +1040,44 @@ function countTableColumns(children: React.ReactNode): number {
   }, 0);
 }
 
-const Table: React.FC<ChildrenProps & { columnSizing?: "auto" | "equal"; rowDivider?: number | Border }> = ({
-  children,
-  columnSizing = "auto"
+function hasTableBodyRows(children: React.ReactNode): boolean {
+  return React.Children.toArray(children).some(child => {
+    if (!React.isValidElement(child)) return false;
+    const props = child.props as ChildrenProps & { header?: boolean };
+    if ((child.type as { displayName?: string }).displayName === "Table.Row") return !props.header;
+    return hasTableBodyRows(props.children);
+  });
+}
+
+// Lift leading header rows into a single thead so multiple rows stick together.
+function flattenTableRows(children: React.ReactNode, columnCount: number, prefix = "table"): React.ReactNode[] {
+  return React.Children.toArray(children).flatMap((child, index) => {
+    if (!React.isValidElement<ChildrenProps & { label?: string }>(child)) return [child];
+    const key = `${prefix}/${child.key ?? index}`;
+    if (child.type === React.Fragment) return flattenTableRows(child.props.children, columnCount, key);
+    if (child.type === TableSection) {
+      const heading = child.props.label ? <TableRow key={`${key}/label`} header><TableCell header columnSpan={columnCount}><Caption value={child.props.label} weight="semibold" /></TableCell></TableRow> : null;
+      return [heading, ...flattenTableRows(child.props.children, columnCount, key)].filter(Boolean);
+    }
+    return [React.cloneElement(child, { key })];
+  });
+}
+
+const Table: React.FC<ChildrenProps & { columnSizing?: "auto" | "equal"; rowDivider?: number | Border; stickyHeader?: boolean; maxHeight?: number; dividers?: boolean; emptyLabel?: string }> = ({
+  children, columnSizing = "auto", stickyHeader, maxHeight, dividers = true, emptyLabel
 }) => {
   const columnCount = Math.max(1, countTableColumns(children));
-
+  const rows = flattenTableRows(children, columnCount);
+  const firstBody = rows.findIndex(child => !React.isValidElement<{ header?: boolean }>(child) || !child.props.header);
+  const headerCount = firstBody === -1 ? rows.length : firstBody;
   return (
     <TableContext.Provider value={{ columnCount }}>
-      <table className="w-full border-collapse text-sm" style={{ tableLayout: columnSizing === "equal" ? "fixed" : "auto" }}>
-        <tbody>{children}</tbody>
-      </table>
+      <div className="wg-scrollable wg-table-scroll" style={{ ...(maxHeight != null ? { maxHeight } : {}) }}>
+        <table className="wg-table w-full border-collapse text-sm" data-sticky-header={stickyHeader || undefined} data-dividers={dividers} style={{ tableLayout: columnSizing === "equal" ? "fixed" : "auto" }}>
+          {headerCount > 0 ? <thead>{rows.slice(0, headerCount)}</thead> : null}
+          <tbody>{rows.slice(headerCount)}{emptyLabel !== undefined && !hasTableBodyRows(children) ? <tr><td colSpan={columnCount} className="wg-table-empty">{emptyLabel}</td></tr> : null}</tbody>
+        </table>
+      </div>
     </TableContext.Provider>
   );
 };
@@ -1050,6 +1086,7 @@ const TableRow: React.FC<ChildrenProps & { header?: boolean; label?: string }> =
   const cells = React.Children.toArray(children);
   return (
     <tr
+      data-header={header || undefined}
       className="border-b last:border-0"
       style={{ borderColor: "var(--widget-border-subtle)" }}
     >
@@ -1064,18 +1101,23 @@ const TableRow: React.FC<ChildrenProps & { header?: boolean; label?: string }> =
 };
 TableRow.displayName = "Table.Row";
 
-const TableCell: React.FC<ChildrenProps & { align?: "start" | "center" | "end"; header?: boolean; columnSpan?: number }> = ({
+const TableCell: React.FC<ChildrenProps & { align?: "start" | "center" | "end"; header?: boolean; columnSpan?: number; colSpan?: number; rowSpan?: number; vAlign?: "top" | "middle" | "bottom"; width?: number | string }> = ({
   children,
   align = "start",
   header,
-  columnSpan
+  columnSpan,
+  colSpan,
+  rowSpan,
+  vAlign,
+  width
 }) => {
   const Tag = header ? "th" : "td";
   return (
     <Tag
-      colSpan={columnSpan}
-      className="px-2 py-2 align-top"
-      style={{ textAlign: align === "start" ? "left" : align === "end" ? "right" : "center" }}
+      colSpan={columnSpan ?? colSpan}
+      rowSpan={rowSpan}
+      className="px-2 py-2"
+      style={{ ...(width != null ? { width } : {}), ...(vAlign != null ? { verticalAlign: vAlign } : {}), textAlign: align === "start" ? "left" : align === "end" ? "right" : "center" }}
     >
       {children}
     </Tag>

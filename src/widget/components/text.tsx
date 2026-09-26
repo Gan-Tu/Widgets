@@ -51,7 +51,7 @@ function buildTextStyle({
   lineHeight?: number;
 }) {
   const style: React.CSSProperties = {
-    textAlign: textAlign === "start" ? "left" : textAlign === "end" ? "right" : textAlign,
+    ...(textAlign != null ? { textAlign: textAlign === "start" ? "left" : textAlign === "end" ? "right" : textAlign } : {}),
     lineHeight
   };
 
@@ -83,6 +83,11 @@ type TextProps = BaseTextProps & {
   weight?: "normal" | "medium" | "semibold" | "bold";
   streaming?: boolean;
   italic?: boolean;
+  tabularNums?: boolean;
+  underline?: boolean;
+  highlight?: boolean;
+  preserveWhitespace?: boolean;
+  strong?: boolean;
   lineThrough?: boolean;
   width?: number | string;
   minLines?: number;
@@ -164,7 +169,12 @@ const Text: React.FC<TextProps> = ({
   value,
   children,
   size = "md",
-  weight = "normal",
+  weight,
+  strong,
+  tabularNums,
+  underline,
+  highlight,
+  preserveWhitespace,
   italic,
   lineThrough,
   width,
@@ -176,12 +186,14 @@ const Text: React.FC<TextProps> = ({
   const theme = useWidgetTheme();
   const style: React.CSSProperties = {
     fontSize: textSizeMap[size],
-    fontWeight: resolveWeight(weight),
-    fontStyle: italic ? "italic" : undefined,
-    textDecoration: lineThrough ? "line-through" : undefined,
-    width,
+    fontWeight: resolveWeight(weight ?? (strong ? "semibold" : "normal")),
+    ...(tabularNums ? { fontVariantNumeric: "tabular-nums" } : {}),
+    ...(italic ? { fontStyle: "italic" } : {}),
+    ...(lineThrough || underline ? { textDecoration: [lineThrough && "line-through", underline && "underline"].filter(Boolean).join(" ") } : {}),
+    ...(width != null ? { width } : {}),
     color: resolveColor(color ?? "primary", theme),
-    ...buildTextStyle({ ...props, minLines })
+    ...buildTextStyle({ ...props, minLines }),
+    ...(preserveWhitespace ? { whiteSpace: "pre-wrap" } : {})
   };
 
   if (editable && editable.name) {
@@ -192,10 +204,12 @@ const Text: React.FC<TextProps> = ({
     );
   }
 
-  return <p style={style}>{children ?? value}</p>;
+  return <p style={style}>{highlight ? <mark className="wg-highlight">{children ?? value}</mark> : children ?? value}</p>;
 };
 
 type TitleProps = BaseTextProps & {
+  tabularNums?: boolean;
+  italic?: boolean;
   size?: TitleSize;
   weight?: "normal" | "medium" | "semibold" | "bold";
   color?: string | ThemeColor;
@@ -218,6 +232,8 @@ const Title: React.FC<TitleProps> = ({
   size = "md",
   weight = "semibold",
   color = "emphasis",
+  tabularNums,
+  italic,
   ...props
 }) => {
   const theme = useWidgetTheme();
@@ -225,6 +241,8 @@ const Title: React.FC<TitleProps> = ({
     fontSize: titleSizeMap[size],
     fontWeight: resolveWeight(weight),
     letterSpacing: titleTrackingMap[size],
+    ...(tabularNums ? { fontVariantNumeric: "tabular-nums" } : {}),
+    ...(italic ? { fontStyle: "italic" } : {}),
     color: resolveColor(color, theme),
     ...buildTextStyle({ ...props, lineHeight: 1.25 }),
     textWrap: "balance"
@@ -233,6 +251,7 @@ const Title: React.FC<TitleProps> = ({
 };
 
 type CaptionProps = BaseTextProps & {
+  tabularNums?: boolean;
   size?: CaptionSize;
   weight?: "normal" | "medium" | "semibold" | "bold";
   color?: string | ThemeColor;
@@ -244,6 +263,7 @@ const Caption: React.FC<CaptionProps> = ({
   size = "md",
   weight = "normal",
   color = "secondary",
+  tabularNums,
   ...props
 }) => {
   const theme = useWidgetTheme();
@@ -251,6 +271,7 @@ const Caption: React.FC<CaptionProps> = ({
     fontSize: captionSizeMap[size],
     fontWeight: resolveWeight(weight),
     letterSpacing: "0",
+    ...(tabularNums ? { fontVariantNumeric: "tabular-nums" } : {}),
     color: resolveColor(color, theme),
     ...buildTextStyle({ ...props, lineHeight: 1.4 })
   };

@@ -77,7 +77,7 @@ Array callbacks must be arrow functions with named parameters and an expression 
 - `has(x)` — true when non-empty (arrays/strings/objects) or truthy.
 - `read(obj, "a.b.0", fallback)` — safe deep read.
 - `bp()` — current breakpoint (`"base" | "sm" | "md" | "lg" | "xl"`); `isMobile()` — viewport < 768px; `isDark()` — OS dark preference.
-- `format(value, style?, options?)` — number formatting; styles `number` (default), `compact`, `currency` (USD default), `percent` (ratio), `decimal`; options `locale` (en-US), `currency`, `digits` (max fraction digits), `minDigits`, `sign` (auto|always|exceptZero|never). Non-finite values return `""`.
+- `format(value, style?, options?)` — number formatting; styles `number` (default), `compact`, `currency` (USD default), `percent` (ratio), `decimal`; options `locale` (en-US), `currency`, `digits` (max fraction digits), `minDigits`, `sign` (auto|always|exceptZero|never), `prefix`, `suffix`. Non-finite values return `""`.
 - `formatDate(value, style?, options?)` — ISO date/date-time or epoch ms; styles short|medium (default)|long|weekday|time|datetime|iso|relative; options `locale` (en-US), `timeZone`. Date-only strings use UTC; invalid values return `""`.
 - `sum(list, key?)`, `avg(list, key?)` — finite numeric values, optionally read by path; empty mean is 0.
 - `sortBy(list, key?, direction?)` — stable sorted copy, optional path and asc|desc; null/missing values last.
@@ -434,9 +434,9 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 
 ### Layout
 
-- `Box` — flex container + styling. `direction?` ("col"), `align?` ("start"|"center"|"end"|"baseline"|"stretch"), `justify?` (+ "between"|"around"|"evenly"), `wrap?`, `flex?`, `gap?`, `padding?`, `margin?`, `border?` (number | { size, color?, style? } | per-side { top, right, bottom, left, x, y }), `background?`, `radius?`, `width?/height?/size?/minWidth?/minHeight?/maxWidth?/maxHeight?/minSize?/maxSize?` (px), `aspectRatio?`, `onVisibleAction?`.
+- `Box` — flex container + styling. `direction?` ("col"), `align?` ("start"|"center"|"end"|"baseline"|"stretch"), `justify?` (+ "between"|"around"|"evenly"), `wrap?`, `flex?`, `gap?`, `padding?`, `margin?`, `border?` (number | { size, color?, style? } | per-side { top, right, bottom, left, x, y }), `background?`, `radius?`, `width?/height?/size?/minWidth?/minHeight?/maxWidth?/maxHeight?/minSize?/maxSize?` (px), `aspectRatio?`, `onVisibleAction?`. `clip?`, `scrollable?` (true|"x"|"y"; true means y; pair with maxHeight/maxWidth), `rowGap?`/`columnGap?` (gap spacing scale).
 - `Row` / `Col` — `Box` presets (Row defaults `align="center"`). Same props.
-- `Grid` — CSS grid; always fills its parent's width, so `"repeat(auto-fit, minmax(160px, 1fr))"` templates get real columns. `columns?` (2; number or template string), `gap?`, `padding?`. `Grid.Item` — `span?`/`columnSpan?`, `rowSpan?`, `padding?`, `background?`, `radius?`.
+- `Grid` — CSS grid; always fills its parent's width, so `"repeat(auto-fit, minmax(160px, 1fr))"` templates get real columns. `columns?` (2; number or template string), `gap?`, `padding?`, `minChildWidth?` (px; auto-fit minmax columns, overrides columns), `rows?` (number → repeat(n, auto), or template string), `rowGap?`/`columnGap?` (gap spacing scale). `Grid.Item` — `span?`/`columnSpan?`, `rowSpan?`, `padding?`, `background?`, `radius?`.
 - `Flow` — wrapping flex or grid. `layout?` ("wrap" | "grid" | "fixed"), `columns?`, `rows?`, `gap?`. `Flow.Item` — `span?`, `basis?`, `grow?`.
 - `OverflowRow` — chip row that clips overflow past `rows?` (1); clips at the measured row edge on the client (server render clamps to an estimate). `gap?`.
 - `Spacer` — flexible gap inside Row/Col. `minSize?` (spacing units).
@@ -445,9 +445,9 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 
 ### Typography
 
-- `Text` — body text. `value?`/children, `size?` ("md"; xs 12px – xl 20px), `weight?` ("normal"|"medium"|"semibold"|"bold"), `color?` ("primary"), `textAlign?`, `truncate?`, `maxLines?`, `minLines?`, `italic?`, `lineThrough?`, `width?`, `editable?` ({ name, placeholder?, required?, autoFocus?, autoSelect?, pattern? } — renders an inline form field bound to `name`).
-- `Title` — heading. `size?` ("md"; sm 1.1rem → 5xl 3.5rem), `weight?` ("semibold"), `color?` ("emphasis"), plus alignment/truncation props. Tight line-height and tracking built in.
-- `Caption` — small muted text. `size?` ("md"; sm|md|lg), `weight?`, `color?` ("secondary").
+- `Text` — body text. `value?`/children, `size?` ("md"; xs 12px – xl 20px), `weight?` ("normal"|"medium"|"semibold"|"bold"), `color?` ("primary"), `textAlign?`, `truncate?`, `maxLines?`, `minLines?`, `italic?`, `lineThrough?`, `width?`, `editable?` ({ name, placeholder?, required?, autoFocus?, autoSelect?, pattern? } — renders an inline form field bound to `name`). `tabularNums?`, `underline?`, `highlight?` (same marker as Highlight), `preserveWhitespace?` (pre-wrap), `strong?` (semibold unless weight is set).
+- `Title` — heading. `size?` ("md"; sm 1.1rem → 5xl 3.5rem), `weight?` ("semibold"), `color?` ("emphasis"), plus alignment/truncation props. Tight line-height and tracking built in. `tabularNums?`, `italic?`.
+- `Caption` — small muted text. `size?` ("md"; sm|md|lg), `weight?`, `color?` ("secondary"). `tabularNums?`, `truncate?`, `maxLines?`, `textAlign?`.
 - `Markdown` — renders markdown (GFM). `value`.
 - Inline marks (short strings): `Bold`, `Italic`, `Underline`, `Code`, `Math`, `Highlight` — each takes `value?`/children, `color?`, `size?`.
 
@@ -456,51 +456,52 @@ Only `Card`, `ListView`, `Basic`, and `Response` are valid roots. Every other co
 - `Icon` — `name` (icon list above), `color?` ("prose"), `size?` ("md"; xs 12 → 3xl 32).
 - `Image` — `src`, `alt?`, `size?`/`width?`/`height?` (px; 40px default when unsized), `aspectRatio?`, `radius?` ("md"), `fit?` ("cover"), `position?` (9-value: "top left"…"bottom right"), `frame?` (stronger border), `flush?` (full-bleed within card), `background?`, `border?`, `onClickAction?`. Lazy-loads automatically.
 - `Avatar` — `name` (initials fallback on a tinted gradient), `src?`, `size?` (40 px), `radius?` ("full"), `status?` ("online"|"away"|"busy"|"offline").
-- `Badge` — `label`/children, `color?` ("secondary"|"accent"|"success"|"danger"|"warning"|"info"|"discovery"), `variant?` ("soft"|"outline"|"solid"), `size?` ("sm"|"md"|"lg"), `pill?` (true), `icon?`.
+- `Badge` — `label`/children, `color?` ("secondary"|"accent"|"success"|"danger"|"warning"|"info"|"discovery"), `variant?` ("soft"|"outline"|"solid"), `size?` ("sm"|"md"|"lg"), `pill?` (true), `icon?`. `maxWidth?` (px; label ellipsis with full title).
 - `Favicon` — small round site icon. `url`/`src`, `size?` (20), `frame?` (true).
 - `Svg` — inline vector. `viewBox?` ("0 0 24 24"), `size?` (24), `paths` (string[] filled with currentColor, or { d, fill?, stroke?, strokeWidth? }[]). Use theme-safe colors like `"var(--widget-accent)"`.
 - `Rating` — star rating (display-only). `value`, `max?` (5), `size?` ("sm"|"md"|"lg"), `showValue?`, `count?` (review count), `color?`.
 
 ### Data display
 
-- `Stat` — metric. `label`, `value`, `delta?` (signed string/number; tone inferred from sign), `deltaLabel?`, `trend?` ("up"|"down"|"flat"), `upIsPositive?` (true — set false for costs), `icon?`, `helpText?`, `align?`, `size?` ("md"; sm|md|lg).
+- `Stat` — metric. `label`, `value`, `delta?` (signed string/number; tone inferred from sign), `deltaLabel?`, `trend?` ("up"|"down"|"flat"), `upIsPositive?` (true — set false for costs), `icon?`, `helpText?`, `align?`, `size?` ("md"; sm|md|lg). Values use tabular numerals.
 - `Sparkline` — dependency-free mini trend line. `data` (number[]), `color?` (blue chart-palette color), `height?` (36), `width?` ("100%"), `fill?` (true), `strokeWidth?` (2).
-- `KeyValue` — aligned label/value rows. `rows` ({ label, value, icon?, emphasis?, color? }[]), `divider?`, `gap?`, `labelWidth?`.
+- `KeyValue` — aligned label/value rows. `rows` ({ label, value, icon?, emphasis?, color? }[]), `divider?`, `gap?`, `labelWidth?`. Values use tabular numerals.
 - `Timeline` — vertical event feed with a connector rail. `items` ({ title, description?, time?, icon?, color?, state?: "done"|"active"|"upcoming" }[]), `gap?`.
 - `Steps` — horizontal progress stages. `items` ({ label }[]), `current?` (0-based), `color?` ("accent").
 - `Progress` — bar. `value`, `max?` (100), `label?`, `showValue?` (true), `color?` (accent), `size?` ("sm"|"md"|"lg").
-- `Table` — structured table for custom cells. `columnSizing?` ("auto"|"equal"). Children: `Table.Section` (`label?`), `Table.Row` (`header?`, `label?`), `Table.Cell` (`align?`, `header?`, `columnSpan?`).
+- `Table` — structured table for custom cells. `columnSizing?` ("auto"|"equal"), `stickyHeader?`, `maxHeight?` (px scroll limit), `dividers?` (true; false removes body dividers), `emptyLabel?` (full-width muted empty row). Children: `Table.Section` (`label?`), `Table.Row` (`header?`, `label?`), `Table.Cell` (`align?`, `header?`, `columnSpan?`/`colSpan?`, `rowSpan?`, `vAlign?` ("top"|"middle"|"bottom"), `width?` (px or CSS length)).
 - `DataTable` — quick tabular data. `columns` ({ key, label, align?: "start"|"center"|"end" }[]), `rows` (record[]), `caption?`.
 
 ### Charts
 
-All charts: `data` (array of row objects), `height?` (220), `width?`, `size?`, `aspectRatio?`, `flex?`, `showLegend?` (true), `showTooltip?` (true). Cartesian charts add `xAxis` ({ dataKey, hide?, labels? — value→display map }), `showYAxis?` (false), `showGrid?` (true). Series `color` accepts tokens or hex; the available palette contains yellow `#ffcf03`, orange `#ffa003`, pinkish red `#ff5248`, purple `#ba5cd2`, blue `#1399f5`, and green `#53cc28`, consistently in light and dark mode. Override `--widget-chart-1` through `--widget-chart-6` to customize it. Charts lazy-load with a skeleton holding their space.
+All charts: `data` (array of row objects), `height?` (220), `width?`, `size?`, `aspectRatio?`, `flex?`, `showLegend?` (true), `showTooltip?` (true), `valueFormat?` ("number"|"compact"|"currency"|"percent"), `valuePrefix?`, `valueSuffix?`, `currency?` ("USD"). Each series may override `valueFormat?`, `valuePrefix?`, `valueSuffix?`; single-series numeric ticks use those overrides, otherwise chart defaults. Cartesian charts add `xAxis` ({ dataKey, label?, hide?, labels? — value→display map }), `showYAxis?` (false; true for ScatterChart), `yAxis?` ({ min?, max?, label?, tickCount? }; title only when shown), `showGrid?` (true). Series `color` accepts tokens or hex; the available palette contains yellow `#ffcf03`, orange `#ffa003`, pinkish red `#ff5248`, purple `#ba5cd2`, blue `#1399f5`, and green `#53cc28`, consistently in light and dark mode. Override `--widget-chart-1` through `--widget-chart-6` to customize it. Charts lazy-load with a skeleton holding their space.
 
-- `BarChart` — `series`: { dataKey, label?, color?, stack?, radius? }[]. Stacked bars round only the top segment automatically.
+- `BarChart` — `series`: { dataKey, label?, color?, stack?, radius? }[]. Stacked bars round only the top segment automatically. `layout?` ("horizontal" default: vertical bars; "vertical": horizontal bars with y categories shown).
 - `LineChart` — `series`: { dataKey, label?, color?, curveType?, strokeWidth?, dot? }[].
 - `AreaChart` — `series`: { dataKey, label?, color?, curveType?, stack?, fillOpacity? }[]. Gradient fills automatic.
 - `PieChart` — `series`: { dataKey, nameKey? ("name"), color?, innerRadius? (set for donut), outerRadius?, paddingAngle?, cornerRadius? }[]. Per-slice color via a `fill` field on each data row.
+- `ScatterChart` — relationship between two quantities, not a trend over time. Numeric `xAxis`: { dataKey, label?, min?, max? }; `series`: { dataKey, label?, color?, sizeKey?, valueFormat?, valuePrefix?, valueSuffix? }[]; `sizeKey` maps a numeric field to point area. Shared chart props apply; `showYAxis` defaults true.
 - `Chart` — mixed cartesian: `series`: ({ type: "bar"|"line"|"area" } & matching shape)[].
 
 Automatic combinations: one series uses blue; two use yellow + green; three use blue + green + pinkish red; larger charts add purple and orange. For PieChart, the count refers to slices. The larger-chart palette cycles after five colors; group categories or split the comparison before relying on repeated colors to distinguish many series. Automatic combinations never pair yellow with orange.
 
-Chart guidance: use the default vivid palette or complementary saturated colors for data marks; do not default charts to black/gray or the monochrome `accent`/`emphasis` tokens. Keep tooltip text neutral for legibility. Hide the legend for single-series charts (`showLegend={false}`); keep 4–8 x-axis points at 400px; use `Sparkline` for inline trends instead of a full `LineChart`; pair donuts with a `KeyValue` legend.
+Chart guidance: use the default vivid palette or complementary saturated colors for data marks; do not default charts to black/gray or the monochrome `accent`/`emphasis` tokens. Keep tooltip text neutral for legibility. Hide the legend for single-series charts (`showLegend={false}`); keep 4–8 x-axis points at 400px; use `Sparkline` for inline trends instead of a full `LineChart`; pair donuts with a `KeyValue` legend. Set `valueFormat`/prefix/suffix so tooltips carry units; use `yAxis.min: 0` for bars/areas unless a non-zero baseline is explicitly meaningful; don't turn a single number into a chart.
 
 ### Forms & controls
 
 - `Form` — `onSubmitAction`, `direction?`, `align?`, `justify?`, `gap?`, `padding?`.
-- `Button` — `label`/children, `ariaLabel?` (accessible name for icon-only controls), `onClickAction?`, `submit?`, `color?` ("primary"|"secondary"|"accent"|"info"|"discovery"|"success"|"caution"|"warning"|"danger"), `variant?` ("solid"|"soft"|"outline"|"ghost"), `size?` ("lg"), `pill?` (false), `iconStart?`, `iconEnd?`, `iconSize?`, `uniform?` (square icon button), `block?`, `disabled?`. Auto-disables without an action or `submit`.
-- `Input` — `name?`, `inputType?` ("text"|"email"|"number"|"password"|"tel"|"url"), `placeholder?`, `defaultValue?`, `required?`, `pattern?`, `variant?` ("outline"|"soft"), `size?` ("md"), `pill?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
-- `Textarea` — as Input plus `rows?` (3), `autoResize?` (true), `maxRows?`. `bind?` (state path), `value?`.
-- `Select` — `name?`, `options` ({ value, label, disabled?, description? }[]), `placeholder?`, `defaultValue?`, `variant?`, `size?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `Button` — `label`/children, `ariaLabel?` (accessible name for icon-only controls), `onClickAction?`, `submit?`, `color?` ("primary"|"secondary"|"accent"|"info"|"discovery"|"success"|"caution"|"warning"|"danger"), `variant?` ("solid"|"soft"|"outline"|"ghost"), `size?` ("lg"), `pill?` (false), `iconStart?`, `iconEnd?`, `iconSize?`, `uniform?` (square icon button), `block?`, `disabled?`. Auto-disables without an action or `submit`. `loading?` (spinner replaces start icon; label stays, aria-busy, clicks ignored without disabled fading).
+- `Input` — `name?`, `inputType?` ("text"|"email"|"number"|"password"|"tel"|"url"), `placeholder?`, `defaultValue?`, `required?`, `pattern?`, `variant?` ("outline"|"soft"), `size?` ("md"), `pill?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`. `invalid?` (aria-invalid and danger border including focus; pair with an explanatory message).
+- `Textarea` — as Input plus `rows?` (3), `autoResize?` (true), `maxRows?`. `bind?` (state path), `value?`. `invalid?` (aria-invalid and danger border including focus; pair with an explanatory message).
+- `Select` — `name?`, `options` ({ value, label, disabled?, description? }[]), `placeholder?`, `defaultValue?`, `variant?`, `size?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`. `bind?` (state path), `value?`. `invalid?` (aria-invalid and danger border including focus; pair with an explanatory message).
 - `Combobox` — searchable select. `block?` (false; fills the field when true, otherwise 220px capped to parent width), `name?`, `options` ({ value, label }[]), `placeholder?`, `searchPlaceholder?`, `emptyLabel?`, `defaultValue?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
 - `DatePicker` — calendar popover. `name?`, `placeholder?`, `defaultValue?` (`YYYY-MM-DD`), `min?`, `max?`, `variant?`, `size?`, `side?`, `align?`, `pill?`, `block?`, `clearable?`, `onChangeAction?`. `bind?` (state path), `value?`.
-- `Checkbox` — `name?`, `label?`, `defaultChecked?`, `required?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `checked?`.
+- `Checkbox` — `name?`, `label?`, `defaultChecked?`, `required?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `checked?`. `lineThrough?` (strike checked label with tertiary color), `shape?` ("square" default | "circle").
 - `RadioGroup` — `name?`, `options` ({ label, value, disabled? }[]), `direction?` ("row"), `ariaLabel?`, `defaultValue?`, `required?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
 - `ChipGroup` — wrapping selectable chips. `name?`, `options` ({ label, value, icon?, disabled? }[]), `type?` ("single"|"multiple"), `defaultValue?`/`defaultValues?`, `size?` ("md"|"sm"), `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`/`values?`.
 - `Toggle` — pressed/unpressed button or on/off switch. `variant?` ("button"|"switch", default "button"), `label` (accessible name for switch), `name?`, `defaultPressed?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `pressed?`.
 - `ToggleGroup` — `options`, `type?` ("single"|"multiple"), `name?`, `defaultValue?`/`defaultValues?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`/`values?`.
-- `Slider` — `name?`, `defaultValue?` (50; number or [lo, hi]), `min?` (0), `max?` (100), `step?` (1), `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
+- `Slider` — `name?`, `defaultValue?` (50; number or [lo, hi]), `min?` (0), `max?` (100), `step?` (1), `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`. `marks?` ((number | { value, label? })[]; ticks and optional labels, including ranges).
 - `SegmentedControl` — exclusive segmented switcher. `name?`, `options`, `value?`/`defaultValue?`, `size?`, `textSize?`, `block?`, `pill?`, `variant?` ("default"|"ghost"), `ariaLabel?`, `disabled?`, `onChangeAction?`. `bind?` (state path).
 - `InputOTP` — one-time-code boxes. `name?`, `ariaLabel?` ("Verification code"), `length?` (6), `groupSize?` (3), `defaultValue?`, `disabled?`, `onChangeAction?`. `bind?` (state path), `value?`.
 - `Label` — form label. `value`, `fieldName` (matches a control's `name`), `size?`, `weight?` ("medium"), `textAlign?`, `color?` ("secondary").
@@ -565,7 +566,7 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 - `Accordion` — `items` ({ id, title, content }[]), `type?` ("single"|"multiple"), `collapsible?` (true).
 - `Collapsible` — `title`, `content`, `defaultOpen?`. `bind?` (state path), `open?`. `name?`, `onChangeAction?` ({ open, value: open }).
 - `Tabs` — `tabs` ({ id, label, icon? }[]), `defaultTab?`, `name?`, `onChangeAction?`. Children: `Tabs.Panel id="..."` wrapping each panel's content. `bind?` (state path), `activeTab?`.
-- `Popover` — inline popover. `open?`, `showOnHover?`, `hoverOpenDelay?`. Children: `Popover.Trigger` (`onClickAction?`) and `Popover.Content` (`side?`, `align?`, `width?` 260).
+- `Popover` — inline popover. `open?`, `showOnHover?`, `hoverOpenDelay?`. Children: `Popover.Trigger` (`onClickAction?`) and `Popover.Content` (`side?`, `align?`, `width?` 260, `showCloseButton?` (Close icon button), `sideOffset?` (8px)).
 - `Sheet` — side sheet. `triggerLabel`, `title?`, `description?`, `content?`, `side?` ("right").
 - `Drawer` — bottom drawer. `triggerLabel`, `title?`, `description?`, `content?`.
 - `Menubar` — `menus` ({ id, label, items: MenuItem[] }[]). `MenuItem` = { id, label, disabled?, action? ({ type, payload? } — dispatched on select), type?: "item"|"separator" }.
@@ -582,10 +583,10 @@ Shared table shapes: `TableValue` is string|number|boolean|string[]|null; `Works
 ### Control flow & motion
 
 - `Each`, `Show` / `Show.Else`, `Scope`, `RunInterval` — see Template language.
-- `Pressable` — makes any content clickable. `onClickAction` (supports `$onClickAction` expressions), `padding?`, `radius?`, `background?`, `disabled?`, `onVisibleAction?`.
+- `Pressable` — makes any content clickable. `onClickAction` (supports `$onClickAction` expressions), `padding?`, `radius?`, `background?`, `disabled?`, `onVisibleAction?`. `tooltip?` (hover/focus hint; keep an accessible name in children).
 - `Transition` — animates swapping a keyed child.
 - `Animate` / `Animate.Item` / `AnimateGroup` — see Template language.
-- `List` — semantic list with markers. `marker?` ("disc" | "circle" | "square" | "decimal" | "none" | any icon name, e.g. "check"), `connector?`, `gap?`, `maxMarkerSize?`. Children: `List.Item` (`marker?` override, `onVisibleAction?`).
+- `List` — semantic list with markers. `marker?` ("disc" | "circle" | "square" | "decimal" | "none" | any icon name, e.g. "check"), `connector?`, `gap?`, `maxMarkerSize?`, `start?` (1; first decimal marker). Children: `List.Item` (`marker?` override, `label?` (semibold lead), `description?` (secondary below label), `disabled?` (tertiary, aria-disabled), `onVisibleAction?`).
 
 ### Runtime fallbacks (avoid in new designs)
 
