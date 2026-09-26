@@ -4,9 +4,10 @@
 .gallery-layout { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 32px; padding-top: 24px; }
 .gallery-rail { position: sticky; top: 98px; align-self: start; }
 .gallery-categories { display: flex; flex-direction: column; gap: 3px; }
-.gallery-category { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; border: 0; border-radius: 10px; padding: 8px 12px; color: var(--mid); font-size: 13px; background: transparent; text-align: left; cursor: pointer; white-space: nowrap; transition: background 160ms, color 160ms; }
-.gallery-category:hover { color: var(--ink); background: var(--plinth); }
-.gallery-category[aria-pressed="true"] { background: #111114; color: #ffffff; font-weight: 550;  }
+.gallery-category { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; border: 0; border-radius: 10px; padding: 8px 12px; color: var(--mid); font-size: 13px; background: transparent; text-align: left; cursor: pointer; white-space: nowrap; }
+/* Selection snaps on both pills; only an unselected pill's hover fades in, so two pills never cross-fade through gray. */
+.gallery-category:hover { color: var(--ink); background-color: var(--plinth); transition: background-color 120ms ease; }
+.gallery-category[aria-pressed="true"] { background: #111114; color: #ffffff; font-weight: 550; transition: none; }
 .gallery-category[aria-pressed="true"] .gallery-category-count { color: #ffffffb8; }
 .gallery-category-count { font-size: 10px; font-variant-numeric: tabular-nums; color: var(--mid); opacity: 0; transition: opacity 160ms; }
 .gallery-category:hover .gallery-category-count, .gallery-category[aria-pressed="true"] .gallery-category-count { opacity: 1; }
