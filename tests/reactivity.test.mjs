@@ -280,17 +280,76 @@ test('documented live filter renders realistic data and its empty branch', () =>
 });
 
 
-test('every component documentation example renders without errors', async () => {
+async function loadComponentExamples() {
   const source = readFileSync(new URL('../src/docs/componentExamples.ts', import.meta.url), 'utf8')
     .replace('"@/widget/iconNames"', JSON.stringify(new URL('../packages/widgets/dist/widget/iconNames.js', import.meta.url).href))
     .replace('"zod"', JSON.stringify(import.meta.resolve('zod')));
   const compiled = stripTypeScriptTypes(source);
   const { componentExamples } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+  return componentExamples;
+}
+
+test('every component documentation example renders without errors', async () => {
+  const componentExamples = await loadComponentExamples();
   for (const [name, example] of Object.entries(componentExamples)) {
     const html = renderToStaticMarkup(React.createElement(WidgetRenderer, example));
     assert.doesNotMatch(html, /Template error|Schema validation failed/, name);
     assert.ok(html.length > 0, name);
   }
+});
+
+test('State docs estimator derives totals from binding writes and resets every control', async () => {
+  const { State: example } = await loadComponentExamples();
+  let state = {};
+  const writes = {};
+  const values = {};
+  let reset;
+  const registry = { ...widgetRegistry };
+  for (const name of ['Slider', 'SegmentedControl', 'Toggle']) {
+    registry[name] = function BoundControlProbe(props) {
+      const [value, write] = useWidgetStateBinding(props.bind);
+      values[props.bind] = value;
+      writes[props.bind] = write;
+      return React.createElement(widgetRegistry[name], props);
+    };
+  }
+  registry.Button = function ResetProbe(props) {
+    const dispatch = useWidgetAction();
+    if (props.label === 'Reset') reset = () => dispatch(props.onClickAction);
+    return React.createElement(widgetRegistry.Button, props);
+  };
+  const draw = () => {
+    const tree = renderTemplate(example.template, { ...state, state }, registry);
+    return renderToStaticMarkup(React.createElement(WidgetActionProvider, {
+      state,
+      onStateChange: updater => { state = updater(state); }
+    }, tree));
+  };
+  const initial = draw();
+  assert.match(initial, /12 seats/);
+  assert.match(initial, /\$120\.00/);
+  writes.seats(21);
+  let html = draw();
+  assert.match(html, /21 seats/);
+  assert.match(html, /Volume rate/);
+  assert.match(html, /\$168\.00/);
+  writes.billing('monthly');
+  writes.support(true);
+  html = draw();
+  assert.match(html, /\$259\.00/);
+  writes.seats(40);
+  html = draw();
+  assert.match(html, /Enterprise: talk to sales/);
+  assert.match(html, /\$449\.00/);
+  reset();
+  html = draw();
+  assert.deepEqual(state, { seats: 12, billing: 'annual', support: false });
+  assert.match(html, /\$120\.00/);
+  assert.match(html, /Standard rate/);
+  assert.deepEqual(values, { seats: 12, billing: 'annual', support: false });
+  assert.match(html, /aria-checked="true"[^>]*>Annual</);
+  assert.match(html, /role="switch" aria-label="Priority support" aria-checked="false"/);
+  assert.match(html, /Not included/);
 });
 
 

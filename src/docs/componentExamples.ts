@@ -186,8 +186,9 @@ export const componentExamples: Record<string, ComponentExample> = {
     template: `
 <Card size="sm">
   <Row gap={2}>
-    <Button label="Primary" style="primary" />
-    <Button label="Open" variant="outline" iconEnd="external-link" />
+    <Button label="Primary" color="primary" onClickAction={{ type: "demo.continue" }} />
+    <Button label="Open" variant="outline" iconEnd="external-link"
+      onClickAction={{ type: "open_url", handler: "client", payload: { url: "https://example.com" } }} />
   </Row>
 </Card>
     `.trim(),
@@ -196,69 +197,105 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Input: {
     template: `
-<Card size="sm">
-  <Input name="title" placeholder="Type here" />
-</Card>
+<State initial={{ handle: "" }}>
+  <Card size="sm" gap={2}>
+    <Label value="Display name" fieldName="handle" />
+    <Input bind="handle" placeholder="Ada Lovelace" />
+    <Caption value={"widgets.dev/@" + (handle.trim().toLowerCase().replaceAll(" ", "-") || "your-name")} />
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
   },
   Textarea: {
     template: `
-<Card size="sm">
-  <Textarea name="notes" rows={3} placeholder="Write a note" />
-</Card>
+<State initial={{ bio: "I design accessible tools for small teams in San Francisco." }}>
+  <Card size="sm" gap={2}>
+    <Label value="Short bio" fieldName="bio" />
+    <Textarea bind="bio" rows={3} invalid={size(bio) > 160} />
+    <Caption value={String(size(bio)) + " / 160"} />
+    <Show when={size(bio) > 160}>
+      <Text value={"Trim " + pluralize(size(bio) - 160, "character") + " to fit your profile."} color="danger" size="sm" />
+    </Show>
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
   },
   Select: {
     template: `
-<Card size="sm">
-  <Select
-    name="volume"
-    defaultValue="20"
-    placeholder="Select volume"
-    options={[
-      { label: "10", value: "10" },
-      { label: "20", value: "20" },
-      { label: "30", value: "30" }
-    ]}
-  />
-</Card>
+<State initial={{ region: "us-west" }}>
+  <Card size="sm" gap={2}>
+    <Label value="Deployment region" fieldName="region" />
+    <Select bind="region" block options={regions.map(item => ({ label: item.label, value: item.value }))} />
+    <Caption value={"Estimated latency: " + String(regions.find(item => item.value === region)?.latency) + " ms"} />
+  </Card>
+</State>
     `.trim(),
-    schema: EmptySchema,
-    data: emptyData
+    schema: z.strictObject({
+      regions: z.array(z.strictObject({ label: z.string(), value: z.string(), latency: z.number() }))
+    }),
+    data: {
+      regions: [
+        { label: "Oregon", value: "us-west", latency: 24 },
+        { label: "Virginia", value: "us-east", latency: 68 },
+        { label: "Frankfurt", value: "eu-central", latency: 142 },
+        { label: "Singapore", value: "ap-southeast", latency: 186 }
+      ]
+    }
   },
   DatePicker: {
     template: `
-<Card size="sm">
-  <DatePicker name="due" placeholder="Pick a date" />
-</Card>
+<State initial={{ launch: "2026-10-12" }}>
+  <Card size="sm" gap={2}>
+    <Label value="Launch date" fieldName="launch" />
+    <DatePicker bind="launch" placeholder="Pick a launch date" clearable block />
+    <Caption value={launch ? "Launches " + formatDate(launch, "weekday") : "Choose a launch date."} />
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
   },
   Checkbox: {
     template: `
-<Card size="sm">
-  <Checkbox name="tos" label="Agree to terms" />
+<Card size="sm" gap={3}>
+  <Title value="Release checklist" size="sm" />
+  <Scope values={{ done: size(items.filter(item => item.done)) }}>
+    <Caption value={String(done) + " of " + String(size(items)) + " done"} />
+    <Progress value={done} max={size(items)} showValue={false} color="primary" size="sm" />
+  </Scope>
+  <Each of={items} item="item" index="index">
+    <Checkbox bind={"items." + String(index) + ".done"} label={item.title} />
+  </Each>
 </Card>
     `.trim(),
-    schema: EmptySchema,
-    data: emptyData
+    schema: z.strictObject({
+      items: z.array(z.strictObject({ title: z.string(), done: z.boolean() }))
+    }),
+    data: {
+      items: [
+        { title: "Approve release notes", done: true },
+        { title: "Run accessibility checks", done: false },
+        { title: "Publish migration guide", done: false }
+      ]
+    }
   },
   RadioGroup: {
     template: `
-<Card size="sm">
-  <RadioGroup
-    name="size"
-    options={[
-      { label: "Small", value: "sm" },
-      { label: "Large", value: "lg" }
-    ]}
-  />
-</Card>
+<State initial={{ shipping: "standard" }}>
+  <Card size="sm" gap={2}>
+    <Title value="Shipping speed" size="sm" />
+    <RadioGroup bind="shipping" ariaLabel="Shipping speed" direction="col" options={[
+      { label: "Standard", value: "standard" },
+      { label: "Express", value: "express" },
+      { label: "Overnight", value: "overnight" }
+    ]} />
+    <Caption value={shipping === "overnight" ? "Arrives next business day · $24" : shipping === "express" ? "Arrives in 2–3 business days · $12" : "Arrives in 5–7 business days · Free"} />
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
@@ -584,9 +621,16 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Collapsible: {
     template: `
-<Card size="sm">
-  <Collapsible title="Advanced options" content="Show extra configuration here." />
-</Card>
+<State initial={{ details: false }}>
+  <Card size="sm" gap={3}>
+    <Row justify="between" align="center">
+      <Label value="Show details" fieldName="details-toggle" />
+      <Toggle variant="switch" bind="details" name="details-toggle" label="Show details" />
+    </Row>
+    <Collapsible bind="details" name="details-panel" title="Export details"
+      content="Includes 248 transactions from September 2026. Attachments are bundled in a separate folder." />
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
@@ -650,35 +694,52 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Toggle: {
     template: `
-<Card size="sm" gap={4}>
-  <Toggle name="subscribe" label="Subscribe" />
-  <Row justify="between"><Text value="Notifications" size="sm" /><Toggle variant="switch" name="notifications" label="Notifications" defaultPressed /></Row>
-</Card>
+<State initial={{ notify: false }}>
+  <Card size="sm" gap={2}>
+    <Row justify="between" align="center">
+      <Label value="Email me when ready" fieldName="notify" />
+      <Toggle variant="switch" bind="notify" label="Email me when ready" />
+    </Row>
+    <Caption value={notify ? "We'll email you when the export finishes." : "Check back here to download your export."} />
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
   },
   ToggleGroup: {
     template: `
-<Card size="sm">
-  <ToggleGroup
-    name="view"
-    type="single"
-    options={[
-      { label: "Grid", value: "grid" },
-      { label: "List", value: "list" }
-    ]}
-  />
-</Card>
+<State initial={{ formats: [] }}>
+  <Card size="sm" gap={3}>
+    <Title value="Text formatting" size="sm" />
+    <ToggleGroup bind="formats" type="multiple" options={[
+      { label: "Bold", value: "bold" },
+      { label: "Italic", value: "italic" }
+    ]} />
+    <Text value="Good tools make room for clear thinking."
+      weight={formats.includes("bold") ? "bold" : "normal"} italic={formats.includes("italic")} />
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
   },
   Slider: {
     template: `
-<Card size="sm">
-  <Slider name="volume" defaultValue={35} />
-</Card>
+<State initial={{ volume: 35, price: [20, 80] }}>
+  <Card size="sm" gap={3}>
+    <Col gap={2}>
+      <Label value="Playback volume" fieldName="volume" />
+      <Slider bind="volume" min={0} max={100} step={1} />
+      <Caption value={format(volume / 100, "percent")} />
+    </Col>
+    <Col gap={2}>
+      <Label value="Price range" fieldName="price" />
+      <Slider bind="price" min={0} max={100} step={1} />
+      <Caption value={"$" + String(price[0]) + " – $" + String(price[1])} />
+    </Col>
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
@@ -714,24 +775,41 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Combobox: {
     template: `
-<Card size="sm">
-  <Combobox
-    name="assignee"
-    options={[
-      { label: "Alex Rivera", value: "alex" },
-      { label: "Sam Example", value: "sam" }
-    ]}
-  />
-</Card>
+<State initial={{ city: "sf" }}>
+  <Card size="sm" gap={2}>
+    <Label value="Office city" fieldName="city" />
+    <Combobox bind="city" block placeholder="Choose a city" searchPlaceholder="Search cities"
+      options={cities.map(item => ({ label: item.label, value: item.value }))} />
+    <Caption value={city ? "Local time zone: " + cities.find(item => item.value === city)?.timeZone : "Choose a city to see its time zone."} />
+  </Card>
+</State>
     `.trim(),
-    schema: EmptySchema,
-    data: emptyData
+    schema: z.strictObject({
+      cities: z.array(z.strictObject({ label: z.string(), value: z.string(), timeZone: z.string() }))
+    }),
+    data: {
+      cities: [
+        { label: "San Francisco", value: "sf", timeZone: "America/Los_Angeles" },
+        { label: "London", value: "london", timeZone: "Europe/London" },
+        { label: "Tokyo", value: "tokyo", timeZone: "Asia/Tokyo" }
+      ]
+    }
   },
   InputOTP: {
     template: `
-<Card size="sm">
-  <InputOTP name="code" length={6} />
-</Card>
+<State initial={{ code: "" }}>
+  <Card size="sm" gap={2}>
+    <Title value="Local code sample" size="sm" />
+    <Label value="Enter any 6 digits" fieldName="code" />
+    <InputOTP bind="code" length={6} ariaLabel="Enter any 6 digits" />
+    <Show when={size(code) === 6}>
+      <Badge label="Ready to verify" color="success" />
+      <Show.Else>
+        <Caption value={pluralize(6 - size(code), "digit") + " left"} />
+      </Show.Else>
+    </Show>
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
@@ -766,13 +844,10 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Response: {
     template: `
-<Response gap={3}>
-  <Card size="sm" status={{ text: "Live", icon: "check-circle" }}>
-    <Row gap={3}>
-      <Hermes title="Hermes runtime" subtitle="Wrapper blocks render normal children." />
-      <Spacer />
-      <Debug label="State" value={{ ready: true, mode: "docs" }} />
-    </Row>
+<Response>
+  <Card size="md" gap={3} status={{ text: "Live", icon: "check-circle" }}>
+    <Text value="Debug prints the state this answer received." />
+    <Debug label="State" value={{ ready: true, mode: "docs" }} />
   </Card>
 </Response>
     `.trim(),
@@ -781,37 +856,39 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   BaseCarousel: {
     template: `
-<Card size="md" gap={3}>
-  <Title value="BaseCarousel" size="sm" />
-  <BaseCarousel visibleItems={2} gap={3} snap="mandatory">
-    {cards.map((card) => (
-      <BaseCarousel.Item key={card.id} variant="elevated" minWidth={180}>
+<State initial={{ slide: 0 }}>
+  <Card size="sm" gap={3}>
+    <Title value="Release workflow" size="sm" />
+    <BaseCarousel bind="slide" visibleItems={1} snap="mandatory" ariaLabel="Release workflow">
+      <BaseCarousel.Item>
         <Col gap={1}>
-          <Badge label={card.kind} color={card.color} />
-          <Text value={card.title} weight="semibold" />
-          <Caption value={card.note} />
+          <Text value="1. Prepare" weight="semibold" />
+          <Caption value="Draft release notes and confirm the migration steps." />
         </Col>
       </BaseCarousel.Item>
-    ))}
-  </BaseCarousel>
-</Card>
+      <BaseCarousel.Item>
+        <Col gap={1}>
+          <Text value="2. Review" weight="semibold" />
+          <Caption value="Run accessibility checks and get sign-off from support." />
+        </Col>
+      </BaseCarousel.Item>
+      <BaseCarousel.Item>
+        <Col gap={1}>
+          <Text value="3. Publish" weight="semibold" />
+          <Caption value="Ship the release and share the guide with your team." />
+        </Col>
+      </BaseCarousel.Item>
+    </BaseCarousel>
+    <Row align="center">
+      <Caption value={"Slide " + String(slide + 1) + " of 3"} />
+      <Spacer />
+      <Button label="First" variant="outline" size="sm" onClickAction={{ updateState: { slide: 0 } }} />
+    </Row>
+  </Card>
+</State>
     `.trim(),
-    schema: z.strictObject({
-      cards: z.array(z.strictObject({
-        id: z.string(),
-        kind: z.string(),
-        title: z.string(),
-        note: z.string(),
-        color: z.enum(["secondary", "success", "danger", "warning", "info", "discovery"])
-      }))
-    }),
-    data: {
-      cards: [
-        { id: "brief", kind: "Brief", title: "Morning check", note: "Review overnight queue.", color: "info" },
-        { id: "handoff", kind: "Handoff", title: "Ops summary", note: "Share open incidents.", color: "warning" },
-        { id: "launch", kind: "Launch", title: "Release notes", note: "Publish final checklist.", color: "success" }
-      ]
-    }
+    schema: EmptySchema,
+    data: emptyData
   },
   CardCarousel: {
     template: `
@@ -1000,7 +1077,7 @@ export const componentExamples: Record<string, ComponentExample> = {
   Table: {
     template: `
 <Card size="md" gap={3}>
-  <Title value="Structured DIL table" size="sm" />
+  <Title value="Structured table" size="sm" />
   <Table columnSizing="equal" stickyHeader maxHeight={160}>
     <Table.Section label="Current run">
       <Table.Row header>
@@ -1033,7 +1110,50 @@ export const componentExamples: Record<string, ComponentExample> = {
     }
   },
   State: {
-    template: `<State initial={{ query: "Release notes" }}><Card><Input bind="query" placeholder="Search" /><Text value={query} /><Caption value={state.query} /></Card></State>`,
+    template: `
+<State initial={{ seats: 12, billing: "annual", support: false }}>
+  <Card size="md" gap={3}>
+    <Scope values={{ rate: (billing === "annual" ? 10 : 12) - (seats >= 20 ? 2 : 0) }}>
+      <Row align="center" gap={2} wrap="wrap">
+        <Title value="Team plan" size="sm" />
+        <Spacer />
+        <Show when={seats >= 40}>
+          <Badge label="Enterprise: talk to sales" variant="outline" />
+          <Show.ElseIf when={seats >= 20}>
+            <Badge label="Volume rate" variant="outline" />
+          </Show.ElseIf>
+          <Show.Else>
+            <Badge label="Standard rate" variant="outline" />
+          </Show.Else>
+        </Show>
+      </Row>
+      <Col gap={2}>
+        <Label value="Seats" fieldName="seats" />
+        <Slider bind="seats" min={1} max={50} step={1} />
+        <Caption value={pluralize(seats, "seat")} />
+      </Col>
+      <SegmentedControl bind="billing" ariaLabel="Billing period" options={[
+        { label: "Monthly", value: "monthly" },
+        { label: "Annual", value: "annual" }
+      ]} />
+      <Row justify="between" align="center">
+        <Label value="Priority support" fieldName="support" />
+        <Toggle variant="switch" bind="support" label="Priority support" />
+      </Row>
+      <Divider />
+      <KeyValue rows={[
+        { label: "Per seat", value: format(rate, "currency") },
+        { label: "Support", value: support ? format(49, "currency") : "Not included" },
+        { label: "Total / month", value: format(seats * rate + (support ? 49 : 0), "currency"), emphasis: true }
+      ]} />
+      <Row justify="end">
+        <Button label="Reset" variant="outline" size="sm"
+          onClickAction={{ updateState: { seats: 12, billing: "annual", support: false } }} />
+      </Row>
+    </Scope>
+  </Card>
+</State>
+    `.trim(),
     schema: EmptySchema,
     data: emptyData
   },
@@ -1411,25 +1531,38 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   ChipGroup: {
     template: `
-<Card size="md" gap={2}>
-  <Text value="Filter by topic" weight="semibold" size="sm" />
-  <ChipGroup
-    name="topics"
-    type="multiple"
-    defaultValues={["design"]}
-    options={[
-      { label: "Design", value: "design", icon: "palette" },
-      { label: "Engineering", value: "engineering", icon: "code" },
-      { label: "Research", value: "research" },
-      { label: "Launch", value: "launch", icon: "rocket" },
-      { label: "Archived", value: "archived", disabled: true }
-    ]}
-    onChangeAction={{ type: "topics.change" }}
-  />
-</Card>
+<State initial={{ tags: [] }}>
+  <Card size="sm" gap={3}>
+    <Title value="Reading list" size="sm" />
+    <ChipGroup bind="tags" type="multiple" options={[
+      { label: "Design", value: "design" },
+      { label: "Engineering", value: "engineering" },
+      { label: "Research", value: "research" }
+    ]} />
+    <Scope values={{ matches: articles.filter(article => tags.every(tag => article.tags.includes(tag))) }}>
+      <Caption value={size(tags) === 0 ? "All " + pluralize(size(matches), "article") : pluralize(size(matches), "article") + " with every selected topic"} />
+      <Show when={size(matches) > 0}>
+        <Each of={matches} item="article">
+          <Text value={article.title} size="sm" />
+        </Each>
+        <Show.Else>
+          <EmptyState title="No matching articles" description="Remove a topic to broaden your reading list." />
+        </Show.Else>
+      </Show>
+    </Scope>
+  </Card>
+</State>
     `.trim(),
-    schema: EmptySchema,
-    data: emptyData
+    schema: z.strictObject({
+      articles: z.array(z.strictObject({ title: z.string(), tags: z.array(z.string()) }))
+    }),
+    data: {
+      articles: [
+        { title: "Designing a calmer settings page", tags: ["design"] },
+        { title: "Keyboard navigation from design to code", tags: ["design", "engineering"] },
+        { title: "What five usability interviews revealed", tags: ["research"] }
+      ]
+    }
   },
   KeyValue: {
     template: `
@@ -1492,36 +1625,28 @@ export const componentExamples: Record<string, ComponentExample> = {
   },
   Tabs: {
     template: `
-<Card size="md">
-  <Tabs
-    defaultTab="overview"
-    tabs={[
-      { id: "overview", label: "Overview", icon: "info" },
-      { id: "activity", label: "Activity", icon: "activity" },
-      { id: "settings", label: "Settings", icon: "settings" }
-    ]}
-    onChangeAction={{ type: "tab.change" }}
-  >
-    <Tabs.Panel id="overview">
-      <Col gap={1}>
-        <Text value="Project overview" weight="semibold" />
-        <Caption value="Panels mount only while their id matches the active tab." />
-      </Col>
-    </Tabs.Panel>
-    <Tabs.Panel id="activity">
-      <Col gap={1}>
-        <Text value="12 events this week" weight="semibold" />
-        <Caption value="Deploys, reviews, and comments show up here." />
-      </Col>
-    </Tabs.Panel>
-    <Tabs.Panel id="settings">
-      <Col gap={1}>
-        <Text value="Notifications: enabled" weight="semibold" />
-        <Caption value="Switch tabs to swap panel content." />
-      </Col>
-    </Tabs.Panel>
-  </Tabs>
-</Card>
+<State initial={{ tab: "overview" }}>
+  <Card size="sm" gap={3}>
+    <Tabs bind="tab" tabs={[
+      { id: "overview", label: "Overview" },
+      { id: "sources", label: "Sources" },
+      { id: "activity", label: "Activity" }
+    ]}>
+      <Tabs.Panel id="overview">
+        <Text value="Checkout study: 8 interviews and 3 usability sessions." size="sm" />
+      </Tabs.Panel>
+      <Tabs.Panel id="sources">
+        <Text value="Interview notes, session recordings, and the checkout funnel report." size="sm" />
+      </Tabs.Panel>
+      <Tabs.Panel id="activity">
+        <Text value="Maya added the final session notes this morning." size="sm" />
+      </Tabs.Panel>
+    </Tabs>
+    <Row>
+      <Button label="Open sources" variant="outline" size="sm" onClickAction={{ updateState: { tab: "sources" } }} />
+    </Row>
+  </Card>
+</State>
     `.trim(),
     schema: EmptySchema,
     data: emptyData
