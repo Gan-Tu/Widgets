@@ -5,7 +5,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { CategoryRail, type CategoryFilter } from "@/components/gallery/CategoryRail";
 import { GalleryCard } from "@/components/gallery/GalleryCard";
-import { MasonryItem, masonryContainerClass, masonryContainerStyle } from "@/components/gallery/Masonry";
+import { MasonryItem, masonryContainerClass, masonryContainerStyle, resetMasonryLayout } from "@/components/gallery/Masonry";
 import { compareFeaturedWidgetExamples, isFeaturedWidgetExample } from "@/examples/featuredExamples";
 import type { WidgetCategory, WidgetExample } from "@/examples/widgetExamples";
 import type { ActionConfig } from "@/widget";
@@ -86,6 +86,9 @@ export function GalleryPage() {
     return activeCategory === "Featured" ? matches.sort(compareFeaturedWidgetExamples) : matches;
   }, [catalog, activeCategory, deferredQuery]);
 
+  const gridRef = React.useRef<HTMLDivElement | null>(null);
+  React.useLayoutEffect(() => resetMasonryLayout(gridRef.current), [filtered]);
+
   return (
     <div className="gallery-page">
       <header className="gallery-heading">
@@ -133,7 +136,7 @@ export function GalleryPage() {
               <button type="button" className="studio-button" onClick={() => setSearchParams({})}>Clear filters</button>
             </div>
           ) : (
-            <div className={masonryContainerClass} style={masonryContainerStyle}>
+            <div ref={gridRef} className={masonryContainerClass} style={masonryContainerStyle}>
               {filtered.map((example, index) => (
                 <MasonryItem key={example.id} wide={example.size === "lg"}>
                   <GalleryCard example={example} index={index} onAction={handleAction} />
