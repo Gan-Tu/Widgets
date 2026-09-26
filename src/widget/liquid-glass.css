@@ -1,11 +1,11 @@
 /* Optional material layer. Standard appearance and template syntax are unchanged.
    One optical pane per stack; nested content uses thin washes, never repeated blur. */
 .widget-root[data-appearance="glass"] {
-  --widget-text-prose: #20242b;
-  --widget-text-primary: #20242b;
-  --widget-text-emphasis: #11151c;
-  --widget-text-secondary: #444b55;
-  --widget-text-tertiary: #505966;
+  --widget-text-prose: #1d1d1f;
+  --widget-text-primary: #1d1d1f;
+  --widget-text-emphasis: #0a0a0b;
+  --widget-text-secondary: #46464b;
+  --widget-text-tertiary: #58585e;
   --widget-text-inverse: #ffffff;
   --widget-text-success: #064320;
   --widget-text-warning: #723c02;
@@ -16,52 +16,62 @@
   --widget-danger-soft-fg: #731323;
   --widget-info-soft-fg: #084186;
   --widget-discovery-soft-fg: #4d2284;
-  --widget-surface: rgb(255 255 255 / 7%);
-  --widget-surface-elevated: rgb(255 255 255 / 10%);
-  --widget-surface-elevated-secondary: rgb(245 248 252 / 8%);
-  --widget-surface-secondary: rgb(84 119 157 / 5%);
-  --widget-surface-tertiary: rgb(84 119 157 / 11%);
-  --widget-surface-hover: rgb(126 136 149 / 10%);
-  --widget-surface-active: rgb(112 125 141 / 16%);
-  --widget-accent-soft: rgb(108 122 138 / 10%);
-  --widget-accent-soft-strong: rgb(108 122 138 / 18%);
+  --widget-surface: rgb(255 255 255 / 12%);
+  --widget-surface-elevated: rgb(255 255 255 / 16%);
+  --widget-surface-elevated-secondary: rgb(255 255 255 / 12%);
+  --widget-surface-secondary: rgb(0 0 0 / 4%);
+  --widget-surface-tertiary: rgb(0 0 0 / 7.5%);
+  --widget-surface-hover: rgb(0 0 0 / 5%);
+  --widget-surface-active: rgb(0 0 0 / 9%);
+  --widget-accent-soft: rgb(0 0 0 / 5%);
+  --widget-accent-soft-strong: rgb(0 0 0 / 10%);
   --widget-success-soft-bg: rgb(21 128 61 / 10%);
   --widget-warning-soft-bg: rgb(226 150 29 / 12%);
   --widget-danger-soft-bg: rgb(220 38 38 / 10%);
   --widget-info-soft-bg: rgb(37 99 235 / 10%);
   --widget-discovery-soft-bg: rgb(124 58 237 / 10%);
-  --widget-border-default: rgb(102 126 155 / 18%);
-  --widget-border-subtle: rgb(102 126 155 / 11%);
-  --widget-border-control: rgb(116 140 170 / 24%);
-  --widget-border-strong: #7b899b;
+  --widget-border-default: rgb(0 0 0 / 8%);
+  --widget-border-subtle: rgb(0 0 0 / 5%);
+  --widget-border-control: rgb(0 0 0 / 11%);
+  --widget-border-strong: #86868b;
   --widget-radius: 22px;
   --widget-radius-control: 12px;
-  --widget-shadow-xs: inset 0 1px 0 rgb(255 255 255 / 55%), 0 1px 3px rgb(33 53 78 / 5%);
-  --widget-shadow-sm: inset 0 1px 0 rgb(255 255 255 / 55%), 0 3px 10px -5px rgb(33 53 78 / 12%);
+  --widget-shadow-xs: inset 0 1px 0 rgb(255 255 255 / 80%), 0 1px 2px rgb(0 0 0 / 6%);
+  --widget-shadow-sm: inset 0 1px 0 rgb(255 255 255 / 80%), 0 1px 2px rgb(0 0 0 / 5%), 0 6px 16px -8px rgb(0 0 0 / 16%);
   --widget-shadow: var(--widget-shadow-sm);
   --widget-shadow-lg: var(--widget-shadow-sm);
-  --widget-glass-pane: rgb(250 252 255 / 48%);
-  --widget-glass-popup: rgb(250 252 255 / 72%);
-  --widget-glass-wash: rgb(255 255 255 / 8%);
-  --widget-glass-neutral: #9aa4b0;
-  --widget-glass-tint: #8995a3;
+  /* Neutral material: white panes with a specular rim and sheen, ink for prominence. */
+  --widget-glass-pane: rgb(255 255 255 / 56%);
+  --widget-glass-popup: rgb(255 255 255 / 80%);
+  --widget-glass-wash: rgb(255 255 255 / 42%);
+  --widget-glass-field: rgb(0 0 0 / 3.5%);
+  --widget-glass-field-shadow: inset 0 1px 2px rgb(0 0 0 / 6%), 0 1px 0 rgb(255 255 255 / 60%);
+  --widget-glass-sheen: linear-gradient(168deg, rgb(255 255 255 / 60%), rgb(255 255 255 / 14%) 38%, rgb(255 255 255 / 0) 62%);
+  --widget-glass-neutral: #8e8e93;
+  --widget-glass-tint: #1d1d1f;
   --widget-glass-tint-text: var(--widget-text-primary);
-  --widget-glass-hover-tint: 8%;
+  --widget-glass-hover-tint: 7%;
   --widget-glass-press-tint: 10%;
-  --widget-glass-selected: rgb(108 122 138 / 17%);
-  --widget-glass-highlight: linear-gradient(155deg, rgb(255 255 255 / 10%), transparent 65%);
-  --widget-glass-pane-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), inset 0 -1px 0 rgb(255 255 255 / 20%), 0 16px 36px -20px rgb(34 61 92 / 32%);
-  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 62%), 0 2px 5px -2px rgb(35 55 85 / 12%);
-  --widget-glass-thumb: rgb(255 255 255 / 76%);
-  --widget-glass-blur: blur(16px) saturate(1.15);
+  --widget-glass-selected: rgb(0 0 0 / 7%);
+  --widget-glass-highlight: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(255 255 255 / 0) 60%);
+  --widget-glass-pane-shadow: inset 0 1px 0 rgb(255 255 255 / 95%), inset 0 0 0 1px rgb(255 255 255 / 45%), inset 0 -1px 0 rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 5%), 0 14px 34px -14px rgb(0 0 0 / 22%);
+  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 1px 2px rgb(0 0 0 / 7%), 0 3px 8px -4px rgb(0 0 0 / 10%);
+  --widget-glass-prominent: #161618;
+  --widget-glass-prominent-text: #ffffff;
+  --widget-glass-prominent-gloss: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 0) 52%);
+  --widget-glass-prominent-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), inset 0 -1px 0 rgb(0 0 0 / 50%), 0 1px 2px rgb(0 0 0 / 22%), 0 5px 14px -6px rgb(0 0 0 / 40%);
+  --widget-glass-segment: #ffffff;
+  --widget-glass-thumb: #ffffff;
+  --widget-glass-thumb-shadow: inset 0 1px 0 #ffffff, 0 1px 2px rgb(0 0 0 / 14%), 0 3px 8px -2px rgb(0 0 0 / 12%);
+  --widget-glass-blur: blur(22px) saturate(1.8);
 }
 .widget-root[data-appearance="glass"][data-theme="dark"] {
-  --widget-text-prose: #f3f6fa;
-  --widget-text-primary: #f3f6fa;
+  --widget-text-prose: #f5f5f7;
+  --widget-text-primary: #f5f5f7;
   --widget-text-emphasis: #ffffff;
-  --widget-text-secondary: #c9d2de;
-  --widget-text-tertiary: #b8c3d2;
-  --widget-text-inverse: #141416;
+  --widget-text-secondary: #d1d1d6;
+  --widget-text-tertiary: #aeaeb2;
+  --widget-text-inverse: #1d1d1f;
   --widget-text-success: #c6f5d7;
   --widget-text-warning: #ffe8b9;
   --widget-text-danger: #ffd5dc;
@@ -71,41 +81,50 @@
   --widget-danger-soft-fg: #ffd5dc;
   --widget-info-soft-fg: #d4e8ff;
   --widget-discovery-soft-fg: #e6dcff;
-  --widget-surface: rgb(178 202 230 / 5%);
-  --widget-surface-elevated: rgb(178 202 230 / 7%);
-  --widget-surface-elevated-secondary: rgb(178 202 230 / 6%);
-  --widget-surface-secondary: rgb(178 202 230 / 4%);
-  --widget-surface-tertiary: rgb(178 202 230 / 10%);
-  --widget-surface-hover: rgb(201 213 228 / 10%);
-  --widget-surface-active: rgb(201 213 228 / 16%);
-  --widget-accent-soft: rgb(190 204 222 / 10%);
-  --widget-accent-soft-strong: rgb(190 204 222 / 18%);
-  --widget-border-default: rgb(202 224 252 / 16%);
-  --widget-border-subtle: rgb(202 224 252 / 9%);
-  --widget-border-control: rgb(202 224 252 / 24%);
-  --widget-border-strong: #99abc3;
-  --widget-shadow-xs: inset 0 1px 0 rgb(233 244 255 / 12%), 0 1px 3px rgb(0 0 0 / 10%);
-  --widget-shadow-sm: inset 0 1px 0 rgb(233 244 255 / 12%), 0 3px 10px -5px rgb(0 0 0 / 20%);
-  --widget-glass-pane: rgb(23 29 39 / 62%);
-  --widget-glass-popup: rgb(26 33 45 / 79%);
-  --widget-glass-wash: rgb(210 221 237 / 4%);
-  --widget-glass-neutral: #b7c2d0;
-  --widget-glass-tint: #bdc8d7;
+  --widget-surface: rgb(255 255 255 / 5%);
+  --widget-surface-elevated: rgb(255 255 255 / 7%);
+  --widget-surface-elevated-secondary: rgb(255 255 255 / 6%);
+  --widget-surface-secondary: rgb(255 255 255 / 5%);
+  --widget-surface-tertiary: rgb(255 255 255 / 10%);
+  --widget-surface-hover: rgb(255 255 255 / 9%);
+  --widget-surface-active: rgb(255 255 255 / 14%);
+  --widget-accent-soft: rgb(255 255 255 / 8%);
+  --widget-accent-soft-strong: rgb(255 255 255 / 15%);
+  --widget-border-default: rgb(255 255 255 / 13%);
+  --widget-border-subtle: rgb(255 255 255 / 8%);
+  --widget-border-control: rgb(255 255 255 / 18%);
+  --widget-border-strong: #98989d;
+  --widget-shadow-xs: inset 0 1px 0 rgb(255 255 255 / 12%), 0 1px 3px rgb(0 0 0 / 30%);
+  --widget-shadow-sm: inset 0 1px 0 rgb(255 255 255 / 12%), 0 6px 16px -8px rgb(0 0 0 / 50%);
+  --widget-glass-pane: rgb(30 30 32 / 60%);
+  --widget-glass-popup: rgb(38 38 40 / 82%);
+  --widget-glass-wash: rgb(255 255 255 / 7%);
+  --widget-glass-field: rgb(0 0 0 / 22%);
+  --widget-glass-field-shadow: inset 0 1px 2px rgb(0 0 0 / 30%), 0 1px 0 rgb(255 255 255 / 6%);
+  --widget-glass-sheen: linear-gradient(168deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 0) 45%);
+  --widget-glass-neutral: #98989d;
+  --widget-glass-tint: #f5f5f7;
   --widget-glass-tint-text: var(--widget-text-primary);
   --widget-glass-hover-tint: 6%;
-  --widget-glass-press-tint: 8%;
-  --widget-glass-selected: rgb(202 214 230 / 13%);
-  --widget-glass-highlight: linear-gradient(155deg, rgb(229 241 255 / 5%), transparent 65%);
-  --widget-glass-pane-shadow: inset 0 1px 0 rgb(233 244 255 / 22%), 0 18px 40px -18px rgb(0 0 0 / 50%);
-  --widget-glass-control-shadow: inset 0 1px 0 rgb(224 239 255 / 16%), 0 2px 5px -2px rgb(0 0 0 / 22%);
-  --widget-glass-thumb: rgb(220 236 255 / 68%);
+  --widget-glass-press-tint: 9%;
+  --widget-glass-selected: rgb(255 255 255 / 12%);
+  --widget-glass-highlight: linear-gradient(180deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 0) 60%);
+  --widget-glass-pane-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), inset 0 0 0 1px rgb(255 255 255 / 6%), 0 18px 40px -18px rgb(0 0 0 / 65%);
+  --widget-glass-control-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 2px 6px -2px rgb(0 0 0 / 45%);
+  --widget-glass-prominent: #f5f5f7;
+  --widget-glass-prominent-text: #111113;
+  --widget-glass-prominent-gloss: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(255 255 255 / 0) 60%);
+  --widget-glass-prominent-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgb(0 0 0 / 14%), 0 5px 14px -6px rgb(0 0 0 / 60%);
+  --widget-glass-segment: rgb(255 255 255 / 20%);
+  --widget-glass-thumb: #f5f5f7;
+  --widget-glass-thumb-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), 0 2px 6px rgb(0 0 0 / 40%);
 }
 
 /* Semantic surface hooks cover Cards and token-backed Boxes, including pricing
    tiles. Custom photo/brand backgrounds remain authored content. */
 .widget-root[data-appearance="glass"][data-widget-surface],
 .widget-root[data-appearance="glass"] [data-widget-surface] {
-  background: var(--widget-glass-pane) !important;
+  background: var(--widget-glass-sheen), var(--widget-glass-pane) !important;
   box-shadow: var(--widget-glass-pane-shadow) !important;
   -webkit-backdrop-filter: var(--widget-glass-blur);
   backdrop-filter: var(--widget-glass-blur);
@@ -113,14 +132,14 @@
 .widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-widget-surface],
 .widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-widget-surface] {
   background: var(--widget-glass-wash) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%) !important;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 .widget-root[data-appearance="glass"] [data-surface-emphasis="true"] {
   border-width: 1px !important;
   border-color: color-mix(in srgb, var(--widget-glass-tint) 35%, transparent) !important;
-  background: color-mix(in srgb, var(--widget-glass-tint) 5%, var(--widget-glass-pane)) !important;
+  background: var(--widget-glass-sheen), color-mix(in srgb, var(--widget-glass-tint) 5%, var(--widget-glass-pane)) !important;
 }
 .widget-root[data-appearance="glass"] :is(.wg-card, [data-widget-surface], .wg-portal) [data-surface-emphasis="true"],
 .widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal) [data-surface-emphasis="true"] {
@@ -137,7 +156,7 @@
 /* Portals begin a fresh optical layer. Their content shares the same pane. */
 .widget-root[data-appearance="glass"].wg-portal {
   color: var(--widget-text-primary);
-  background: var(--widget-glass-popup);
+  background: var(--widget-glass-sheen), var(--widget-glass-popup);
   border-color: var(--widget-border-default);
   border-radius: 16px;
   box-shadow: var(--widget-glass-pane-shadow);
@@ -159,23 +178,38 @@
   --_glass-text: var(--widget-text-primary);
   --_glass-fill: var(--widget-glass-wash);
   --_glass-edge: var(--widget-border-control);
+  --_glass-gloss: var(--widget-glass-highlight);
+  --_glass-shadow: var(--widget-glass-control-shadow);
   background-color: var(--_glass-fill) !important;
-  background-image: var(--widget-glass-highlight) !important;
+  background-image: var(--_glass-gloss) !important;
   color: var(--_glass-text) !important;
   border-color: var(--_glass-edge) !important;
   border-radius: var(--widget-radius-control);
-  box-shadow: var(--widget-glass-control-shadow) !important;
+  box-shadow: var(--_glass-shadow) !important;
   filter: none;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 100ms ease;
 }
+/* Solid primary actions and on-states are glossy ink; segments and tabs lift a raised thumb. */
 .widget-root[data-appearance="glass"] :is(
-  .wg-btn[data-color="primary"], .wg-btn[data-color="accent"],
+  .wg-btn[data-color="primary"][data-variant="solid"], .wg-btn[data-color="accent"][data-variant="solid"],
   [data-slot="button"][data-variant="default"], .wg-agent-button[data-primary],
-  .wg-agent-send, .wg-fine-apply, .wg-selection-submit, .wg-table-footer :where(button),
-  .wg-choice[aria-pressed="true"], .wg-segmented-control > :where(button)[aria-checked="true"],
-  .wg-tabs-tab[aria-selected="true"], [data-slot="toggle"][data-state="on"], [data-slot="toggle-group-item"][data-state="on"]
-) { --_glass-tint: var(--widget-glass-tint); --_glass-text: var(--widget-glass-tint-text); --_glass-fill: color-mix(in srgb, var(--_glass-tint) 10%, var(--widget-glass-wash)); --_glass-edge: color-mix(in srgb, var(--_glass-tint) 27%, transparent); }
-.widget-root[data-appearance="glass"] :is(.wg-choice[aria-pressed="true"], .wg-segmented-control > :where(button)[aria-checked="true"], .wg-tabs-tab[aria-selected="true"], [data-slot="toggle"][data-state="on"], [data-slot="toggle-group-item"][data-state="on"]) { --_glass-fill: color-mix(in srgb, var(--widget-glass-tint) 24%, var(--widget-glass-wash)); --_glass-edge: color-mix(in srgb, var(--widget-glass-tint) 42%, transparent); }
+  .wg-agent-send, .wg-fine-apply, .wg-selection-submit,
+  .wg-choice[aria-pressed="true"], [data-slot="toggle"][data-state="on"], [data-slot="toggle-group-item"][data-state="on"]
+) {
+  --_glass-tint: var(--widget-glass-prominent);
+  --_glass-text: var(--widget-glass-prominent-text);
+  --_glass-fill: var(--widget-glass-prominent);
+  --_glass-edge: var(--widget-glass-prominent);
+  --_glass-hover-mix: var(--widget-glass-prominent-text);
+  --_glass-hover-edge: var(--widget-glass-prominent);
+  --_glass-gloss: var(--widget-glass-prominent-gloss);
+  --_glass-shadow: var(--widget-glass-prominent-shadow);
+}
+.widget-root[data-appearance="glass"] :is(.wg-segmented-control > :where(button)[aria-checked="true"], .wg-tabs-tab[aria-selected="true"]) {
+  --_glass-fill: var(--widget-glass-segment);
+  --_glass-edge: transparent;
+  --_glass-shadow: var(--widget-glass-thumb-shadow);
+}
 .widget-root[data-appearance="glass"] .wg-btn[data-color="info"] { --_glass-tint: var(--widget-info); }
 .widget-root[data-appearance="glass"] .wg-btn[data-color="success"] { --_glass-tint: var(--widget-success); }
 .widget-root[data-appearance="glass"] :is(.wg-btn[data-color="danger"], [data-slot="button"][data-variant="destructive"]) { --_glass-tint: var(--widget-danger); --_glass-text: var(--widget-danger-soft-fg); }
@@ -183,7 +217,7 @@
 .widget-root[data-appearance="glass"] .wg-btn[data-color="discovery"] { --_glass-tint: var(--widget-discovery); }
 .widget-root[data-appearance="glass"] :is(.wg-btn[data-color="info"], .wg-btn[data-color="success"], .wg-btn[data-color="danger"], .wg-btn[data-color="warning"], .wg-btn[data-color="caution"], .wg-btn[data-color="discovery"], [data-slot="button"][data-variant="destructive"]) { --_glass-fill: color-mix(in srgb, var(--_glass-tint) 6%, var(--widget-glass-wash)); --_glass-edge: color-mix(in srgb, var(--_glass-tint) 18%, transparent); }
 .widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="outline"], [data-slot="button"][data-variant="outline"]) { --_glass-fill: transparent; --_glass-edge: var(--widget-border-control); }
-.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="ghost"], [data-slot="button"][data-variant="ghost"], [data-slot="button"][data-variant="link"], .wg-tabs-tab:not([aria-selected="true"])) {
+.widget-root[data-appearance="glass"] :is(.wg-btn[data-variant="ghost"], [data-slot="button"][data-variant="ghost"], [data-slot="button"][data-variant="link"], .wg-tabs-tab:not([aria-selected="true"]), .wg-segmented-control > :where(button):not([aria-checked="true"])) {
   --_glass-fill: transparent;
   --_glass-edge: transparent;
   background-image: none !important;
@@ -191,25 +225,25 @@
 }
 @media (hover: hover) {
   .widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, .wg-tabs-tab, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit, .wg-table-footer button):hover:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
-    background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-hover-tint)), var(--_glass-tint) var(--widget-glass-hover-tint)) !important;
-    border-color: color-mix(in srgb, var(--_glass-tint) 30%, transparent) !important;
-    box-shadow: var(--widget-glass-control-shadow), inset 0 0 0 1px rgb(255 255 255 / 10%) !important;
+    background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-hover-tint)), var(--_glass-hover-mix, var(--_glass-tint)) var(--widget-glass-hover-tint)) !important;
+    border-color: var(--_glass-hover-edge, color-mix(in srgb, var(--_glass-tint) 30%, transparent)) !important;
+    box-shadow: var(--_glass-shadow, var(--widget-glass-control-shadow)), inset 0 0 0 1px rgb(255 255 255 / 10%) !important;
     opacity: 1;
     filter: none;
     transform: none;
   }
 }
 .widget-root[data-appearance="glass"] :is(.wg-btn[data-variant], [data-slot="button"], .wg-agent-button, .wg-choice, .wg-segmented-control > button, [data-slot="toggle"], [data-slot="toggle-group-item"], .wg-agent-send, .wg-fine-apply, .wg-selection-submit):active:not(:disabled):not([aria-disabled="true"]):not(.wg-field-control) {
-  background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-press-tint)), var(--_glass-tint) var(--widget-glass-press-tint)) !important;
-  box-shadow: inset 0 1px 3px rgb(22 50 80 / 12%) !important;
+  background-color: color-mix(in srgb, var(--_glass-fill) calc(100% - var(--widget-glass-press-tint)), var(--_glass-hover-mix, var(--_glass-tint)) var(--widget-glass-press-tint)) !important;
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 14%) !important;
   transform: scale(.985);
 }
 
 /* Recessed fields stay matte. Keyboard focus still uses one border cue. */
 .widget-root[data-appearance="glass"] :is(.wg-input, .wg-field-control, [data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"], [data-slot="input-otp-slot"]) {
-  background: var(--widget-glass-wash) !important;
+  background: var(--widget-glass-field) !important;
   color: var(--widget-text-primary) !important;
-  box-shadow: inset 0 1px 2px rgb(22 50 80 / 5%), 0 1px 0 rgb(255 255 255 / 24%) !important;
+  box-shadow: var(--widget-glass-field-shadow) !important;
   border-color: var(--widget-border-control) !important;
 }
 .widget-root[data-appearance="glass"] :is(.wg-input, .wg-field-control, [data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]):focus-visible,
@@ -220,11 +254,11 @@
 }
 .widget-root[data-appearance="glass"] .wg-tabs-list { gap: 4px; padding: 4px; border: 0; border-radius: 14px; background: var(--widget-surface-secondary); }
 .widget-root[data-appearance="glass"] .wg-tabs-tab { padding: 7px 12px; border: 1px solid transparent; border-radius: 10px; }
-.widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(30 55 85 / 6%); }
-.widget-root[data-appearance="glass"] :is(.wg-switch, .wg-slider-track, [data-slot="checkbox"], [data-slot="radio-group-item"]) { background: var(--widget-surface-tertiary); border-color: var(--widget-border-control); box-shadow: inset 0 1px 3px rgb(30 55 85 / 12%); }
-.widget-root[data-appearance="glass"] :is(.wg-switch[aria-checked="true"], [data-slot="checkbox"][data-state="checked"], [data-slot="radio-group-item"][data-state="checked"]) { background: var(--widget-glass-selected); border-color: var(--widget-glass-tint); color: var(--widget-glass-tint-text); }
+.widget-root[data-appearance="glass"] .wg-segmented-control { box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%); }
+.widget-root[data-appearance="glass"] :is(.wg-switch, .wg-slider-track, [data-slot="checkbox"], [data-slot="radio-group-item"]) { background: var(--widget-surface-tertiary); border-color: var(--widget-border-control); box-shadow: inset 0 1px 3px rgb(0 0 0 / 10%); }
+.widget-root[data-appearance="glass"] :is(.wg-switch[aria-checked="true"], [data-slot="checkbox"][data-state="checked"], [data-slot="radio-group-item"][data-state="checked"]) { background: var(--widget-glass-prominent); border-color: var(--widget-glass-prominent); color: var(--widget-glass-prominent-text); }
 .widget-root[data-appearance="glass"] .wg-switch > span,
-.widget-root[data-appearance="glass"] .wg-slider-thumb { background: var(--widget-glass-thumb); border: 1px solid rgb(255 255 255 / 55%); box-shadow: inset 0 1px 1px rgb(255 255 255 / 60%), 0 2px 5px rgb(25 45 75 / 18%); }
+.widget-root[data-appearance="glass"] .wg-slider-thumb { background: var(--widget-glass-thumb); border: 1px solid rgb(0 0 0 / 4%); box-shadow: var(--widget-glass-thumb-shadow); }
 .widget-root[data-appearance="glass"] .wg-slider-thumb { width: 22px; height: 22px; }
 .widget-root[data-appearance="glass"] .wg-badge[data-variant="solid"] { background: var(--_badge-soft-bg); color: var(--_badge-soft-fg); border-color: var(--_badge-border); }
 
@@ -240,16 +274,16 @@
 
 /* Solid material is reserved for requested accessibility and browser fallback. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .widget-root[data-appearance="glass"] { --widget-glass-pane: #f4f8fc; --widget-glass-popup: #f4f8fc; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c2430; --widget-glass-popup: #1c2430; }
+  .widget-root[data-appearance="glass"] { --widget-glass-pane: #f7f7f8; --widget-glass-popup: #f7f7f8; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c1c1e; --widget-glass-popup: #1c1c1e; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .widget-root[data-appearance="glass"] { --widget-glass-pane: #ffffff; --widget-glass-popup: #ffffff; --widget-glass-wash: #edf2f8; --widget-glass-selected: #d8eafa; --widget-glass-highlight: none; --widget-glass-blur: none; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #181e28; --widget-glass-popup: #181e28; --widget-glass-wash: #273244; --widget-glass-selected: #294765; }
+  .widget-root[data-appearance="glass"] { --widget-glass-pane: #ffffff; --widget-glass-popup: #ffffff; --widget-glass-wash: #f2f2f4; --widget-glass-field: #f2f2f4; --widget-glass-selected: #e5e5ea; --widget-glass-sheen: none; --widget-glass-highlight: none; --widget-glass-prominent-gloss: none; --widget-glass-blur: none; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-glass-pane: #1c1c1e; --widget-glass-popup: #1c1c1e; --widget-glass-wash: #2c2c2e; --widget-glass-field: #2c2c2e; --widget-glass-selected: #3a3a3c; --widget-glass-segment: #48484a; }
 }
 @media (prefers-contrast: more) {
-  .widget-root[data-appearance="glass"] { --widget-border-default: #7b899b; --widget-border-subtle: #7b899b; --widget-border-control: #7b899b; }
-  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-border-default: #99abc3; --widget-border-subtle: #99abc3; --widget-border-control: #99abc3; }
+  .widget-root[data-appearance="glass"] { --widget-border-default: #86868b; --widget-border-subtle: #86868b; --widget-border-control: #86868b; }
+  .widget-root[data-appearance="glass"][data-theme="dark"] { --widget-border-default: #98989d; --widget-border-subtle: #98989d; --widget-border-control: #98989d; }
 }
 @media (prefers-reduced-motion: reduce) {
   .widget-root[data-appearance="glass"] :is(button, [role="button"]) { transition: none; }

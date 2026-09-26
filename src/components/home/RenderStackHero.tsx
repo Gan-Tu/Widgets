@@ -45,7 +45,7 @@ type StackNodes = {
   labels: (SVGTextElement | null)[];
   guides: (SVGLineElement | null)[];
   placeholder: SVGRectElement | null;
-  surface: SVGRectElement | null;
+  surface: SVGGElement | null;
   seal: SVGRectElement | null;
   typeClip: SVGRectElement | null;
   caret: SVGRectElement | null;
@@ -493,6 +493,11 @@ export function RenderStackHero() {
             <rect x={90} y={32} width={72} height={72} fill="#fff" />
             <path d="M90 74.5h72M90 81.5h72M90 88.5h72" stroke="#000" strokeWidth={2.6} />
           </mask>
+          <linearGradient id={`${id}-sheen`} x1="0" y1="0" x2="0.55" y2="1">
+            <stop offset="0" stopColor="#fff" stopOpacity={.6} />
+            <stop offset=".38" stopColor="#fff" stopOpacity={.14} />
+            <stop offset=".62" stopColor="#fff" stopOpacity={0} />
+          </linearGradient>
           <linearGradient id="rs-cover-sky" x1="0" y1="0" x2="0.35" y2="1">
             <stop offset="0" stopColor="#ff9a5a" />
             <stop offset=".55" stopColor="#f0508c" />
@@ -517,7 +522,11 @@ export function RenderStackHero() {
         {/* 03 · Render: the widget card. */}
         <g ref={node => { registry().plates[0] = node; }}>
           <rect ref={node => { registry().placeholder = node; }} x={.5} y={.5} width={CARD_WIDTH - 1} height={CARD_HEIGHT - 1} rx={14} className="rs-card-placeholder" />
-          <rect ref={node => { registry().surface = node; }} x={.5} y={.5} width={CARD_WIDTH - 1} height={CARD_HEIGHT - 1} rx={14} className="rs-card" />
+          <g ref={node => { registry().surface = node; }}>
+            <rect x={.5} y={.5} width={CARD_WIDTH - 1} height={CARD_HEIGHT - 1} rx={14} className="rs-card" />
+            <rect x={.5} y={.5} width={CARD_WIDTH - 1} height={CARD_HEIGHT - 1} rx={14} className="rs-sheen" fill={`url(#${id}-sheen)`} />
+            <rect x={1.6} y={1.6} width={CARD_WIDTH - 3.2} height={CARD_HEIGHT - 3.2} rx={13} className="rs-rim" />
+          </g>
           <rect ref={node => { registry().seal = node; }} x={.5} y={.5} width={CARD_WIDTH - 1} height={CARD_HEIGHT - 1} rx={14} className="rs-card-seal" />
           {SCENES.map(sceneIndex => {
             const scene = STACK_SCENES[sceneIndex];
@@ -601,6 +610,7 @@ export function RenderStackHero() {
         {/* 01 · Write: the model's template. */}
         <g ref={node => { registry().plates[2] = node; }} style={{ opacity: 0 }}>
           <rect x={0} y={0} width={CARD_WIDTH} height={CARD_HEIGHT} rx={14} className="rs-write" />
+          <rect x={0} y={0} width={CARD_WIDTH} height={CARD_HEIGHT} rx={14} className="rs-sheen rs-sheen-dark" fill={`url(#${id}-sheen)`} />
           <text x={CODE.left} y={21} className="rs-code-meta">model output</text>
           <g className="rs-live">
             <circle cx={CARD_WIDTH - 16} cy={18.4} r={2.3} />

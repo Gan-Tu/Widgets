@@ -38,6 +38,10 @@
 .rs-card { fill: var(--rs-card); stroke: var(--rs-card-edge); }
 .rs-card-placeholder { fill: none; stroke: var(--rs-faint); stroke-dasharray: 4 5; }
 .rs-card-seal { fill: none; stroke: var(--rs-signal); stroke-width: 1.5; }
+/* Glass finish: an in-plane specular sheen and inner rim, off unless the appearance asks. */
+.rs-sheen { opacity: var(--rs-sheen, 0); pointer-events: none; }
+.rs-sheen-dark { opacity: calc(var(--rs-sheen, 0) * .35); }
+.rs-rim { fill: none; stroke: #ffffff; stroke-width: 1.2; opacity: calc(var(--rs-sheen, 0) * .9); }
 .rs-membrane-tint { fill: var(--rs-membrane); }
 .rs-membrane { stroke: var(--rs-membrane-edge); stroke-dasharray: 3 4; }
 .rs-membrane-meta { font-size: 7px; letter-spacing: .08em; fill: var(--rs-signal); }
@@ -147,19 +151,20 @@
 .render-stack-status i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .render-stack-status > span { margin-left: 5px; color: var(--faint); font-size: 8px; letter-spacing: .04em; }
 .render-stack-pause { display: grid; place-items: center; width: 28px; height: 28px; flex-shrink: 0; border: 1px solid var(--hairline); border-radius: 50%; background: transparent; color: var(--mid); cursor: pointer; transition: background 160ms, color 160ms; }
-@media (hover: hover) { .render-stack-pause:hover { background: rgb(112 128 148 / 8%); color: var(--ink); } }
-.render-stack-pause:active { background: rgb(112 128 148 / 12%); }
+@media (hover: hover) { .render-stack-pause:hover { background: rgb(0 0 0 / 5%); color: var(--ink); } }
+.render-stack-pause:active { background: rgb(0 0 0 / 8%); }
 
 /* Glass appearance: the plates become panes of the same material. */
 .app-shell[data-appearance="glass"] .render-stack {
-  --rs-card: rgb(255 255 255 / 55%);
-  --rs-card-edge: rgb(255 255 255 / 95%);
-  --rs-well: rgb(255 255 255 / 38%);
-  --rs-hair: rgb(102 125 152 / 22%);
-  --rs-panel: rgb(21 26 36 / 88%);
-  --rs-membrane: rgb(255 255 255 / 24%);
-  --rs-membrane-edge: rgb(96 118 146 / 55%);
-  --rs-shadow: rgb(34 61 92 / 24%);
+  --rs-card: rgb(255 255 255 / 74%);
+  --rs-card-edge: rgb(0 0 0 / 9%);
+  --rs-well: rgb(255 255 255 / 55%);
+  --rs-hair: rgb(0 0 0 / 8%);
+  --rs-panel: rgb(20 20 22 / 90%);
+  --rs-membrane: rgb(255 255 255 / 34%);
+  --rs-membrane-edge: rgb(0 0 0 / 24%);
+  --rs-shadow: rgb(0 0 0 / 24%);
+  --rs-sheen: 1;
 }
 
 @keyframes rs-blink { 50% { opacity: 0; } }
