@@ -348,6 +348,8 @@ const AudioPlayer: React.FC<{
   const [mediaDuration, setMediaDuration] = React.useState<number | null>(null);
   const duration = mediaDuration ?? (Number.isFinite(durationSeconds) ? Math.max(0, durationSeconds) : 0);
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+  // The time sits beside the seek bar; compact players, which have none, show it in the header.
+  const time = <span className="wg-audio-time">{formatTime(elapsed)} / {formatTime(duration)}</span>;
   const updateDuration = (audio: HTMLAudioElement) => {
     setMediaDuration(Number.isFinite(audio.duration) ? Math.max(0, audio.duration) : null);
   };
@@ -388,7 +390,7 @@ const AudioPlayer: React.FC<{
           <div className="wg-audio-title">{title}</div>
           {subtitle ? <div className="wg-audio-subtitle">{subtitle}</div> : null}
         </div>
-        <span className="wg-audio-time">{formatTime(elapsed)} / {formatTime(duration)}</span>
+        {compact ? time : null}
         <button type="button" className="wg-interactive wg-audio-action" aria-label={isMuted ? "Unmute" : "Mute"}
           aria-pressed={isMuted} onClick={() => {
             const next = !isMuted;
@@ -408,7 +410,7 @@ const AudioPlayer: React.FC<{
           </a>
         ) : null}
       </div>
-      {!compact ? <input type="range" className="wg-audio-seek" aria-label="Seek" min={0} max={duration} step={0.1}
+      {!compact ? <div className="wg-audio-progress"><input type="range" className="wg-audio-seek" aria-label="Seek" min={0} max={duration} step={0.1}
         value={Math.min(elapsed, duration)} disabled={duration <= 0}
         style={{ "--wg-audio-progress": `${duration > 0 ? Math.min(elapsed / duration, 1) * 100 : 0}%` } as React.CSSProperties}
         onChange={(event) => {
@@ -416,7 +418,7 @@ const AudioPlayer: React.FC<{
           if (!audio) return;
           audio.currentTime = Number(event.currentTarget.value);
           setElapsed(audio.currentTime);
-        }} /> : null}
+        }} />{time}</div> : null}
       <audio
         ref={audioRef}
         src={src}

@@ -1054,7 +1054,8 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-audio-time { flex-shrink: 0; color: var(--widget-text-secondary); font-size: 0.6875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .wg-audio-action { display: inline-flex; width: 24px; height: 30px; flex-shrink: 0; align-items: center; justify-content: center; border: 0; border-radius: var(--widget-radius-control); background: transparent; color: var(--widget-text-secondary); cursor: pointer; }
 .wg-audio-action:hover { background: var(--widget-surface-hover); color: var(--widget-text-primary); }
-.wg-audio-seek { display: block; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.wg-audio-progress { display: flex; align-items: center; gap: 0.625rem; }
+.wg-audio-seek { display: block; appearance: none; flex: 1; min-width: 0; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
 .wg-audio-seek:disabled { cursor: default; opacity: 0.5; }
 .wg-audio-seek::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: linear-gradient(to right, var(--widget-accent) var(--wg-audio-progress), var(--widget-surface-tertiary) var(--wg-audio-progress)); }
 .wg-audio-seek::-moz-range-track { height: 4px; border-radius: 999px; background: linear-gradient(to right, var(--widget-accent) var(--wg-audio-progress), var(--widget-surface-tertiary) var(--wg-audio-progress)); }
