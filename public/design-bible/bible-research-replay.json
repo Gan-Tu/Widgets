@@ -1,0 +1,202 @@
+{
+  "designSpec": "A research desk pairs a stable synthesis with a bounded scripted replay, public workflow summaries, tool activity, and inspectable sample sources.",
+  "template": "<Card size=\"md\" padding={0} gap={0}>\n  <Col padding={4} gap={3}>\n    <Row gap={2} wrap=\"wrap\"><Icon name=\"compass\" /><Caption value={sampleLabel} /></Row>\n    <Title value={title} size=\"md\" />\n    <Text value={takeaway} size=\"sm\" />\n  </Col>\n  <Col padding={4} gap={4}>\n    <Row wrap=\"wrap\" gap={2}>\n      <Button label={playing ? replayingLabel : replayLabel} iconStart=\"play\" color=\"accent\" disabled={playing}\n        onClickAction={{ updateState: { playing: true, frame: 0, run: run + 1 } }} />\n      <Button label={completeLabel} variant=\"ghost\" color=\"secondary\" onClickAction={{ updateState: { playing: false, frame: 3 } }} />\n    </Row>\n    <Show $when=\"playing\"><RunInterval interval={1400} $onTickAction='{ updateState: { frame: min(3, frame + 1), playing: frame < 2 } }' /></Show>\n    <Tabs key=\"research-views\" tabs={tabs} defaultTab=\"activity\">\n      <Tabs.Panel id=\"answer\"><Col gap={3}>\n        <Show $when=\"playing\"><Row gap={2}><Orb variant=\"C2\" color=\"accent\" size={20} /><ThinkingState label={frames[frame].label} active /></Row></Show>\n        <StreamingText key={run} text={answer} streaming={playing} speed={14} loop={false} sources={sources} />\n        <InlineCitations text={evidence} sources={sources} />\n      </Col></Tabs.Panel>\n      <Tabs.Panel id=\"activity\"><Col gap={3}>\n        <ThinkingReasoning summary={traceTitle} steps={frames[frame].steps} active={false} defaultOpen />\n        <ToolChips summary={toolTitle} items={frames[frame].tools} defaultOpen\n          $onItemClickAction='{ updateState: { inspected: item.id } }' />\n        <Show $when=\"has(inspected)\"><Text value={read(toolNotes, inspected, '')} size=\"sm\" /></Show>\n        <Progress value={frame} max={3} label={frameLabel} color=\"accent\" />\n      </Col></Tabs.Panel>\n      <Tabs.Panel id=\"sources\"><ContextCards title={sourceTitle} items={contexts} /></Tabs.Panel>\n    </Tabs>\n  </Col>\n</Card>",
+  "data": {
+    "sampleLabel": "Scripted demo · public workflow",
+    "title": "A morning worth testing",
+    "takeaway": "Start with one morning workshop. The sample suggests a scheduling preference, not proof of stronger demand.",
+    "replayLabel": "Replay research",
+    "replayingLabel": "Replaying…",
+    "completeLabel": "Show complete",
+    "playing": false,
+    "frame": 3,
+    "run": 0,
+    "answer": "In this fictional 12-person survey, eight people prefer mornings and four prefer evenings. A one-session pilot would test whether that preference translates into attendance. Keep an evening option in the next survey.",
+    "evidence": "The sample preference is 8 of 12 [1]; the room note leaves both periods possible [2].",
+    "traceTitle": "Public workflow summary",
+    "toolTitle": "2 sample tool records",
+    "inspected": "",
+    "frameLabel": "Replay frames",
+    "sourceTitle": "The two sample excerpts",
+    "tabs": [
+      {
+        "id": "answer",
+        "label": "Answer",
+        "icon": "message"
+      },
+      {
+        "id": "activity",
+        "label": "Activity",
+        "icon": "activity"
+      },
+      {
+        "id": "sources",
+        "label": "Sources",
+        "icon": "document"
+      }
+    ],
+    "sources": [
+      {
+        "id": 1,
+        "label": "Sample survey",
+        "host": "local fixture"
+      },
+      {
+        "id": 2,
+        "label": "Sample room note",
+        "host": "local fixture"
+      }
+    ],
+    "contexts": [
+      {
+        "id": "survey",
+        "title": "Preference is not attendance",
+        "excerpt": "Twelve sample responses: 8 morning, 4 evening. Respondents selected a preferred time; no tickets were offered.",
+        "source": {
+          "label": "Fictional survey",
+          "type": "NOTE"
+        }
+      },
+      {
+        "id": "room",
+        "title": "Both windows remain possible",
+        "excerpt": "The sample room plan leaves one morning and one evening window open for discussion. This is not venue availability.",
+        "source": {
+          "label": "Fictional room note",
+          "type": "NOTE"
+        }
+      }
+    ],
+    "toolNotes": {
+      "survey": "The replay reads a fixed 12-response survey fixture. It does not contact a survey service.",
+      "room": "The replay reads the supplied fictional room note. It makes no calendar query."
+    },
+    "frames": [
+      {
+        "label": "Replaying: read the survey",
+        "steps": [
+          {
+            "label": "Read the sample",
+            "detail": "Locate the preference count",
+            "status": "running"
+          },
+          {
+            "label": "Check the scope",
+            "detail": "Separate preference from attendance",
+            "status": "pending"
+          }
+        ],
+        "tools": [
+          {
+            "id": "survey",
+            "type": "read",
+            "label": "Read sample survey",
+            "detail": "12 responses",
+            "status": "running"
+          },
+          {
+            "id": "room",
+            "type": "read",
+            "label": "Read room note",
+            "detail": "2 possible windows",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "label": "Replaying: inspect the room note",
+        "steps": [
+          {
+            "label": "Read the sample",
+            "detail": "8 morning, 4 evening",
+            "status": "completed"
+          },
+          {
+            "label": "Check the scope",
+            "detail": "No reservation or attendance data",
+            "status": "running"
+          }
+        ],
+        "tools": [
+          {
+            "id": "survey",
+            "type": "read",
+            "label": "Read sample survey",
+            "detail": "12 responses",
+            "status": "completed"
+          },
+          {
+            "id": "room",
+            "type": "read",
+            "label": "Read room note",
+            "detail": "2 possible windows",
+            "status": "running"
+          }
+        ]
+      },
+      {
+        "label": "Replaying: assemble the summary",
+        "steps": [
+          {
+            "label": "Read the sample",
+            "detail": "8 morning, 4 evening",
+            "status": "completed"
+          },
+          {
+            "label": "Check the scope",
+            "detail": "One small pilot is the next test",
+            "status": "completed"
+          }
+        ],
+        "tools": [
+          {
+            "id": "survey",
+            "type": "read",
+            "label": "Read sample survey",
+            "detail": "12 responses",
+            "status": "completed"
+          },
+          {
+            "id": "room",
+            "type": "read",
+            "label": "Read room note",
+            "detail": "2 possible windows",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "label": "Replay complete",
+        "steps": [
+          {
+            "label": "Read the sample",
+            "detail": "8 morning, 4 evening",
+            "status": "completed"
+          },
+          {
+            "label": "Check the scope",
+            "detail": "Preference does not establish demand",
+            "status": "completed"
+          }
+        ],
+        "tools": [
+          {
+            "id": "survey",
+            "type": "read",
+            "label": "Read sample survey",
+            "detail": "12 responses",
+            "status": "completed"
+          },
+          {
+            "id": "room",
+            "type": "read",
+            "label": "Read room note",
+            "detail": "2 possible windows",
+            "status": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  "theme": "light"
+}

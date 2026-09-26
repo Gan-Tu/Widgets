@@ -17,7 +17,7 @@ import {
 } from "../../components/ui/select";
 import { cn } from "../../lib/utils";
 import { format, isValid, parseISO, startOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, X } from "lucide-react";
 
 import {
   buildChangePayload,
@@ -409,6 +409,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const action = useWidgetAction();
   const [value, setValue, name] = useControlValue({ name: explicitName, bind, value: controlledValue, defaultValue, fallback: "" });
   const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
   const height = controlHeights[size] ?? controlHeights.md;
   const width =
     size === "sm"
@@ -471,14 +472,16 @@ const DatePicker: React.FC<DatePickerProps> = ({
     if (onChangeAction && action) {
       action(onChangeAction, buildChangePayload(name, "", { date: undefined }));
     }
+    triggerRef.current?.focus();
   };
 
   return (
-    <div className="flex min-w-0 max-w-full items-center gap-2" style={{ width: block ? "100%" : undefined }}>
+    <div className="flex min-w-0 max-w-full" style={{ width: block ? "100%" : undefined }}>
       <div className={cn("relative min-w-0 max-w-full", block ? "w-full" : "w-auto")} style={block ? undefined : { width }}>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <UiButton
+              ref={triggerRef}
               id={fieldId(name)}
               type="button"
               variant={buttonVariant as "default" | "secondary" | "outline" | "ghost"}
@@ -491,21 +494,23 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 height,
                 width: block ? "100%" : width,
                 borderRadius: pill ? "999px" : "var(--widget-radius-control)",
-                ...variantStyle
+                ...variantStyle,
+                paddingRight: clearable && value ? "2.5rem" : undefined
               }}
+              title={resolvedDate ? format(resolvedDate, "PPP") : undefined}
             >
               <span
-                className="min-w-0 truncate"
+                className="min-w-0 flex-1 truncate text-left"
                 style={
                   resolvedDate ? undefined : { color: "var(--widget-text-tertiary)" }
                 }
               >
                 {resolvedDate
-                  ? format(resolvedDate, "PPP")
+                  ? format(resolvedDate, "MMM d, yyyy")
                   : (placeholder ?? "Pick a date")}
               </span>
               <CalendarIcon
-                className="h-4 w-4"
+                className="h-4 w-4 shrink-0"
                 style={{ color: "var(--widget-text-secondary)" }}
               />
             </UiButton>
@@ -518,6 +523,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
             <UiCalendar
               mode="single"
               selected={resolvedDate}
+              defaultMonth={resolvedDate}
               captionLayout="dropdown"
               onSelect={(next: Date | undefined) => {
                 if (!next) return;
@@ -532,18 +538,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
             />
           </PopoverContent>
         </Popover>
+        {clearable && value ? (
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={disabled}
+            className="absolute right-2 top-1/2 size-6 -translate-y-1/2 cursor-pointer p-0"
+            aria-label="Clear date"
+            onClick={handleClear}
+          >
+            <X className="h-3 w-3" />
+          </UiButton>
+        ) : null}
       </div>
-      {clearable && value ? (
-        <UiButton
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="cursor-pointer"
-          onClick={handleClear}
-        >
-          Clear
-        </UiButton>
-      ) : null}
     </div>
   );
 };

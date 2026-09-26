@@ -1,0 +1,63 @@
+{
+  "designSpec": "An image-led editorial carousel lets three original local artworks carry distinct palettes, with a persistent local reference choice and concise production context.",
+  "template": "<Card size=\"sm\" padding={0} gap={0}>\n  <Col padding={4} gap={1}><Caption value={sampleLabel} /><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" /></Col>\n  <Col padding={{ x: 3, bottom: 4 }} gap={3}>\n    <BaseCarousel visibleItems={1} ariaLabel={carouselLabel}>\n      <Each $of=\"prints\" item=\"print\"><BaseCarousel.MediaItem src={print.src} alt={print.alt} aspectRatio={4 / 5} fit=\"contain\" itemPadding={0}>\n        <Col padding={{ x: 1, bottom: 1 }} gap={2}>\n          <Row gap={2} wrap=\"wrap\"><Text value={print.title} weight=\"semibold\" /><Show $when=\"selected === print.id\"><Badge label={selectedLabel} color=\"accent\" variant=\"soft\" /></Show></Row>\n          <Text value={print.description} size=\"sm\" color=\"secondary\" />\n          <Flow gap={1}><Each $of=\"print.palette\" item=\"swatch\"><Flow.Item><Box width={46} height={8} background={swatch} radius=\"full\" /></Flow.Item></Each></Flow>\n          <Row><Button label={selected === print.id ? chosenLabel : chooseLabel} color=\"accent\" variant={selected === print.id ? \"soft\" : \"outline\"} disabled={selected === print.id} onClickAction={{ updateState: { selected: print.id } }} /></Row>\n        </Col>\n      </BaseCarousel.MediaItem></Each>\n    </BaseCarousel>\n    <Text value={referenceLabel + names[selected]} size=\"sm\" weight=\"medium\" />\n    <Drawer triggerLabel={detailLabel} title={detailTitle} description={detailDescription} content={detailBody} />\n  </Col>\n</Card>",
+  "data": {
+    "sampleLabel": "Original demo artwork · three studies",
+    "title": "Let the image lead",
+    "intro": "Browse three distinct directions and keep one as the reference for this session.",
+    "carouselLabel": "Original print directions",
+    "selected": "orbit",
+    "selectedLabel": "Reference",
+    "chosenLabel": "Current reference",
+    "chooseLabel": "Use as reference",
+    "referenceLabel": "Selected: ",
+    "names": {
+      "orbit": "Orbit study",
+      "field": "Field study",
+      "tide": "Tide study"
+    },
+    "prints": [
+      {
+        "id": "orbit",
+        "title": "Orbit study",
+        "src": "/design-bible/assets/orbit-study.svg",
+        "alt": "Original plum and coral geometric artwork built from overlapping circles.",
+        "description": "Plum and coral circles give the composition an energetic center of gravity.",
+        "palette": [
+          "#492346",
+          "#fa8068",
+          "#f6d1c6"
+        ]
+      },
+      {
+        "id": "field",
+        "title": "Field study",
+        "src": "/design-bible/assets/field-study.svg",
+        "alt": "Original sage and cream botanical geometry with repeating leaf-like forms.",
+        "description": "Sage and cream botanical shapes create a quieter, more organic rhythm.",
+        "palette": [
+          "#456353",
+          "#c9d8ae",
+          "#f4edda"
+        ]
+      },
+      {
+        "id": "tide",
+        "title": "Tide study",
+        "src": "/design-bible/assets/tide-study.svg",
+        "alt": "Original teal and coral artwork with layered wave forms.",
+        "description": "Teal waves and a coral counterpoint make a fluid, expansive direction.",
+        "palette": [
+          "#196973",
+          "#f18c75",
+          "#bee0da"
+        ]
+      }
+    ],
+    "detailLabel": "Artwork details",
+    "detailTitle": "Three original vector studies",
+    "detailDescription": "Each local asset uses a 720 × 900 viewBox.",
+    "detailBody": "These are authored demonstration assets. Choosing a reference changes the selection in this widget; it does not place an order or write a file. The full artwork remains visible without cropping."
+  },
+  "theme": "light"
+}

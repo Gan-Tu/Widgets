@@ -1,0 +1,71 @@
+{
+  "designSpec": "A knowledge workspace combines working breadcrumb navigation, a responsive sidebar, a selected guide, and optional process detail.",
+  "template": "<Basic gap={4}>\n  <Box gap={2}>\n    <Caption value={sampleLabel} />\n    <Row wrap=\"wrap\" gap={1}>\n      <Show $when=\"page !== 'home'\"><Button label={workspace} size=\"sm\" variant=\"ghost\" onClickAction={{ updateState: { page: \"home\" } }} /><Icon name=\"chevron-right\" size=\"xs\" /><Text value={pages[page].title} size=\"sm\" weight=\"semibold\" /><Show.Else><Text value={workspace} size=\"sm\" weight=\"semibold\" /></Show.Else></Show>\n    </Row>\n  </Box>\n  <Grid columns=\"repeat(auto-fit, minmax(min(100%, 220px), 1fr))\" gap={4}>\n    <SidebarNav workspace={workspace} workspaceIcon=\"notebook\" sections={[{ label: navLabel, items: navItems.map((item) => ({ id: item.id, label: item.label, icon: item.icon, active: page === item.id })) }]}\n      $onNavigateAction='{ updateState: { page: id } }' />\n    <Col gap={3} minWidth={0}>\n      <Title value={pages[page].title} size=\"md\" />\n      <Text value={pages[page].summary} size=\"sm\" />\n      <Markdown value={pages[page].body} />\n      <Show $when=\"page === 'fold'\"><Timeline items={foldSteps} /></Show>\n      <Show $when=\"page === 'bind'\"><CodeBlock code={bindingNote} language=\"text\" file={bindingFile} showLineNumbers={false} /></Show>\n      <Sheet triggerLabel={helpLabel} title={helpTitle} description={helpDescription} content={helpBody} />\n    </Col>\n  </Grid>\n</Basic>",
+  "data": {
+    "sampleLabel": "Sample studio library",
+    "workspace": "Paper field guide",
+    "page": "fold",
+    "navLabel": "Guides",
+    "navItems": [
+      {
+        "id": "home",
+        "label": "Start here",
+        "icon": "home"
+      },
+      {
+        "id": "fold",
+        "label": "Make a dummy",
+        "icon": "layers"
+      },
+      {
+        "id": "bind",
+        "label": "Record a binding",
+        "icon": "book-open"
+      }
+    ],
+    "pages": {
+      "home": {
+        "title": "Small books start on paper",
+        "summary": "Use a blank folded copy to decide page order before styling a finished layout.",
+        "body": "Choose **Make a dummy** for the sequence, or **Record a binding** for a copyable studio note."
+      },
+      "fold": {
+        "title": "Make a paper dummy",
+        "summary": "A rough folded copy reveals page order and the center spread before the artwork goes in.",
+        "body": "Keep it intentionally plain. Number the pages in reading order, then unfold the sheet to inspect the arrangement."
+      },
+      "bind": {
+        "title": "Record the construction",
+        "summary": "A short note makes the next sample reproducible.",
+        "body": "Record what you actually used. The example below is a **fictional studio sample**, not a print specification for a real job."
+      }
+    },
+    "foldSteps": [
+      {
+        "title": "Fold a blank sheet",
+        "description": "Match the intended reading format.",
+        "time": "1",
+        "icon": "layers"
+      },
+      {
+        "title": "Number in reading order",
+        "description": "Include the front and back covers.",
+        "time": "2",
+        "icon": "write"
+      },
+      {
+        "title": "Unfold and inspect",
+        "description": "Compare the two sides before laying out pages.",
+        "time": "3",
+        "icon": "eye"
+      }
+    ],
+    "bindingNote": "Sample A\n8 pages · folded sheet\nCover: warm white\nCheck: page order before artwork",
+    "bindingFile": "studio-note.txt",
+    "helpLabel": "About this guide",
+    "helpTitle": "A guide that stays small",
+    "helpDescription": "Three local pages, one useful sequence.",
+    "helpBody": "The sidebar changes the selected page. The breadcrumb returns to the start. Notes remain available to copy, and this panel contains optional context rather than the main instruction."
+  },
+  "theme": "light"
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import { Popover, PopoverAnchor, PopoverContent } from "../../components/ui/popover";
 
 import { buildChangePayload, useWidgetForm, useWidgetTheme, useWidgetAction } from "../context";
 import { useActionInvoker } from "../hooks";
@@ -1293,29 +1294,60 @@ const PromptBar: React.FC<PromptBarProps> = ({
 }) => {
   const invoke = useActionInvoker();
   const [open, setOpen] = React.useState(false);
+  const sourceMenuId = React.useId();
+  const barRef = React.useRef<HTMLDivElement>(null);
+  const activeTrigger = React.useRef<HTMLButtonElement | null>(null);
+  const sourceTrigger = React.useRef<HTMLButtonElement>(null);
+  const canChooseSources = sources.length > 0 && Boolean(sourceAction);
+  const toggleSources = (event: React.MouseEvent<HTMLButtonElement>) => {
+    activeTrigger.current = event.currentTarget;
+    setOpen((value) => !value);
+  };
   return (
-    <div className="wg-prompt-bar" data-widget-surface="panel" data-variant={variant}>
-      {open && sources.length > 0 ? (
-        <div className="wg-prompt-sources">
-          {sources.map((source) => (
-            <button type="button" onClick={() => invoke(sourceAction, buildChangePayload("source", source.id))} key={source.id}>
-              <Icon name={source.icon ?? "database"} size="sm" color="tertiary" />
-              <span><strong>{source.label}</strong>{source.description ? <small>{source.description}</small> : null}</span>
-              {source.connected ? <em>Connected</em> : null}
-            </button>
-          ))}
-        </div>
-      ) : null}
+    <Popover open={open} onOpenChange={setOpen}>
+    <PopoverAnchor asChild>
+    <div ref={barRef} className="wg-prompt-bar" data-widget-surface="panel" data-variant={variant}>
       {selectedSources.length > 0 ? (
-        <div className="wg-prompt-selected">{selectedSources.map((source) => <span key={source}>@{source}</span>)}</div>
+        <div className="wg-prompt-selected">{selectedSources.map((id) => {
+          const label = sources.find((source) => source.id === id)?.label ?? id;
+          return canChooseSources ? (
+            <button key={id} type="button" data-prompt-source-trigger="" onClick={toggleSources} aria-label={`Change source: ${label}`}
+              aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? sourceMenuId : undefined}>@{label}</button>
+          ) : <span key={id}>@{label}</span>;
+        })}</div>
       ) : null}
       <div className="wg-prompt-input-wrap">
-        <button type="button" className="wg-prompt-source-trigger" onClick={() => setOpen((value) => !value)} aria-label="Choose sources">
+        <button ref={sourceTrigger} type="button" data-prompt-source-trigger="" className="wg-prompt-source-trigger" onClick={toggleSources}
+          disabled={!canChooseSources} aria-label="Choose sources" aria-haspopup="dialog" aria-expanded={open}
+          aria-controls={open ? sourceMenuId : undefined}>
           <Icon name="plus" size="sm" color="currentColor" />
         </button>
         <AgentInput {...inputProps} rows={rows} />
       </div>
     </div>
+    </PopoverAnchor>
+    {canChooseSources ? (
+      <PopoverContent id={sourceMenuId} className="wg-prompt-sources" side="top" align="start" aria-label="Sources"
+        style={{ width: "min(320px, calc(100vw - 32px))" }}
+        onInteractOutside={(event) => {
+          const target = event.target;
+          if (target instanceof Element && target.closest("[data-prompt-source-trigger]") && barRef.current?.contains(target)) event.preventDefault();
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          (activeTrigger.current?.isConnected ? activeTrigger.current : sourceTrigger.current)?.focus();
+        }}>
+        {sources.map((source) => (
+          <button type="button" aria-pressed={selectedSources.includes(source.id)}
+            onClick={() => { invoke(sourceAction, buildChangePayload("source", source.id)); setOpen(false); }} key={source.id}>
+            <Icon name={source.icon ?? "database"} size="sm" color="tertiary" />
+            <span><strong>{source.label}</strong>{source.description ? <small>{source.description}</small> : null}</span>
+            {source.connected ? <em>Connected</em> : null}
+          </button>
+        ))}
+      </PopoverContent>
+    ) : null}
+    </Popover>
   );
 };
 

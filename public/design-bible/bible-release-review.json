@@ -1,0 +1,91 @@
+{
+  "designSpec": "A release-review surface separates changed lines, the resulting configuration, and a local review decision without implying deployment.",
+  "template": "<Card size=\"md\" gap={4}>\n  <Box gap={2}>\n    <Row gap={2}><Icon name=\"code\" /><Caption value={sampleLabel} /></Row>\n    <Title value={title} size=\"sm\" /><Text value={takeaway} size=\"sm\" />\n  </Box>\n  <Tabs tabs={tabs}>\n    <Tabs.Panel id=\"changes\"><FileDiff file={file} rows={diffRows} language=\"json\" compact /></Tabs.Panel>\n    <Tabs.Panel id=\"result\"><CodeBlock file={file} code={code} language=\"json\" /></Tabs.Panel>\n    <Tabs.Panel id=\"checks\"><TaskList title={checksTitle} items={checks} defaultOpen /></Tabs.Panel>\n  </Tabs>\n  <Show $when=\"decision === ''\">\n    <ApprovalCard title={approvalTitle} description={approvalNote} options={choices} allowOther={false} defaultValue=\"approve\"\n      approveLabel={recordLabel} $approveAction='{ updateState: { decision: value } }' />\n    <Show.Else><Col gap={3}>\n      <Callout color={decision === \"approve\" ? \"info\" : \"warning\"} title={decision === \"approve\" ? approvedTitle : reviseTitle} description={decisionNote} />\n      <Row><Button label={resetLabel} variant=\"outline\" onClickAction={{ updateState: { decision: \"\" } }} /></Row>\n    </Col></Show.Else>\n  </Show>\n</Card>",
+  "data": {
+    "sampleLabel": "Sample patch · local review",
+    "title": "Say what the button does",
+    "takeaway": "Replace “Submit” with “Copy summary” so the label describes the existing clipboard action.",
+    "tabs": [
+      {
+        "id": "changes",
+        "label": "Changes"
+      },
+      {
+        "id": "result",
+        "label": "Result"
+      },
+      {
+        "id": "checks",
+        "label": "Checks"
+      }
+    ],
+    "file": "sample-action.json",
+    "diffRows": [
+      {
+        "oldLine": 1,
+        "newLine": 1,
+        "type": "context",
+        "text": "{"
+      },
+      {
+        "oldLine": 2,
+        "type": "remove",
+        "text": "  \"label\": \"Submit\","
+      },
+      {
+        "newLine": 2,
+        "type": "add",
+        "text": "  \"label\": \"Copy summary\","
+      },
+      {
+        "oldLine": 3,
+        "newLine": 3,
+        "type": "context",
+        "text": "  \"type\": \"copy\""
+      },
+      {
+        "oldLine": 4,
+        "newLine": 4,
+        "type": "context",
+        "text": "}"
+      }
+    ],
+    "code": "{\n  \"label\": \"Copy summary\",\n  \"type\": \"copy\"\n}",
+    "checksTitle": "Sample review notes",
+    "checks": [
+      {
+        "id": "verb",
+        "label": "Specific verb",
+        "detail": "Copy names the local operation",
+        "status": "completed"
+      },
+      {
+        "id": "scope",
+        "label": "No execution claim",
+        "detail": "The wording does not imply a send",
+        "status": "completed"
+      }
+    ],
+    "approvalTitle": "Record your review",
+    "approvalNote": "This changes only the decision shown here.",
+    "choices": [
+      {
+        "label": "Wording is clear",
+        "value": "approve",
+        "description": "Keep the proposed label"
+      },
+      {
+        "label": "Needs another pass",
+        "value": "revise",
+        "description": "Leave the sample under review"
+      }
+    ],
+    "recordLabel": "Record choice",
+    "decision": "",
+    "approvedTitle": "Wording accepted locally",
+    "reviseTitle": "Another pass requested",
+    "decisionNote": "The sample file has not been written, committed, or deployed.",
+    "resetLabel": "Revisit decision"
+  },
+  "theme": "light"
+}

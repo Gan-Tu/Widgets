@@ -1,0 +1,69 @@
+{
+  "designSpec": "An original vector print, with the artwork first and a working two-palette switch.",
+  "template": "<Basic gap={3}>\n  <Box background={paperColor} radius=\"lg\" padding={5} align=\"center\">\n    <Svg title={description} viewBox=\"0 0 240 240\" size={230} paths={palette === \"clay\" ? clayPaths : inkPaths} />\n  </Box>\n  <Col gap={1}><Caption value={demoNote} /><Title value={title} size=\"sm\" /><Text value={description} size=\"sm\" color=\"secondary\" /></Col>\n  <SegmentedControl name=\"palette\" ariaLabel={paletteLabel} value={palette} options={palettes} size=\"lg\"\n    $onChangeAction='{ updateState: { palette: value } }' />\n  <Caption value={palette === \"clay\" ? clayDescription : inkDescription} />\n</Basic>",
+  "data": {
+    "paperColor": "#f4efe5",
+    "demoNote": "Original demo artwork · vector study 01",
+    "title": "Tidal forms",
+    "description": "Two offset circles meet a broad wave on warm paper. The visual is the deliverable; there is no hidden meaning or measured data.",
+    "paletteLabel": "Artwork palette",
+    "palette": "clay",
+    "palettes": [
+      {
+        "label": "Clay",
+        "value": "clay"
+      },
+      {
+        "label": "Ink",
+        "value": "ink"
+      }
+    ],
+    "clayDescription": "Clay palette: terracotta sun, cream crescent, deep blue wave.",
+    "inkDescription": "Ink palette: charcoal sun, paper crescent, muted gray wave.",
+    "clayPaths": [
+      {
+        "d": "M160 79a57 57 0 1 1-114 0a57 57 0 1 1 114 0",
+        "fill": "#b95137",
+        "stroke": "none"
+      },
+      {
+        "d": "M193 62a51 51 0 1 1-102 0a51 51 0 1 1 102 0",
+        "fill": "#f4efe5",
+        "stroke": "none"
+      },
+      {
+        "d": "M20 147C64 114 91 125 128 151C160 174 193 158 220 132L220 220L20 220Z",
+        "fill": "#263d4d",
+        "stroke": "none"
+      },
+      {
+        "d": "M20 184C58 158 88 162 128 184C161 203 197 186 220 167L220 188C193 208 160 220 125 202C84 181 58 181 20 204Z",
+        "fill": "#f4efe5",
+        "stroke": "none"
+      }
+    ],
+    "inkPaths": [
+      {
+        "d": "M160 79a57 57 0 1 1-114 0a57 57 0 1 1 114 0",
+        "fill": "#30312e",
+        "stroke": "none"
+      },
+      {
+        "d": "M193 62a51 51 0 1 1-102 0a51 51 0 1 1 102 0",
+        "fill": "#f4efe5",
+        "stroke": "none"
+      },
+      {
+        "d": "M20 147C64 114 91 125 128 151C160 174 193 158 220 132L220 220L20 220Z",
+        "fill": "#74776e",
+        "stroke": "none"
+      },
+      {
+        "d": "M20 184C58 158 88 162 128 184C161 203 197 186 220 167L220 188C193 208 160 220 125 202C84 181 58 181 20 204Z",
+        "fill": "#f4efe5",
+        "stroke": "none"
+      }
+    ]
+  },
+  "theme": "light"
+}

@@ -2,7 +2,7 @@
 // Run with: node --experimental-strip-types scripts/build-widget-examples-doc.mjs
 // tests/widget-examples-doc.test.mjs fails when the file is stale.
 import { realpathSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -34,6 +34,11 @@ function appendExample(lines, example) {
   const meta = [`id: \`${example.id}\``];
   if (example.theme === "dark") meta.push("theme: `dark`");
   lines.push(`${example.description} (${meta.join(" · ")})`);
+  if (example.category === "Editorial") {
+    const names = [...new Set([...example.template.matchAll(/<([A-Z][A-Za-z0-9.]*)\b/g)].map((match) => match[1]))];
+    lines.push("");
+    lines.push(`Components in context: ${names.map((name) => `\`${name}\``).join(", ")}.`);
+  }
   lines.push("");
   const dataJson = JSON.stringify(example.data, null, 2);
   const templateFence = fenceFor(example.template);
@@ -70,6 +75,20 @@ function appendAuthoringNotes(lines) {
       " Keep tooltip text neutral. Check the result at compact widths, in both" +
       " themes, and with keyboard interaction; examples are starting points," +
       " not a reason to add more panels or actions than the task needs."
+  );
+  lines.push("");
+  lines.push(
+    "Use the [complete component design playbook](AGENTS.md#choose-from-the-full-component-library)" +
+      " to match components to their jobs. Tabs, navigation," +
+      " media, and agent activity are welcome when they clarify a richer workflow." +
+      " The Editorial collection deliberately varies information shape," +
+      " and interaction. Scripted replays are local demonstrations, not live model or tool calls."
+  );
+  lines.push("");
+  lines.push(
+    "Examples using `/design-bible/assets/` require those supplied assets on the host." +
+      " When adapting a template elsewhere, serve the assets or replace them with" +
+      " verified URLs; copying a root-relative URL alone does not copy the asset."
   );
 }
 
@@ -149,9 +168,19 @@ const isMain = (() => {
 })();
 
 if (isMain) {
+  const designBibleDirectory = path.join(repoRoot, "public", "design-bible");
+  await mkdir(designBibleDirectory, { recursive: true });
   await Promise.all([
     writeFile(OUTPUT_PATH, buildWidgetExamplesMarkdown()),
-    writeFile(FEATURED_OUTPUT_PATH, buildFeaturedWidgetExamplesMarkdown())
+    writeFile(FEATURED_OUTPUT_PATH, buildFeaturedWidgetExamplesMarkdown()),
+    ...widgetExamples.filter((example) => example.category === "Editorial").map((example) =>
+      writeFile(path.join(designBibleDirectory, `${example.id}.json`), JSON.stringify({
+        designSpec: example.description,
+        template: example.template,
+        data: example.data,
+        theme: example.theme ?? "light"
+      }, null, 2) + "\n")
+    )
   ]);
   console.log(`Wrote ${OUTPUT_PATH}`);
   console.log(`Wrote ${FEATURED_OUTPUT_PATH}`);

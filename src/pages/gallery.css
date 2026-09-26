@@ -26,8 +26,10 @@
 .gallery-item { min-width: 0; }
 .gallery-item--wide { grid-column: span 2; }
 .gallery-card { min-width: 0; border: 1px solid var(--section-border); border-radius: 12px; background: #ffffff; }
-.gallery-canvas { display: flex; justify-content: center; align-items: center; min-height: 340px; min-width: 0; padding: 22px; border-radius: 11px 11px 0 0; background: var(--plinth); border-bottom: 1px solid var(--section-border); overflow-x: auto; }
+.gallery-canvas { display: flex; justify-content: center; align-items: flex-start; min-height: 340px; min-width: 0; padding: 22px; border-radius: 11px 11px 0 0; background: var(--plinth); border-bottom: 1px solid var(--section-border); overflow-x: auto; overflow-y: auto; scrollbar-gutter: stable; }
 .gallery-canvas > * { min-width: 0; }
+.gallery-preview-content { display: flex; justify-content: center; width: 100%; min-width: 0; }
+.gallery-preview-content > * { min-width: 0; }
 .gallery-canvas--dark { background: #08080a; }
 .gallery-caption { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 17px 20px 19px; background: #ffffff; border-radius: 0 0 11px 11px; }
 .gallery-caption h2 { font-size: 15px; line-height: 1.5; letter-spacing: -0.015em; font-weight: 600; color: var(--ink); }

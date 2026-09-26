@@ -1,0 +1,103 @@
+{
+  "designSpec": "An analytics study uses distinct, same-unit trend, capacity, mix, and exact-record views to explain four sample sessions without chart duplication.",
+  "template": "<Card size=\"md\" gap={4}>\n  <Box gap={3}>\n    <Caption value={sampleLabel} /><Title value={title} size=\"sm\" />\n    <Row gap={5} wrap=\"wrap\"><Stat label={totalLabel} value={totalValue} size=\"md\" /><Stat label={fillLabel} value={fillValue} size=\"md\" /></Row>\n    <Text value={takeaway} size=\"sm\" />\n  </Box>\n  <Tabs tabs={tabs}>\n    <Tabs.Panel id=\"trend\"><Col gap={2}><Caption value={trendLabel} /><AreaChart data={sessions} xAxis={{ dataKey: \"week\" }} series={[{ dataKey: \"attended\", label: \"Attended\", curveType: \"linear\" }]} height={185} showYAxis showLegend={false} /></Col></Tabs.Panel>\n    <Tabs.Panel id=\"capacity\"><Col gap={2}><Caption value={capacityLabel} /><Chart data={sessions} xAxis={{ dataKey: \"week\" }} series={[{ type: \"bar\", dataKey: \"seats\", label: \"Seats\" }, { type: \"line\", dataKey: \"attended\", label: \"Attended\", curveType: \"linear\" }]} height={185} showYAxis /></Col></Tabs.Panel>\n    <Tabs.Panel id=\"mix\"><Col gap={2}><Caption value={mixLabel} /><PieChart data={mix} series={[{ dataKey: \"count\", nameKey: \"name\", innerRadius: 42 }]} height={155} showLegend={false} /><KeyValue rows={mixValues} /></Col></Tabs.Panel>\n    <Tabs.Panel id=\"data\"><RecordsTable columns={columns} rows={sessions} defaultSortKey=\"week\" caption={recordNote} /></Tabs.Panel>\n  </Tabs>\n  <Text value={scopeNote} size=\"sm\" color=\"secondary\" />\n</Card>",
+  "data": {
+    "sampleLabel": "Sample register · W1–W4",
+    "title": "More of the room is filling",
+    "totalLabel": "Attendance entries",
+    "totalValue": "112",
+    "fillLabel": "Seats filled",
+    "fillValue": "70%",
+    "takeaway": "Attendance rose in each session. Across four equally sized sessions, 112 of 160 seats were filled.",
+    "tabs": [
+      {
+        "id": "trend",
+        "label": "Trend"
+      },
+      {
+        "id": "capacity",
+        "label": "Capacity"
+      },
+      {
+        "id": "mix",
+        "label": "Mix"
+      },
+      {
+        "id": "data",
+        "label": "Data"
+      }
+    ],
+    "sessions": [
+      {
+        "week": "W1",
+        "attended": 22,
+        "seats": 40
+      },
+      {
+        "week": "W2",
+        "attended": 26,
+        "seats": 40
+      },
+      {
+        "week": "W3",
+        "attended": 30,
+        "seats": 40
+      },
+      {
+        "week": "W4",
+        "attended": 34,
+        "seats": 40
+      }
+    ],
+    "trendLabel": "Attendance entries per weekly session",
+    "capacityLabel": "Available seats and attendance · same count scale",
+    "mixLabel": "Where the 112 entries came from",
+    "mix": [
+      {
+        "name": "Members",
+        "count": 56
+      },
+      {
+        "name": "Guests",
+        "count": 34
+      },
+      {
+        "name": "Walk-ins",
+        "count": 22
+      }
+    ],
+    "mixValues": [
+      {
+        "label": "Members",
+        "value": "56"
+      },
+      {
+        "label": "Guests",
+        "value": "34"
+      },
+      {
+        "label": "Walk-ins",
+        "value": "22"
+      }
+    ],
+    "columns": [
+      {
+        "key": "week",
+        "label": "Week"
+      },
+      {
+        "key": "attended",
+        "label": "Attended",
+        "align": "end"
+      },
+      {
+        "key": "seats",
+        "label": "Seats",
+        "align": "end"
+      }
+    ],
+    "recordNote": "Four complete sample sessions. Select a column heading to sort.",
+    "scopeNote": "Synthetic attendance entries, not unique people. This pattern does not establish why attendance increased."
+  },
+  "theme": "light"
+}

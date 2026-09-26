@@ -1,0 +1,69 @@
+{
+  "designSpec": "A bilingual local search with a useful no-results state and a working clear action.",
+  "template": "<Response gap={3} padding={1}>\n  <Col gap={1}><Caption value={demoNote} /><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" /></Col>\n  <Search key={searchVersion} name=\"shelfSearch\" placeholder={placeholder} defaultQuery={query} items={items} emptyText={emptyText}\n    $onChangeAction='{ updateState: { query: value } }' />\n  <Show $when=\"has(query)\"><Row><Button label={clearLabel} variant=\"outline\" size=\"2xl\"\n    $onClickAction='{ updateState: { query: \"\", searchVersion: searchVersion + 1 } }' /></Row></Show>\n  <Show $when=\"has(selected)\">\n    <Box padding={4} background=\"surface-secondary\" radius=\"md\" gap={2}>\n      <Text value={read(details, selected + '.title', '')} size=\"sm\" weight=\"semibold\" />\n      <Text value={read(details, selected + '.body', '')} size=\"sm\" />\n      <Caption value={selectionNote} />\n    </Box>\n  </Show>\n</Response>",
+  "data": {
+    "demoNote": "Fictional studio shelf · three local sample records",
+    "title": "Find a small idea",
+    "intro": "Search titles or topics, then open a short reading note. Try “maps” or “装订”.",
+    "placeholder": "Search this sample shelf",
+    "emptyText": "No sample titles match. Try maps, type, or 装订, or clear the search.",
+    "clearLabel": "Clear search",
+    "query": "",
+    "searchVersion": 0,
+    "selected": "",
+    "selectionNote": "Local reading note · no external file opened",
+    "items": [
+      {
+        "id": "maps",
+        "label": "Drawing a place",
+        "description": "Maps · 地图",
+        "keywords": "cartography maps 地图 空间",
+        "icon": "maps",
+        "action": {
+          "updateState": {
+            "selected": "maps"
+          }
+        }
+      },
+      {
+        "id": "binding",
+        "label": "The folded book",
+        "description": "Binding · 装订",
+        "keywords": "paper zine binding 装订 折页",
+        "icon": "book-open",
+        "action": {
+          "updateState": {
+            "selected": "binding"
+          }
+        }
+      },
+      {
+        "id": "type",
+        "label": "Space between letters",
+        "description": "Typography · 字体",
+        "keywords": "type typography spacing 字体 排版",
+        "icon": "square-text",
+        "action": {
+          "updateState": {
+            "selected": "type"
+          }
+        }
+      }
+    ],
+    "details": {
+      "maps": {
+        "title": "Drawing a place",
+        "body": "A sample note about choosing landmarks that help a reader orient themselves. Omit detail that does not help the route."
+      },
+      "binding": {
+        "title": "The folded book",
+        "body": "A sample note about using a folded paper dummy to check page order before laying out a small publication."
+      },
+      "type": {
+        "title": "Space between letters",
+        "body": "A sample note about comparing text at its intended size, with attention to word spacing and line length."
+      }
+    }
+  },
+  "theme": "light"
+}

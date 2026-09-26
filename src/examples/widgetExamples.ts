@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { designBibleExamples } from "./designBibleExamples.ts";
+import { designBibleRichExamples } from "./designBibleRichExamples.ts";
 
 /**
  * Gallery demo widgets.
@@ -11,6 +13,7 @@ import { z } from "zod";
 
 export type WidgetCategory =
   | "Featured"
+  | "Editorial"
   | "Agent UI"
   | "Commerce"
   | "Travel"
@@ -23,6 +26,7 @@ export type WidgetCategory =
 
 export const widgetCategories: WidgetCategory[] = [
   "Featured",
+  "Editorial",
   "Agent UI",
   "Commerce",
   "Travel",
@@ -817,6 +821,8 @@ export const widgetExamples: {
   data: unknown;
   theme?: "light" | "dark";
 }[] = [
+  ...designBibleRichExamples,
+  ...designBibleExamples,
   /* ------------------------- Showcase leads ------------------------- */
   {
     id: "analytics-overview",

@@ -1,0 +1,49 @@
+{
+  "designSpec": "A compact, same-field equipment comparison with a locally adjustable priority.",
+  "template": "<Basic gap={4} padding={1}>\n  <Col gap={1}>\n    <Caption value={demoNote} />\n    <Title value={title} size=\"sm\" />\n  </Col>\n  <SegmentedControl name=\"priority\" ariaLabel={priorityLabel} options={priorities} value={priority} block size=\"lg\"\n    $onChangeAction='{ updateState: { priority: value } }' />\n  <Text value={priority === \"carry\" ? carryTakeaway : deskTakeaway} size=\"sm\" weight=\"medium\" />\n  <Table columnSizing=\"equal\">\n    <Table.Row header><Table.Cell header><Text value={fieldLabel} size=\"sm\" /></Table.Cell><Table.Cell header align=\"end\"><Text value={pocketName} size=\"sm\" /></Table.Cell><Table.Cell header align=\"end\"><Text value={deskName} size=\"sm\" /></Table.Cell></Table.Row>\n    <Each $of=\"rows\" item=\"row\">\n      <Table.Row><Table.Cell><Text value={row.label} size=\"sm\" /></Table.Cell><Table.Cell align=\"end\"><Text value={row.pocket} size=\"sm\" /></Table.Cell><Table.Cell align=\"end\"><Text value={row.desk} size=\"sm\" /></Table.Cell></Table.Row>\n    </Each>\n  </Table>\n  <Text value={limitation} size=\"sm\" color=\"secondary\" />\n</Basic>",
+  "data": {
+    "demoNote": "Fictional recorders · illustrative specifications",
+    "title": "Choose for how you record",
+    "priorityLabel": "Recording priority",
+    "priorities": [
+      {
+        "label": "Travel light",
+        "value": "carry"
+      },
+      {
+        "label": "Desk setup",
+        "value": "desk"
+      }
+    ],
+    "priority": "carry",
+    "carryTakeaway": "Pocket weighs 270 g less and includes microphones. It fits a minimal travel kit.",
+    "deskTakeaway": "Desk provides four inputs and USB power. It fits a fixed setup with external microphones.",
+    "fieldLabel": "Feature",
+    "pocketName": "Pocket",
+    "deskName": "Desk",
+    "rows": [
+      {
+        "label": "Mass",
+        "pocket": "240 g",
+        "desk": "510 g"
+      },
+      {
+        "label": "Inputs",
+        "pocket": "2",
+        "desk": "4"
+      },
+      {
+        "label": "Built-in mic",
+        "pocket": "Yes",
+        "desk": "No"
+      },
+      {
+        "label": "Power",
+        "pocket": "2 × AA",
+        "desk": "USB-C"
+      }
+    ],
+    "limitation": "These invented specifications demonstrate a comparison. Sound quality and real product availability are not evaluated."
+  },
+  "theme": "light"
+}

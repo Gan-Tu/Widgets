@@ -1,0 +1,39 @@
+{
+  "designSpec": "A practical four-step checklist that tracks only what the reader marks locally.",
+  "template": "<ListView limit={8}>\n  <ListViewItem><Col gap={2}><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" /><Caption value={demoNote} /></Col></ListViewItem>\n  <Each $of=\"items\" item=\"item\" index=\"i\">\n    <ListViewItem>\n      <Col flex={1} minWidth={0} gap={2} padding={{ y: 1 }}>\n        <Checkbox name={item.id} label={item.title} defaultChecked={item.done}\n          $onChangeAction='{ patchState: set(\"items.\" + String(i) + \".done\", value) }' />\n        <Box padding={{ left: 6 }}><Text value={item.detail} size=\"sm\" color=\"secondary\" /></Box>\n      </Col>\n    </ListViewItem>\n  </Each>\n  <ListViewItem><Col gap={2} flex={1}>\n    <Row justify=\"between\" gap={2}><Caption value={progressLabel} /><Text value={String(Number(items[0].done) + Number(items[1].done) + Number(items[2].done) + Number(items[3].done)) + countSuffix} size=\"sm\" weight=\"medium\" /></Row>\n    <Caption value={localNote} />\n  </Col></ListViewItem>\n</ListView>",
+  "data": {
+    "title": "First-print checklist",
+    "intro": "Inspect one proof copy before committing to the full zine run.",
+    "demoNote": "Illustrative studio procedure",
+    "progressLabel": "Review progress",
+    "countSuffix": " of 4 checked",
+    "localNote": "Your checks stay in this widget.",
+    "items": [
+      {
+        "id": "order",
+        "title": "Read in folded order",
+        "detail": "Confirm the cover, center spread, and last page land where intended.",
+        "done": false
+      },
+      {
+        "id": "edges",
+        "title": "Inspect the edges",
+        "detail": "Look for clipped page numbers, captions, and artwork on the proof.",
+        "done": false
+      },
+      {
+        "id": "type",
+        "title": "Read the smallest text",
+        "detail": "Check credits and captions at the actual printed size.",
+        "done": false
+      },
+      {
+        "id": "proof",
+        "title": "Keep the marked proof",
+        "detail": "Record any corrections before making the next version.",
+        "done": false
+      }
+    ]
+  },
+  "theme": "light"
+}

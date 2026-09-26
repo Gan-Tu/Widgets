@@ -1300,16 +1300,19 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-prompt-source-trigger:hover { border-color: var(--widget-border-default); color: var(--widget-text-primary); }
 .wg-prompt-input-wrap > .wg-agent-input { border: 0; background: transparent; box-shadow: none; }
 .wg-prompt-input-wrap .wg-agent-input textarea { min-height: 34px; padding-top: 0.5rem; }
-.wg-prompt-sources { position: absolute; z-index: 5; left: 0; right: 0; bottom: calc(100% + 0.45rem); display: flex; max-height: 240px; overflow-y: auto; flex-direction: column; gap: 0.1rem; border: 1px solid var(--widget-border-default); border-radius: 12px; background: var(--widget-surface-elevated); box-shadow: var(--widget-shadow-lg); padding: 0.35rem; }
+.wg-prompt-sources { display: flex; max-height: min(240px, var(--radix-popover-content-available-height)); overflow-y: auto; flex-direction: column; gap: 0.1rem; border: 1px solid var(--widget-border-default); border-radius: 12px; background: var(--widget-surface-elevated); box-shadow: var(--widget-shadow-lg); padding: 0.35rem; }
 .wg-prompt-sources button { display: grid; min-height: 42px; align-items: center; gap: 0.55rem; border: 0; border-radius: 9px; background: transparent; color: var(--widget-text-secondary); padding: 0.4rem 0.45rem; text-align: left; grid-template-columns: 18px minmax(0, 1fr) auto; }
 .wg-prompt-sources button:hover { background: var(--widget-surface-hover); }
+.wg-prompt-sources button[aria-pressed="true"] { background: var(--widget-surface-secondary); }
 .wg-prompt-sources button > span { display: flex; min-width: 0; flex-direction: column; }
 .wg-prompt-sources strong { color: var(--widget-text-primary); font-size: 0.75rem; font-weight: 550; }
 .wg-prompt-sources small { color: var(--widget-text-tertiary); font-size: 0.6875rem; }
 .wg-prompt-sources em { display: inline-flex; align-items: center; gap: 0.28rem; color: var(--widget-success-soft-fg); font-size: 0.6875rem; font-style: normal; font-weight: 550; }
 .wg-prompt-sources em::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: var(--widget-success); }
 .wg-prompt-selected { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.25rem 0.35rem 0.4rem; }
-.wg-prompt-selected span { border-radius: 999px; background: var(--widget-accent-soft); color: var(--widget-accent); padding: 0.2rem 0.45rem; font-size: 0.6875rem; font-weight: 600; }
+.wg-prompt-selected :is(span, button) { border: 0; border-radius: 999px; background: var(--widget-accent-soft); color: var(--widget-accent); padding: 0.2rem 0.45rem; font-size: 0.6875rem; font-weight: 600; }
+.wg-prompt-selected button, .wg-prompt-sources button { cursor: pointer; }
+.wg-prompt-source-trigger:disabled { cursor: default; opacity: 0.5; }
 
 .wg-recommendation-copy { padding: 0.9rem 0.9rem 0.7rem; }
 .wg-recommendation-copy strong { color: var(--widget-text-emphasis); font-size: 0.84rem; font-weight: 600; }
