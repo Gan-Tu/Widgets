@@ -16,9 +16,9 @@
   --widget-danger-soft-fg: #731323;
   --widget-info-soft-fg: #084186;
   --widget-discovery-soft-fg: #4d2284;
-  --widget-surface: rgb(255 255 255 / 12%);
-  --widget-surface-elevated: rgb(255 255 255 / 16%);
-  --widget-surface-elevated-secondary: rgb(255 255 255 / 12%);
+  --widget-surface: rgb(255 255 255 / 72%);
+  --widget-surface-elevated: rgb(255 255 255 / 82%);
+  --widget-surface-elevated-secondary: rgb(255 255 255 / 76%);
   --widget-surface-secondary: rgb(0 0 0 / 4%);
   --widget-surface-tertiary: rgb(0 0 0 / 7.5%);
   --widget-surface-hover: rgb(0 0 0 / 5%);
@@ -42,7 +42,7 @@
   --widget-shadow-lg: var(--widget-shadow-sm);
   /* Neutral material: white panes with a specular rim and sheen, ink for prominence.
      Each element draws one edge: panes their rim, controls a single hairline. */
-  --widget-glass-pane: rgb(255 255 255 / 56%);
+  --widget-glass-pane: rgb(255 255 255 / 72%);
   --widget-glass-popup: rgb(255 255 255 / 80%);
   --widget-glass-wash: rgb(255 255 255 / 42%);
   --widget-glass-field: rgb(0 0 0 / 3.5%);
@@ -66,7 +66,7 @@
   --widget-glass-thumb: #ffffff;
   --widget-glass-thumb-shadow: 0 1px 2px rgb(0 0 0 / 14%), 0 3px 8px -2px rgb(0 0 0 / 12%);
   --widget-glass-blur: blur(20px) saturate(1.8);
-  --widget-glass-lens-blur: blur(6px) saturate(1.8);
+  --widget-glass-lens-blur: blur(12px) saturate(1.8);
   --widget-glass-bevel: inset 2px 3px 5px -1px rgb(255 255 255 / 75%), inset -2px -3px 6px -2px rgb(0 0 0 / 10%);
   --widget-glass-rim: conic-gradient(from 315deg, rgb(255 255 255 / 95%) 0deg, rgb(255 255 255 / 15%) 55deg, rgb(255 255 255 / 10%) 125deg, rgb(255 255 255 / 70%) 180deg, rgb(255 255 255 / 12%) 235deg, rgb(255 255 255 / 10%) 305deg, rgb(255 255 255 / 95%) 360deg);
   --widget-glass-control-fill: rgb(255 255 255 / 58%);
@@ -76,7 +76,7 @@
   --widget-glass-control-press: rgb(255 255 255 / 88%);
   --widget-glass-selection: var(--widget-glass-segment);
   --widget-glass-selection-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 4px 12px -6px rgb(0 0 0 / 16%);
-  --widget-glass-panel: rgb(255 255 255 / 48%);
+  --widget-glass-panel: rgb(255 255 255 / 66%);
   --widget-glass-panel-wash: rgb(255 255 255 / 36%);
   --widget-glass-panel-shadow: 0 1px 2px rgb(0 0 0 / 4%), 0 18px 40px -24px rgb(0 0 0 / 28%);
   --widget-glass-sticky-header: rgb(255 255 255 / 72%);
@@ -98,9 +98,9 @@
   --widget-danger-soft-fg: #ffd5dc;
   --widget-info-soft-fg: #d4e8ff;
   --widget-discovery-soft-fg: #e6dcff;
-  --widget-surface: rgb(255 255 255 / 5%);
-  --widget-surface-elevated: rgb(255 255 255 / 7%);
-  --widget-surface-elevated-secondary: rgb(255 255 255 / 6%);
+  --widget-surface: rgb(30 30 32 / 74%);
+  --widget-surface-elevated: rgb(44 44 46 / 80%);
+  --widget-surface-elevated-secondary: rgb(38 38 40 / 76%);
   --widget-surface-secondary: rgb(255 255 255 / 5%);
   --widget-surface-tertiary: rgb(255 255 255 / 10%);
   --widget-surface-hover: rgb(255 255 255 / 9%);
@@ -113,7 +113,7 @@
   --widget-border-strong: #98989d;
   --widget-shadow-xs: 0 1px 3px rgb(0 0 0 / 30%);
   --widget-shadow-sm: 0 6px 16px -8px rgb(0 0 0 / 50%);
-  --widget-glass-pane: rgb(30 30 32 / 60%);
+  --widget-glass-pane: rgb(30 30 32 / 74%);
   --widget-glass-popup: rgb(38 38 40 / 82%);
   --widget-glass-wash: rgb(255 255 255 / 7%);
   --widget-glass-field: rgb(0 0 0 / 22%);
@@ -135,7 +135,7 @@
   --widget-glass-segment: rgb(255 255 255 / 16%);
   --widget-glass-thumb: #f5f5f7;
   --widget-glass-thumb-shadow: 0 2px 6px rgb(0 0 0 / 40%);
-  --widget-glass-lens-blur: blur(8px) saturate(1.6);
+  --widget-glass-lens-blur: blur(12px) saturate(1.6);
   --widget-glass-bevel: inset 2px 3px 5px -1px rgb(255 255 255 / 30%), inset -2px -3px 6px -2px rgb(0 0 0 / 40%);
   --widget-glass-rim: conic-gradient(from 315deg, rgb(255 255 255 / 57%) 0deg, rgb(255 255 255 / 9%) 55deg, rgb(255 255 255 / 6%) 125deg, rgb(255 255 255 / 42%) 180deg, rgb(255 255 255 / 7.2%) 235deg, rgb(255 255 255 / 6%) 305deg, rgb(255 255 255 / 57%) 360deg);
   --widget-glass-control-fill: rgb(255 255 255 / 10%);
@@ -144,11 +144,26 @@
   --widget-glass-control-hover: rgb(255 255 255 / 16%);
   --widget-glass-control-press: rgb(255 255 255 / 20%);
   --widget-glass-selection-shadow: 0 4px 12px -6px rgb(0 0 0 / 55%);
-  --widget-glass-panel: rgb(30 30 32 / 55%);
+  --widget-glass-panel: rgb(30 30 32 / 70%);
   --widget-glass-panel-wash: rgb(255 255 255 / 5%);
   --widget-glass-panel-shadow: 0 18px 40px -24px rgb(0 0 0 / 60%);
   --widget-glass-sticky-header: rgb(30 30 32 / 78%);
 
+}
+
+/* Outside a pane, surfaces sit on the host backdrop and carry their own fill (above).
+   Inside a pane they are thin washes over its frost. */
+.widget-root[data-appearance="glass"]:is(.wg-card, .wg-portal, [data-widget-surface]),
+.widget-root[data-appearance="glass"] :is(.wg-card, .wg-portal, [data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) {
+  --widget-surface: rgb(255 255 255 / 12%);
+  --widget-surface-elevated: rgb(255 255 255 / 16%);
+  --widget-surface-elevated-secondary: rgb(255 255 255 / 12%);
+}
+.widget-root[data-appearance="glass"][data-theme="dark"]:is(.wg-card, .wg-portal, [data-widget-surface]),
+.widget-root[data-appearance="glass"][data-theme="dark"] :is(.wg-card, .wg-portal, [data-widget-surface], .wg-sidebar-nav, .wg-task-row, .wg-context-card, .wg-agent-input, .wg-prompt-bar, .wg-search, .wg-insight-cards, .wg-fine-tune, .wg-selection-toolbar, .wg-comparison-table, .wg-workspace-table-wrap, .wg-filter-table) {
+  --widget-surface: rgb(255 255 255 / 5%);
+  --widget-surface-elevated: rgb(255 255 255 / 7%);
+  --widget-surface-elevated-secondary: rgb(255 255 255 / 6%);
 }
 
 /* Semantic surface hooks cover Cards and token-backed Boxes, including pricing
