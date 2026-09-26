@@ -3,7 +3,7 @@ import { useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
 import { WidgetRenderer } from "@/widget";
-import { ParticleHero } from "@/components/home/ParticleHero";
+import { RenderStackHero } from "@/components/home/RenderStackHero";
 import { widgetRegistry } from "@/widget/registry";
 import type { ActionConfig } from "@/widget/types";
 
@@ -529,7 +529,7 @@ export function HomePage() {
               </Link>
             </div>
           </div>
-          <ParticleHero />
+          <RenderStackHero />
         </div>
         <p className="ff-mono mt-8 grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-[var(--hairline)] pt-3.5 text-[10px] uppercase tracking-[0.1em] text-[var(--faint)] sm:flex sm:flex-wrap sm:gap-x-7 sm:text-[11px] sm:tracking-[0.14em] md:mt-11">
           <span>{componentCount} components</span>
