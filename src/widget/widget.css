@@ -278,6 +278,7 @@
 
 /* --- Button ------------------------------------------------ */
 .wg-btn {
+  flex-shrink: 0;
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1044,6 +1045,23 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-follow-ups button:hover { color: var(--widget-text-emphasis); }
 .wg-follow-ups button svg { color: var(--widget-text-tertiary); }
 
+/* --- Audio transport ---------------------------------------- */
+.wg-audio-header { display: flex; min-width: 0; align-items: center; gap: 0.5rem; }
+.wg-audio-play { flex-shrink: 0; }
+.wg-audio-text { flex: 1; min-width: 0; }
+.wg-audio-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--widget-text-primary); font-size: 0.875rem; font-weight: 600; }
+.wg-audio-subtitle { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--widget-text-secondary); font-size: 0.75rem; line-height: 1.4; }
+.wg-audio-time { flex-shrink: 0; color: var(--widget-text-secondary); font-size: 0.6875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wg-audio-action { display: inline-flex; width: 24px; height: 30px; flex-shrink: 0; align-items: center; justify-content: center; border: 0; border-radius: var(--widget-radius-control); background: transparent; color: var(--widget-text-secondary); cursor: pointer; }
+.wg-audio-action:hover { background: var(--widget-surface-hover); color: var(--widget-text-primary); }
+.wg-audio-seek { display: block; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.wg-audio-seek:disabled { cursor: default; opacity: 0.5; }
+.wg-audio-seek::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: linear-gradient(to right, var(--widget-accent) var(--wg-audio-progress), var(--widget-surface-tertiary) var(--wg-audio-progress)); }
+.wg-audio-seek::-moz-range-track { height: 4px; border-radius: 999px; background: linear-gradient(to right, var(--widget-accent) var(--wg-audio-progress), var(--widget-surface-tertiary) var(--wg-audio-progress)); }
+.wg-audio-seek::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; margin-top: -6px; border: 1px solid var(--widget-border-strong); border-radius: 50%; background: var(--widget-surface-elevated); box-shadow: var(--widget-shadow-xs); }
+.wg-audio-seek::-moz-range-thumb { width: 16px; height: 16px; border: 1px solid var(--widget-border-strong); border-radius: 50%; background: var(--widget-surface-elevated); box-shadow: var(--widget-shadow-xs); }
+.wg-audio-seek:focus-visible { outline: 2px solid var(--widget-accent); outline-offset: 2px; border-radius: var(--widget-radius-control); }
+
 /* --- Code & diffs ------------------------------------------- */
 .wg-code-block,
 .wg-file-diff {
@@ -1064,8 +1082,8 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-diff-header small { color: var(--widget-text-tertiary); font-size: 0.65rem; }
 .wg-code-copy { display: inline-flex; min-height: 28px; align-items: center; gap: 0.28rem; border: 0; border-radius: 7px; background: transparent; color: var(--widget-text-tertiary); padding: 0.25rem 0.5rem; font-size: 0.6875rem; font-weight: 500; }
 .wg-code-copy:hover { background: var(--widget-surface-hover); color: var(--widget-text-primary); }
-.wg-code-body,
-.wg-diff-lines { overflow-x: auto; padding: 0.5rem 0; }
+.wg-code-body { overflow-x: auto; padding: 0.5rem 0; }
+.wg-diff-lines { padding: 0.5rem 0; }
 .wg-code-line { display: grid; min-width: max-content; grid-template-columns: 38px minmax(0, 1fr); min-height: 21px; align-items: baseline; padding: 0 0.75rem 0 0; font-family: var(--widget-font-mono); font-size: 0.71rem; line-height: 1.65; }
 .wg-code-block[data-streaming] .wg-code-line { animation: wg-code-enter 300ms var(--widget-ease) both; }
 .wg-code-line[data-highlighted] { background: var(--widget-accent-soft); box-shadow: inset 2px 0 0 var(--widget-accent); }
@@ -1077,10 +1095,10 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 .wg-diff-stats { display: inline-flex; margin-left: auto; gap: 0.3rem; font-family: var(--widget-font-mono); font-size: 0.6875rem; font-variant-numeric: tabular-nums; }
 .wg-diff-stats b { color: var(--widget-success-soft-fg); font-weight: 600; }
 .wg-diff-stats i { color: var(--widget-danger-soft-fg); font-style: normal; font-weight: 600; }
-.wg-diff-line { display: grid; min-width: max-content; grid-template-columns: 30px 30px 20px minmax(220px, 1fr); min-height: 21px; align-items: baseline; padding-right: 0.75rem; font-family: var(--widget-font-mono); font-size: 0.71rem; line-height: 1.65; }
+.wg-diff-line { display: grid; min-width: 0; grid-template-columns: 30px 30px 20px minmax(0, 1fr); min-height: 21px; align-items: start; padding-right: 0.75rem; font-family: var(--widget-font-mono); font-size: 0.71rem; line-height: 1.65; }
 .wg-diff-line > span { color: var(--widget-text-tertiary); text-align: right; padding-right: 0.45rem; font-variant-numeric: tabular-nums; user-select: none; opacity: 0.75; }
 .wg-diff-line > b { font-weight: 600; text-align: center; user-select: none; }
-.wg-diff-line > code { white-space: pre; color: var(--widget-text-prose); }
+.wg-diff-line > code { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--widget-text-prose); }
 /* Debug keeps JSON indentation and ignores host `pre` styling. */
 .widget-root .wg-debug-value { overflow-x: auto; margin: 0; border-radius: 0; background: none; color: inherit; font: inherit; white-space: pre; }
 .wg-diff-line[data-type="add"] { background: var(--widget-success-soft-bg); }
@@ -1274,8 +1292,10 @@ a.wg-citation-source:hover { background: var(--widget-surface-hover); color: var
 /* The composer always stacks input over toolbar, so a true 999px pill turns
    into an oval — "pill" means a soft capsule, not a sphere. */
 .wg-prompt-bar[data-variant="pill"] { border-radius: 24px; }
-.wg-prompt-input-wrap { display: flex; align-items: flex-end; gap: 0.25rem; }
-.wg-prompt-source-trigger { display: flex; width: 34px; height: 34px; flex: 0 0 34px; margin-bottom: 0.35rem; align-items: center; justify-content: center; border: 1px solid var(--widget-border-subtle); border-radius: 999px; background: var(--widget-surface-secondary); color: var(--widget-text-secondary); transition: 150ms var(--widget-ease); }
+.wg-prompt-input-wrap { position: relative; }
+.wg-prompt-input-wrap .wg-agent-input-toolbar { padding-left: 2.75rem; }
+.wg-prompt-input-wrap .wg-agent-input-toolbar > span { min-width: 0; flex-wrap: wrap; }
+.wg-prompt-source-trigger { position: absolute; z-index: 1; left: 0.25rem; bottom: 0.45rem; display: flex; width: 30px; height: 30px; cursor: pointer; align-items: center; justify-content: center; border: 1px solid var(--widget-border-subtle); border-radius: 999px; background: var(--widget-surface-secondary); color: var(--widget-text-secondary); transition: 150ms var(--widget-ease); }
 .wg-prompt-source-trigger:hover { border-color: var(--widget-border-default); color: var(--widget-text-primary); }
 .wg-prompt-input-wrap > .wg-agent-input { border: 0; background: transparent; box-shadow: none; }
 .wg-prompt-input-wrap .wg-agent-input textarea { min-height: 34px; padding-top: 0.5rem; }
@@ -1396,6 +1416,14 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
 .wg-table-footer button:hover:not(:disabled) { background: var(--widget-accent-strong); }
 .wg-table-footer button:disabled { background: var(--widget-surface-tertiary); color: var(--widget-text-tertiary); }
 .wg-table-footer button span { display: inline-flex; min-width: 17px; height: 17px; align-items: center; justify-content: center; border-radius: 99px; background: color-mix(in srgb, currentColor 18%, transparent); font-size: 0.6rem; font-variant-numeric: tabular-nums; }
+.wg-records-table { min-width: 0; container-type: inline-size; }
+.wg-records-table .wg-workspace-table :where(th, td) { min-width: 0; }
+.wg-records-table .wg-workspace-table th { white-space: normal; }
+.wg-records-table .wg-workspace-table td:not([data-numeric]) > :is(span:not(.wg-record-tags):not(.wg-record-status), a) { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: break-word; }
+.wg-records-table .wg-workspace-table td[data-numeric] { white-space: nowrap; font-variant-numeric: tabular-nums; }
+@container (max-width: 360px) {
+  .wg-records-table .wg-workspace-table :where(th, td) { padding: 0.4rem 0.35rem; }
+}
 .wg-record-sorters { display: flex; overflow-x: auto; gap: 0.2rem; padding: 0.45rem; }
 .wg-record-sorters button { display: inline-flex; min-height: 30px; align-items: center; gap: 0.28rem; border: 0; border-radius: 8px; background: transparent; color: var(--widget-text-tertiary); padding: 0.25rem 0.55rem; font-size: 0.71rem; font-weight: 500; white-space: nowrap; transition: 150ms var(--widget-ease); }
 .wg-record-sorters button:hover { color: var(--widget-text-primary); }
@@ -1414,7 +1442,7 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
 .wg-filter-chips button[data-tone="discovery"]::before { background: var(--widget-accent); }
 
 /* --- Sidebar, search, flowchart ----------------------------- */
-.wg-sidebar-nav { display: flex; width: 100%; min-height: 280px; flex-direction: column; gap: 0.55rem; border: 1px solid var(--widget-border-default); border-radius: 12px; background: var(--widget-surface-secondary); padding: 0.5rem; }
+.wg-sidebar-nav { display: flex; width: 100%; align-self: flex-start; flex-direction: column; gap: 0.55rem; border: 1px solid var(--widget-border-default); border-radius: 12px; background: var(--widget-surface-secondary); padding: 0.5rem; }
 .wg-sidebar-workspace { display: grid; min-height: 44px; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--widget-border-subtle); padding: 0 0.25rem 0.5rem; grid-template-columns: 28px minmax(0, 1fr) 14px; }
 .wg-sidebar-workspace > span { display: flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 8px; background: var(--widget-accent); color: var(--widget-on-accent); }
 .wg-sidebar-workspace strong { overflow: hidden; color: var(--widget-text-primary); font-size: 0.8125rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
@@ -1505,6 +1533,7 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
 .wg-fine-fields { display: grid; gap: 0.65rem; padding: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 .wg-fine-fields label { display: flex; min-width: 0; flex-direction: column; gap: 0.3rem; color: var(--widget-text-secondary); font-size: 0.6875rem; font-weight: 550; }
 .wg-fine-fields :where(input, select) { width: 100%; min-height: 34px; border: 1px solid var(--widget-border-default); border-radius: 8px; background: var(--widget-surface-elevated); color: var(--widget-text-primary); padding: 0 0.5rem; font: inherit; font-size: 0.75rem; }
+.wg-fine-fields select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23808080' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 16px; padding-right: 2rem; }
 .wg-fine-fields :where(input, select):focus-visible { border-color: var(--widget-border-strong); box-shadow: none; outline: none; }
 .wg-fine-fields input[type="range"] { min-height: 24px; border: 0; padding: 0; accent-color: var(--widget-accent); }
 .wg-fine-input { position: relative; display: flex; align-items: center; }
@@ -1531,7 +1560,7 @@ a.wg-context-source:hover { background: var(--widget-surface-hover); color: var(
   .wg-recommendation-footer > div { width: 100%; margin-left: 0; }
   .wg-approval-footer .wg-agent-button,
   .wg-recommendation-footer .wg-agent-button { flex: 1; }
-  .wg-diff-line { grid-template-columns: 26px 26px 18px minmax(180px, 1fr); }
+  .wg-diff-line { grid-template-columns: 26px 26px 18px minmax(0, 1fr); }
   .wg-selection-toolbar input { min-width: 72px; }
 }
 

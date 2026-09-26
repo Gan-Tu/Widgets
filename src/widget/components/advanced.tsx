@@ -1,6 +1,8 @@
 import React from "react";
 import { useControlValue, fieldId, normalizeSliderBinding } from "../binding";
-import type { ActionConfig } from "../types";
+import { ChevronDown } from "lucide-react";
+import { controlHeights } from "../style";
+import type { ActionConfig, ControlSize } from "../types";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
@@ -279,6 +281,7 @@ const ToggleWidget: React.FC<ToggleProps> = ({
 
   return (
     <UiToggle
+      className="shrink-0 whitespace-nowrap"
       id={fieldId(name)}
       pressed={resolvedPressed}
       onPressedChange={handlePressedChange}
@@ -342,7 +345,7 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
         disabled={disabled}
       >
         {options.map((option) => (
-          <ToggleGroupItem key={option.value} value={option.value} disabled={option.disabled}>
+          <ToggleGroupItem className="shrink-0 whitespace-nowrap" key={option.value} value={option.value} disabled={option.disabled}>
             {option.label}
           </ToggleGroupItem>
         ))}
@@ -359,7 +362,7 @@ const ToggleGroupWidget: React.FC<ToggleGroupProps> = ({
       disabled={disabled}
     >
       {options.map((option) => (
-        <ToggleGroupItem key={option.value} value={option.value} disabled={option.disabled}>
+        <ToggleGroupItem className="shrink-0 whitespace-nowrap" key={option.value} value={option.value} disabled={option.disabled}>
           {option.label}
         </ToggleGroupItem>
       ))}
@@ -492,6 +495,7 @@ type ComboboxProps = {
   emptyLabel?: string;
   defaultValue?: string;
   block?: boolean;
+  size?: ControlSize;
   disabled?: boolean;
   onChangeAction?: ActionConfig;
 };
@@ -506,6 +510,7 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
   emptyLabel = "No results found.",
   defaultValue,
   block = false,
+  size = "md",
   disabled,
   onChangeAction
 }) => {
@@ -531,11 +536,12 @@ const ComboboxWidget: React.FC<ComboboxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("wg-field-control h-8 min-w-0 max-w-full justify-between", block ? "w-full" : "w-[220px]", disabled && "opacity-50")}
+          className={cn("wg-field-control min-w-0 max-w-full justify-between px-3 font-normal", block ? "w-full" : "w-[220px]", disabled && "opacity-50")}
+          style={{ height: controlHeights[size] ?? controlHeights.md, borderRadius: "var(--widget-radius-control)" }}
           disabled={disabled}
         >
           <span className="min-w-0 truncate">{selectedLabel ?? placeholder}</span>
-          <span className="ml-2 shrink-0 text-xs text-[var(--widget-text-secondary)]" aria-hidden>⌄</span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
         </UiButton>
       </PopoverTrigger>
       <PopoverContent className="w-[240px] p-0" align="start">

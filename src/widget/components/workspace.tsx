@@ -87,7 +87,7 @@ function WorkspaceTable({
               key={String(row.id ?? index)}
             >
               {columns.map((column) => (
-                <td data-align={column.align} key={column.key}>
+                <td data-align={column.align} data-numeric={column.type === "number" || typeof row[column.key] === "number" || undefined} key={column.key}>
                   <TableValueView value={row[column.key]} column={column} />
                 </td>
               ))}

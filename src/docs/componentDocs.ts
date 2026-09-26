@@ -994,6 +994,7 @@ export const componentDocs: ComponentDoc[] = [
     category: "Forms & controls",
     usage: `<Combobox name="assignee" options={[{ label: "Alex", value: "alex" }]} />`,
     props: [
+      { name: "size", description: "Trigger size, matching Select.", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"' },
       { name: "bind", description: "Optional state path; supplies the form field name when name is omitted. Use bind, a controlled prop, or a default, without combining them.", type: "string" },
       { name: "value", description: "Controlled display value; takes precedence over bind.", type: "string" },
       { name: "block", description: "Fill the available field width. Otherwise uses 220px, capped to the parent width. Long selections truncate inside the control.", type: "boolean", default: "false" },
@@ -1292,15 +1293,15 @@ export const componentDocs: ComponentDoc[] = [
   {
     id: "AudioPlayer",
     name: "AudioPlayer",
-    description: "Compact audio transport with native audio controls.",
+    description: "Custom audio player with playback, mute, elapsed time, and seeking.",
     category: "Media",
     usage: `<AudioPlayer src="https://example.com/audio.mp3" title="Briefing" compact />`,
     props: [
       { name: "src", description: "Audio URL.", type: "string" },
       { name: "title", description: "Primary title.", type: "string" },
       { name: "subtitle", description: "Secondary text.", type: "string" },
-      { name: "durationSeconds", description: "Reserved duration metadata.", type: "number" },
-      { name: "compact", description: "Use compact custom controls.", type: "boolean" },
+      { name: "durationSeconds", description: "Fallback duration in seconds until audio metadata loads.", type: "number" },
+      { name: "compact", description: "Hide only the seek bar.", type: "boolean" },
       { name: "autoPlay", description: "Start playback automatically when allowed by the browser.", type: "boolean", default: "false" },
       { name: "loop", description: "Loop playback.", type: "boolean", default: "false" },
       { name: "muted", description: "Start muted.", type: "boolean", default: "false" },

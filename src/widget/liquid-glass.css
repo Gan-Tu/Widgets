@@ -429,3 +429,7 @@
   .widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"], .wg-tabs-tab[aria-selected="true"], .wg-slider-thumb, .wg-switch > span) { transition: none !important; }
   .widget-root[data-appearance="glass"] :is(.wg-segmented-control > button[aria-checked="true"]:active:not(:disabled), .wg-tabs-tab[aria-selected="true"]:active:not(:disabled), .wg-slider-thumb:active:not([data-disabled]), .wg-switch:active:not(:disabled) > span):not([aria-disabled="true"]):not(.wg-field-control):not(:disabled) { transform: none !important; }
 }
+
+/* Match the glass Slider thumb for the native seek input. */
+.widget-root[data-appearance="glass"] .wg-audio-seek::-webkit-slider-thumb { width: 34px; height: 22px; margin-top: -9px; border-radius: 11px; border-color: rgb(0 0 0 / 4%); background: var(--widget-glass-thumb); box-shadow: var(--widget-glass-thumb-shadow); }
+.widget-root[data-appearance="glass"] .wg-audio-seek::-moz-range-thumb { width: 34px; height: 22px; border-radius: 11px; border-color: rgb(0 0 0 / 4%); background: var(--widget-glass-thumb); box-shadow: var(--widget-glass-thumb-shadow); }

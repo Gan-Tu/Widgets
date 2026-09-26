@@ -280,23 +280,23 @@ function CitationLink({ source, number }: { source: CitationSource; number: numb
 }
 
 const InlineCitations: React.FC<InlineCitationsProps> = ({ text, sources = [] }) => {
-  const pieces = String(text ?? "").split(/(\[\d+\])/g);
+  const value = String(text ?? "");
+  const pieces: React.ReactNode[] = [];
+  let offset = 0;
+  for (const match of value.matchAll(/([^\s[\]]+)?\s*((?:\[\d+\])(?:\s*\[\d+\])*)/g)) {
+    pieces.push(value.slice(offset, match.index));
+    const markers = Array.from(match[2].matchAll(/\[(\d+)\]/g), (marker, index) => {
+      const number = Number(marker[1]);
+      const source = sources.find((item, sourceIndex) => citationNumber(item, sourceIndex) === number) ?? sources[number - 1];
+      return <sup className="wg-citation-marker" key={index} title={source?.label}>{number}</sup>;
+    });
+    pieces.push(match[1] ? <span key={match.index} style={{ whiteSpace: "nowrap" }}>{match[1]}{markers}</span> : <React.Fragment key={match.index}>{markers}</React.Fragment>);
+    offset = match.index + match[0].length;
+  }
+  pieces.push(value.slice(offset));
   return (
     <div className="wg-inline-citations">
-      <p>
-        {pieces.map((piece, index) => {
-          const match = piece.match(/^\[(\d+)\]$/);
-          if (!match) return <React.Fragment key={index}>{piece}</React.Fragment>;
-          const number = Number(match[1]);
-          const source =
-            sources.find((item, sourceIndex) => citationNumber(item, sourceIndex) === number) ??
-            sources[number - 1];
-          return (
-            <sup className="wg-citation-marker" key={index} title={source?.label}>
-              {number}
-            </sup>
-          );
-        })}
+      <p>{pieces}
       </p>
       {sources.length > 0 ? (
         <div className="wg-citation-sources">

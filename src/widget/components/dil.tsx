@@ -7,7 +7,8 @@ import {
   MapPin,
   Pause,
   Play,
-  Volume2
+  Volume2,
+  VolumeX
 } from "lucide-react";
 
 import {
@@ -38,7 +39,7 @@ import {
   resolveRadius,
   sizeToCss
 } from "../style";
-import { Box, Col, Row } from "./layout";
+import { Box, Row } from "./layout";
 import { Badge, Icon, Image } from "./content";
 import { Text, Caption } from "./text";
 import { BaseCarousel, BaseCarouselItem, BaseCarouselMediaItem, CardCarousel, CardLinkItem } from "./carousel";
@@ -330,6 +331,7 @@ const AudioPlayer: React.FC<{
   src,
   title,
   subtitle,
+  durationSeconds = 0,
   compact,
   autoPlay,
   loop,
@@ -341,6 +343,14 @@ const AudioPlayer: React.FC<{
 }) => {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = React.useState(false);
+  const [isMuted, setMuted] = React.useState(Boolean(muted));
+  const [elapsed, setElapsed] = React.useState(0);
+  const [mediaDuration, setMediaDuration] = React.useState<number | null>(null);
+  const duration = mediaDuration ?? (Number.isFinite(durationSeconds) ? Math.max(0, durationSeconds) : 0);
+  const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+  const updateDuration = (audio: HTMLAudioElement) => {
+    setMediaDuration(Number.isFinite(audio.duration) ? Math.max(0, audio.duration) : null);
+  };
 
   React.useEffect(() => {
     if (audioRef.current) audioRef.current.playbackRate = defaultPlaybackRate;
@@ -350,8 +360,7 @@ const AudioPlayer: React.FC<{
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
-      void audio.play();
-      setPlaying(true);
+      void audio.play().catch(() => setPlaying(false));
     } else {
       audio.pause();
       setPlaying(false);
@@ -365,27 +374,32 @@ const AudioPlayer: React.FC<{
 
   return (
     <Box border={{ size: 1, color: "subtle" }} radius="lg" padding={3} background="surface-secondary" gap={2}>
-      <Row gap={3}>
+      <div className="wg-audio-header">
         <button
           type="button"
-          className="wg-interactive flex h-9 w-9 cursor-pointer items-center justify-center rounded-full"
+          className="wg-interactive wg-audio-play flex h-9 w-9 cursor-pointer items-center justify-center rounded-full"
           style={{ background: "var(--widget-accent)", color: "var(--widget-on-accent)" }}
           onClick={toggle}
           aria-label={playing ? "Pause audio" : "Play audio"}
         >
           {playing ? <Pause size={16} /> : <Play size={16} />}
         </button>
-        {/* Player text is a control label, not a heading — keep it compact and
-            single-line so it doesn't compete with the widget's own Title. */}
-        <Col gap={0} flex={1} minWidth={0}>
-          <Text value={title} size="sm" weight="semibold" truncate />
-          {subtitle ? <Caption value={subtitle} size="sm" truncate /> : null}
-        </Col>
-        <Volume2 size={16} style={{ color: "var(--widget-text-secondary)" }} />
+        <div className="wg-audio-text">
+          <div className="wg-audio-title">{title}</div>
+          {subtitle ? <div className="wg-audio-subtitle">{subtitle}</div> : null}
+        </div>
+        <span className="wg-audio-time">{formatTime(elapsed)} / {formatTime(duration)}</span>
+        <button type="button" className="wg-interactive wg-audio-action" aria-label={isMuted ? "Unmute" : "Mute"}
+          aria-pressed={isMuted} onClick={() => {
+            const next = !isMuted;
+            setMuted(next);
+            if (audioRef.current) audioRef.current.muted = next;
+          }}>
+          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+        </button>
         {downloadHref ? (
           <a
-            className="wg-interactive cursor-pointer"
-            style={{ color: "var(--widget-text-secondary)" }}
+            className="wg-interactive wg-audio-action"
             href={downloadHref}
             download={downloadFilename ?? title}
             aria-label="Download audio"
@@ -393,18 +407,32 @@ const AudioPlayer: React.FC<{
             <Download size={16} />
           </a>
         ) : null}
-      </Row>
+      </div>
+      {!compact ? <input type="range" className="wg-audio-seek" aria-label="Seek" min={0} max={duration} step={0.1}
+        value={Math.min(elapsed, duration)} disabled={duration <= 0}
+        style={{ "--wg-audio-progress": `${duration > 0 ? Math.min(elapsed / duration, 1) * 100 : 0}%` } as React.CSSProperties}
+        onChange={(event) => {
+          const audio = audioRef.current;
+          if (!audio) return;
+          audio.currentTime = Number(event.currentTarget.value);
+          setElapsed(audio.currentTime);
+        }} /> : null}
       <audio
         ref={audioRef}
         src={src}
-        controls={!compact}
         autoPlay={autoPlay}
         loop={loop}
-        muted={muted}
+        muted={isMuted}
         preload={preload}
         onPause={() => setPlaying(false)}
         onPlay={() => setPlaying(true)}
-        className={compact ? "hidden" : "w-full"}
+        onEnded={() => setPlaying(false)}
+        onTimeUpdate={(event) => setElapsed(event.currentTarget.currentTime)}
+        onLoadedMetadata={(event) => updateDuration(event.currentTarget)}
+        onDurationChange={(event) => updateDuration(event.currentTarget)}
+        onEmptied={() => { setElapsed(0); setMediaDuration(null); setPlaying(false); }}
+        onVolumeChange={(event) => setMuted(event.currentTarget.muted)}
+        hidden
       />
     </Box>
   );
@@ -969,15 +997,16 @@ const ListItem: React.FC<ChildrenProps & { label?: string; description?: string;
   const ref = useVisibleAction<HTMLDivElement>(onVisibleAction);
   const resolvedMarker = marker ?? context?.marker ?? "disc";
   const renderedMarker = renderListMarker(resolvedMarker);
+  const hasMarker = renderedMarker != null && renderedMarker !== false;
   return (
-    <div ref={ref} aria-disabled={disabled || undefined} className="wg-list-item widget-list-item grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2">
-      <span
+    <div ref={ref} aria-disabled={disabled || undefined} className={`wg-list-item widget-list-item grid ${hasMarker ? "grid-cols-[1.5rem_minmax(0,1fr)] gap-2" : "grid-cols-1"}`}>
+      {hasMarker ? <span
         aria-hidden={isInternalListMarker(resolvedMarker) ? true : undefined}
         className="flex h-6 items-center justify-center text-sm"
         style={{ color: "var(--widget-text-tertiary)" }}
       >
         {renderedMarker}
-      </span>
+      </span> : null}
       <div>{label !== undefined ? <div className="wg-list-label">{label}</div> : null}{description !== undefined ? <div className="wg-list-description">{description}</div> : null}{children}</div>
     </div>
   );
