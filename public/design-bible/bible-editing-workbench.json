@@ -1,0 +1,23 @@
+{
+  "designSpec": "An editing workbench turns prewritten proposals or an exact replacement into a reviewable local draft, with explicit accept and discard controls.",
+  "template": "<Response gap={4}>\n  <Col gap={2}><Caption value={sampleLabel} /><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" /></Col>\n  <SelectionActions text={draft} selection={draft} placeholder={replacementPlaceholder}\n    actions={[{ label: shortLabel, icon: \"minimize\", action: { updateState: { proposed: shortVersion } } }]}\n    $submitAction='{ updateState: { proposed: prompt } }' />\n  <Text value={instruction} size=\"sm\" color=\"secondary\" />\n  <Show $when=\"has(proposed)\">\n    <Box background=\"surface-secondary\" padding={4} radius=\"lg\" gap={3}>\n      <Row gap={2}><Icon name=\"write\" /><Text value={proposalLabel} weight=\"semibold\" size=\"sm\" /></Row>\n      <Text value={proposed} size=\"lg\" />\n      </Box>\n    <Row gap={2} wrap=\"wrap\"><Button label={acceptLabel} color=\"accent\" onClickAction={{ updateState: { draft: proposed, proposed: \"\", revision: revision + 1 } }} /><Button label={discardLabel} variant=\"ghost\" onClickAction={{ updateState: { proposed: \"\" } }} /></Row>\n  </Show>\n  <Col gap={2}><Label value={draftLabel} fieldName=\"editableDraft\" /><Textarea key={revision} name=\"editableDraft\" defaultValue={draft} rows={3} $onChangeAction='{ updateState: { draft: value, proposed: \"\" } }' /></Col>\n  <Row gap={2} wrap=\"wrap\"><Button label={copyLabel} iconStart=\"copy\" variant=\"outline\" disabled={!has(draft)} onClickAction={{ type: \"copy\", handler: \"client\", payload: { value: draft } }} /><Caption value={revisionLabel + String(revision)} /></Row>\n</Response>",
+  "data": {
+    "sampleLabel": "Sample editing desk · local draft",
+    "title": "A proposal is not the final word",
+    "intro": "Review a shorter sample or enter your exact replacement, then decide what belongs in the draft.",
+    "draft": "We would like to invite you to join us for an informal gathering where we will share a few recent prints and talk about the ideas behind them.",
+    "proposed": "Join us for a small print swap and the stories behind the work.",
+    "replacementPlaceholder": "Type exact replacement",
+    "shortLabel": "Shorter sample",
+    "shortVersion": "Join us for a small print swap and the stories behind the work.",
+    "instruction": "The sample button uses prewritten wording. Submitting the field proposes your exact replacement.",
+    "proposalLabel": "Proposed wording",
+    "acceptLabel": "Use in draft",
+    "discardLabel": "Discard",
+    "draftLabel": "Your editable draft",
+    "copyLabel": "Copy draft",
+    "revision": 0,
+    "revisionLabel": "Accepted revisions: "
+  },
+  "theme": "light"
+}

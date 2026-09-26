@@ -1,0 +1,175 @@
+{
+  "designSpec": "A training replay makes task stages, bounded playback, and the final handoff visible through Steps, TaskRows, Flowchart, and measured replay progress.",
+  "template": "<Response gap={4}>\n  <Box gap={2}>\n    <Caption value={sampleLabel} /><Title value={title} size=\"sm\" /><Text value={takeaway} size=\"sm\" />\n  </Box>\n  <Steps items={stageLabels} current={min(frame, 2)} color=\"accent\" />\n  <Tabs tabs={tabs}>\n    <Tabs.Panel id=\"replay\"><Col gap={3}>\n      <Show $when=\"playing\"><LoadingState label={frames[frame].label} variant=\"orbit\" /><RunInterval interval={1700} $onTickAction='{ updateState: { frame: min(3, frame + 1), playing: frame < 2 } }' /><Show.Else><Text value={frames[frame].label} size=\"sm\" weight=\"semibold\" /></Show.Else></Show>\n      <TaskRows items={frames[frame].tasks} variant=\"list\" />\n      <Progress value={frame} max={3} label={progressLabel} color=\"accent\" />\n      <Row gap={2} wrap=\"wrap\"><Button label={playLabel} color=\"accent\" disabled={playing} onClickAction={{ updateState: { frame: 0, playing: true } }} /><Button label={finishLabel} variant=\"ghost\" onClickAction={{ updateState: { frame: 3, playing: false } }} /></Row>\n    </Col></Tabs.Panel>\n    <Tabs.Panel id=\"method\"><Col gap={3}><Flowchart nodes={nodes} edges={edges} $onNodeClickAction='{ updateState: { selectedNode: id } }' /><Box padding={{ x: 3 }}><Text value={nodeNotes[selectedNode]} size=\"sm\" color=\"secondary\" /></Box></Col></Tabs.Panel>\n  </Tabs>\n  <Box background=\"surface-secondary\" padding={3} radius=\"md\" gap={1}><Caption value={resultLabel} /><Text value={result} size=\"sm\" /></Box>\n</Response>",
+  "data": {
+    "sampleLabel": "Scripted training demo",
+    "title": "Make the next step obvious",
+    "takeaway": "A useful handoff names the owner, the next action, and the evidence they need.",
+    "stageLabels": [
+      {
+        "label": "Inspect"
+      },
+      {
+        "label": "Arrange"
+      },
+      {
+        "label": "Hand off"
+      }
+    ],
+    "tabs": [
+      {
+        "id": "replay",
+        "label": "Replay"
+      },
+      {
+        "id": "method",
+        "label": "Method"
+      }
+    ],
+    "playing": false,
+    "frame": 3,
+    "progressLabel": "Replay frames",
+    "playLabel": "Play stages",
+    "finishLabel": "Show final frame",
+    "selectedNode": "inspect",
+    "resultLabel": "Sample handoff",
+    "result": "Mara owns the next proof. Check the center spread against the folded dummy, then return the marked copy to Jules.",
+    "frames": [
+      {
+        "label": "Replaying: inspect the inputs",
+        "tasks": [
+          {
+            "id": "inspect",
+            "label": "Inspect",
+            "detail": "Read the supplied proof note",
+            "status": "running"
+          },
+          {
+            "id": "arrange",
+            "label": "Arrange",
+            "detail": "Name owner and next action",
+            "status": "pending"
+          },
+          {
+            "id": "handoff",
+            "label": "Hand off",
+            "detail": "Package the reference",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "label": "Replaying: arrange the work",
+        "tasks": [
+          {
+            "id": "inspect",
+            "label": "Inspect",
+            "detail": "Scope is one center spread",
+            "status": "completed"
+          },
+          {
+            "id": "arrange",
+            "label": "Arrange",
+            "detail": "Mara checks; Jules receives",
+            "status": "running"
+          },
+          {
+            "id": "handoff",
+            "label": "Hand off",
+            "detail": "Package the reference",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "label": "Replaying: package the handoff",
+        "tasks": [
+          {
+            "id": "inspect",
+            "label": "Inspect",
+            "detail": "Scope is one center spread",
+            "status": "completed"
+          },
+          {
+            "id": "arrange",
+            "label": "Arrange",
+            "detail": "Mara checks; Jules receives",
+            "status": "completed"
+          },
+          {
+            "id": "handoff",
+            "label": "Hand off",
+            "detail": "Attach the marked proof",
+            "status": "running"
+          }
+        ]
+      },
+      {
+        "label": "Replay complete",
+        "tasks": [
+          {
+            "id": "inspect",
+            "label": "Inspect",
+            "detail": "Scope is one center spread",
+            "status": "completed"
+          },
+          {
+            "id": "arrange",
+            "label": "Arrange",
+            "detail": "Mara checks; Jules receives",
+            "status": "completed"
+          },
+          {
+            "id": "handoff",
+            "label": "Hand off",
+            "detail": "Reference named in sample",
+            "status": "completed"
+          }
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "id": "inspect",
+        "label": "Inspect the input",
+        "description": "What changed?",
+        "kind": "trigger",
+        "icon": "eye"
+      },
+      {
+        "id": "arrange",
+        "label": "Name the action",
+        "description": "Who needs to do what?",
+        "kind": "action",
+        "icon": "users"
+      },
+      {
+        "id": "handoff",
+        "label": "Include the evidence",
+        "description": "What will they inspect?",
+        "kind": "result",
+        "icon": "paperclip"
+      }
+    ],
+    "edges": [
+      {
+        "from": "inspect",
+        "to": "arrange",
+        "label": "define",
+        "tone": "info"
+      },
+      {
+        "from": "arrange",
+        "to": "handoff",
+        "label": "support",
+        "tone": "info"
+      }
+    ],
+    "nodeNotes": {
+      "inspect": "Read the original note before deciding what changed.",
+      "arrange": "One named owner and one concrete action reduce ambiguity.",
+      "handoff": "Name the exact reference, such as the marked proof, rather than saying “see above”."
+    }
+  },
+  "theme": "light"
+}

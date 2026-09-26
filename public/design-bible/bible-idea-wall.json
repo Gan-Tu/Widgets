@@ -1,0 +1,82 @@
+{
+  "designSpec": "A local idea collection uses working add/remove controls, optional animated identity, a useful popover, and real collection commands.",
+  "template": "<Card size=\"md\" gap={4}>\n  <Box gap={2}>\n    <Caption value={sampleLabel} /><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" />\n  </Box>\n  <Row gap={2} wrap=\"wrap\">\n    <Menubar menus={[{ id: \"collection\", label: menuLabel, items: [{ id: \"restore\", label: restoreLabel, action: { updateState: { items: starters } } }, { id: \"clear\", label: clearLabel, action: { updateState: { items: [] } } }, { id: \"copy\", label: copyLabel, action: { type: \"copy\", handler: \"client\", payload: { value: copyHeader + String(size(items)) } } }] }]} />\n    <Popover><Popover.Trigger><Row padding={2} gap={1}><Icon name=\"info\" size=\"sm\" /><Text value={aboutLabel} size=\"sm\" /></Row></Popover.Trigger><Popover.Content width={220}><Text value={aboutText} size=\"sm\" /></Popover.Content></Popover>\n  </Row>\n  <Form key={formVersion} gap={2} $onSubmitAction='{ patchState: [append(\"items\", { id: String(nextId), title: ideaTitle, category: ideaCategory }), set(\"nextId\", nextId + 1), set(\"formVersion\", formVersion + 1)] }'>\n    <Col gap={1}><Label value={ideaLabel} fieldName=\"ideaTitle\" /><Input name=\"ideaTitle\" defaultValue=\"\" placeholder={ideaPlaceholder} required size=\"2xl\" /></Col>\n    <Row gap={2} wrap=\"wrap\" align=\"end\"><Col flex={1} minWidth={120} gap={1}><Label value={categoryLabel} fieldName=\"ideaCategory\" /><Select name=\"ideaCategory\" defaultValue=\"shape\" options={categories} block size=\"2xl\" /></Col><Button submit label={addLabel} color=\"primary\" size=\"2xl\" /></Row>\n  </Form>\n  <Row justify=\"between\" gap={2}><Text value={String(size(items)) + countLabel} size=\"sm\" weight=\"medium\" /><Toggle name=\"animateIdeas\" label={motionLabel} defaultPressed={false} $onChangeAction='{ updateState: { motion: value } }' /></Row>\n  <Show $when=\"size(items) > 0\">\n    <Show $when=\"motion\">\n      <AnimateGroup $of=\"items\" item=\"item\" index=\"i\"><Box key={item.id} background=\"surface-secondary\" padding={3} radius=\"lg\"><Row gap={2}><Col flex={1} minWidth={0} gap={1}><Caption value={categoryNames[item.category]} /><Text value={item.title} size=\"sm\" weight=\"medium\" /></Col><Button iconStart=\"x\" ariaLabel={removeLabel + item.title} uniform variant=\"ghost\" size=\"2xl\" $onClickAction='{ patchState: remove(\"items.\" + String(i)) }' /></Row></Box></AnimateGroup>\n      <Show.Else><Col gap={2}><Each $of=\"items\" item=\"item\" index=\"i\"><Box key={item.id} background=\"surface-secondary\" padding={3} radius=\"lg\"><Row gap={2}><Col flex={1} minWidth={0} gap={1}><Caption value={categoryNames[item.category]} /><Text value={item.title} size=\"sm\" weight=\"medium\" /></Col><Button iconStart=\"x\" ariaLabel={removeLabel + item.title} uniform variant=\"ghost\" size=\"2xl\" $onClickAction='{ patchState: remove(\"items.\" + String(i)) }' /></Row></Box></Each></Col></Show.Else>\n    </Show>\n    <Show.Else><EmptyState icon=\"lightbulb\" title={emptyTitle} description={emptyText} action={{ label: restoreLabel, action: { updateState: { items: starters } } }} /></Show.Else>\n  </Show>\n</Card>",
+  "data": {
+    "sampleLabel": "Sample studio wall · local collection",
+    "title": "Catch an idea while it is small",
+    "intro": "Keep shapes, words, and materials together. Add a thought, then remove anything that no longer helps.",
+    "menuLabel": "Collection",
+    "restoreLabel": "Restore sample ideas",
+    "clearLabel": "Clear collection",
+    "copyLabel": "Copy item count",
+    "copyHeader": "Ideas on this sample wall: ",
+    "aboutLabel": "How it works",
+    "aboutText": "Ideas and edits stay in this widget. Turn on Animate changes if you want additions and removals to retain a sense of position.",
+    "ideaLabel": "New idea",
+    "ideaPlaceholder": "Try a folded cover…",
+    "categoryLabel": "Category",
+    "addLabel": "Add idea",
+    "countLabel": " ideas on the wall",
+    "motionLabel": "Animate changes",
+    "removeLabel": "Remove ",
+    "emptyTitle": "A little room for something new",
+    "emptyText": "Add an idea above or bring back the sample set.",
+    "motion": false,
+    "nextId": 4,
+    "formVersion": 0,
+    "categories": [
+      {
+        "label": "Shape",
+        "value": "shape"
+      },
+      {
+        "label": "Words",
+        "value": "words"
+      },
+      {
+        "label": "Material",
+        "value": "material"
+      }
+    ],
+    "categoryNames": {
+      "shape": "Shape",
+      "words": "Words",
+      "material": "Material"
+    },
+    "items": [
+      {
+        "id": "1",
+        "title": "A circle that crosses the fold",
+        "category": "shape"
+      },
+      {
+        "id": "2",
+        "title": "A title that reads like an invitation",
+        "category": "words"
+      },
+      {
+        "id": "3",
+        "title": "Warm paper with a rough edge",
+        "category": "material"
+      }
+    ],
+    "starters": [
+      {
+        "id": "1",
+        "title": "A circle that crosses the fold",
+        "category": "shape"
+      },
+      {
+        "id": "2",
+        "title": "A title that reads like an invitation",
+        "category": "words"
+      },
+      {
+        "id": "3",
+        "title": "Warm paper with a rough edge",
+        "category": "material"
+      }
+    ]
+  },
+  "theme": "light"
+}

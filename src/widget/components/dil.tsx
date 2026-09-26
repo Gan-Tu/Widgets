@@ -1137,7 +1137,8 @@ const SegmentedControl: React.FC<{
       aria-label={ariaLabel ?? name}
       className="wg-segmented-control inline-flex gap-1 rounded-xl p-1"
       style={{
-        width: block ? "100%" : undefined,
+        width: block ? "100%" : "fit-content",
+        maxWidth: "100%",
         borderRadius: pill ? "999px" : "12px",
         background: variant === "ghost" ? "transparent" : "var(--widget-surface-secondary)"
       }}

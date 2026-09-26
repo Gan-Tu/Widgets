@@ -1,0 +1,29 @@
+{
+  "designSpec": "One honest local scenario: adjust pages per day and see the remaining reading days.",
+  "template": "<Card size=\"sm\" gap={5}>\n  <Col gap={1}>\n    <Caption value={demoNote} />\n    <Title value={title} size=\"sm\" />\n  </Col>\n  <Scope values={{ validPace: has(paceText) && Number(paceText) >= 1 && Number(paceText) <= 200 && floor(Number(paceText)) === Number(paceText) }}>\n    <Show $when=\"validPace\">\n      <Stat label={resultLabel} value={String(ceil(pagesRemaining / Number(paceText))) + dayUnit} size=\"lg\" helpText={resultNote} />\n      <Show.Else><Text value={pendingLabel} size=\"sm\" color=\"secondary\" /></Show.Else>\n    </Show>\n    <Col gap={2}>\n      <Label value={paceLabel} fieldName=\"pace\" />\n      <Input name=\"pace\" inputType=\"number\" defaultValue={paceText} size=\"2xl\" required\n        $onChangeAction='{ updateState: { paceText: value } }' />\n      <Caption value={rangeNote} />\n      <Show $when=\"!validPace\"><Text value={paceError} size=\"sm\" color=\"danger\" /></Show>\n    </Col>\n  </Scope>\n  <Divider />\n  <KeyValue rows={details} />\n  <Text value={assumption} size=\"sm\" color=\"secondary\" />\n</Card>",
+  "data": {
+    "demoNote": "Illustrative reading plan · calculated locally",
+    "title": "A little, every day",
+    "resultLabel": "Reading days remaining",
+    "dayUnit": " days",
+    "resultNote": "Rounded up to finish the last page.",
+    "paceLabel": "Daily pace (pages per day)",
+    "paceText": "20",
+    "pagesRemaining": 240,
+    "pendingLabel": "Reading-day estimate not calculated.",
+    "rangeNote": "Whole pages only · 1–200 pages per day",
+    "paceError": "Enter a whole number from 1 to 200 to calculate reading days.",
+    "details": [
+      {
+        "label": "Pages remaining",
+        "value": "240"
+      },
+      {
+        "label": "Starting point",
+        "value": "Page 61 of 300"
+      }
+    ],
+    "assumption": "Assumes the same pace each reading day. Breaks add calendar days; this is a scenario, not a scheduled finish date."
+  },
+  "theme": "light"
+}

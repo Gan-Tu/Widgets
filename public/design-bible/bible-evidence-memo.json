@@ -1,0 +1,16 @@
+{
+  "designSpec": "An answer-first evidence memo: observed results, limits, and a copyable conclusion.",
+  "template": "<Response gap={4} padding={1}>\n  <Col gap={1}>\n    <Caption value={eyebrow} />\n    <Title value={title} size=\"md\" />\n  </Col>\n  <Text value={answer} size=\"sm\" />\n  <Divider />\n  <Col gap={2}>\n    <Text value={evidenceTitle} size=\"sm\" weight=\"semibold\" />\n    <Text value={evidence} size=\"sm\" />\n    <Caption value={source} />\n  </Col>\n  <Text value={limitation} size=\"sm\" color=\"secondary\" />\n  <Row><Button label={copyLabel} iconStart=\"copy\" variant=\"outline\" size=\"2xl\"\n    onClickAction={{ type: \"copy\", handler: \"client\", payload: { value: copyText } }} /></Row>\n</Response>",
+  "data": {
+    "eyebrow": "Illustrative library pilot · decision note",
+    "title": "Keep one quiet hour",
+    "answer": "Keep the Wednesday quiet hour for another four sessions, then review. The small pilot supports continuing the experiment, not a permanent schedule change.",
+    "evidenceTitle": "What the sample actually says",
+    "evidence": "18 of 24 respondents preferred the quiet session. Six wanted a separate space for conversation; the sample did not measure total attendance.",
+    "source": "Source: fictional pilot feedback, 24 responses across four sessions.",
+    "limitation": "This is a self-selected sample. We do not know whether visitors who skipped the session would agree.",
+    "copyLabel": "Copy decision note",
+    "copyText": "ILLUSTRATIVE PILOT — Keep the Wednesday quiet hour for four more sessions, then review. 18 of 24 sample respondents preferred it; six requested conversation space. Self-selected feedback does not establish overall demand."
+  },
+  "theme": "light"
+}

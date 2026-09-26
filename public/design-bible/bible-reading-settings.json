@@ -1,0 +1,84 @@
+{
+  "designSpec": "A settings editor connects FineTuneCard, a real note toggle, and paper-tone controls to a visible local reading preview.",
+  "template": "<Basic gap={4}>\n  <Col gap={2}><Row gap={2}><Icon name=\"book-open\" /><Caption value={sampleLabel} /></Row><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" /></Col>\n  <FineTuneCard title={editorTitle} badge={draftLabel} fields={fields} applyLabel={applyLabel}\n    $applyAction='{ updateState: { applied: { heading: has(values.heading) ? values.heading : fallbackHeading, size: values.size } } }' />\n  <Row justify=\"between\" gap={3}><Text value={notesLabel} size=\"sm\" /><Toggle name=\"readingNotes\" label={notesLabel} variant=\"switch\" defaultPressed={true} $onChangeAction='{ updateState: { showNotes: value } }' /></Row>\n  <Col gap={1}><Text value={paletteLabel} size=\"sm\" /><ToggleGroup name=\"readingPalette\" options={palettes} defaultValue=\"mint\" $onChangeAction='{ updateState: { palette: value || \"mint\" } }' /></Col>\n  <Box background={surfaces[palette]} padding={4} radius=\"lg\" gap={3}>\n    <Caption value={previewLabel} /><Title value={applied.heading} size=\"sm\" />\n    <Text value={sampleText} size={applied.size} />\n    <Show $when=\"showNotes\"><Col gap={1}><Divider /><Caption value={noteLabel} /><Text value={noteText} size=\"sm\" color=\"secondary\" /></Col></Show>\n  </Box>\n  <Tooltip label={helpLabel} content={helpText} />\n</Basic>",
+  "data": {
+    "sampleLabel": "Sample reader · session settings",
+    "title": "Make a little room to read",
+    "intro": "Try a heading, text size, and paper tone while the same passage stays in view.",
+    "editorTitle": "Reading preferences",
+    "draftLabel": "Draft",
+    "applyLabel": "Apply to preview",
+    "fallbackHeading": "A slower page",
+    "notesLabel": "Show the reading note",
+    "paletteLabel": "Paper tone",
+    "palette": "mint",
+    "showNotes": true,
+    "fields": [
+      {
+        "name": "heading",
+        "label": "Heading",
+        "type": "text",
+        "value": "A slower page"
+      },
+      {
+        "name": "size",
+        "label": "Body size",
+        "type": "select",
+        "value": "md",
+        "options": [
+          {
+            "label": "Compact",
+            "value": "sm"
+          },
+          {
+            "label": "Comfortable",
+            "value": "md"
+          },
+          {
+            "label": "Large",
+            "value": "lg"
+          }
+        ]
+      }
+    ],
+    "palettes": [
+      {
+        "label": "White",
+        "value": "mint"
+      },
+      {
+        "label": "Warm",
+        "value": "cream"
+      },
+      {
+        "label": "Soft gray",
+        "value": "paper"
+      }
+    ],
+    "surfaces": {
+      "mint": {
+        "light": "#ffffff",
+        "dark": "#181818"
+      },
+      "cream": {
+        "light": "#faf7f2",
+        "dark": "#24211d"
+      },
+      "paper": {
+        "light": "#f5f5f5",
+        "dark": "#242424"
+      }
+    },
+    "applied": {
+      "heading": "A slower page",
+      "size": "md"
+    },
+    "previewLabel": "Reading preview",
+    "sampleText": "A quiet page does not have to be an empty page. Give the main idea enough space, let the supporting detail stay close, and make the next paragraph easy to find.",
+    "noteLabel": "Reading note",
+    "noteText": "Try the large setting with each paper tone. The words stay the same; only this local preview changes.",
+    "helpLabel": "About this preview",
+    "helpText": "Apply updates the heading and body size. The note switch and paper tone change immediately. These settings last only in this widget."
+  },
+  "theme": "light"
+}

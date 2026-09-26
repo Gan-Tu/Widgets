@@ -1,0 +1,64 @@
+{
+  "designSpec": "A six-point attendance trend with a visible takeaway and an exact-count alternative.",
+  "template": "<Card size=\"md\" gap={4}>\n  <Col gap={1}>\n    <Caption value={demoNote} />\n    <Title value={title} size=\"sm\" />\n    <Text value={takeaway} size=\"sm\" />\n  </Col>\n  <SegmentedControl name=\"view\" ariaLabel={viewLabel} options={views} value={view} size=\"lg\"\n    $onChangeAction='{ updateState: { view: value } }' />\n  <Show $when=\"view === 'chart'\">\n    <Col gap={1}>\n      <Caption value={axisNote} />\n      <LineChart data={sessions} xAxis={{ dataKey: \"week\" }} series={[{ dataKey: \"visits\", label: seriesLabel, curveType: \"linear\", dot: true }]} height={190} showYAxis showLegend={false} />\n    </Col>\n    <Show.Else><DataTable columns={columns} rows={sessions} caption={tableCaption} /></Show.Else>\n  </Show>\n  <Text value={limitation} size=\"sm\" color=\"secondary\" />\n  <Caption value={source} />\n</Card>",
+  "data": {
+    "demoNote": "Illustrative museum attendance · six equal Saturday sessions",
+    "title": "Visits rose from 120 to 180",
+    "takeaway": "The last session had 60 more visits than the first (+50%), with a small dip in week 3.",
+    "viewLabel": "Attendance display",
+    "views": [
+      {
+        "label": "Trend",
+        "value": "chart"
+      },
+      {
+        "label": "Exact counts",
+        "value": "values"
+      }
+    ],
+    "view": "chart",
+    "axisNote": "Visits per session · sessions W1–W6",
+    "seriesLabel": "Visits",
+    "sessions": [
+      {
+        "week": "W1",
+        "visits": 120
+      },
+      {
+        "week": "W2",
+        "visits": 144
+      },
+      {
+        "week": "W3",
+        "visits": 138
+      },
+      {
+        "week": "W4",
+        "visits": 165
+      },
+      {
+        "week": "W5",
+        "visits": 174
+      },
+      {
+        "week": "W6",
+        "visits": 180
+      }
+    ],
+    "columns": [
+      {
+        "key": "week",
+        "label": "Session"
+      },
+      {
+        "key": "visits",
+        "label": "Visits",
+        "align": "end"
+      }
+    ],
+    "tableCaption": "All six sample counts; no sessions omitted.",
+    "limitation": "The pattern alone cannot explain the rise. Opening hours are equal, but programming and weather are not controlled.",
+    "source": "Source: synthetic gate-counter fixture; visits are entries, not unique people."
+  },
+  "theme": "light"
+}

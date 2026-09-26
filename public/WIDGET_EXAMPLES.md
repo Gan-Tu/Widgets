@@ -4,13 +4,2114 @@ The complete gallery corpus — every demo widget from the gallery as a `templat
 
 > Generated from `src/examples/widgetExamples.ts` by `scripts/build-widget-examples-doc.mjs` — do not edit by hand.
 
-52 widgets across 10 categories.
+72 widgets across 11 categories.
 
 ## Using these examples
 
 Read the [authoring contract and design guidelines](AGENTS.md#design-guidelines) alongside these templates. Start with the closest pattern and adapt its content, data bindings, and actions to the task. Preserve the built-in control states, subtle borders, consistent gutters, and responsive sizing.
 
 Omit explicit chart colors to use the automatic combinations: blue for one series, yellow + green for two, and blue + green + pinkish red for three. Larger sets add purple and orange without pairing yellow with orange. For pie charts, use the slice count. Keep tooltip text neutral. Check the result at compact widths, in both themes, and with keyboard interaction; examples are starting points, not a reason to add more panels or actions than the task needs.
+
+Use the [complete component design playbook](AGENTS.md#choose-from-the-full-component-library) to match components to their jobs. Tabs, navigation, media, and agent activity are welcome when they clarify a richer workflow. The Editorial collection deliberately varies information shape, and interaction. Scripted replays are local demonstrations, not live model or tool calls.
+
+Examples using `/design-bible/assets/` require those supplied assets on the host. When adapting a template elsewhere, serve the assets or replace them with verified URLs; copying a root-relative URL alone does not copy the asset.
+
+## Editorial
+
+### Research, in the open
+
+A research desk pairs a stable synthesis with a bounded scripted replay, public workflow summaries, tool activity, and inspectable sample sources. (id: `bible-research-replay`)
+
+Components in context: `Card`, `Col`, `Row`, `Icon`, `Caption`, `Title`, `Text`, `Button`, `Show`, `RunInterval`, `Tabs`, `Tabs.Panel`, `Orb`, `ThinkingState`, `StreamingText`, `InlineCitations`, `ThinkingReasoning`, `ToolChips`, `Progress`, `ContextCards`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" padding={0} gap={0}>
+  <Col padding={4} gap={3}>
+    <Row gap={2} wrap="wrap"><Icon name="compass" /><Caption value={sampleLabel} /></Row>
+    <Title value={title} size="md" />
+    <Text value={takeaway} size="sm" />
+  </Col>
+  <Col padding={4} gap={4}>
+    <Row wrap="wrap" gap={2}>
+      <Button label={playing ? replayingLabel : replayLabel} iconStart="play" color="accent" disabled={playing}
+        onClickAction={{ updateState: { playing: true, frame: 0, run: run + 1 } }} />
+      <Button label={completeLabel} variant="ghost" color="secondary" onClickAction={{ updateState: { playing: false, frame: 3 } }} />
+    </Row>
+    <Show $when="playing"><RunInterval interval={1400} $onTickAction='{ updateState: { frame: min(3, frame + 1), playing: frame < 2 } }' /></Show>
+    <Tabs key="research-views" tabs={tabs} defaultTab="activity">
+      <Tabs.Panel id="answer"><Col gap={3}>
+        <Show $when="playing"><Row gap={2}><Orb variant="C2" color="accent" size={20} /><ThinkingState label={frames[frame].label} active /></Row></Show>
+        <StreamingText key={run} text={answer} streaming={playing} speed={14} loop={false} sources={sources} />
+        <InlineCitations text={evidence} sources={sources} />
+      </Col></Tabs.Panel>
+      <Tabs.Panel id="activity"><Col gap={3}>
+        <ThinkingReasoning summary={traceTitle} steps={frames[frame].steps} active={false} defaultOpen />
+        <ToolChips summary={toolTitle} items={frames[frame].tools} defaultOpen
+          $onItemClickAction='{ updateState: { inspected: item.id } }' />
+        <Show $when="has(inspected)"><Text value={read(toolNotes, inspected, '')} size="sm" /></Show>
+        <Progress value={frame} max={3} label={frameLabel} color="accent" />
+      </Col></Tabs.Panel>
+      <Tabs.Panel id="sources"><ContextCards title={sourceTitle} items={contexts} /></Tabs.Panel>
+    </Tabs>
+  </Col>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Scripted demo · public workflow",
+  "title": "A morning worth testing",
+  "takeaway": "Start with one morning workshop. The sample suggests a scheduling preference, not proof of stronger demand.",
+  "replayLabel": "Replay research",
+  "replayingLabel": "Replaying…",
+  "completeLabel": "Show complete",
+  "playing": false,
+  "frame": 3,
+  "run": 0,
+  "answer": "In this fictional 12-person survey, eight people prefer mornings and four prefer evenings. A one-session pilot would test whether that preference translates into attendance. Keep an evening option in the next survey.",
+  "evidence": "The sample preference is 8 of 12 [1]; the room note leaves both periods possible [2].",
+  "traceTitle": "Public workflow summary",
+  "toolTitle": "2 sample tool records",
+  "inspected": "",
+  "frameLabel": "Replay frames",
+  "sourceTitle": "The two sample excerpts",
+  "tabs": [
+    {
+      "id": "answer",
+      "label": "Answer",
+      "icon": "message"
+    },
+    {
+      "id": "activity",
+      "label": "Activity",
+      "icon": "activity"
+    },
+    {
+      "id": "sources",
+      "label": "Sources",
+      "icon": "document"
+    }
+  ],
+  "sources": [
+    {
+      "id": 1,
+      "label": "Sample survey",
+      "host": "local fixture"
+    },
+    {
+      "id": 2,
+      "label": "Sample room note",
+      "host": "local fixture"
+    }
+  ],
+  "contexts": [
+    {
+      "id": "survey",
+      "title": "Preference is not attendance",
+      "excerpt": "Twelve sample responses: 8 morning, 4 evening. Respondents selected a preferred time; no tickets were offered.",
+      "source": {
+        "label": "Fictional survey",
+        "type": "NOTE"
+      }
+    },
+    {
+      "id": "room",
+      "title": "Both windows remain possible",
+      "excerpt": "The sample room plan leaves one morning and one evening window open for discussion. This is not venue availability.",
+      "source": {
+        "label": "Fictional room note",
+        "type": "NOTE"
+      }
+    }
+  ],
+  "toolNotes": {
+    "survey": "The replay reads a fixed 12-response survey fixture. It does not contact a survey service.",
+    "room": "The replay reads the supplied fictional room note. It makes no calendar query."
+  },
+  "frames": [
+    {
+      "label": "Replaying: read the survey",
+      "steps": [
+        {
+          "label": "Read the sample",
+          "detail": "Locate the preference count",
+          "status": "running"
+        },
+        {
+          "label": "Check the scope",
+          "detail": "Separate preference from attendance",
+          "status": "pending"
+        }
+      ],
+      "tools": [
+        {
+          "id": "survey",
+          "type": "read",
+          "label": "Read sample survey",
+          "detail": "12 responses",
+          "status": "running"
+        },
+        {
+          "id": "room",
+          "type": "read",
+          "label": "Read room note",
+          "detail": "2 possible windows",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "label": "Replaying: inspect the room note",
+      "steps": [
+        {
+          "label": "Read the sample",
+          "detail": "8 morning, 4 evening",
+          "status": "completed"
+        },
+        {
+          "label": "Check the scope",
+          "detail": "No reservation or attendance data",
+          "status": "running"
+        }
+      ],
+      "tools": [
+        {
+          "id": "survey",
+          "type": "read",
+          "label": "Read sample survey",
+          "detail": "12 responses",
+          "status": "completed"
+        },
+        {
+          "id": "room",
+          "type": "read",
+          "label": "Read room note",
+          "detail": "2 possible windows",
+          "status": "running"
+        }
+      ]
+    },
+    {
+      "label": "Replaying: assemble the summary",
+      "steps": [
+        {
+          "label": "Read the sample",
+          "detail": "8 morning, 4 evening",
+          "status": "completed"
+        },
+        {
+          "label": "Check the scope",
+          "detail": "One small pilot is the next test",
+          "status": "completed"
+        }
+      ],
+      "tools": [
+        {
+          "id": "survey",
+          "type": "read",
+          "label": "Read sample survey",
+          "detail": "12 responses",
+          "status": "completed"
+        },
+        {
+          "id": "room",
+          "type": "read",
+          "label": "Read room note",
+          "detail": "2 possible windows",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "label": "Replay complete",
+      "steps": [
+        {
+          "label": "Read the sample",
+          "detail": "8 morning, 4 evening",
+          "status": "completed"
+        },
+        {
+          "label": "Check the scope",
+          "detail": "Preference does not establish demand",
+          "status": "completed"
+        }
+      ],
+      "tools": [
+        {
+          "id": "survey",
+          "type": "read",
+          "label": "Read sample survey",
+          "detail": "12 responses",
+          "status": "completed"
+        },
+        {
+          "id": "room",
+          "type": "read",
+          "label": "Read room note",
+          "detail": "2 possible windows",
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### A patch you can inspect
+
+A release-review surface separates changed lines, the resulting configuration, and a local review decision without implying deployment. (id: `bible-release-review`)
+
+Components in context: `Card`, `Box`, `Row`, `Icon`, `Caption`, `Title`, `Text`, `Tabs`, `Tabs.Panel`, `FileDiff`, `CodeBlock`, `TaskList`, `Show`, `ApprovalCard`, `Show.Else`, `Col`, `Callout`, `Button`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Box gap={2}>
+    <Row gap={2}><Icon name="code" /><Caption value={sampleLabel} /></Row>
+    <Title value={title} size="sm" /><Text value={takeaway} size="sm" />
+  </Box>
+  <Tabs tabs={tabs}>
+    <Tabs.Panel id="changes"><FileDiff file={file} rows={diffRows} language="json" compact /></Tabs.Panel>
+    <Tabs.Panel id="result"><CodeBlock file={file} code={code} language="json" /></Tabs.Panel>
+    <Tabs.Panel id="checks"><TaskList title={checksTitle} items={checks} defaultOpen /></Tabs.Panel>
+  </Tabs>
+  <Show $when="decision === ''">
+    <ApprovalCard title={approvalTitle} description={approvalNote} options={choices} allowOther={false} defaultValue="approve"
+      approveLabel={recordLabel} $approveAction='{ updateState: { decision: value } }' />
+    <Show.Else><Col gap={3}>
+      <Callout color={decision === "approve" ? "info" : "warning"} title={decision === "approve" ? approvedTitle : reviseTitle} description={decisionNote} />
+      <Row><Button label={resetLabel} variant="outline" onClickAction={{ updateState: { decision: "" } }} /></Row>
+    </Col></Show.Else>
+  </Show>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample patch · local review",
+  "title": "Say what the button does",
+  "takeaway": "Replace “Submit” with “Copy summary” so the label describes the existing clipboard action.",
+  "tabs": [
+    {
+      "id": "changes",
+      "label": "Changes"
+    },
+    {
+      "id": "result",
+      "label": "Result"
+    },
+    {
+      "id": "checks",
+      "label": "Checks"
+    }
+  ],
+  "file": "sample-action.json",
+  "diffRows": [
+    {
+      "oldLine": 1,
+      "newLine": 1,
+      "type": "context",
+      "text": "{"
+    },
+    {
+      "oldLine": 2,
+      "type": "remove",
+      "text": "  \"label\": \"Submit\","
+    },
+    {
+      "newLine": 2,
+      "type": "add",
+      "text": "  \"label\": \"Copy summary\","
+    },
+    {
+      "oldLine": 3,
+      "newLine": 3,
+      "type": "context",
+      "text": "  \"type\": \"copy\""
+    },
+    {
+      "oldLine": 4,
+      "newLine": 4,
+      "type": "context",
+      "text": "}"
+    }
+  ],
+  "code": "{\n  \"label\": \"Copy summary\",\n  \"type\": \"copy\"\n}",
+  "checksTitle": "Sample review notes",
+  "checks": [
+    {
+      "id": "verb",
+      "label": "Specific verb",
+      "detail": "Copy names the local operation",
+      "status": "completed"
+    },
+    {
+      "id": "scope",
+      "label": "No execution claim",
+      "detail": "The wording does not imply a send",
+      "status": "completed"
+    }
+  ],
+  "approvalTitle": "Record your review",
+  "approvalNote": "This changes only the decision shown here.",
+  "choices": [
+    {
+      "label": "Wording is clear",
+      "value": "approve",
+      "description": "Keep the proposed label"
+    },
+    {
+      "label": "Needs another pass",
+      "value": "revise",
+      "description": "Leave the sample under review"
+    }
+  ],
+  "recordLabel": "Record choice",
+  "decision": "",
+  "approvedTitle": "Wording accepted locally",
+  "reviseTitle": "Another pass requested",
+  "decisionNote": "The sample file has not been written, committed, or deployed.",
+  "resetLabel": "Revisit decision"
+}
+```
+
+### A field guide with a path
+
+A knowledge workspace combines working breadcrumb navigation, a responsive sidebar, a selected guide, and optional process detail. (id: `bible-field-guide`)
+
+Components in context: `Basic`, `Box`, `Caption`, `Row`, `Show`, `Button`, `Icon`, `Text`, `Show.Else`, `Grid`, `SidebarNav`, `Col`, `Title`, `Markdown`, `Timeline`, `CodeBlock`, `Sheet`.
+
+WIDGET TEMPLATE:
+
+```
+<Basic gap={4}>
+  <Box gap={2}>
+    <Caption value={sampleLabel} />
+    <Row wrap="wrap" gap={1}>
+      <Show $when="page !== 'home'"><Button label={workspace} size="sm" variant="ghost" onClickAction={{ updateState: { page: "home" } }} /><Icon name="chevron-right" size="xs" /><Text value={pages[page].title} size="sm" weight="semibold" /><Show.Else><Text value={workspace} size="sm" weight="semibold" /></Show.Else></Show>
+    </Row>
+  </Box>
+  <Grid columns="repeat(auto-fit, minmax(min(100%, 220px), 1fr))" gap={4}>
+    <SidebarNav workspace={workspace} workspaceIcon="notebook" sections={[{ label: navLabel, items: navItems.map((item) => ({ id: item.id, label: item.label, icon: item.icon, active: page === item.id })) }]}
+      $onNavigateAction='{ updateState: { page: id } }' />
+    <Col gap={3} minWidth={0}>
+      <Title value={pages[page].title} size="md" />
+      <Text value={pages[page].summary} size="sm" />
+      <Markdown value={pages[page].body} />
+      <Show $when="page === 'fold'"><Timeline items={foldSteps} /></Show>
+      <Show $when="page === 'bind'"><CodeBlock code={bindingNote} language="text" file={bindingFile} showLineNumbers={false} /></Show>
+      <Sheet triggerLabel={helpLabel} title={helpTitle} description={helpDescription} content={helpBody} />
+    </Col>
+  </Grid>
+</Basic>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample studio library",
+  "workspace": "Paper field guide",
+  "page": "fold",
+  "navLabel": "Guides",
+  "navItems": [
+    {
+      "id": "home",
+      "label": "Start here",
+      "icon": "home"
+    },
+    {
+      "id": "fold",
+      "label": "Make a dummy",
+      "icon": "layers"
+    },
+    {
+      "id": "bind",
+      "label": "Record a binding",
+      "icon": "book-open"
+    }
+  ],
+  "pages": {
+    "home": {
+      "title": "Small books start on paper",
+      "summary": "Use a blank folded copy to decide page order before styling a finished layout.",
+      "body": "Choose **Make a dummy** for the sequence, or **Record a binding** for a copyable studio note."
+    },
+    "fold": {
+      "title": "Make a paper dummy",
+      "summary": "A rough folded copy reveals page order and the center spread before the artwork goes in.",
+      "body": "Keep it intentionally plain. Number the pages in reading order, then unfold the sheet to inspect the arrangement."
+    },
+    "bind": {
+      "title": "Record the construction",
+      "summary": "A short note makes the next sample reproducible.",
+      "body": "Record what you actually used. The example below is a **fictional studio sample**, not a print specification for a real job."
+    }
+  },
+  "foldSteps": [
+    {
+      "title": "Fold a blank sheet",
+      "description": "Match the intended reading format.",
+      "time": "1",
+      "icon": "layers"
+    },
+    {
+      "title": "Number in reading order",
+      "description": "Include the front and back covers.",
+      "time": "2",
+      "icon": "write"
+    },
+    {
+      "title": "Unfold and inspect",
+      "description": "Compare the two sides before laying out pages.",
+      "time": "3",
+      "icon": "eye"
+    }
+  ],
+  "bindingNote": "Sample A\n8 pages · folded sheet\nCover: warm white\nCheck: page order before artwork",
+  "bindingFile": "studio-note.txt",
+  "helpLabel": "About this guide",
+  "helpTitle": "A guide that stays small",
+  "helpDescription": "Three local pages, one useful sequence.",
+  "helpBody": "The sidebar changes the selected page. The breadcrumb returns to the start. Notes remain available to copy, and this panel contains optional context rather than the main instruction."
+}
+```
+
+### A source-aware drafting desk
+
+A drafting desk uses a real source picker and composer to assemble a deterministic local brief preview, with removable sample context and a copy action. (id: `bible-draft-desk`)
+
+Components in context: `Card`, `Col`, `Row`, `Avatar`, `Caption`, `Title`, `Text`, `PromptBar`, `Box`, `Show`, `Badge`, `TextResponse`, `Button`, `Show.Else`, `EmptyState`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" padding={0} gap={0}>
+  <Col padding={4} gap={3}>
+    <Row gap={3}><Avatar name={editorName} size={42} /><Col gap={0}><Caption value={sampleLabel} /><Title value={title} size="sm" /></Col></Row>
+    <Text value={intro} size="sm" />
+  </Col>
+  <Col padding={4} gap={4}>
+    <PromptBar name="draftPrompt" defaultValue={initialDraft} placeholder={placeholder} rows={3} sources={sources} selectedSources={[selectedSource]}
+      attachments={attachments} removeAttachmentAction={{ updateState: { attachments: [] } }}
+      $sourceAction='{ updateState: { selectedSource: value } }'
+      $submitAction='{ updateState: { preview: value, previewSource: selectedSource } }' />
+    <Text value={submitNote} size="sm" color="secondary" />
+    <Box background="surface-secondary" padding={3} radius="md" gap={1}><Caption value={contextLabel} /><Text value={sourceNotes[selectedSource]} size="sm" /></Box>
+    <Show $when="has(preview)">
+      <Col gap={3}><Row gap={2}><Badge label={draftLabel} color="accent" /><Text value={previewSource} size="sm" color="secondary" /></Row>
+        <TextResponse value={preview} />
+        <Row><Button label={copyLabel} iconStart="copy" color="accent" onClickAction={{ type: "copy", handler: "client", payload: { value: preview + "\n\nContext: " + sourceNotes[previewSource] } }} /></Row>
+      </Col>
+      <Show.Else><EmptyState icon="write" title={emptyTitle} description={emptyDescription} padding={3} /></Show.Else>
+    </Show>
+  </Col>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "editorName": "Mara Lin",
+  "sampleLabel": "Sample studio · local draft",
+  "title": "Give the brief some context",
+  "intro": "Choose a source note, write the brief, then preview the exact text before copying it.",
+  "initialDraft": "Invite six people to a small print swap. Ask each person to bring one print and a short note about how it was made.",
+  "placeholder": "Write a brief to preview locally",
+  "selectedSource": "Print swap",
+  "sources": [
+    {
+      "id": "Print swap",
+      "label": "Print swap",
+      "description": "Six guests · one print each",
+      "icon": "images"
+    },
+    {
+      "id": "Open studio",
+      "label": "Open studio",
+      "description": "A casual visit · work in progress",
+      "icon": "palette"
+    }
+  ],
+  "sourceNotes": {
+    "Print swap": "Sample plan: six guests, one print each, a short introduction, then an informal exchange.",
+    "Open studio": "Sample plan: show three works in progress and leave time for questions. No date or venue is booked."
+  },
+  "attachments": [
+    {
+      "id": "sample-note",
+      "name": "sample-note.txt",
+      "type": "Text",
+      "size": "Local excerpt"
+    }
+  ],
+  "submitNote": "The Send arrow previews your text here; nothing is sent or generated.",
+  "contextLabel": "Selected source note",
+  "preview": "Invite six people to a small print swap. Ask each person to bring one print and a short note about how it was made.",
+  "previewSource": "Print swap",
+  "draftLabel": "Draft",
+  "copyLabel": "Copy brief + context",
+  "emptyTitle": "Your preview goes here",
+  "emptyDescription": "The original wording is preserved; the selected source is attached as context."
+}
+```
+
+### A handoff in three stages
+
+A training replay makes task stages, bounded playback, and the final handoff visible through Steps, TaskRows, Flowchart, and measured replay progress. (id: `bible-handoff-replay`)
+
+Components in context: `Response`, `Box`, `Caption`, `Title`, `Text`, `Steps`, `Tabs`, `Tabs.Panel`, `Col`, `Show`, `LoadingState`, `RunInterval`, `Show.Else`, `TaskRows`, `Progress`, `Row`, `Button`, `Flowchart`.
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={4}>
+  <Box gap={2}>
+    <Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={takeaway} size="sm" />
+  </Box>
+  <Steps items={stageLabels} current={min(frame, 2)} color="accent" />
+  <Tabs tabs={tabs}>
+    <Tabs.Panel id="replay"><Col gap={3}>
+      <Show $when="playing"><LoadingState label={frames[frame].label} variant="orbit" /><RunInterval interval={1700} $onTickAction='{ updateState: { frame: min(3, frame + 1), playing: frame < 2 } }' /><Show.Else><Text value={frames[frame].label} size="sm" weight="semibold" /></Show.Else></Show>
+      <TaskRows items={frames[frame].tasks} variant="list" />
+      <Progress value={frame} max={3} label={progressLabel} color="accent" />
+      <Row gap={2} wrap="wrap"><Button label={playLabel} color="accent" disabled={playing} onClickAction={{ updateState: { frame: 0, playing: true } }} /><Button label={finishLabel} variant="ghost" onClickAction={{ updateState: { frame: 3, playing: false } }} /></Row>
+    </Col></Tabs.Panel>
+    <Tabs.Panel id="method"><Col gap={3}><Flowchart nodes={nodes} edges={edges} $onNodeClickAction='{ updateState: { selectedNode: id } }' /><Box padding={{ x: 3 }}><Text value={nodeNotes[selectedNode]} size="sm" color="secondary" /></Box></Col></Tabs.Panel>
+  </Tabs>
+  <Box background="surface-secondary" padding={3} radius="md" gap={1}><Caption value={resultLabel} /><Text value={result} size="sm" /></Box>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Scripted training demo",
+  "title": "Make the next step obvious",
+  "takeaway": "A useful handoff names the owner, the next action, and the evidence they need.",
+  "stageLabels": [
+    {
+      "label": "Inspect"
+    },
+    {
+      "label": "Arrange"
+    },
+    {
+      "label": "Hand off"
+    }
+  ],
+  "tabs": [
+    {
+      "id": "replay",
+      "label": "Replay"
+    },
+    {
+      "id": "method",
+      "label": "Method"
+    }
+  ],
+  "playing": false,
+  "frame": 3,
+  "progressLabel": "Replay frames",
+  "playLabel": "Play stages",
+  "finishLabel": "Show final frame",
+  "selectedNode": "inspect",
+  "resultLabel": "Sample handoff",
+  "result": "Mara owns the next proof. Check the center spread against the folded dummy, then return the marked copy to Jules.",
+  "frames": [
+    {
+      "label": "Replaying: inspect the inputs",
+      "tasks": [
+        {
+          "id": "inspect",
+          "label": "Inspect",
+          "detail": "Read the supplied proof note",
+          "status": "running"
+        },
+        {
+          "id": "arrange",
+          "label": "Arrange",
+          "detail": "Name owner and next action",
+          "status": "pending"
+        },
+        {
+          "id": "handoff",
+          "label": "Hand off",
+          "detail": "Package the reference",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "label": "Replaying: arrange the work",
+      "tasks": [
+        {
+          "id": "inspect",
+          "label": "Inspect",
+          "detail": "Scope is one center spread",
+          "status": "completed"
+        },
+        {
+          "id": "arrange",
+          "label": "Arrange",
+          "detail": "Mara checks; Jules receives",
+          "status": "running"
+        },
+        {
+          "id": "handoff",
+          "label": "Hand off",
+          "detail": "Package the reference",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "label": "Replaying: package the handoff",
+      "tasks": [
+        {
+          "id": "inspect",
+          "label": "Inspect",
+          "detail": "Scope is one center spread",
+          "status": "completed"
+        },
+        {
+          "id": "arrange",
+          "label": "Arrange",
+          "detail": "Mara checks; Jules receives",
+          "status": "completed"
+        },
+        {
+          "id": "handoff",
+          "label": "Hand off",
+          "detail": "Attach the marked proof",
+          "status": "running"
+        }
+      ]
+    },
+    {
+      "label": "Replay complete",
+      "tasks": [
+        {
+          "id": "inspect",
+          "label": "Inspect",
+          "detail": "Scope is one center spread",
+          "status": "completed"
+        },
+        {
+          "id": "arrange",
+          "label": "Arrange",
+          "detail": "Mara checks; Jules receives",
+          "status": "completed"
+        },
+        {
+          "id": "handoff",
+          "label": "Hand off",
+          "detail": "Reference named in sample",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "inspect",
+      "label": "Inspect the input",
+      "description": "What changed?",
+      "kind": "trigger",
+      "icon": "eye"
+    },
+    {
+      "id": "arrange",
+      "label": "Name the action",
+      "description": "Who needs to do what?",
+      "kind": "action",
+      "icon": "users"
+    },
+    {
+      "id": "handoff",
+      "label": "Include the evidence",
+      "description": "What will they inspect?",
+      "kind": "result",
+      "icon": "paperclip"
+    }
+  ],
+  "edges": [
+    {
+      "from": "inspect",
+      "to": "arrange",
+      "label": "define",
+      "tone": "info"
+    },
+    {
+      "from": "arrange",
+      "to": "handoff",
+      "label": "support",
+      "tone": "info"
+    }
+  ],
+  "nodeNotes": {
+    "inspect": "Read the original note before deciding what changed.",
+    "arrange": "One named owner and one concrete action reduce ambiguity.",
+    "handoff": "Name the exact reference, such as the marked proof, rather than saying “see above”."
+  }
+}
+```
+
+### The workshop attendance lab
+
+An analytics study uses distinct, same-unit trend, capacity, mix, and exact-record views to explain four sample sessions without chart duplication. (id: `bible-workshop-analytics`)
+
+Components in context: `Card`, `Box`, `Caption`, `Title`, `Row`, `Stat`, `Text`, `Tabs`, `Tabs.Panel`, `Col`, `AreaChart`, `Chart`, `PieChart`, `KeyValue`, `RecordsTable`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Box gap={3}>
+    <Caption value={sampleLabel} /><Title value={title} size="sm" />
+    <Row gap={5} wrap="wrap"><Stat label={totalLabel} value={totalValue} size="md" /><Stat label={fillLabel} value={fillValue} size="md" /></Row>
+    <Text value={takeaway} size="sm" />
+  </Box>
+  <Tabs tabs={tabs}>
+    <Tabs.Panel id="trend"><Col gap={2}><Caption value={trendLabel} /><AreaChart data={sessions} xAxis={{ dataKey: "week" }} series={[{ dataKey: "attended", label: "Attended", curveType: "linear" }]} height={185} showYAxis showLegend={false} /></Col></Tabs.Panel>
+    <Tabs.Panel id="capacity"><Col gap={2}><Caption value={capacityLabel} /><Chart data={sessions} xAxis={{ dataKey: "week" }} series={[{ type: "bar", dataKey: "seats", label: "Seats" }, { type: "line", dataKey: "attended", label: "Attended", curveType: "linear" }]} height={185} showYAxis /></Col></Tabs.Panel>
+    <Tabs.Panel id="mix"><Col gap={2}><Caption value={mixLabel} /><PieChart data={mix} series={[{ dataKey: "count", nameKey: "name", innerRadius: 42 }]} height={155} showLegend={false} /><KeyValue rows={mixValues} /></Col></Tabs.Panel>
+    <Tabs.Panel id="data"><RecordsTable columns={columns} rows={sessions} defaultSortKey="week" caption={recordNote} /></Tabs.Panel>
+  </Tabs>
+  <Text value={scopeNote} size="sm" color="secondary" />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample register · W1–W4",
+  "title": "More of the room is filling",
+  "totalLabel": "Attendance entries",
+  "totalValue": "112",
+  "fillLabel": "Seats filled",
+  "fillValue": "70%",
+  "takeaway": "Attendance rose in each session. Across four equally sized sessions, 112 of 160 seats were filled.",
+  "tabs": [
+    {
+      "id": "trend",
+      "label": "Trend"
+    },
+    {
+      "id": "capacity",
+      "label": "Capacity"
+    },
+    {
+      "id": "mix",
+      "label": "Mix"
+    },
+    {
+      "id": "data",
+      "label": "Data"
+    }
+  ],
+  "sessions": [
+    {
+      "week": "W1",
+      "attended": 22,
+      "seats": 40
+    },
+    {
+      "week": "W2",
+      "attended": 26,
+      "seats": 40
+    },
+    {
+      "week": "W3",
+      "attended": 30,
+      "seats": 40
+    },
+    {
+      "week": "W4",
+      "attended": 34,
+      "seats": 40
+    }
+  ],
+  "trendLabel": "Attendance entries per weekly session",
+  "capacityLabel": "Available seats and attendance · same count scale",
+  "mixLabel": "Where the 112 entries came from",
+  "mix": [
+    {
+      "name": "Members",
+      "count": 56
+    },
+    {
+      "name": "Guests",
+      "count": 34
+    },
+    {
+      "name": "Walk-ins",
+      "count": 22
+    }
+  ],
+  "mixValues": [
+    {
+      "label": "Members",
+      "value": "56"
+    },
+    {
+      "label": "Guests",
+      "value": "34"
+    },
+    {
+      "label": "Walk-ins",
+      "value": "22"
+    }
+  ],
+  "columns": [
+    {
+      "key": "week",
+      "label": "Week"
+    },
+    {
+      "key": "attended",
+      "label": "Attended",
+      "align": "end"
+    },
+    {
+      "key": "seats",
+      "label": "Seats",
+      "align": "end"
+    }
+  ],
+  "recordNote": "Four complete sample sessions. Select a column heading to sort.",
+  "scopeNote": "Synthetic attendance entries, not unique people. This pattern does not establish why attendance increased."
+}
+```
+
+### A workshop, ready to describe
+
+A planning form collects a coherent workshop brief with labeled native controls and a validated local summary that preserves edits. (id: `bible-workshop-brief`)
+
+Components in context: `Card`, `Box`, `Caption`, `Title`, `Text`, `Form`, `Col`, `Label`, `Input`, `RadioGroup`, `Grid`, `DatePicker`, `Select`, `Combobox`, `Checkbox`, `Show`, `Row`, `Button`, `Icon`, `KeyValue`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Box gap={2}><Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Box>
+  <Form gap={3} $onSubmitAction='{ updateState: { attempted: true, formError: has(workshopDate) ? "" : dateError, summary: { title: workshopTitle, date: workshopDate || "", format: workshopFormat, topic: workshopTopic, room: workshopRoom, materials: workshopMaterials } } }'>
+    <Col gap={1}><Label value={titleLabel} fieldName="workshopTitle" /><Input name="workshopTitle" defaultValue={initialTitle} required size="2xl" /></Col>
+    <Col gap={2}><Text value={formatLabel} size="sm" weight="medium" /><RadioGroup name="workshopFormat" ariaLabel={formatLabel} options={formats} defaultValue="hands-on" /></Col>
+    <Grid columns="repeat(auto-fit, minmax(min(100%, 180px), 1fr))" gap={3}>
+      <Col gap={1}><Label value={dateLabel} fieldName="workshopDate" /><DatePicker name="workshopDate" defaultValue={initialDate} block clearable size="2xl" /></Col>
+      <Col gap={1}><Label value={topicLabel} fieldName="workshopTopic" /><Select name="workshopTopic" options={topics} defaultValue="print" block size="2xl" /></Col>
+    </Grid>
+    <Col gap={1}><Label value={roomLabel} fieldName="workshopRoom" /><Combobox name="workshopRoom" options={rooms} defaultValue="north" placeholder={roomPlaceholder} searchPlaceholder={roomSearch} emptyLabel={roomEmpty} block /></Col>
+    <Checkbox name="workshopMaterials" label={materialsLabel} defaultChecked />
+    <Show $when="has(formError)"><Text value={formError} size="sm" color="danger" /></Show>
+    <Row><Button submit label={previewLabel} color="primary" size="2xl" /></Row>
+  </Form>
+  <Show $when="attempted && !has(formError)">
+    <Box background="surface-secondary" padding={4} radius="lg" gap={3}>
+      <Row gap={2}><Icon name="notebook-pencil" /><Text value={summaryLabel} weight="semibold" size="sm" /></Row>
+      <Text value={summary.title} weight="semibold" />
+      <KeyValue rows={[{ label: dateLabel, value: summary.date }, { label: formatLabel, value: labels[summary.format] }, { label: topicLabel, value: labels[summary.topic] }, { label: roomLabel, value: labels[summary.room] }, { label: materialsShort, value: summary.materials ? yesLabel : noLabel }]} />
+    </Box>
+  </Show>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample workshop · planning preview",
+  "title": "Make the workshop tangible",
+  "intro": "Set the essentials together, then review a brief you can discuss with the team.",
+  "titleLabel": "Workshop title",
+  "initialTitle": "Small prints, bold shapes",
+  "formatLabel": "Format",
+  "dateLabel": "Date",
+  "initialDate": "2026-11-07",
+  "topicLabel": "Topic",
+  "roomLabel": "Sample room",
+  "roomPlaceholder": "Choose a sample room",
+  "roomSearch": "Search rooms…",
+  "roomEmpty": "No matching sample room",
+  "formats": [
+    {
+      "label": "Hands-on",
+      "value": "hands-on"
+    },
+    {
+      "label": "Demonstration",
+      "value": "demo"
+    }
+  ],
+  "topics": [
+    {
+      "label": "Printmaking",
+      "value": "print"
+    },
+    {
+      "label": "Paper folding",
+      "value": "fold"
+    },
+    {
+      "label": "Drawing",
+      "value": "draw"
+    },
+    {
+      "label": "Typography",
+      "value": "type"
+    }
+  ],
+  "rooms": [
+    {
+      "label": "North studio",
+      "value": "north"
+    },
+    {
+      "label": "South studio",
+      "value": "south"
+    },
+    {
+      "label": "Courtyard",
+      "value": "courtyard"
+    },
+    {
+      "label": "Library room",
+      "value": "library"
+    },
+    {
+      "label": "Project room",
+      "value": "project"
+    }
+  ],
+  "labels": {
+    "hands-on": "Hands-on",
+    "demo": "Demonstration",
+    "print": "Printmaking",
+    "fold": "Paper folding",
+    "draw": "Drawing",
+    "type": "Typography",
+    "north": "North studio",
+    "south": "South studio",
+    "courtyard": "Courtyard",
+    "library": "Library room",
+    "project": "Project room"
+  },
+  "materialsLabel": "Include a materials list",
+  "materialsShort": "Materials list",
+  "yesLabel": "Included",
+  "noLabel": "Not included",
+  "previewLabel": "Preview brief",
+  "summaryLabel": "Your brief preview",
+  "dateError": "Choose a date before creating the preview.",
+  "formError": "",
+  "attempted": true,
+  "summary": {
+    "title": "Small prints, bold shapes",
+    "date": "2026-11-07",
+    "format": "hands-on",
+    "topic": "print",
+    "room": "north",
+    "materials": true
+  }
+}
+```
+
+### Three print directions
+
+An image-led editorial carousel lets three original local artworks carry distinct palettes, with a persistent local reference choice and concise production context. (id: `bible-print-directions`)
+
+Components in context: `Card`, `Col`, `Caption`, `Title`, `Text`, `BaseCarousel`, `Each`, `BaseCarousel.MediaItem`, `Row`, `Show`, `Badge`, `Flow`, `Flow.Item`, `Box`, `Button`, `Drawer`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="sm" padding={0} gap={0}>
+  <Col padding={4} gap={1}><Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
+  <Col padding={{ x: 3, bottom: 4 }} gap={3}>
+    <BaseCarousel visibleItems={1} ariaLabel={carouselLabel}>
+      <Each $of="prints" item="print"><BaseCarousel.MediaItem src={print.src} alt={print.alt} aspectRatio={4 / 5} fit="contain" itemPadding={0}>
+        <Col padding={{ x: 1, bottom: 1 }} gap={2}>
+          <Row gap={2} wrap="wrap"><Text value={print.title} weight="semibold" /><Show $when="selected === print.id"><Badge label={selectedLabel} color="accent" variant="soft" /></Show></Row>
+          <Text value={print.description} size="sm" color="secondary" />
+          <Flow gap={1}><Each $of="print.palette" item="swatch"><Flow.Item><Box width={46} height={8} background={swatch} radius="full" /></Flow.Item></Each></Flow>
+          <Row><Button label={selected === print.id ? chosenLabel : chooseLabel} color="accent" variant={selected === print.id ? "soft" : "outline"} disabled={selected === print.id} onClickAction={{ updateState: { selected: print.id } }} /></Row>
+        </Col>
+      </BaseCarousel.MediaItem></Each>
+    </BaseCarousel>
+    <Text value={referenceLabel + names[selected]} size="sm" weight="medium" />
+    <Drawer triggerLabel={detailLabel} title={detailTitle} description={detailDescription} content={detailBody} />
+  </Col>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Original demo artwork · three studies",
+  "title": "Let the image lead",
+  "intro": "Browse three distinct directions and keep one as the reference for this session.",
+  "carouselLabel": "Original print directions",
+  "selected": "orbit",
+  "selectedLabel": "Reference",
+  "chosenLabel": "Current reference",
+  "chooseLabel": "Use as reference",
+  "referenceLabel": "Selected: ",
+  "names": {
+    "orbit": "Orbit study",
+    "field": "Field study",
+    "tide": "Tide study"
+  },
+  "prints": [
+    {
+      "id": "orbit",
+      "title": "Orbit study",
+      "src": "/design-bible/assets/orbit-study.svg",
+      "alt": "Original plum and coral geometric artwork built from overlapping circles.",
+      "description": "Plum and coral circles give the composition an energetic center of gravity.",
+      "palette": [
+        "#492346",
+        "#fa8068",
+        "#f6d1c6"
+      ]
+    },
+    {
+      "id": "field",
+      "title": "Field study",
+      "src": "/design-bible/assets/field-study.svg",
+      "alt": "Original sage and cream botanical geometry with repeating leaf-like forms.",
+      "description": "Sage and cream botanical shapes create a quieter, more organic rhythm.",
+      "palette": [
+        "#456353",
+        "#c9d8ae",
+        "#f4edda"
+      ]
+    },
+    {
+      "id": "tide",
+      "title": "Tide study",
+      "src": "/design-bible/assets/tide-study.svg",
+      "alt": "Original teal and coral artwork with layered wave forms.",
+      "description": "Teal waves and a coral counterpoint make a fluid, expansive direction.",
+      "palette": [
+        "#196973",
+        "#f18c75",
+        "#bee0da"
+      ]
+    }
+  ],
+  "detailLabel": "Artwork details",
+  "detailTitle": "Three original vector studies",
+  "detailDescription": "Each local asset uses a 720 × 900 viewBox.",
+  "detailBody": "These are authored demonstration assets. Choosing a reference changes the selection in this widget; it does not place an order or write a file. The full artwork remains visible without cropping."
+}
+```
+
+### Hear the shape of a triad
+
+A sound lesson pairs a playable original tone fixture with notation, a precise transcript, and a working local listening question. (id: `bible-listening-lesson`)
+
+Components in context: `Card`, `Box`, `Row`, `Icon`, `Caption`, `Title`, `Text`, `AudioPlayer`, `Tabs`, `Tabs.Panel`, `Col`, `Grid`, `Each`, `Grid.Item`, `Math`, `Timeline`, `RadioGroup`, `Show`, `Callout`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="sm" gap={4}>
+  <Box gap={2}>
+    <Row gap={2}><Icon name="headphones" /><Caption value={sampleLabel} /></Row>
+    <Title value={title} size="sm" /><Text value={intro} size="sm" />
+  </Box>
+  <AudioPlayer src={audioSrc} title={audioTitle} subtitle={audioSubtitle} autoPlay={false} loop={false} />
+  <Tabs tabs={tabs}>
+    <Tabs.Panel id="notes"><Col gap={3}>
+      <Grid columns={3} gap={2}><Each $of="notes" item="note"><Grid.Item><Box background="surface-secondary" padding={3} radius="lg" gap={1} align="center"><Text value={note.name} size="lg" weight="semibold" /><Caption value={note.frequency} /></Box></Grid.Item></Each></Grid>
+      <Math value={relationship} /><Text value={noteDescription} size="sm" />
+    </Col></Tabs.Panel>
+    <Tabs.Panel id="transcript"><Timeline items={transcript} /></Tabs.Panel>
+  </Tabs>
+  <Col gap={2}>
+    <Text value={question} size="sm" weight="semibold" />
+    <RadioGroup name="direction" ariaLabel={question} options={choices} $onChangeAction='{ updateState: { answer: value } }' />
+    <Show $when="has(answer)"><Callout color={answer === 'up' ? 'info' : 'neutral'} title={answer === 'up' ? correctTitle : retryTitle} description={answer === 'up' ? correctText : retryText} /></Show>
+  </Col>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Original tone fixture · 2.8 seconds",
+  "title": "Three notes, moving upward",
+  "intro": "Listen for three separate pitches. Replay as often as you like, then describe their direction.",
+  "audioSrc": "/design-bible/assets/ascending-triad.wav",
+  "audioTitle": "C4 · E4 · G4",
+  "audioSubtitle": "Three sine tones · no speech",
+  "tabs": [
+    {
+      "id": "notes",
+      "label": "Notes",
+      "icon": "music"
+    },
+    {
+      "id": "transcript",
+      "label": "Transcript",
+      "icon": "document"
+    }
+  ],
+  "notes": [
+    {
+      "name": "C4",
+      "frequency": "261.6 Hz"
+    },
+    {
+      "name": "E4",
+      "frequency": "329.6 Hz"
+    },
+    {
+      "name": "G4",
+      "frequency": "392.0 Hz"
+    }
+  ],
+  "relationship": "C → E → G",
+  "noteDescription": "The three tones outline a C-major triad. Higher frequency corresponds to the higher pitch in this sample.",
+  "transcript": [
+    {
+      "title": "C4",
+      "description": "A 261.6256 Hz tone, then a short pause.",
+      "time": "0.00–0.75 s",
+      "icon": "music"
+    },
+    {
+      "title": "E4",
+      "description": "A 329.6276 Hz tone, then a short pause.",
+      "time": "0.90–1.65 s",
+      "icon": "music"
+    },
+    {
+      "title": "G4",
+      "description": "A 391.9954 Hz tone, followed by silence.",
+      "time": "1.80–2.55 s",
+      "icon": "music"
+    }
+  ],
+  "question": "Which way do the pitches move?",
+  "choices": [
+    {
+      "label": "Up",
+      "value": "up"
+    },
+    {
+      "label": "Down",
+      "value": "down"
+    },
+    {
+      "label": "Same",
+      "value": "same"
+    }
+  ],
+  "answer": "",
+  "correctTitle": "Yes — upward",
+  "correctText": "Each note has a higher frequency than the one before it.",
+  "retryTitle": "Try one more listen",
+  "retryText": "Compare the first and last tones, then choose again."
+}
+```
+
+### A reading room of your own
+
+A settings editor connects FineTuneCard, a real note toggle, and paper-tone controls to a visible local reading preview. (id: `bible-reading-settings`)
+
+Components in context: `Basic`, `Col`, `Row`, `Icon`, `Caption`, `Title`, `Text`, `FineTuneCard`, `Toggle`, `ToggleGroup`, `Box`, `Show`, `Divider`, `Tooltip`.
+
+WIDGET TEMPLATE:
+
+```
+<Basic gap={4}>
+  <Col gap={2}><Row gap={2}><Icon name="book-open" /><Caption value={sampleLabel} /></Row><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
+  <FineTuneCard title={editorTitle} badge={draftLabel} fields={fields} applyLabel={applyLabel}
+    $applyAction='{ updateState: { applied: { heading: has(values.heading) ? values.heading : fallbackHeading, size: values.size } } }' />
+  <Row justify="between" gap={3}><Text value={notesLabel} size="sm" /><Toggle name="readingNotes" label={notesLabel} variant="switch" defaultPressed={true} $onChangeAction='{ updateState: { showNotes: value } }' /></Row>
+  <Col gap={1}><Text value={paletteLabel} size="sm" /><ToggleGroup name="readingPalette" options={palettes} defaultValue="mint" $onChangeAction='{ updateState: { palette: value || "mint" } }' /></Col>
+  <Box background={surfaces[palette]} padding={4} radius="lg" gap={3}>
+    <Caption value={previewLabel} /><Title value={applied.heading} size="sm" />
+    <Text value={sampleText} size={applied.size} />
+    <Show $when="showNotes"><Col gap={1}><Divider /><Caption value={noteLabel} /><Text value={noteText} size="sm" color="secondary" /></Col></Show>
+  </Box>
+  <Tooltip label={helpLabel} content={helpText} />
+</Basic>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample reader · session settings",
+  "title": "Make a little room to read",
+  "intro": "Try a heading, text size, and paper tone while the same passage stays in view.",
+  "editorTitle": "Reading preferences",
+  "draftLabel": "Draft",
+  "applyLabel": "Apply to preview",
+  "fallbackHeading": "A slower page",
+  "notesLabel": "Show the reading note",
+  "paletteLabel": "Paper tone",
+  "palette": "mint",
+  "showNotes": true,
+  "fields": [
+    {
+      "name": "heading",
+      "label": "Heading",
+      "type": "text",
+      "value": "A slower page"
+    },
+    {
+      "name": "size",
+      "label": "Body size",
+      "type": "select",
+      "value": "md",
+      "options": [
+        {
+          "label": "Compact",
+          "value": "sm"
+        },
+        {
+          "label": "Comfortable",
+          "value": "md"
+        },
+        {
+          "label": "Large",
+          "value": "lg"
+        }
+      ]
+    }
+  ],
+  "palettes": [
+    {
+      "label": "White",
+      "value": "mint"
+    },
+    {
+      "label": "Warm",
+      "value": "cream"
+    },
+    {
+      "label": "Soft gray",
+      "value": "paper"
+    }
+  ],
+  "surfaces": {
+    "mint": {
+      "light": "#ffffff",
+      "dark": "#181818"
+    },
+    "cream": {
+      "light": "#faf7f2",
+      "dark": "#24211d"
+    },
+    "paper": {
+      "light": "#f5f5f5",
+      "dark": "#242424"
+    }
+  },
+  "applied": {
+    "heading": "A slower page",
+    "size": "md"
+  },
+  "previewLabel": "Reading preview",
+  "sampleText": "A quiet page does not have to be an empty page. Give the main idea enough space, let the supporting detail stay close, and make the next paragraph easy to find.",
+  "noteLabel": "Reading note",
+  "noteText": "Try the large setting with each paper tone. The words stay the same; only this local preview changes.",
+  "helpLabel": "About this preview",
+  "helpText": "Apply updates the heading and body size. The note switch and paper tone change immediately. These settings last only in this widget."
+}
+```
+
+### Keep the author in the loop
+
+An editing workbench turns prewritten proposals or an exact replacement into a reviewable local draft, with explicit accept and discard controls. (id: `bible-editing-workbench`)
+
+Components in context: `Response`, `Col`, `Caption`, `Title`, `Text`, `SelectionActions`, `Show`, `Box`, `Row`, `Icon`, `Button`, `Label`, `Textarea`.
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={4}>
+  <Col gap={2}><Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
+  <SelectionActions text={draft} selection={draft} placeholder={replacementPlaceholder}
+    actions={[{ label: shortLabel, icon: "minimize", action: { updateState: { proposed: shortVersion } } }]}
+    $submitAction='{ updateState: { proposed: prompt } }' />
+  <Text value={instruction} size="sm" color="secondary" />
+  <Show $when="has(proposed)">
+    <Box background="surface-secondary" padding={4} radius="lg" gap={3}>
+      <Row gap={2}><Icon name="write" /><Text value={proposalLabel} weight="semibold" size="sm" /></Row>
+      <Text value={proposed} size="lg" />
+      </Box>
+    <Row gap={2} wrap="wrap"><Button label={acceptLabel} color="accent" onClickAction={{ updateState: { draft: proposed, proposed: "", revision: revision + 1 } }} /><Button label={discardLabel} variant="ghost" onClickAction={{ updateState: { proposed: "" } }} /></Row>
+  </Show>
+  <Col gap={2}><Label value={draftLabel} fieldName="editableDraft" /><Textarea key={revision} name="editableDraft" defaultValue={draft} rows={3} $onChangeAction='{ updateState: { draft: value, proposed: "" } }' /></Col>
+  <Row gap={2} wrap="wrap"><Button label={copyLabel} iconStart="copy" variant="outline" disabled={!has(draft)} onClickAction={{ type: "copy", handler: "client", payload: { value: draft } }} /><Caption value={revisionLabel + String(revision)} /></Row>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample editing desk · local draft",
+  "title": "A proposal is not the final word",
+  "intro": "Review a shorter sample or enter your exact replacement, then decide what belongs in the draft.",
+  "draft": "We would like to invite you to join us for an informal gathering where we will share a few recent prints and talk about the ideas behind them.",
+  "proposed": "Join us for a small print swap and the stories behind the work.",
+  "replacementPlaceholder": "Type exact replacement",
+  "shortLabel": "Shorter sample",
+  "shortVersion": "Join us for a small print swap and the stories behind the work.",
+  "instruction": "The sample button uses prewritten wording. Submitting the field proposes your exact replacement.",
+  "proposalLabel": "Proposed wording",
+  "acceptLabel": "Use in draft",
+  "discardLabel": "Discard",
+  "draftLabel": "Your editable draft",
+  "copyLabel": "Copy draft",
+  "revision": 0,
+  "revisionLabel": "Accepted revisions: "
+}
+```
+
+### Make space for the next idea
+
+A local idea collection uses working add/remove controls, optional animated identity, a useful popover, and real collection commands. (id: `bible-idea-wall`)
+
+Components in context: `Card`, `Box`, `Caption`, `Title`, `Text`, `Row`, `Menubar`, `Popover`, `Popover.Trigger`, `Icon`, `Popover.Content`, `Form`, `Col`, `Label`, `Input`, `Select`, `Button`, `Toggle`, `Show`, `AnimateGroup`, `Show.Else`, `Each`, `EmptyState`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Box gap={2}>
+    <Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" />
+  </Box>
+  <Row gap={2} wrap="wrap">
+    <Menubar menus={[{ id: "collection", label: menuLabel, items: [{ id: "restore", label: restoreLabel, action: { updateState: { items: starters } } }, { id: "clear", label: clearLabel, action: { updateState: { items: [] } } }, { id: "copy", label: copyLabel, action: { type: "copy", handler: "client", payload: { value: copyHeader + String(size(items)) } } }] }]} />
+    <Popover><Popover.Trigger><Row padding={2} gap={1}><Icon name="info" size="sm" /><Text value={aboutLabel} size="sm" /></Row></Popover.Trigger><Popover.Content width={220}><Text value={aboutText} size="sm" /></Popover.Content></Popover>
+  </Row>
+  <Form key={formVersion} gap={2} $onSubmitAction='{ patchState: [append("items", { id: String(nextId), title: ideaTitle, category: ideaCategory }), set("nextId", nextId + 1), set("formVersion", formVersion + 1)] }'>
+    <Col gap={1}><Label value={ideaLabel} fieldName="ideaTitle" /><Input name="ideaTitle" defaultValue="" placeholder={ideaPlaceholder} required size="2xl" /></Col>
+    <Row gap={2} wrap="wrap" align="end"><Col flex={1} minWidth={120} gap={1}><Label value={categoryLabel} fieldName="ideaCategory" /><Select name="ideaCategory" defaultValue="shape" options={categories} block size="2xl" /></Col><Button submit label={addLabel} color="primary" size="2xl" /></Row>
+  </Form>
+  <Row justify="between" gap={2}><Text value={String(size(items)) + countLabel} size="sm" weight="medium" /><Toggle name="animateIdeas" label={motionLabel} defaultPressed={false} $onChangeAction='{ updateState: { motion: value } }' /></Row>
+  <Show $when="size(items) > 0">
+    <Show $when="motion">
+      <AnimateGroup $of="items" item="item" index="i"><Box key={item.id} background="surface-secondary" padding={3} radius="lg"><Row gap={2}><Col flex={1} minWidth={0} gap={1}><Caption value={categoryNames[item.category]} /><Text value={item.title} size="sm" weight="medium" /></Col><Button iconStart="x" ariaLabel={removeLabel + item.title} uniform variant="ghost" size="2xl" $onClickAction='{ patchState: remove("items." + String(i)) }' /></Row></Box></AnimateGroup>
+      <Show.Else><Col gap={2}><Each $of="items" item="item" index="i"><Box key={item.id} background="surface-secondary" padding={3} radius="lg"><Row gap={2}><Col flex={1} minWidth={0} gap={1}><Caption value={categoryNames[item.category]} /><Text value={item.title} size="sm" weight="medium" /></Col><Button iconStart="x" ariaLabel={removeLabel + item.title} uniform variant="ghost" size="2xl" $onClickAction='{ patchState: remove("items." + String(i)) }' /></Row></Box></Each></Col></Show.Else>
+    </Show>
+    <Show.Else><EmptyState icon="lightbulb" title={emptyTitle} description={emptyText} action={{ label: restoreLabel, action: { updateState: { items: starters } } }} /></Show.Else>
+  </Show>
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "sampleLabel": "Sample studio wall · local collection",
+  "title": "Catch an idea while it is small",
+  "intro": "Keep shapes, words, and materials together. Add a thought, then remove anything that no longer helps.",
+  "menuLabel": "Collection",
+  "restoreLabel": "Restore sample ideas",
+  "clearLabel": "Clear collection",
+  "copyLabel": "Copy item count",
+  "copyHeader": "Ideas on this sample wall: ",
+  "aboutLabel": "How it works",
+  "aboutText": "Ideas and edits stay in this widget. Turn on Animate changes if you want additions and removals to retain a sense of position.",
+  "ideaLabel": "New idea",
+  "ideaPlaceholder": "Try a folded cover…",
+  "categoryLabel": "Category",
+  "addLabel": "Add idea",
+  "countLabel": " ideas on the wall",
+  "motionLabel": "Animate changes",
+  "removeLabel": "Remove ",
+  "emptyTitle": "A little room for something new",
+  "emptyText": "Add an idea above or bring back the sample set.",
+  "motion": false,
+  "nextId": 4,
+  "formVersion": 0,
+  "categories": [
+    {
+      "label": "Shape",
+      "value": "shape"
+    },
+    {
+      "label": "Words",
+      "value": "words"
+    },
+    {
+      "label": "Material",
+      "value": "material"
+    }
+  ],
+  "categoryNames": {
+    "shape": "Shape",
+    "words": "Words",
+    "material": "Material"
+  },
+  "items": [
+    {
+      "id": "1",
+      "title": "A circle that crosses the fold",
+      "category": "shape"
+    },
+    {
+      "id": "2",
+      "title": "A title that reads like an invitation",
+      "category": "words"
+    },
+    {
+      "id": "3",
+      "title": "Warm paper with a rough edge",
+      "category": "material"
+    }
+  ],
+  "starters": [
+    {
+      "id": "1",
+      "title": "A circle that crosses the fold",
+      "category": "shape"
+    },
+    {
+      "id": "2",
+      "title": "A title that reads like an invitation",
+      "category": "words"
+    },
+    {
+      "id": "3",
+      "title": "Warm paper with a rough edge",
+      "category": "material"
+    }
+  ]
+}
+```
+
+### The quiet-hour decision
+
+An answer-first evidence memo: observed results, limits, and a copyable conclusion. (id: `bible-evidence-memo`)
+
+Components in context: `Response`, `Col`, `Caption`, `Title`, `Text`, `Divider`, `Row`, `Button`.
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={4} padding={1}>
+  <Col gap={1}>
+    <Caption value={eyebrow} />
+    <Title value={title} size="md" />
+  </Col>
+  <Text value={answer} size="sm" />
+  <Divider />
+  <Col gap={2}>
+    <Text value={evidenceTitle} size="sm" weight="semibold" />
+    <Text value={evidence} size="sm" />
+    <Caption value={source} />
+  </Col>
+  <Text value={limitation} size="sm" color="secondary" />
+  <Row><Button label={copyLabel} iconStart="copy" variant="outline" size="2xl"
+    onClickAction={{ type: "copy", handler: "client", payload: { value: copyText } }} /></Row>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "eyebrow": "Illustrative library pilot · decision note",
+  "title": "Keep one quiet hour",
+  "answer": "Keep the Wednesday quiet hour for another four sessions, then review. The small pilot supports continuing the experiment, not a permanent schedule change.",
+  "evidenceTitle": "What the sample actually says",
+  "evidence": "18 of 24 respondents preferred the quiet session. Six wanted a separate space for conversation; the sample did not measure total attendance.",
+  "source": "Source: fictional pilot feedback, 24 responses across four sessions.",
+  "limitation": "This is a self-selected sample. We do not know whether visitors who skipped the session would agree.",
+  "copyLabel": "Copy decision note",
+  "copyText": "ILLUSTRATIVE PILOT — Keep the Wednesday quiet hour for four more sessions, then review. 18 of 24 sample respondents preferred it; six requested conversation space. Self-selected feedback does not establish overall demand."
+}
+```
+
+### Two tools, clear tradeoffs
+
+A compact, same-field equipment comparison with a locally adjustable priority. (id: `bible-recorder-comparison`)
+
+Components in context: `Basic`, `Col`, `Caption`, `Title`, `SegmentedControl`, `Text`, `Table`, `Table.Row`, `Table.Cell`, `Each`.
+
+WIDGET TEMPLATE:
+
+```
+<Basic gap={4} padding={1}>
+  <Col gap={1}>
+    <Caption value={demoNote} />
+    <Title value={title} size="sm" />
+  </Col>
+  <SegmentedControl name="priority" ariaLabel={priorityLabel} options={priorities} value={priority} block size="lg"
+    $onChangeAction='{ updateState: { priority: value } }' />
+  <Text value={priority === "carry" ? carryTakeaway : deskTakeaway} size="sm" weight="medium" />
+  <Table columnSizing="equal">
+    <Table.Row header><Table.Cell header><Text value={fieldLabel} size="sm" /></Table.Cell><Table.Cell header align="end"><Text value={pocketName} size="sm" /></Table.Cell><Table.Cell header align="end"><Text value={deskName} size="sm" /></Table.Cell></Table.Row>
+    <Each $of="rows" item="row">
+      <Table.Row><Table.Cell><Text value={row.label} size="sm" /></Table.Cell><Table.Cell align="end"><Text value={row.pocket} size="sm" /></Table.Cell><Table.Cell align="end"><Text value={row.desk} size="sm" /></Table.Cell></Table.Row>
+    </Each>
+  </Table>
+  <Text value={limitation} size="sm" color="secondary" />
+</Basic>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "demoNote": "Fictional recorders · illustrative specifications",
+  "title": "Choose for how you record",
+  "priorityLabel": "Recording priority",
+  "priorities": [
+    {
+      "label": "Travel light",
+      "value": "carry"
+    },
+    {
+      "label": "Desk setup",
+      "value": "desk"
+    }
+  ],
+  "priority": "carry",
+  "carryTakeaway": "Pocket weighs 270 g less and includes microphones. It fits a minimal travel kit.",
+  "deskTakeaway": "Desk provides four inputs and USB power. It fits a fixed setup with external microphones.",
+  "fieldLabel": "Feature",
+  "pocketName": "Pocket",
+  "deskName": "Desk",
+  "rows": [
+    {
+      "label": "Mass",
+      "pocket": "240 g",
+      "desk": "510 g"
+    },
+    {
+      "label": "Inputs",
+      "pocket": "2",
+      "desk": "4"
+    },
+    {
+      "label": "Built-in mic",
+      "pocket": "Yes",
+      "desk": "No"
+    },
+    {
+      "label": "Power",
+      "pocket": "2 × AA",
+      "desk": "USB-C"
+    }
+  ],
+  "limitation": "These invented specifications demonstrate a comparison. Sound quality and real product availability are not evaluated."
+}
+```
+
+### A trend with its limits
+
+A six-point attendance trend with a visible takeaway and an exact-count alternative. (id: `bible-attendance-trend`)
+
+Components in context: `Card`, `Col`, `Caption`, `Title`, `Text`, `SegmentedControl`, `Show`, `LineChart`, `Show.Else`, `DataTable`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="md" gap={4}>
+  <Col gap={1}>
+    <Caption value={demoNote} />
+    <Title value={title} size="sm" />
+    <Text value={takeaway} size="sm" />
+  </Col>
+  <SegmentedControl name="view" ariaLabel={viewLabel} options={views} value={view} size="lg"
+    $onChangeAction='{ updateState: { view: value } }' />
+  <Show $when="view === 'chart'">
+    <Col gap={1}>
+      <Caption value={axisNote} />
+      <LineChart data={sessions} xAxis={{ dataKey: "week" }} series={[{ dataKey: "visits", label: seriesLabel, curveType: "linear", dot: true }]} height={190} showYAxis showLegend={false} />
+    </Col>
+    <Show.Else><DataTable columns={columns} rows={sessions} caption={tableCaption} /></Show.Else>
+  </Show>
+  <Text value={limitation} size="sm" color="secondary" />
+  <Caption value={source} />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "demoNote": "Illustrative museum attendance · six equal Saturday sessions",
+  "title": "Visits rose from 120 to 180",
+  "takeaway": "The last session had 60 more visits than the first (+50%), with a small dip in week 3.",
+  "viewLabel": "Attendance display",
+  "views": [
+    {
+      "label": "Trend",
+      "value": "chart"
+    },
+    {
+      "label": "Exact counts",
+      "value": "values"
+    }
+  ],
+  "view": "chart",
+  "axisNote": "Visits per session · sessions W1–W6",
+  "seriesLabel": "Visits",
+  "sessions": [
+    {
+      "week": "W1",
+      "visits": 120
+    },
+    {
+      "week": "W2",
+      "visits": 144
+    },
+    {
+      "week": "W3",
+      "visits": 138
+    },
+    {
+      "week": "W4",
+      "visits": 165
+    },
+    {
+      "week": "W5",
+      "visits": 174
+    },
+    {
+      "week": "W6",
+      "visits": 180
+    }
+  ],
+  "columns": [
+    {
+      "key": "week",
+      "label": "Session"
+    },
+    {
+      "key": "visits",
+      "label": "Visits",
+      "align": "end"
+    }
+  ],
+  "tableCaption": "All six sample counts; no sessions omitted.",
+  "limitation": "The pattern alone cannot explain the rise. Opening hours are equal, but programming and weather are not controlled.",
+  "source": "Source: synthetic gate-counter fixture; visits are entries, not unique people."
+}
+```
+
+### A reading rhythm
+
+One honest local scenario: adjust pages per day and see the remaining reading days. (id: `bible-reading-scenario`)
+
+Components in context: `Card`, `Col`, `Caption`, `Title`, `Scope`, `Show`, `Stat`, `Show.Else`, `Text`, `Label`, `Input`, `Divider`, `KeyValue`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="sm" gap={5}>
+  <Col gap={1}>
+    <Caption value={demoNote} />
+    <Title value={title} size="sm" />
+  </Col>
+  <Scope values={{ validPace: has(paceText) && Number(paceText) >= 1 && Number(paceText) <= 200 && floor(Number(paceText)) === Number(paceText) }}>
+    <Show $when="validPace">
+      <Stat label={resultLabel} value={String(ceil(pagesRemaining / Number(paceText))) + dayUnit} size="lg" helpText={resultNote} />
+      <Show.Else><Text value={pendingLabel} size="sm" color="secondary" /></Show.Else>
+    </Show>
+    <Col gap={2}>
+      <Label value={paceLabel} fieldName="pace" />
+      <Input name="pace" inputType="number" defaultValue={paceText} size="2xl" required
+        $onChangeAction='{ updateState: { paceText: value } }' />
+      <Caption value={rangeNote} />
+      <Show $when="!validPace"><Text value={paceError} size="sm" color="danger" /></Show>
+    </Col>
+  </Scope>
+  <Divider />
+  <KeyValue rows={details} />
+  <Text value={assumption} size="sm" color="secondary" />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "demoNote": "Illustrative reading plan · calculated locally",
+  "title": "A little, every day",
+  "resultLabel": "Reading days remaining",
+  "dayUnit": " days",
+  "resultNote": "Rounded up to finish the last page.",
+  "paceLabel": "Daily pace (pages per day)",
+  "paceText": "20",
+  "pagesRemaining": 240,
+  "pendingLabel": "Reading-day estimate not calculated.",
+  "rangeNote": "Whole pages only · 1–200 pages per day",
+  "paceError": "Enter a whole number from 1 to 200 to calculate reading days.",
+  "details": [
+    {
+      "label": "Pages remaining",
+      "value": "240"
+    },
+    {
+      "label": "Starting point",
+      "value": "Page 61 of 300"
+    }
+  ],
+  "assumption": "Assumes the same pace each reading day. Breaks add calendar days; this is a scenario, not a scheduled finish date."
+}
+```
+
+### Before the first print
+
+A practical four-step checklist that tracks only what the reader marks locally. (id: `bible-zine-checklist`)
+
+Components in context: `ListView`, `ListViewItem`, `Col`, `Title`, `Text`, `Caption`, `Each`, `Checkbox`, `Box`, `Row`.
+
+WIDGET TEMPLATE:
+
+```
+<ListView limit={8}>
+  <ListViewItem><Col gap={2}><Title value={title} size="sm" /><Text value={intro} size="sm" /><Caption value={demoNote} /></Col></ListViewItem>
+  <Each $of="items" item="item" index="i">
+    <ListViewItem>
+      <Col flex={1} minWidth={0} gap={2} padding={{ y: 1 }}>
+        <Checkbox name={item.id} label={item.title} defaultChecked={item.done}
+          $onChangeAction='{ patchState: set("items." + String(i) + ".done", value) }' />
+        <Box padding={{ left: 6 }}><Text value={item.detail} size="sm" color="secondary" /></Box>
+      </Col>
+    </ListViewItem>
+  </Each>
+  <ListViewItem><Col gap={2} flex={1}>
+    <Row justify="between" gap={2}><Caption value={progressLabel} /><Text value={String(Number(items[0].done) + Number(items[1].done) + Number(items[2].done) + Number(items[3].done)) + countSuffix} size="sm" weight="medium" /></Row>
+    <Caption value={localNote} />
+  </Col></ListViewItem>
+</ListView>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "title": "First-print checklist",
+  "intro": "Inspect one proof copy before committing to the full zine run.",
+  "demoNote": "Illustrative studio procedure",
+  "progressLabel": "Review progress",
+  "countSuffix": " of 4 checked",
+  "localNote": "Your checks stay in this widget.",
+  "items": [
+    {
+      "id": "order",
+      "title": "Read in folded order",
+      "detail": "Confirm the cover, center spread, and last page land where intended.",
+      "done": false
+    },
+    {
+      "id": "edges",
+      "title": "Inspect the edges",
+      "detail": "Look for clipped page numbers, captions, and artwork on the proof.",
+      "done": false
+    },
+    {
+      "id": "type",
+      "title": "Read the smallest text",
+      "detail": "Check credits and captions at the actual printed size.",
+      "done": false
+    },
+    {
+      "id": "proof",
+      "title": "Keep the marked proof",
+      "detail": "Record any corrections before making the next version.",
+      "done": false
+    }
+  ]
+}
+```
+
+### A shelf that can be empty
+
+A bilingual local search with a useful no-results state and a working clear action. (id: `bible-shelf-search`)
+
+Components in context: `Response`, `Col`, `Caption`, `Title`, `Text`, `Search`, `Show`, `Row`, `Button`, `Box`.
+
+WIDGET TEMPLATE:
+
+```
+<Response gap={3} padding={1}>
+  <Col gap={1}><Caption value={demoNote} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
+  <Search key={searchVersion} name="shelfSearch" placeholder={placeholder} defaultQuery={query} items={items} emptyText={emptyText}
+    $onChangeAction='{ updateState: { query: value } }' />
+  <Show $when="has(query)"><Row><Button label={clearLabel} variant="outline" size="2xl"
+    $onClickAction='{ updateState: { query: "", searchVersion: searchVersion + 1 } }' /></Row></Show>
+  <Show $when="has(selected)">
+    <Box padding={4} background="surface-secondary" radius="md" gap={2}>
+      <Text value={read(details, selected + '.title', '')} size="sm" weight="semibold" />
+      <Text value={read(details, selected + '.body', '')} size="sm" />
+      <Caption value={selectionNote} />
+    </Box>
+  </Show>
+</Response>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "demoNote": "Fictional studio shelf · three local sample records",
+  "title": "Find a small idea",
+  "intro": "Search titles or topics, then open a short reading note. Try “maps” or “装订”.",
+  "placeholder": "Search this sample shelf",
+  "emptyText": "No sample titles match. Try maps, type, or 装订, or clear the search.",
+  "clearLabel": "Clear search",
+  "query": "",
+  "searchVersion": 0,
+  "selected": "",
+  "selectionNote": "Local reading note · no external file opened",
+  "items": [
+    {
+      "id": "maps",
+      "label": "Drawing a place",
+      "description": "Maps · 地图",
+      "keywords": "cartography maps 地图 空间",
+      "icon": "maps",
+      "action": {
+        "updateState": {
+          "selected": "maps"
+        }
+      }
+    },
+    {
+      "id": "binding",
+      "label": "The folded book",
+      "description": "Binding · 装订",
+      "keywords": "paper zine binding 装订 折页",
+      "icon": "book-open",
+      "action": {
+        "updateState": {
+          "selected": "binding"
+        }
+      }
+    },
+    {
+      "id": "type",
+      "label": "Space between letters",
+      "description": "Typography · 字体",
+      "keywords": "type typography spacing 字体 排版",
+      "icon": "square-text",
+      "action": {
+        "updateState": {
+          "selected": "type"
+        }
+      }
+    }
+  ],
+  "details": {
+    "maps": {
+      "title": "Drawing a place",
+      "body": "A sample note about choosing landmarks that help a reader orient themselves. Omit detail that does not help the route."
+    },
+    "binding": {
+      "title": "The folded book",
+      "body": "A sample note about using a folded paper dummy to check page order before laying out a small publication."
+    },
+    "type": {
+      "title": "Space between letters",
+      "body": "A sample note about comparing text at its intended size, with attention to word spacing and line length."
+    }
+  }
+}
+```
+
+### A place, with context
+
+An explicitly fictional schematic paired with named positions and honest spatial limits. (id: `bible-fictional-site-map`)
+
+Components in context: `Card`, `Col`, `Caption`, `Title`, `Text`, `Map`, `List`, `Each`, `List.Item`.
+
+WIDGET TEMPLATE:
+
+```
+<Card size="sm" gap={3}>
+  <Col gap={1}><Caption value={demoNote} /><Title value={title} size="sm" /><Text value={takeaway} size="sm" /></Col>
+  <Map markers={markers} routes={routes} height={180} frame={false} />
+  <List marker="none" gap={3}>
+    <Each $of="places" item="place"><List.Item><Col gap={1}>
+      <Text value={place.name} size="sm" weight="semibold" />
+      <Text value={place.position} size="sm" color="secondary" />
+    </Col></List.Item></Each>
+  </List>
+  <Text value={limitation} size="sm" color="secondary" />
+</Card>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "demoNote": "Fictional site · invented coordinates",
+  "title": "Dock → studio → garden",
+  "takeaway": "The studio lies between the dock in the west and the garden to the northeast.",
+  "markers": [
+    {
+      "latitude": 37.724,
+      "longitude": -122.495,
+      "label": "Dock — west",
+      "color": "var(--widget-text-primary)",
+      "style": "pin"
+    },
+    {
+      "latitude": 37.752,
+      "longitude": -122.438,
+      "label": "Studio — center",
+      "color": "var(--widget-text-primary)",
+      "style": "pin"
+    },
+    {
+      "latitude": 37.795,
+      "longitude": -122.385,
+      "label": "Garden — northeast",
+      "color": "var(--widget-text-primary)",
+      "style": "pin"
+    }
+  ],
+  "routes": [
+    {
+      "coordinates": [
+        [
+          -122.495,
+          37.724
+        ],
+        [
+          -122.438,
+          37.752
+        ],
+        [
+          -122.385,
+          37.795
+        ]
+      ],
+      "color": "var(--widget-text-secondary)"
+    }
+  ],
+  "places": [
+    {
+      "name": "Dock",
+      "position": "Western marker · imagined arrival point."
+    },
+    {
+      "name": "Studio",
+      "position": "Middle marker · imagined exhibition space."
+    },
+    {
+      "name": "Garden",
+      "position": "Northeastern marker · imagined outdoor room."
+    }
+  ],
+  "limitation": "The line connects fictional places; it is not a walkable route. No street accuracy, distances, travel times, or accessibility claims are implied."
+}
+```
+
+### Tidal forms
+
+An original vector print, with the artwork first and a working two-palette switch. (id: `bible-tidal-print`)
+
+Components in context: `Basic`, `Box`, `Svg`, `Col`, `Caption`, `Title`, `Text`, `SegmentedControl`.
+
+WIDGET TEMPLATE:
+
+```
+<Basic gap={3}>
+  <Box background={paperColor} radius="lg" padding={5} align="center">
+    <Svg title={description} viewBox="0 0 240 240" size={230} paths={palette === "clay" ? clayPaths : inkPaths} />
+  </Box>
+  <Col gap={1}><Caption value={demoNote} /><Title value={title} size="sm" /><Text value={description} size="sm" color="secondary" /></Col>
+  <SegmentedControl name="palette" ariaLabel={paletteLabel} value={palette} options={palettes} size="lg"
+    $onChangeAction='{ updateState: { palette: value } }' />
+  <Caption value={palette === "clay" ? clayDescription : inkDescription} />
+</Basic>
+```
+
+WIDGET DATA:
+
+```json
+{
+  "paperColor": "#f4efe5",
+  "demoNote": "Original demo artwork · vector study 01",
+  "title": "Tidal forms",
+  "description": "Two offset circles meet a broad wave on warm paper. The visual is the deliverable; there is no hidden meaning or measured data.",
+  "paletteLabel": "Artwork palette",
+  "palette": "clay",
+  "palettes": [
+    {
+      "label": "Clay",
+      "value": "clay"
+    },
+    {
+      "label": "Ink",
+      "value": "ink"
+    }
+  ],
+  "clayDescription": "Clay palette: terracotta sun, cream crescent, deep blue wave.",
+  "inkDescription": "Ink palette: charcoal sun, paper crescent, muted gray wave.",
+  "clayPaths": [
+    {
+      "d": "M160 79a57 57 0 1 1-114 0a57 57 0 1 1 114 0",
+      "fill": "#b95137",
+      "stroke": "none"
+    },
+    {
+      "d": "M193 62a51 51 0 1 1-102 0a51 51 0 1 1 102 0",
+      "fill": "#f4efe5",
+      "stroke": "none"
+    },
+    {
+      "d": "M20 147C64 114 91 125 128 151C160 174 193 158 220 132L220 220L20 220Z",
+      "fill": "#263d4d",
+      "stroke": "none"
+    },
+    {
+      "d": "M20 184C58 158 88 162 128 184C161 203 197 186 220 167L220 188C193 208 160 220 125 202C84 181 58 181 20 204Z",
+      "fill": "#f4efe5",
+      "stroke": "none"
+    }
+  ],
+  "inkPaths": [
+    {
+      "d": "M160 79a57 57 0 1 1-114 0a57 57 0 1 1 114 0",
+      "fill": "#30312e",
+      "stroke": "none"
+    },
+    {
+      "d": "M193 62a51 51 0 1 1-102 0a51 51 0 1 1 102 0",
+      "fill": "#f4efe5",
+      "stroke": "none"
+    },
+    {
+      "d": "M20 147C64 114 91 125 128 151C160 174 193 158 220 132L220 220L20 220Z",
+      "fill": "#74776e",
+      "stroke": "none"
+    },
+    {
+      "d": "M20 184C58 158 88 162 128 184C161 203 197 186 220 167L220 188C193 208 160 220 125 202C84 181 58 181 20 204Z",
+      "fill": "#f4efe5",
+      "stroke": "none"
+    }
+  ]
+}
+```
 
 ## Agent UI
 

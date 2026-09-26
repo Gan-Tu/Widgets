@@ -1,0 +1,48 @@
+{
+  "designSpec": "A drafting desk uses a real source picker and composer to assemble a deterministic local brief preview, with removable sample context and a copy action.",
+  "template": "<Card size=\"md\" padding={0} gap={0}>\n  <Col padding={4} gap={3}>\n    <Row gap={3}><Avatar name={editorName} size={42} /><Col gap={0}><Caption value={sampleLabel} /><Title value={title} size=\"sm\" /></Col></Row>\n    <Text value={intro} size=\"sm\" />\n  </Col>\n  <Col padding={4} gap={4}>\n    <PromptBar name=\"draftPrompt\" defaultValue={initialDraft} placeholder={placeholder} rows={3} sources={sources} selectedSources={[selectedSource]}\n      attachments={attachments} removeAttachmentAction={{ updateState: { attachments: [] } }}\n      $sourceAction='{ updateState: { selectedSource: value } }'\n      $submitAction='{ updateState: { preview: value, previewSource: selectedSource } }' />\n    <Text value={submitNote} size=\"sm\" color=\"secondary\" />\n    <Box background=\"surface-secondary\" padding={3} radius=\"md\" gap={1}><Caption value={contextLabel} /><Text value={sourceNotes[selectedSource]} size=\"sm\" /></Box>\n    <Show $when=\"has(preview)\">\n      <Col gap={3}><Row gap={2}><Badge label={draftLabel} color=\"accent\" /><Text value={previewSource} size=\"sm\" color=\"secondary\" /></Row>\n        <TextResponse value={preview} />\n        <Row><Button label={copyLabel} iconStart=\"copy\" color=\"accent\" onClickAction={{ type: \"copy\", handler: \"client\", payload: { value: preview + \"\\n\\nContext: \" + sourceNotes[previewSource] } }} /></Row>\n      </Col>\n      <Show.Else><EmptyState icon=\"write\" title={emptyTitle} description={emptyDescription} padding={3} /></Show.Else>\n    </Show>\n  </Col>\n</Card>",
+  "data": {
+    "editorName": "Mara Lin",
+    "sampleLabel": "Sample studio · local draft",
+    "title": "Give the brief some context",
+    "intro": "Choose a source note, write the brief, then preview the exact text before copying it.",
+    "initialDraft": "Invite six people to a small print swap. Ask each person to bring one print and a short note about how it was made.",
+    "placeholder": "Write a brief to preview locally",
+    "selectedSource": "Print swap",
+    "sources": [
+      {
+        "id": "Print swap",
+        "label": "Print swap",
+        "description": "Six guests · one print each",
+        "icon": "images"
+      },
+      {
+        "id": "Open studio",
+        "label": "Open studio",
+        "description": "A casual visit · work in progress",
+        "icon": "palette"
+      }
+    ],
+    "sourceNotes": {
+      "Print swap": "Sample plan: six guests, one print each, a short introduction, then an informal exchange.",
+      "Open studio": "Sample plan: show three works in progress and leave time for questions. No date or venue is booked."
+    },
+    "attachments": [
+      {
+        "id": "sample-note",
+        "name": "sample-note.txt",
+        "type": "Text",
+        "size": "Local excerpt"
+      }
+    ],
+    "submitNote": "The Send arrow previews your text here; nothing is sent or generated.",
+    "contextLabel": "Selected source note",
+    "preview": "Invite six people to a small print swap. Ask each person to bring one print and a short note about how it was made.",
+    "previewSource": "Print swap",
+    "draftLabel": "Draft",
+    "copyLabel": "Copy brief + context",
+    "emptyTitle": "Your preview goes here",
+    "emptyDescription": "The original wording is preserved; the selected source is attached as context."
+  },
+  "theme": "light"
+}

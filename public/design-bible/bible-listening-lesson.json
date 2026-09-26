@@ -1,0 +1,81 @@
+{
+  "designSpec": "A sound lesson pairs a playable original tone fixture with notation, a precise transcript, and a working local listening question.",
+  "template": "<Card size=\"sm\" gap={4}>\n  <Box gap={2}>\n    <Row gap={2}><Icon name=\"headphones\" /><Caption value={sampleLabel} /></Row>\n    <Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" />\n  </Box>\n  <AudioPlayer src={audioSrc} title={audioTitle} subtitle={audioSubtitle} autoPlay={false} loop={false} />\n  <Tabs tabs={tabs}>\n    <Tabs.Panel id=\"notes\"><Col gap={3}>\n      <Grid columns={3} gap={2}><Each $of=\"notes\" item=\"note\"><Grid.Item><Box background=\"surface-secondary\" padding={3} radius=\"lg\" gap={1} align=\"center\"><Text value={note.name} size=\"lg\" weight=\"semibold\" /><Caption value={note.frequency} /></Box></Grid.Item></Each></Grid>\n      <Math value={relationship} /><Text value={noteDescription} size=\"sm\" />\n    </Col></Tabs.Panel>\n    <Tabs.Panel id=\"transcript\"><Timeline items={transcript} /></Tabs.Panel>\n  </Tabs>\n  <Col gap={2}>\n    <Text value={question} size=\"sm\" weight=\"semibold\" />\n    <RadioGroup name=\"direction\" ariaLabel={question} options={choices} $onChangeAction='{ updateState: { answer: value } }' />\n    <Show $when=\"has(answer)\"><Callout color={answer === 'up' ? 'info' : 'neutral'} title={answer === 'up' ? correctTitle : retryTitle} description={answer === 'up' ? correctText : retryText} /></Show>\n  </Col>\n</Card>",
+  "data": {
+    "sampleLabel": "Original tone fixture · 2.8 seconds",
+    "title": "Three notes, moving upward",
+    "intro": "Listen for three separate pitches. Replay as often as you like, then describe their direction.",
+    "audioSrc": "/design-bible/assets/ascending-triad.wav",
+    "audioTitle": "C4 · E4 · G4",
+    "audioSubtitle": "Three sine tones · no speech",
+    "tabs": [
+      {
+        "id": "notes",
+        "label": "Notes",
+        "icon": "music"
+      },
+      {
+        "id": "transcript",
+        "label": "Transcript",
+        "icon": "document"
+      }
+    ],
+    "notes": [
+      {
+        "name": "C4",
+        "frequency": "261.6 Hz"
+      },
+      {
+        "name": "E4",
+        "frequency": "329.6 Hz"
+      },
+      {
+        "name": "G4",
+        "frequency": "392.0 Hz"
+      }
+    ],
+    "relationship": "C → E → G",
+    "noteDescription": "The three tones outline a C-major triad. Higher frequency corresponds to the higher pitch in this sample.",
+    "transcript": [
+      {
+        "title": "C4",
+        "description": "A 261.6256 Hz tone, then a short pause.",
+        "time": "0.00–0.75 s",
+        "icon": "music"
+      },
+      {
+        "title": "E4",
+        "description": "A 329.6276 Hz tone, then a short pause.",
+        "time": "0.90–1.65 s",
+        "icon": "music"
+      },
+      {
+        "title": "G4",
+        "description": "A 391.9954 Hz tone, followed by silence.",
+        "time": "1.80–2.55 s",
+        "icon": "music"
+      }
+    ],
+    "question": "Which way do the pitches move?",
+    "choices": [
+      {
+        "label": "Up",
+        "value": "up"
+      },
+      {
+        "label": "Down",
+        "value": "down"
+      },
+      {
+        "label": "Same",
+        "value": "same"
+      }
+    ],
+    "answer": "",
+    "correctTitle": "Yes — upward",
+    "correctText": "Each note has a higher frequency than the one before it.",
+    "retryTitle": "Try one more listen",
+    "retryText": "Compare the first and last tones, then choose again."
+  },
+  "theme": "light"
+}

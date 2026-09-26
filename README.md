@@ -15,7 +15,7 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
 - **Component library**: 142 registered components — containers, layout, typography, forms, charts, media, control flow, premium data display, and agent-native/workspace primitives (`ThinkingReasoning`, `StreamingText`, `ApprovalCard`, `AgentInput`, `RecordsTable`, `Flowchart`, and more), all themed by CSS design tokens with full light/dark support
 - **Demo app**:
   - `/` — an exploded-view SVG of a widget being built: the model's template streams in, tokens cross a validation layer that binds data and rejects an injected unsafe line, and the rendered card turns to face the viewer and fires `onAction`. Below it, a live template-to-widget exhibit. The hero supports pause, pointer tilt, reduced motion, and automatic suspension offscreen or in hidden tabs
-  - `/gallery` — 52 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
+  - `/gallery` — 72 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
   - `/docs` — per-component docs with live examples, prop tables, deep links, and a searchable component sidebar
   - `/playground` — live template + JSON editing, plus AI widget generation using **`gpt-6-astra`** through the OpenAI Responses API; starts with **Checkout**, and Reset restores it. Explicit example/component links open the requested demo
 - **Authoring guide**: [`public/AGENTS.md`](public/AGENTS.md) — the complete widget-authoring contract and design principles embedded into generation and repair prompts
@@ -37,7 +37,7 @@ Compose a compact widget around one useful task. Start with the existing compone
 - Fit the available width: allow form fields to shrink or stack, align media and captions to one gutter, and use one full carousel slide at compact widths. Carousel navigation remains visible when content overflows.
 - Keep keyboard focus visible without heavy black rings: fields emphasize their border; other controls use one muted indicator. Verify selected, disabled, empty, long-content, narrow-width, and dark-theme states.
 
-The [authoring guide’s design guidelines](public/AGENTS.md#design-guidelines) explain composition, spacing, chart colors, media, and interaction details for template authors. Shared rendering fixes belong in the primitive or its tokens so every widget benefits.
+The [authoring guide’s design guidelines](public/AGENTS.md#design-guidelines) explain composition, spacing, chart colors, media, and interaction details. Its [complete component design playbook](public/AGENTS.md#choose-from-the-full-component-library) gives a use case and boundary for all 142 registered names, including agent activity, streaming, editing, workspace navigation, and disclosure. Breadcrumb-style paths use existing buttons, icons, and text. Shared rendering fixes belong in the primitive or its tokens so every widget benefits.
 
 ## Install (for use in your app)
 
@@ -59,6 +59,8 @@ npm run dev
 ```
 
 Open the URL printed by Vite, then visit `/gallery`, `/docs`, or `/playground`.
+
+The twenty **Editorial** studies live at `/gallery?category=Editorial`, with twelve rich workflows followed by the original eight compact studies. They were independently authored from the expanded guide using existing components, with illustrative data and working local interactions. Their reusable `{ designSpec, template, data, theme }` JSON lives in `public/design-bible/`; paste `template` and `data` into the Playground editors to explore them without calling the AI generator. The sources are `src/examples/designBibleExamples.ts` and `src/examples/designBibleRichExamples.ts`, both included in the generated example corpora. Original SVG posters and a 2.8-second C4/E4/G4 tone fixture live in `public/design-bible/assets/`; root-relative asset URLs require those files on the host. The same `build-widget-examples-doc.mjs` command regenerates the corpora and JSON files together.
 
 ## Basic usage (embed in your app)
 

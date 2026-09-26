@@ -1,0 +1,100 @@
+{
+  "designSpec": "A planning form collects a coherent workshop brief with labeled native controls and a validated local summary that preserves edits.",
+  "template": "<Card size=\"md\" gap={4}>\n  <Box gap={2}><Caption value={sampleLabel} /><Title value={title} size=\"sm\" /><Text value={intro} size=\"sm\" /></Box>\n  <Form gap={3} $onSubmitAction='{ updateState: { attempted: true, formError: has(workshopDate) ? \"\" : dateError, summary: { title: workshopTitle, date: workshopDate || \"\", format: workshopFormat, topic: workshopTopic, room: workshopRoom, materials: workshopMaterials } } }'>\n    <Col gap={1}><Label value={titleLabel} fieldName=\"workshopTitle\" /><Input name=\"workshopTitle\" defaultValue={initialTitle} required size=\"2xl\" /></Col>\n    <Col gap={2}><Text value={formatLabel} size=\"sm\" weight=\"medium\" /><RadioGroup name=\"workshopFormat\" ariaLabel={formatLabel} options={formats} defaultValue=\"hands-on\" /></Col>\n    <Grid columns=\"repeat(auto-fit, minmax(min(100%, 180px), 1fr))\" gap={3}>\n      <Col gap={1}><Label value={dateLabel} fieldName=\"workshopDate\" /><DatePicker name=\"workshopDate\" defaultValue={initialDate} block clearable size=\"2xl\" /></Col>\n      <Col gap={1}><Label value={topicLabel} fieldName=\"workshopTopic\" /><Select name=\"workshopTopic\" options={topics} defaultValue=\"print\" block size=\"2xl\" /></Col>\n    </Grid>\n    <Col gap={1}><Label value={roomLabel} fieldName=\"workshopRoom\" /><Combobox name=\"workshopRoom\" options={rooms} defaultValue=\"north\" placeholder={roomPlaceholder} searchPlaceholder={roomSearch} emptyLabel={roomEmpty} block /></Col>\n    <Checkbox name=\"workshopMaterials\" label={materialsLabel} defaultChecked />\n    <Show $when=\"has(formError)\"><Text value={formError} size=\"sm\" color=\"danger\" /></Show>\n    <Row><Button submit label={previewLabel} color=\"primary\" size=\"2xl\" /></Row>\n  </Form>\n  <Show $when=\"attempted && !has(formError)\">\n    <Box background=\"surface-secondary\" padding={4} radius=\"lg\" gap={3}>\n      <Row gap={2}><Icon name=\"notebook-pencil\" /><Text value={summaryLabel} weight=\"semibold\" size=\"sm\" /></Row>\n      <Text value={summary.title} weight=\"semibold\" />\n      <KeyValue rows={[{ label: dateLabel, value: summary.date }, { label: formatLabel, value: labels[summary.format] }, { label: topicLabel, value: labels[summary.topic] }, { label: roomLabel, value: labels[summary.room] }, { label: materialsShort, value: summary.materials ? yesLabel : noLabel }]} />\n    </Box>\n  </Show>\n</Card>",
+  "data": {
+    "sampleLabel": "Sample workshop · planning preview",
+    "title": "Make the workshop tangible",
+    "intro": "Set the essentials together, then review a brief you can discuss with the team.",
+    "titleLabel": "Workshop title",
+    "initialTitle": "Small prints, bold shapes",
+    "formatLabel": "Format",
+    "dateLabel": "Date",
+    "initialDate": "2026-11-07",
+    "topicLabel": "Topic",
+    "roomLabel": "Sample room",
+    "roomPlaceholder": "Choose a sample room",
+    "roomSearch": "Search rooms…",
+    "roomEmpty": "No matching sample room",
+    "formats": [
+      {
+        "label": "Hands-on",
+        "value": "hands-on"
+      },
+      {
+        "label": "Demonstration",
+        "value": "demo"
+      }
+    ],
+    "topics": [
+      {
+        "label": "Printmaking",
+        "value": "print"
+      },
+      {
+        "label": "Paper folding",
+        "value": "fold"
+      },
+      {
+        "label": "Drawing",
+        "value": "draw"
+      },
+      {
+        "label": "Typography",
+        "value": "type"
+      }
+    ],
+    "rooms": [
+      {
+        "label": "North studio",
+        "value": "north"
+      },
+      {
+        "label": "South studio",
+        "value": "south"
+      },
+      {
+        "label": "Courtyard",
+        "value": "courtyard"
+      },
+      {
+        "label": "Library room",
+        "value": "library"
+      },
+      {
+        "label": "Project room",
+        "value": "project"
+      }
+    ],
+    "labels": {
+      "hands-on": "Hands-on",
+      "demo": "Demonstration",
+      "print": "Printmaking",
+      "fold": "Paper folding",
+      "draw": "Drawing",
+      "type": "Typography",
+      "north": "North studio",
+      "south": "South studio",
+      "courtyard": "Courtyard",
+      "library": "Library room",
+      "project": "Project room"
+    },
+    "materialsLabel": "Include a materials list",
+    "materialsShort": "Materials list",
+    "yesLabel": "Included",
+    "noLabel": "Not included",
+    "previewLabel": "Preview brief",
+    "summaryLabel": "Your brief preview",
+    "dateError": "Choose a date before creating the preview.",
+    "formError": "",
+    "attempted": true,
+    "summary": {
+      "title": "Small prints, bold shapes",
+      "date": "2026-11-07",
+      "format": "hands-on",
+      "topic": "print",
+      "room": "north",
+      "materials": true
+    }
+  },
+  "theme": "light"
+}

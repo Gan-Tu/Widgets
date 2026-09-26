@@ -1,0 +1,67 @@
+{
+  "designSpec": "An explicitly fictional schematic paired with named positions and honest spatial limits.",
+  "template": "<Card size=\"sm\" gap={3}>\n  <Col gap={1}><Caption value={demoNote} /><Title value={title} size=\"sm\" /><Text value={takeaway} size=\"sm\" /></Col>\n  <Map markers={markers} routes={routes} height={180} frame={false} />\n  <List marker=\"none\" gap={3}>\n    <Each $of=\"places\" item=\"place\"><List.Item><Col gap={1}>\n      <Text value={place.name} size=\"sm\" weight=\"semibold\" />\n      <Text value={place.position} size=\"sm\" color=\"secondary\" />\n    </Col></List.Item></Each>\n  </List>\n  <Text value={limitation} size=\"sm\" color=\"secondary\" />\n</Card>",
+  "data": {
+    "demoNote": "Fictional site · invented coordinates",
+    "title": "Dock → studio → garden",
+    "takeaway": "The studio lies between the dock in the west and the garden to the northeast.",
+    "markers": [
+      {
+        "latitude": 37.724,
+        "longitude": -122.495,
+        "label": "Dock — west",
+        "color": "var(--widget-text-primary)",
+        "style": "pin"
+      },
+      {
+        "latitude": 37.752,
+        "longitude": -122.438,
+        "label": "Studio — center",
+        "color": "var(--widget-text-primary)",
+        "style": "pin"
+      },
+      {
+        "latitude": 37.795,
+        "longitude": -122.385,
+        "label": "Garden — northeast",
+        "color": "var(--widget-text-primary)",
+        "style": "pin"
+      }
+    ],
+    "routes": [
+      {
+        "coordinates": [
+          [
+            -122.495,
+            37.724
+          ],
+          [
+            -122.438,
+            37.752
+          ],
+          [
+            -122.385,
+            37.795
+          ]
+        ],
+        "color": "var(--widget-text-secondary)"
+      }
+    ],
+    "places": [
+      {
+        "name": "Dock",
+        "position": "Western marker · imagined arrival point."
+      },
+      {
+        "name": "Studio",
+        "position": "Middle marker · imagined exhibition space."
+      },
+      {
+        "name": "Garden",
+        "position": "Northeastern marker · imagined outdoor room."
+      }
+    ],
+    "limitation": "The line connects fictional places; it is not a walkable route. No street accuracy, distances, travel times, or accessibility claims are implied."
+  },
+  "theme": "light"
+}

@@ -43,6 +43,25 @@ test("AGENTS.md documents every registered component", async () => {
   );
 });
 
+test("the design playbook gives every registered component a use case and boundary", async () => {
+  const guide = await readFile(path.join(repoRoot, "public", "AGENTS.md"), "utf8");
+  const playbook = guide.split("### Choose from the full component library\n")[1]
+    ?.split("### Rich workflows, streaming, and navigation\n")[0];
+  assert.ok(playbook, "The complete component design playbook is missing");
+  const rows = playbook.split("\n").filter((line) => line.startsWith("| `"));
+  const documented = new Set();
+  for (const row of rows) {
+    const [, components, useCase, boundary] = row.split("|");
+    assert.ok(useCase?.trim() && boundary?.trim(), `Incomplete design guidance: ${row}`);
+    for (const [, name] of components.matchAll(/`([^`]+)`/g)) documented.add(name);
+  }
+  assert.deepEqual(
+    [...documented].sort(),
+    Object.keys(widgetRegistry).sort(),
+    "The design playbook must cover the actual registry without invented components"
+  );
+});
+
 test("AGENTS.md icon list matches iconNames exactly", async () => {
   const guide = await readFile(path.join(repoRoot, "public", "AGENTS.md"), "utf8");
   // Parse the fenced icon block and set-compare it in both directions so a
