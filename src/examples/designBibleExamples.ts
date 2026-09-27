@@ -10,7 +10,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-evidence-memo",
-    title: "The quiet-hour decision",
+    title: "Evidence memo",
     description: "An answer-first evidence memo: observed results, limits, and a copyable conclusion.",
     featuredRank: 17,
     size: "sm" as const,
@@ -49,7 +49,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-recorder-comparison",
-    title: "Two tools, clear tradeoffs",
+    title: "Audio recorder comparison",
     description: "A compact, same-field equipment comparison with a locally adjustable priority.",
     featuredRank: 18,
     size: "md" as const,
@@ -96,7 +96,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-attendance-trend",
-    title: "A trend with its limits",
+    title: "Attendance trend",
     description: "A six-point attendance trend with a visible takeaway and an exact-count alternative.",
     featuredRank: 19,
     size: "md" as const,
@@ -141,7 +141,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-reading-scenario",
-    title: "A reading rhythm",
+    title: "Reading plan calculator",
     description: "One honest local scenario: adjust pages per day and see the remaining reading days.",
     featuredRank: 20,
     size: "sm" as const,
@@ -186,7 +186,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-zine-checklist",
-    title: "Before the first print",
+    title: "Print checklist",
     description: "A practical four-step checklist that tracks only what the reader marks locally.",
     featuredRank: 21,
     size: "sm" as const,
@@ -231,7 +231,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-shelf-search",
-    title: "A shelf that can be empty",
+    title: "Knowledge search",
     description: "A bilingual local search with a useful no-results state and a working clear action.",
     featuredRank: 22,
     size: "sm" as const,
@@ -276,7 +276,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-fictional-site-map",
-    title: "A place, with context",
+    title: "Site map",
     description: "An explicitly fictional schematic paired with named positions and honest spatial limits.",
     featuredRank: 23,
     size: "sm" as const,
@@ -318,7 +318,7 @@ export const designBibleExamples = [
   {
     ...showcase,
     id: "bible-tidal-print",
-    title: "Tidal forms",
+    title: "Vector artwork",
     description: "An original vector print, with the artwork first and a working two-palette switch.",
     featuredRank: 24,
     size: "sm" as const,

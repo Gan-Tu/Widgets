@@ -17,7 +17,7 @@ const column = z.strictObject({ key: z.string(), label: z.string(), align: z.enu
 /** Rich, independently authored examples using only the existing Widgets registry. */
 export const designBibleRichExamples = [
   {
-    ...showcase, id: "bible-research-replay", title: "Research, in the open", featuredRank: 25, size: "md" as const,
+    ...showcase, id: "bible-research-replay", title: "Research workspace", featuredRank: 25, size: "md" as const,
     description: "A research desk pairs a stable synthesis with a bounded scripted replay, public workflow summaries, tool activity, and inspectable sample sources.",
     template: `<Card size="md" padding={0} gap={0}>
   <Col padding={4} gap={3}>
@@ -74,7 +74,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-release-review", title: "A patch you can inspect", featuredRank: 26, size: "md" as const,
+    ...showcase, id: "bible-release-review", title: "Code review", featuredRank: 26, size: "md" as const,
     description: "A release-review surface separates changed lines, the resulting configuration, and a local review decision without implying deployment.",
     template: `<Card size="md" gap={4}>
   <Box gap={2}>
@@ -109,7 +109,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-field-guide", title: "A field guide with a path", featuredRank: 27, size: "lg" as const,
+    ...showcase, id: "bible-field-guide", title: "Bookbinding guide", featuredRank: 27, size: "lg" as const,
     description: "A knowledge workspace combines working breadcrumb navigation, a responsive sidebar, a selected guide, and optional process detail.",
     template: `<Basic gap={4}>
   <Box gap={2}>
@@ -147,7 +147,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-draft-desk", title: "A source-aware drafting desk", featuredRank: 28, size: "md" as const,
+    ...showcase, id: "bible-draft-desk", title: "Brief composer", featuredRank: 28, size: "md" as const,
     description: "A drafting desk uses a real source picker and composer to assemble a deterministic local brief preview, with removable sample context and a copy action.",
     template: `<Card size="md" padding={0} gap={0}>
   <Col padding={4} gap={3}>
@@ -182,7 +182,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-handoff-replay", title: "A handoff in three stages", featuredRank: 29, size: "md" as const,
+    ...showcase, id: "bible-handoff-replay", title: "Workflow handoff", featuredRank: 29, size: "md" as const,
     description: "A training replay makes task stages, bounded playback, and the final handoff visible through Steps, TaskRows, Flowchart, and measured replay progress.",
     template: `<Response gap={4}>
   <Box gap={2}>
@@ -219,7 +219,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-workshop-analytics", title: "The workshop attendance lab", featuredRank: 30, size: "md" as const,
+    ...showcase, id: "bible-workshop-analytics", title: "Workshop analytics", featuredRank: 30, size: "md" as const,
     description: "An analytics study uses distinct, same-unit trend, capacity, mix, and exact-record views to explain four sample sessions without chart duplication.",
     template: `<Card size="md" gap={4}>
   <Box gap={3}>
@@ -250,7 +250,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-workshop-brief", title: "A workshop, ready to describe", featuredRank: 31, size: "md" as const,
+    ...showcase, id: "bible-workshop-brief", title: "Workshop planning form", featuredRank: 31, size: "md" as const,
     description: "A planning form collects a coherent workshop brief with labeled native controls and a validated local summary that preserves edits.",
     template: `<Card size="md" gap={4}>
   <Box gap={2}><Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Box>
@@ -287,7 +287,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-print-directions", title: "Three print directions", featuredRank: 32, size: "sm" as const,
+    ...showcase, id: "bible-print-directions", title: "Print design carousel", featuredRank: 32, size: "sm" as const,
     description: "An image-led editorial carousel lets three original local artworks carry distinct palettes, with a persistent local reference choice and concise production context.",
     template: `<Card size="sm" padding={0} gap={0}>
   <Col padding={4} gap={1}><Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
@@ -319,7 +319,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-listening-lesson", title: "Hear the shape of a triad", featuredRank: 33, size: "sm" as const,
+    ...showcase, id: "bible-listening-lesson", title: "Music listening lesson", featuredRank: 33, size: "sm" as const,
     description: "A sound lesson pairs a playable original tone fixture with notation, a precise transcript, and a working local listening question.",
     template: `<Card size="sm" gap={4}>
   <Box gap={2}>
@@ -352,7 +352,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-reading-settings", title: "A reading room of your own", featuredRank: 34, size: "md" as const,
+    ...showcase, id: "bible-reading-settings", title: "Reading preferences", featuredRank: 34, size: "md" as const,
     description: "A settings editor connects FineTuneCard, a real note toggle, and paper-tone controls to a visible local reading preview.",
     template: `<Basic gap={4}>
   <Col gap={2}><Row gap={2}><Icon name="book-open" /><Caption value={sampleLabel} /></Row><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
@@ -377,7 +377,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-editing-workbench", title: "Keep the author in the loop", featuredRank: 35, size: "md" as const,
+    ...showcase, id: "bible-editing-workbench", title: "Draft review", featuredRank: 35, size: "md" as const,
     description: "An editing workbench turns prewritten proposals or an exact replacement into a reviewable local draft, with explicit accept and discard controls.",
     template: `<Response gap={4}>
   <Col gap={2}><Caption value={sampleLabel} /><Title value={title} size="sm" /><Text value={intro} size="sm" /></Col>
@@ -405,7 +405,7 @@ export const designBibleRichExamples = [
     }
   },
   {
-    ...showcase, id: "bible-idea-wall", title: "Make space for the next idea", featuredRank: 36, size: "md" as const,
+    ...showcase, id: "bible-idea-wall", title: "Idea board", featuredRank: 36, size: "md" as const,
     description: "A local idea collection uses working add/remove controls, optional animated identity, a useful popover, and real collection commands.",
     template: `<Card size="md" gap={4}>
   <Box gap={2}>

@@ -266,8 +266,6 @@ body {
 @media (prefers-reduced-motion: reduce) { .studio-button { transition: none; } }
 .docs-preview { min-height: 300px; padding: clamp(20px, 4vw, 40px); border-radius: 12px; background: var(--plinth); align-items: center; }
 .docs-page pre { background: #111114; border-radius: 8px; }
-.playground-editor textarea { background: #141416; color: #f5f5f7; border-color: transparent; border-radius: 8px; padding: 18px; box-shadow: none; font-family: "Fragment Mono", ui-monospace, monospace; font-size: 12px; line-height: 1.8; tab-size: 2; }
-.playground-editor textarea:focus-visible { border-color: #8e8e93; outline: none; box-shadow: none; }
 .playground-preview-stage { min-height: 440px; align-items: center; padding-block: 20px; }
 @media (max-width: 639px) { .playground-preview-stage { min-height: 300px; padding-block: 8px; } .playground-preview, .playground-editor { padding: 14px; } .docs-preview { padding: 16px; } }
 

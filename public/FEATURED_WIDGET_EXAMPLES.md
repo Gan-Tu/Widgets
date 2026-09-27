@@ -1894,7 +1894,7 @@ WIDGET DATA:
 }
 ```
 
-### The quiet-hour decision
+### Evidence memo
 
 An answer-first evidence memo: observed results, limits, and a copyable conclusion. (id: `bible-evidence-memo`)
 
@@ -1937,7 +1937,7 @@ WIDGET DATA:
 }
 ```
 
-### Two tools, clear tradeoffs
+### Audio recorder comparison
 
 A compact, same-field equipment comparison with a locally adjustable priority. (id: `bible-recorder-comparison`)
 
@@ -2013,7 +2013,7 @@ WIDGET DATA:
 }
 ```
 
-### A trend with its limits
+### Attendance trend
 
 A six-point attendance trend with a visible takeaway and an exact-count alternative. (id: `bible-attendance-trend`)
 
@@ -2106,7 +2106,7 @@ WIDGET DATA:
 }
 ```
 
-### A reading rhythm
+### Reading plan calculator
 
 One honest local scenario: adjust pages per day and see the remaining reading days. (id: `bible-reading-scenario`)
 
@@ -2168,7 +2168,7 @@ WIDGET DATA:
 }
 ```
 
-### Before the first print
+### Print checklist
 
 A practical four-step checklist that tracks only what the reader marks locally. (id: `bible-zine-checklist`)
 
@@ -2234,7 +2234,7 @@ WIDGET DATA:
 }
 ```
 
-### A shelf that can be empty
+### Knowledge search
 
 A bilingual local search with a useful no-results state and a working clear action. (id: `bible-shelf-search`)
 
@@ -2328,7 +2328,7 @@ WIDGET DATA:
 }
 ```
 
-### A place, with context
+### Site map
 
 An explicitly fictional schematic paired with named positions and honest spatial limits. (id: `bible-fictional-site-map`)
 
@@ -2417,7 +2417,7 @@ WIDGET DATA:
 }
 ```
 
-### Tidal forms
+### Vector artwork
 
 An original vector print, with the artwork first and a working two-palette switch. (id: `bible-tidal-print`)
 
@@ -2506,7 +2506,7 @@ WIDGET DATA:
 }
 ```
 
-### Research, in the open
+### Research workspace
 
 A research desk pairs a stable synthesis with a bounded scripted replay, public workflow summaries, tool activity, and inspectable sample sources. (id: `bible-research-replay`)
 
@@ -2749,7 +2749,7 @@ WIDGET DATA:
 }
 ```
 
-### A patch you can inspect
+### Code review
 
 A release-review surface separates changed lines, the resulting configuration, and a local review decision without implying deployment. (id: `bible-release-review`)
 
@@ -2870,7 +2870,7 @@ WIDGET DATA:
 }
 ```
 
-### A field guide with a path
+### Bookbinding guide
 
 A knowledge workspace combines working breadcrumb navigation, a responsive sidebar, a selected guide, and optional process detail. (id: `bible-field-guide`)
 
@@ -2972,7 +2972,7 @@ WIDGET DATA:
 }
 ```
 
-### A source-aware drafting desk
+### Brief composer
 
 A drafting desk uses a real source picker and composer to assemble a deterministic local brief preview, with removable sample context and a copy action. (id: `bible-draft-desk`)
 
@@ -3052,7 +3052,7 @@ WIDGET DATA:
 }
 ```
 
-### A handoff in three stages
+### Workflow handoff
 
 A training replay makes task stages, bounded playback, and the final handoff visible through Steps, TaskRows, Flowchart, and measured replay progress. (id: `bible-handoff-replay`)
 
@@ -3254,7 +3254,7 @@ WIDGET DATA:
 }
 ```
 
-### The workshop attendance lab
+### Workshop analytics
 
 An analytics study uses distinct, same-unit trend, capacity, mix, and exact-record views to explain four sample sessions without chart duplication. (id: `bible-workshop-analytics`)
 
@@ -3382,7 +3382,7 @@ WIDGET DATA:
 }
 ```
 
-### A workshop, ready to describe
+### Workshop planning form
 
 A planning form collects a coherent workshop brief with labeled native controls and a validated local summary that preserves edits. (id: `bible-workshop-brief`)
 
@@ -3515,7 +3515,7 @@ WIDGET DATA:
 }
 ```
 
-### Three print directions
+### Print design carousel
 
 An image-led editorial carousel lets three original local artworks carry distinct palettes, with a persistent local reference choice and concise production context. (id: `bible-print-directions`)
 
@@ -3606,7 +3606,7 @@ WIDGET DATA:
 }
 ```
 
-### Hear the shape of a triad
+### Music listening lesson
 
 A sound lesson pairs a playable original tone fixture with notation, a precise transcript, and a working local listening question. (id: `bible-listening-lesson`)
 
@@ -3717,7 +3717,7 @@ WIDGET DATA:
 }
 ```
 
-### A reading room of your own
+### Reading preferences
 
 A settings editor connects FineTuneCard, a real note toggle, and paper-tone controls to a visible local reading preview. (id: `bible-reading-settings`)
 
@@ -3825,7 +3825,7 @@ WIDGET DATA:
 }
 ```
 
-### Keep the author in the loop
+### Draft review
 
 An editing workbench turns prewritten proposals or an exact replacement into a reviewable local draft, with explicit accept and discard controls. (id: `bible-editing-workbench`)
 
@@ -3875,7 +3875,7 @@ WIDGET DATA:
 }
 ```
 
-### Make space for the next idea
+### Idea board
 
 A local idea collection uses working add/remove controls, optional animated identity, a useful popover, and real collection commands. (id: `bible-idea-wall`)
 

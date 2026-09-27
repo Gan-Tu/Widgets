@@ -4,7 +4,7 @@ import { ImagePlus, Sparkles } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { CodeEditor } from "@/components/playground/CodeEditor";
 import { cn } from "@/lib/utils";
 import { WidgetRenderer } from "@/widget";
 import { widgetExamples } from "@/examples/widgetExamples";
@@ -57,6 +57,12 @@ if (!defaultExample) throw new Error("The default Checkout example is missing.")
 const defaultTemplate = defaultExample.template;
 const defaultData = defaultExample.data;
 const defaultExampleId = defaultExample.id;
+
+// Keep the core demos first without changing the gallery's ordering.
+const examples = [
+  ...widgetExamples.filter((example) => example.category !== "Editorial"),
+  ...widgetExamples.filter((example) => example.category === "Editorial")
+];
 
 type AuthorWidgetResponse = {
   template: string;
@@ -239,7 +245,6 @@ export function PlaygroundPage() {
   const [referenceImages, setReferenceImages] = React.useState<ReferenceImage[]>([]);
 
   const [previewKey, setPreviewKey] = React.useState(0);
-  const examples = widgetExamples;
   const [selectedExampleId, setSelectedExampleId] = React.useState(defaultExampleId);
   const [copied, setCopied] = React.useState<"template" | "json" | null>(null);
 
@@ -763,13 +768,13 @@ export function PlaygroundPage() {
                   {copied === "template" ? "Copied" : "Copy"}
                 </EditorActionButton>
               </div>
-              <Textarea
+              <CodeEditor
                 id="playground-template"
-                spellCheck={false}
-                className="mt-2 min-h-[320px] rounded-xl font-mono text-[13px] leading-relaxed"
+                language="widget"
+                className="mt-2 min-h-[320px]"
                 value={template}
-                onChange={(event) => {
-                  setTemplate(event.target.value);
+                onChange={(value) => {
+                  setTemplate(value);
                   setSelectedExampleId("");
                 }}
               />
@@ -790,18 +795,18 @@ export function PlaygroundPage() {
                   </EditorActionButton>
                 </div>
               </div>
-              <Textarea
+              <CodeEditor
                 id="playground-data"
-                spellCheck={false}
+                language="json"
                 className={cn(
-                  "mt-2 min-h-[240px] rounded-xl font-mono text-[13px] leading-relaxed",
+                  "mt-2 min-h-[240px]",
                   // Side by side, the shorter data box would leave a ragged
                   // bottom edge next to the template — match their heights.
                   previewPlacement !== "side" && "lg:min-h-[320px]"
                 )}
                 value={jsonInput}
-                onChange={(event) => {
-                  setJsonInput(event.target.value);
+                onChange={(value) => {
+                  setJsonInput(value);
                   setSelectedExampleId("");
                 }}
               />

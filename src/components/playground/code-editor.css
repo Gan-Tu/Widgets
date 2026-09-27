@@ -1,0 +1,78 @@
+.playground-code-editor {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #141416;
+  color: #f5f5f7;
+  color-scheme: dark;
+}
+
+.playground-code-editor:focus-within { border-color: #8e8e93; }
+
+/* Keep every text metric identical so wrapping, caret and selection line up. */
+.playground-code-editor .playground-code-input,
+.playground-code-editor .playground-code-highlight {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding: 18px;
+  font-family: "Fragment Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  font-variant-ligatures: none;
+  line-height: 1.8;
+  letter-spacing: normal;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-align: left;
+}
+
+.playground-code-editor .playground-code-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.playground-code-editor .playground-code-input {
+  position: relative;
+  display: block;
+  min-height: inherit;
+  resize: vertical;
+  background: transparent;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: #f5f5f7;
+  outline: none;
+  box-shadow: none;
+}
+
+.playground-code-input::selection { background: #3b5278b3; }
+.playground-code-highlight .syntax-tag { color: #8edbff; }
+.playground-code-highlight .syntax-attribute,
+.playground-code-highlight .syntax-property { color: #c1c5ff; }
+.playground-code-highlight .syntax-binding,
+.playground-code-highlight .syntax-keyword { color: #f5a6df; }
+.playground-code-highlight .syntax-string { color: #b4df9b; }
+.playground-code-highlight .syntax-number { color: #ffc78b; }
+.playground-code-highlight .syntax-function { color: #ffe09a; }
+.playground-code-highlight .syntax-comment { color: #94949f; }
+.playground-code-highlight .syntax-operator { color: #9edde3; }
+.playground-code-highlight .syntax-punctuation { color: #b4b4c2; }
+
+@media (forced-colors: active) {
+  .playground-code-editor .playground-code-highlight { display: none; }
+  .playground-code-editor .playground-code-input {
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+    caret-color: CanvasText;
+    background: Canvas;
+  }
+}
