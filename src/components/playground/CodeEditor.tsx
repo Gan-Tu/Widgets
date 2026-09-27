@@ -9,9 +9,10 @@ type CodeEditorProps = {
   language: CodeLanguage;
   onChange: (value: string) => void;
   className?: string;
+  describedBy?: string;
 };
 
-export const CodeEditor = memo(function CodeEditor({ id, value, language, onChange, className }: CodeEditorProps) {
+export const CodeEditor = memo(function CodeEditor({ id, value, language, onChange, className, describedBy }: CodeEditorProps) {
   const input = useRef<HTMLTextAreaElement>(null);
   const highlight = useRef<HTMLPreElement>(null);
   const tokens = useMemo(() => highlightCode(value, language), [value, language]);
@@ -46,6 +47,7 @@ export const CodeEditor = memo(function CodeEditor({ id, value, language, onChan
       <textarea
         ref={input}
         id={id}
+        aria-describedby={describedBy}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onScroll={syncViewport}

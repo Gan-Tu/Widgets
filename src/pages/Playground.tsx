@@ -199,16 +199,22 @@ function SegmentedControl<T extends string>({
 
 function EditorActionButton({
   onClick,
-  children
+  children,
+  disabled,
+  ariaLabel
 }: {
   onClick: () => void;
   children: React.ReactNode;
+  disabled?: boolean;
+  ariaLabel?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="cursor-pointer rounded-md px-2 py-1 text-[11px] font-medium text-[var(--ink)] transition-colors hover:bg-slate-100 hover:text-slate-800  "
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className="cursor-pointer rounded-md px-2 py-1 text-[11px] font-medium text-[var(--ink)] transition-colors hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
     </button>
@@ -222,6 +228,14 @@ export function PlaygroundPage() {
   // Raw editor state updates on every keystroke; applied state feeds the
   // preview and only updates after a short debounce (or an explicit load).
   const [template, setTemplate] = React.useState(defaultTemplate);
+  const [isFormattingTemplate, setIsFormattingTemplate] = React.useState(false);
+  const [templateFormatError, setTemplateFormatError] = React.useState<string | null>(null);
+  const formattingRequestRef = React.useRef(0);
+  const clearTemplateFormatting = React.useCallback(() => {
+    formattingRequestRef.current += 1;
+    setIsFormattingTemplate(false);
+    setTemplateFormatError(null);
+  }, []);
   const [jsonInput, setJsonInput] = React.useState(
     JSON.stringify(defaultData, null, 2)
   );
@@ -257,6 +271,7 @@ export function PlaygroundPage() {
   const applyContent = React.useCallback(
     (nextTemplate: string, nextData: unknown, nextTheme: "light" | "dark") => {
       const nextJson = JSON.stringify(nextData ?? {}, null, 2) ?? "{}";
+      clearTemplateFormatting();
       setTemplate(nextTemplate);
       setJsonInput(nextJson);
       setAppliedTemplate(nextTemplate);
@@ -268,7 +283,7 @@ export function PlaygroundPage() {
       setAppliedVersion((version) => version + 1);
       setPreviewKey((key) => key + 1);
     },
-    []
+    [clearTemplateFormatting]
   );
 
   React.useEffect(() => {
@@ -366,6 +381,7 @@ export function PlaygroundPage() {
 
   React.useEffect(() => {
     return () => {
+      formattingRequestRef.current += 1;
       if (copyTimeoutRef.current !== null) {
         window.clearTimeout(copyTimeoutRef.current);
       }
@@ -396,6 +412,24 @@ export function PlaygroundPage() {
     setAiError(null);
     setAiStatus(null);
     setSearchParams({}, { replace: true });
+  };
+
+  const formatTemplate = async () => {
+    const request = ++formattingRequestRef.current;
+    setIsFormattingTemplate(true);
+    setTemplateFormatError(null);
+    try {
+      const { formatWidgetTemplate } = await import("@/components/playground/formatTemplate");
+      const formatted = await formatWidgetTemplate(template);
+      // Typing, loading an example, or resetting while the formatter loads wins.
+      if (formattingRequestRef.current === request) setTemplate(formatted);
+    } catch (error) {
+      if (formattingRequestRef.current === request) {
+        setTemplateFormatError(error instanceof Error ? error.message : "Unable to format the template.");
+      }
+    } finally {
+      if (formattingRequestRef.current === request) setIsFormattingTemplate(false);
+    }
   };
 
   const formatJson = () => {
@@ -764,20 +798,36 @@ export function PlaygroundPage() {
                 >
                   Template
                 </label>
-                <EditorActionButton onClick={() => void copyToClipboard("template")}>
-                  {copied === "template" ? "Copied" : "Copy"}
-                </EditorActionButton>
+                <div className="flex items-center gap-1">
+                  <EditorActionButton
+                    onClick={() => void formatTemplate()}
+                    disabled={isFormattingTemplate || !template.trim()}
+                    ariaLabel="Format template"
+                  >
+                    {isFormattingTemplate ? "Formatting…" : "Format"}
+                  </EditorActionButton>
+                  <EditorActionButton onClick={() => void copyToClipboard("template")}>
+                    {copied === "template" ? "Copied" : "Copy"}
+                  </EditorActionButton>
+                </div>
               </div>
               <CodeEditor
                 id="playground-template"
                 language="widget"
                 className="mt-2 min-h-[320px]"
                 value={template}
+                describedBy={templateFormatError ? "playground-template-format-error" : undefined}
                 onChange={(value) => {
+                  clearTemplateFormatting();
                   setTemplate(value);
                   setSelectedExampleId("");
                 }}
               />
+              {templateFormatError ? (
+                <p id="playground-template-format-error" role="alert" className="mt-2 text-xs text-rose-600">
+                  Couldn’t format template: {templateFormatError}
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -789,7 +839,7 @@ export function PlaygroundPage() {
                   Data (JSON)
                 </label>
                 <div className="flex items-center gap-1">
-                  <EditorActionButton onClick={formatJson}>Format</EditorActionButton>
+                  <EditorActionButton onClick={formatJson} ariaLabel="Format JSON">Format</EditorActionButton>
                   <EditorActionButton onClick={() => void copyToClipboard("json")}>
                     {copied === "json" ? "Copied" : "Copy"}
                   </EditorActionButton>
