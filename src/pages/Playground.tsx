@@ -442,13 +442,13 @@ export function PlaygroundPage() {
     setSearchParams({}, { replace: true });
   };
 
-  const formatTemplate = async () => {
+  const formatTemplate = async (source = template) => {
     const request = ++formattingRequestRef.current;
     setIsFormattingTemplate(true);
     setTemplateFormatError(null);
     try {
       const { formatWidgetTemplate } = await import("@/components/playground/formatTemplate");
-      const formatted = await formatWidgetTemplate(template);
+      const formatted = await formatWidgetTemplate(source);
       // Typing, loading an example, or resetting while the formatter loads wins.
       if (formattingRequestRef.current === request) setTemplate(formatted);
     } catch (error) {
@@ -564,6 +564,7 @@ export function PlaygroundPage() {
           throw new Error("The authoring agent returned an invalid template.");
         }
         applyContent(result.template, result.data ?? {}, result.theme ?? "light");
+        void formatTemplate(result.template);
         setSelectedExampleId("");
         setDesignSpec(result.designSpec ?? "Generated widget loaded.");
         setAiStatus("Widget ready");
@@ -597,6 +598,7 @@ export function PlaygroundPage() {
               event.widget.data ?? {},
               event.widget.theme ?? "light"
             );
+            void formatTemplate(event.widget.template);
             setSelectedExampleId("");
             setDesignSpec(event.widget.designSpec ?? "Generated widget loaded.");
           } else if (event.type === "error") {
