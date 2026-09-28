@@ -41,6 +41,7 @@
     "date-fns": "^4.1.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.562.0",
+    "modern-screenshot": "^4.7.0",
     "motion": "^12.23.26",
     "prettier": "^3.9.9",
     "react": "^19.2.0",

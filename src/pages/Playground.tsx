@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { ImagePlus, Sparkles } from "lucide-react";
+import { Download, ImagePlus, Sparkles } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -197,6 +197,31 @@ function SegmentedControl<T extends string>({
   );
 }
 
+/**
+ * The opaque color actually visible behind `element`: its background
+ * composited over every ancestor's, down to white. The glass appearance
+ * paints the preview surface nearly transparent and lets the page show
+ * through, so reading one element's color would export a see-through PNG.
+ */
+function resolveOpaqueBackground(element: Element): string {
+  const layers: [number, number, number, number][] = [];
+  for (let node: Element | null = element; node; node = node.parentElement) {
+    const match = getComputedStyle(node).backgroundColor.match(/[\d.]+/g);
+    if (!match || match.length < 3) continue;
+    const [r, g, b, a = 1] = match.map(Number);
+    if (a === 0) continue;
+    layers.push([r, g, b, a]);
+    if (a === 1) break;
+  }
+  let [r, g, b] = [255, 255, 255];
+  for (const [lr, lg, lb, la] of layers.reverse()) {
+    r = lr * la + r * (1 - la);
+    g = lg * la + g * (1 - la);
+    b = lb * la + b * (1 - la);
+  }
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+}
+
 function EditorActionButton({
   onClick,
   children,
@@ -264,6 +289,9 @@ export function PlaygroundPage() {
 
   const lastLoadedExampleIdRef = React.useRef<string | null>(null);
   const copyTimeoutRef = React.useRef<number | null>(null);
+  const widgetFrameRef = React.useRef<HTMLDivElement | null>(null);
+  const [isSavingImage, setIsSavingImage] = React.useState(false);
+  const [saveImageError, setSaveImageError] = React.useState<string | null>(null);
 
   // Applies content to both the editors and the preview immediately, and
   // remounts the widget tree. Only used for example loads, AI results, and
@@ -451,6 +479,49 @@ export function PlaygroundPage() {
       copyTimeoutRef.current = window.setTimeout(() => setCopied(null), 1500);
     } catch {
       // Clipboard unavailable (permissions/insecure context); silently ignore.
+    }
+  };
+
+  // Exports the rendered widget as a PNG sized to the widget itself, with a
+  // modest margin of the preview surface around it so shadows aren't clipped.
+  const saveWidgetImage = async () => {
+    const frame = widgetFrameRef.current;
+    if (!frame) return;
+    // A single-root template captures just that root; anything else falls
+    // back to the frame so every sibling makes it into the image.
+    const target =
+      frame.childElementCount === 1 && frame.firstElementChild instanceof HTMLElement
+        ? frame.firstElementChild
+        : frame;
+    setIsSavingImage(true);
+    setSaveImageError(null);
+    try {
+      const { domToPng } = await import("modern-screenshot");
+      const padding = 24;
+      const { width, height } = target.getBoundingClientRect();
+      const surface = theme === "dark" ? frame : frame.closest(".playground-preview");
+      const background = resolveOpaqueBackground(surface ?? frame);
+      const dataUrl = await domToPng(target, {
+        width: Math.ceil(width) + padding * 2,
+        height: Math.ceil(height) + padding * 2,
+        scale: Math.max(2, window.devicePixelRatio || 1),
+        backgroundColor: background,
+        style: {
+          margin: `${padding}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+          padding: target === frame ? "0" : "",
+          background: target === frame ? "transparent" : ""
+        }
+      });
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `${selectedExampleId || "widget"}.png`;
+      link.click();
+    } catch (error) {
+      setSaveImageError(error instanceof Error ? error.message : "Unable to save the image.");
+    } finally {
+      setIsSavingImage(false);
     }
   };
 
@@ -876,7 +947,19 @@ export function PlaygroundPage() {
           )}
         >
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-semibold text-slate-800">Preview</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-slate-800">Preview</h2>
+              <EditorActionButton
+                onClick={saveWidgetImage}
+                disabled={isSavingImage || isGenerating}
+                ariaLabel="Save widget as PNG"
+              >
+                <span className="inline-flex items-center gap-1">
+                  <Download className="h-3 w-3" aria-hidden />
+                  {isSavingImage ? "Saving…" : "Save PNG"}
+                </span>
+              </EditorActionButton>
+            </div>
             {lastAction && lastActionJson ? (
               <div className="flex min-w-0 items-center gap-1 rounded-full border border-slate-200/70 bg-slate-50 py-0.5 pl-2.5 pr-1">
                 <code
@@ -904,6 +987,11 @@ export function PlaygroundPage() {
               JSON error: {jsonError} — showing the last valid data.
             </p>
           ) : null}
+          {saveImageError ? (
+            <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              Couldn't save image: {saveImageError}
+            </p>
+          ) : null}
           {renderError ? (
             <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
               Render error: {renderError}
@@ -923,6 +1011,7 @@ export function PlaygroundPage() {
             ) : (
               <div className={cn("mx-auto", previewWidthClasses[previewWidth])}>
                 <div
+                  ref={widgetFrameRef}
                   data-preview-theme={theme}
                   className={cn(
                     // Beside the editors a widget that caps its own width

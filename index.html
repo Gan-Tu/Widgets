@@ -10,10 +10,13 @@
       name="description"
       content="An open-source generative UI kit. LLMs write a compact widget template, your app supplies the data, and WidgetRenderer turns both into polished, interactive UI — 144 registered components, 200+ icons, light and dark theming."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- crossorigin makes the font rules readable, so the playground's PNG
+         export can embed the web fonts. -->
     <link
       rel="stylesheet"
+      crossorigin
       href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Fragment+Mono:ital@0;1&display=swap"
     />
   </head>
