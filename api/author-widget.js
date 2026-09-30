@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { widgetComponentNames } from "./widget-component-names.js";
 
-const DEFAULT_MODEL = "gpt-6-sol";
+const DEFAULT_MODEL = "gpt-6.1-sol";
 const MAX_PROMPT_LENGTH = 2_000;
 const MAX_REFERENCE_IMAGES = 3;
 const MAX_REFERENCE_IMAGE_BYTES = 5 * 1024 * 1024;
