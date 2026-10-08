@@ -84,7 +84,7 @@ export function useLiquidGlassRoot(ref: RefObject<HTMLElement | null>) {
     const scan = () => {
       const supported = supportsBackdropRefraction();
       if (supported && !observing) {
-        mutation.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-checked", "aria-selected", "data-state", "class", "data-widget-surface", "data-appearance", "data-theme"] });
+        mutation.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-checked", "aria-selected", "data-state", "class", "data-widget-surface", "data-appearance", "data-theme", "data-sdk-glass"] });
         observing = true;
       } else if (!supported && observing) {
         mutation.disconnect();
@@ -94,6 +94,7 @@ export function useLiquidGlassRoot(ref: RefObject<HTMLElement | null>) {
       if (root.isConnected && supported) {
         const candidates = [root, ...root.querySelectorAll<HTMLElement>(`${surfaces}, ${thumbs}`)];
         for (const node of candidates) {
+          if (node.closest("[data-sdk-glass]")) continue; // The host scene owns this optical stack.
           if (node.closest(".widget-root") !== root) continue; // Nested roots own their controls.
           if (node.matches(thumbs)) { next.add(node); continue; }
           if (!node.matches(surfaces)) continue;

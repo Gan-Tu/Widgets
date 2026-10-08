@@ -21,7 +21,7 @@ test("the mobile exhibit declares a bounded track and keyboard scroll contract",
 
 test("mobile header and primary actions use compact responsive layouts", () => {
   assert.match(headerSource, /grid-cols-\[auto_minmax\(0,1fr\)\]/);
-  assert.match(headerSource, /grid grid-cols-4/);
+  assert.match(headerSource, /grid grid-cols-5/);
   assert.match(headerSource, /order-3 col-span-2 w-full sm:order-none sm:w-auto/);
   assert.match(homeSource, /grid grid-cols-2 gap-2 sm:flex/);
   assert.match(homeSource, /inline-flex min-h-11 cursor-pointer items-center justify-center/);

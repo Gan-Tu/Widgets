@@ -17,6 +17,7 @@ To try generative widgets in ChatGPT, create a custom plugin with `https://genui
   - `/` — an exploded-view SVG of a widget being built: the model's template streams in, tokens cross a validation layer that binds data and rejects an injected unsafe line, and the rendered card turns to face the viewer and fires `onAction`. Below it, a live template-to-widget exhibit. The hero supports pause, pointer tilt, reduced motion, and automatic suspension offscreen or in hidden tabs
   - `/gallery` — 73 categorized, searchable pre-built widgets; opens on **Featured**, with category and search filters preserved in the URL (`?category=All` shows everything)
   - `/docs` — per-component docs with live examples, prop tables, deep links, and a searchable component sidebar
+  - `/glass` — interactive Liquid Glass lab with light/dark and Clear/Regular materials, Unsplash or local image backgrounds, and background scrolling behind fixed widgets
   - `/playground` — live template + JSON editing, plus AI widget generation using **`gpt-6.1-sol`** through the OpenAI Responses API; starts with **Checkout**, and Reset restores it. Explicit example/component links open the requested demo
 - **Authoring guide**: [`public/AGENTS.md`](public/AGENTS.md) — the complete widget-authoring contract and design principles embedded into generation and repair prompts
 - **Example corpus**: `public/WIDGET_EXAMPLES.md` — every gallery widget as a template + data pair, generated from `src/examples/widgetExamples.ts` (regenerate with `node --experimental-strip-types scripts/build-widget-examples-doc.mjs`); an optional download for richer LLM context
@@ -59,6 +60,8 @@ npm run dev
 ```
 
 Open the URL printed by Vite, then visit `/gallery`, `/docs`, or `/playground`.
+
+Visit `/glass` to compare the existing CSS glass with [Glass-HQ Liquid Glass](https://github.com/Glass-HQ/liquid-glass). Scroll over the photo or use the background slider to move it behind the widgets. Uploaded images stay in the browser. Gallery, Docs, and Playground previews also use the new renderer when the header's Glass toggle is on. This is a website enhancement; the published renderer keeps its existing optional CSS material. Enhanced scenes require localhost/HTTPS and WebGPU; Safari, unavailable GPUs, and accessibility transparency/contrast preferences retain CSS glass. Scenes are disposed offscreen and when the page is hidden.
 
 The twenty **Editorial** studies live at `/gallery?category=Editorial`, with twelve rich workflows followed by the original eight compact studies. They were independently authored from the expanded guide using existing components, with illustrative data and working local interactions. Their reusable `{ designSpec, template, data, theme }` JSON lives in `public/design-bible/`; paste `template` and `data` into the Playground editors to explore them without calling the AI generator. The sources are `src/examples/designBibleExamples.ts` and `src/examples/designBibleRichExamples.ts`, both included in the generated example corpora. Original SVG posters and a 2.8-second C4/E4/G4 tone fixture live in `public/design-bible/assets/`; root-relative asset URLs require those files on the host. The same `build-widget-examples-doc.mjs` command regenerates the corpora and JSON files together.
 

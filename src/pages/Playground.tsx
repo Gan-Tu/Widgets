@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/playground/CodeEditor";
 import { cn } from "@/lib/utils";
-import { WidgetRenderer } from "@/widget";
+import { SiteWidgetRenderer as WidgetRenderer } from "@/components/glass/SiteWidgetRenderer";
 import { widgetExamples } from "@/examples/widgetExamples";
 import type { ActionConfig } from "@/widget";
 

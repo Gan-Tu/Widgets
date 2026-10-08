@@ -16,11 +16,12 @@ export function SiteHeader({ containerClass, appearance, onAppearanceChange }: {
           <span>Widgets</span>
         </NavLink>
         <nav aria-label="Primary" className="order-3 col-span-2 w-full sm:order-none sm:w-auto">
-          <div className="grid grid-cols-4 gap-1 sm:flex sm:gap-4 lg:gap-7">
+          <div className="grid grid-cols-5 gap-1 sm:flex sm:gap-4 lg:gap-7">
             <NavLink to="/" end className="studio-nav-link">Home</NavLink>
             <NavLink to="/gallery" className="studio-nav-link">Gallery</NavLink>
             <NavLink to="/docs" className="studio-nav-link">Docs</NavLink>
             <NavLink to="/playground" className="studio-nav-link">Playground</NavLink>
+            <NavLink to="/glass" className="studio-nav-link">Glass Lab</NavLink>
           </div>
         </nav>
         <div className="flex min-w-0 items-center justify-end gap-3 xl:gap-6">

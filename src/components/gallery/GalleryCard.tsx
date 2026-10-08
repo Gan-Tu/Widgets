@@ -3,7 +3,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { Link } from "react-router-dom";
 
 import type { WidgetExample } from "@/examples/widgetExamples";
-import { WidgetRenderer, type ActionConfig } from "@/widget";
+import type { ActionConfig } from "@/widget";
+import { SiteWidgetRenderer as WidgetRenderer } from "@/components/glass/SiteWidgetRenderer";
 import { LazyMount } from "./LazyMount";
 
 export function GalleryCard({ example, index, onAction }: {

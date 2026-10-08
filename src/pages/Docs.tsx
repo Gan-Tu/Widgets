@@ -14,7 +14,7 @@ import {
 import { componentDocs } from "@/docs/componentDocs";
 import { componentExamples, iconGalleryExample } from "@/docs/componentExamples";
 import { getAllowedVariants } from "@/docs/typeVariants";
-import { WidgetRenderer } from "@/widget/WidgetRenderer";
+import { SiteWidgetRenderer as WidgetRenderer } from "@/components/glass/SiteWidgetRenderer";
 
 const CATEGORY_ORDER = [
   "Containers",

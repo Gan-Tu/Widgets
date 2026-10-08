@@ -27,6 +27,9 @@ const GalleryPage = lazy(() =>
 const PlaygroundPage = lazy(() =>
   import("@/pages/Playground").then((mod) => ({ default: mod.PlaygroundPage }))
 );
+const GlassDemoPage = lazy(() =>
+  import("@/pages/GlassDemo").then((mod) => ({ default: mod.GlassDemoPage }))
+);
 
 function RouteFallback() {
   return (
@@ -96,6 +99,7 @@ export default function App() {
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/docs" element={<DocsPage />} />
               <Route path="/playground" element={<PlaygroundPage />} />
+              <Route path="/glass" element={<GlassDemoPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>

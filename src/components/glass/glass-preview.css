@@ -1,0 +1,43 @@
+.glass-preview { position: relative; isolation: isolate; min-width: 0; width: 100%; border-radius: 24px; }
+.glass-preview-scroll { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+.glass-preview-scroll[data-photo="true"] { overflow-y: auto; overscroll-behavior-x: none; scrollbar-width: thin; scrollbar-color: #ffffff99 transparent; }
+.glass-preview-scroll:focus-visible { outline: 2px solid #587aa8; outline-offset: 3px; }
+.glass-preview-backdrop { position: relative; width: 100%; height: 100%; pointer-events: none; background: #e8e9ec; }
+.glass-preview-scroll[data-photo="true"] .glass-preview-backdrop { height: 180%; }
+.glass-preview-backdrop > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.glass-preview-backdrop i { position: absolute; display: block; width: 85%; height: 85%; border-radius: 50%; background: #fff; left: -32%; top: -38%; }
+.glass-preview-backdrop i:nth-child(2) { background: #c6c9d0; left: 57%; top: 40%; width: 65%; height: 90%; }
+.glass-preview-backdrop i:nth-child(3) { background: linear-gradient(115deg, #fff0 30%, #fff9 50%, #fff0 70%); border-radius: 0; left: 0; top: 0; width: 100%; height: 100%; }
+.glass-preview[data-theme="dark"] .glass-preview-backdrop { background: #15171d; }
+.glass-preview[data-theme="dark"] .glass-preview-backdrop i:first-child { background: #484d59; }
+.glass-preview[data-theme="dark"] .glass-preview-backdrop i:nth-child(2) { background: #080b12; }
+.glass-preview[data-theme="dark"] .glass-preview-backdrop i:nth-child(3) { opacity: .15; }
+.glass-preview[data-backdrop="aurora"] .glass-preview-backdrop { background: #8dabc4; }
+.glass-preview[data-backdrop="aurora"] .glass-preview-backdrop i:first-child { background: #cbf5d7; }
+.glass-preview[data-backdrop="aurora"] .glass-preview-backdrop i:nth-child(2) { background: #8788ce; }
+.glass-preview[data-backdrop="sunset"] .glass-preview-backdrop { background: #e3b4a5; }
+.glass-preview[data-backdrop="sunset"] .glass-preview-backdrop i:first-child { background: #ffe7af; }
+.glass-preview[data-backdrop="sunset"] .glass-preview-backdrop i:nth-child(2) { background: #bd738e; }
+.glass-preview[data-theme="dark"][data-backdrop="aurora"] .glass-preview-backdrop { background: #1b3b50; }
+.glass-preview[data-theme="dark"][data-backdrop="aurora"] .glass-preview-backdrop i:first-child { background: #356b63; }
+.glass-preview[data-theme="dark"][data-backdrop="aurora"] .glass-preview-backdrop i:nth-child(2) { background: #423d76; }
+.glass-preview[data-theme="dark"][data-backdrop="sunset"] .glass-preview-backdrop { background: #49272e; }
+.glass-preview[data-theme="dark"][data-backdrop="sunset"] .glass-preview-backdrop i:first-child { background: #965d46; }
+.glass-preview[data-theme="dark"][data-backdrop="sunset"] .glass-preview-backdrop i:nth-child(2) { background: #482c55; }
+.glass-preview-widgets { position: relative; min-width: 0; }
+.glass-preview-lens { position: absolute; pointer-events: none; }
+.site-glass-preview { padding: 16px; }
+.site-glass-preview .glass-preview-widgets > .widget-root { margin-inline: auto; }
+.site-glass-preview--standard { padding: 0; }
+.site-glass-preview--standard > .glass-preview-scroll { display: none; }
+/* Only remove the fallback when that particular optical map is ready. */
+.glass-preview[data-glass-ready="true"] .widget-root[data-appearance="glass"][data-sdk-glass],
+.glass-preview[data-glass-ready="true"] .widget-root[data-appearance="glass"] [data-sdk-glass] {
+  background: transparent !important;
+  border-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+@media (max-width: 639px) { .site-glass-preview { padding: 10px; } .site-glass-preview--standard { padding: 0; } }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) { .glass-preview-backdrop i { display: none; } }
