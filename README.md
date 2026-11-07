@@ -163,7 +163,7 @@ owner exemption; an expired or revoked session falls back to visitor quotas.
 
 **Sign out** removes this browser's session. **Sign out all browsers** invalidates
 every current session, outstanding invitation, and pending authorization attempt,
-but preserves registered passkeys, which can authenticate again. **Manage passkeys**
+but preserves registered passkeys, which can authenticate again. **Manage access**
 lets you remove a lost or compromised passkey and revoke its sessions. Removing
 your last passkey requires another private setup link to recover access. The same
 operations are available through the private administrative commands:

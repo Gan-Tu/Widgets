@@ -1,4 +1,5 @@
 import React from "react";
+import { ChevronDown, Fingerprint, Plus, ShieldCheck } from "lucide-react";
 import {
   startAuthentication,
   startRegistration,
@@ -11,9 +12,11 @@ type OwnerStatus = { owner: boolean; expiresAt?: number; credentials?: OwnerCred
 
 type OwnerAccessProps = {
   onOwnerChange: (owner: boolean) => void;
+  visitorStatus: string;
 };
 
-const buttonClass = "rounded-md px-2 py-1 text-xs text-[var(--mid)] underline-offset-4 hover:text-[var(--ink)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+const buttonClass = "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--mid)] transition-colors hover:bg-black/[0.04] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+const primaryButtonClass = `${buttonClass} bg-[var(--ink)] text-white hover:bg-stone-700 hover:text-white`;
 
 async function post<T>(action: string, values: Record<string, unknown> = {}): Promise<T> {
   const response = await fetch("/api/owner-access", {
@@ -52,7 +55,7 @@ function credentialsFrom(status: OwnerStatus): OwnerCredential[] | null {
     typeof credential.createdAt === "number" && Number.isFinite(credential.createdAt));
 }
 
-export function OwnerAccess({ onOwnerChange }: OwnerAccessProps) {
+export function OwnerAccess({ onOwnerChange, visitorStatus }: OwnerAccessProps) {
   const [owner, setOwner] = React.useState(false);
   const [busy, setBusy] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -64,6 +67,7 @@ export function OwnerAccess({ onOwnerChange }: OwnerAccessProps) {
   const [confirmRemove, setConfirmRemove] = React.useState<string | null>(null);
   const actionRunning = React.useRef(false);
   const requestVersion = React.useRef(0);
+  const panelId = React.useId();
 
   React.useEffect(() => {
     function captureInvitation() {
@@ -196,79 +200,127 @@ export function OwnerAccess({ onOwnerChange }: OwnerAccessProps) {
   }
 
   return (
-    <div className="space-y-1 text-xs" aria-label="Owner access">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+    <div className="space-y-3 text-xs" aria-label="Owner access">
+      <div className="flex min-h-10 flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-[var(--mid)]" role="status">
+          {owner ? (
+            <>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-[var(--plinth)] px-2.5 py-1 font-medium text-[var(--ink)]">
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                Owner
+              </span>
+              <span>No daily generation limit</span>
+            </>
+          ) : <span className="leading-relaxed">{visitorStatus}</span>}
+        </div>
         {owner ? (
-          <>
-            <span className="text-[var(--mid)]">Owner access active · visitor limits waived</span>
-            <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("register"); }}>
-              {busy === "register" ? "Saving passkey…" : "Add passkey"}
-            </button>
-            <button type="button" className={buttonClass} disabled={busy !== null} aria-expanded={managePasskeys} onClick={() => setManagePasskeys((value) => !value)}>
-              Manage passkeys
-            </button>
-            <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("logout"); }}>
-              {busy === "logout" ? "Signing out…" : "Sign out"}
-            </button>
-            <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => setConfirmRevoke(true)}>
-              Sign out all browsers
-            </button>
-          </>
-        ) : (
-          <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("authenticate"); }}>
-            {busy === "authenticate" ? "Checking passkey…" : "Owner access"}
+          <button
+            type="button"
+            className={`${buttonClass} shrink-0`}
+            disabled={busy !== null}
+            aria-expanded={managePasskeys}
+            aria-controls={panelId}
+            onClick={() => {
+              setManagePasskeys((value) => !value);
+              setConfirmRevoke(false);
+              setConfirmRemove(null);
+            }}
+          >
+            Manage access
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform motion-reduce:transition-none ${managePasskeys ? "rotate-180" : ""}`} aria-hidden />
           </button>
-        )}
-        {inviteToken ? (
-          <button type="button" className={`${buttonClass} font-medium`} disabled={busy !== null} onClick={() => { void perform("register"); }}>
-            Set up owner passkey
+        ) : !inviteToken ? (
+          <button type="button" className={`${buttonClass} shrink-0`} disabled={busy !== null} onClick={() => { void perform("authenticate"); }}>
+            <Fingerprint className="h-3.5 w-3.5" aria-hidden />
+            {busy === "authenticate" ? "Checking passkey…" : "Owner access"}
           </button>
         ) : null}
       </div>
+
       {inviteToken ? (
-        <p className="text-[var(--mid)]">Use this private invitation to save your owner passkey. Setup uses the invitation once; cancelling requires a fresh link.</p>
-      ) : null}
-      {busy === "register" && !owner ? <p className="text-[var(--mid)]" role="status">Follow your device’s prompt to save your owner passkey…</p> : null}
-      {confirmRevoke && owner ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--hairline)] p-2">
-          <span>Sign out every browser? Your passkeys will still work.</span>
-          <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("revoke-all"); }}>
-            {busy === "revoke-all" ? "Signing out…" : "Sign out all"}
+        <div className="flex flex-col gap-3 rounded-xl border border-[var(--hairline)] bg-[var(--plinth)] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-[var(--ink)]">Your owner invitation is ready</p>
+            <p className="max-w-lg leading-relaxed text-[var(--mid)]">Save a passkey to generate without the daily limit. Your device will ask you to confirm.</p>
+          </div>
+          <button type="button" className={`${primaryButtonClass} shrink-0 self-start sm:self-auto`} disabled={busy !== null} onClick={() => { void perform("register"); }}>
+            <Fingerprint className="h-4 w-4" aria-hidden />
+            Set up owner passkey
           </button>
-          <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => setConfirmRevoke(false)}>Cancel</button>
         </div>
       ) : null}
+      {busy === "register" && !owner ? <p className="px-4 leading-relaxed text-[var(--mid)]" role="status">Follow your device’s prompt to save your owner passkey…</p> : null}
+
       {managePasskeys && owner ? (
-        <div className="space-y-2 rounded-lg border border-[var(--hairline)] p-3">
-          <p className="font-medium text-[var(--ink)]">Owner passkeys</p>
-          {credentials === null ? <p className="text-[var(--mid)]">Passkeys could not be loaded. Reload the page to try again.</p> : null}
-          {credentials?.length === 0 ? <p className="text-[var(--mid)]">No passkeys are registered.</p> : null}
-          {credentials?.map((credential) => (
-            <div key={credential.id} className="space-y-1">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p>Passkey added {new Date(credential.createdAt).toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</p>
-                  {credentials.length > 1 ? <p className="text-[var(--mid)]">ID {credential.id.slice(0, 8)}…</p> : null}
-                </div>
-                <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => setConfirmRemove(credential.id)}>Remove</button>
-              </div>
-              {confirmRemove === credential.id ? (
-                <div className="space-y-1 rounded-md border border-[var(--hairline)] p-2">
-                  <p>Browsers authorized with this passkey will lose access. If this is your last passkey, you will need a private setup link.</p>
-                  <div className="flex gap-2">
-                    <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("remove-passkey", credential.id); }}>
-                      {busy === "remove-passkey" ? "Removing…" : "Remove passkey"}
-                    </button>
-                    <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => setConfirmRemove(null)}>Cancel</button>
-                  </div>
-                </div>
-              ) : null}
+        <section id={panelId} aria-label="Manage owner access" className="overflow-hidden rounded-xl border border-[var(--hairline)] bg-[var(--plinth)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hairline)] px-4 py-3">
+            <div className="space-y-1">
+              <h3 className="text-sm font-medium text-[var(--ink)]">Passkeys</h3>
+              <p className="leading-relaxed text-[var(--mid)]">Use a saved passkey to restore owner access on your devices.</p>
             </div>
-          ))}
-        </div>
+            <button type="button" className={`${buttonClass} border border-[var(--hairline)] bg-[var(--card)]`} disabled={busy !== null} onClick={() => { void perform("register"); }}>
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              {busy === "register" ? "Saving…" : "Add passkey"}
+            </button>
+          </div>
+          <div className="divide-y divide-[var(--hairline)] px-4">
+            {credentials === null ? <p className="py-4 leading-relaxed text-[var(--mid)]">Passkeys could not be loaded. Reload the page to try again.</p> : null}
+            {credentials?.length === 0 ? <p className="py-4 text-[var(--mid)]">No passkeys are registered.</p> : null}
+            {credentials?.map((credential) => (
+              <div key={credential.id} className="space-y-2 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Fingerprint className="h-4 w-4 shrink-0 text-[var(--mid)]" aria-hidden />
+                    <div className="min-w-0 space-y-0.5">
+                      <p className="font-medium text-[var(--ink)]">Owner passkey</p>
+                      <p className="leading-relaxed text-[var(--mid)]">Added {new Date(credential.createdAt).toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</p>
+                      {credentials.length > 1 ? <p className="font-mono text-[10px] text-[var(--mid)]">{credential.id.slice(0, 8)}…</p> : null}
+                    </div>
+                  </div>
+                  <button type="button" className={`${buttonClass} shrink-0`} disabled={busy !== null} onClick={() => { setConfirmRemove(credential.id); setConfirmRevoke(false); }}>Remove</button>
+                </div>
+                {confirmRemove === credential.id ? (
+                  <div className="space-y-2 rounded-lg border border-[var(--hairline)] bg-[var(--card)] p-3">
+                    <p className="leading-relaxed text-[var(--mid)]">Browsers using this passkey will lose owner access. If it’s your last passkey, you’ll need a new private invitation.</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" className={`${buttonClass} text-rose-700 hover:text-rose-800`} disabled={busy !== null} onClick={() => { void perform("remove-passkey", credential.id); }}>
+                        {busy === "remove-passkey" ? "Removing…" : "Remove passkey"}
+                      </button>
+                      <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => setConfirmRemove(null)}>Keep passkey</button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2 border-t border-[var(--hairline)] px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[var(--mid)]">Signing out keeps your saved passkeys.</p>
+              <div className="flex flex-wrap gap-1">
+                <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("logout"); }}>
+                  {busy === "logout" ? "Signing out…" : "Sign out"}
+                </button>
+                <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { setConfirmRevoke(true); setConfirmRemove(null); }}>
+                  Sign out all browsers
+                </button>
+              </div>
+            </div>
+            {confirmRevoke ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--hairline)] bg-[var(--card)] p-3">
+                <p className="leading-relaxed text-[var(--mid)]">Sign out every browser? Your passkeys will still work.</p>
+                <div className="flex gap-1">
+                  <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => { void perform("revoke-all"); }}>
+                    {busy === "revoke-all" ? "Signing out…" : "Sign out all"}
+                  </button>
+                  <button type="button" className={buttonClass} disabled={busy !== null} onClick={() => setConfirmRevoke(false)}>Cancel</button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
       ) : null}
-      {notice ? <p className="text-[var(--mid)]" role="status">{notice}</p> : null}
-      {error ? <p className="text-rose-600" role="alert">{error}</p> : null}
+      {notice ? <p className="px-4 leading-relaxed text-[var(--mid)]" role="status">{notice}</p> : null}
+      {error ? <p className="px-4 leading-relaxed text-rose-600" role="alert">{error}</p> : null}
     </div>
   );
 }

@@ -816,14 +816,12 @@ export function PlaygroundPage() {
           </Button>
         </div>
 
-        <p className="pl-4 text-xs text-slate-500" role="status">
-          {isOwner ? "Owner access active. Visitor generation limits do not apply." : generationQuota
-            ? `${generationQuota.remaining} of ${generationQuota.limit} free generations remaining. ${quotaExhausted ? "Try again" : "Next allowance update"} ${new Date(generationQuota.resetAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.`
-            : "Up to 3 free AI generations per 24 hours, shared by this browser and network."}
-          {" "}Editing and examples are always available.
-        </p>
-
-        <OwnerAccess onOwnerChange={setIsOwner} />
+        <OwnerAccess
+          onOwnerChange={setIsOwner}
+          visitorStatus={generationQuota
+            ? `${generationQuota.remaining} of ${generationQuota.limit} free generations left. ${quotaExhausted ? "Try again" : "Next allowance update"} ${new Date(generationQuota.resetAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.`
+            : "3 free AI generations per 24 hours. Editing is always free."}
+        />
 
         {aiStatus ? (
           <p className="pl-4 text-xs text-slate-500">{aiStatus}</p>
