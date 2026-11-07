@@ -123,7 +123,7 @@ still applies. The browser UI is advisory; the server verifies the session and
 credential before every exemption. No public account registration or IP allowlist
 grants owner access.
 
-Use Node.js 22 or newer. In addition to the Redis and quota settings above, set
+Production is pinned to Node.js 24. In addition to the Redis and quota settings above, set
 `WIDGET_OWNER_ORIGIN` to the site's exact origin, for example
 `https://widgets.example.com` (no path). The relying-party ID comes from that
 configured hostname, never a request header. Production requires HTTPS; local
