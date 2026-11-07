@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from "node:url";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import authorWidgetHandler from "./api/author-widget.js";
@@ -10,6 +10,13 @@ export default defineConfig({
     {
       name: "widget-api-dev-server",
       configureServer(server) {
+        // Load server-only generation settings without exposing them in the
+        // browser bundle (none use the VITE_ prefix).
+        const env = loadEnv(server.config.mode, server.config.envDir, "");
+        for (const name of ["OPENAI_API_KEY", "WIDGET_QUOTA_SECRET", "UPSTASH_REDIS_REST_URL",
+          "UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_URL", "KV_REST_API_TOKEN"]) {
+          if (process.env[name] === undefined && env[name]) process.env[name] = env[name];
+        }
         server.middlewares.use("/api/author-widget", (req, res) => {
           void authorWidgetHandler(req, res);
         });

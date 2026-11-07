@@ -2,6 +2,7 @@ import { parseExpression } from "@babel/parser";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { widgetComponentNames } from "./widget-component-names.js";
+import { consumeGenerationQuota, getTrustedClientIp } from "./_lib/generation-quota.js";
 
 const DEFAULT_MODEL = "gpt-6.1-sol";
 const MAX_PROMPT_LENGTH = 2_000;
@@ -224,26 +225,14 @@ function getHeaderValue(value) {
   return Array.isArray(value) ? value[value.length - 1] : value;
 }
 
-// Rate limiting is only as trustworthy as the client identity behind it, so
-// prefer headers the platform sets (and overwrites) over anything the caller
-// can put on the wire. `x-forwarded-for` is a caller-appendable list: the
-// *first* entry is the untrusted end, so a client sending a random
-// `X-Forwarded-For` would mint itself a fresh bucket per request. The last
-// entry is the hop our own proxy appended, which is the closest thing to a
-// real peer address when nothing better exists.
+// This in-memory burst limiter protects request parsing only. The persistent
+// generation quota below is the enforcement boundary for paid work.
 function getClientKey(req) {
-  const vercelForwardedFor = getHeaderValue(req.headers["x-vercel-forwarded-for"]);
-  const realIp = getHeaderValue(req.headers["x-real-ip"]);
-  const forwardedFor = getHeaderValue(req.headers["x-forwarded-for"]);
-  const lastForwardedIp = forwardedFor?.split(",").pop()?.trim();
-
-  return (
-    vercelForwardedFor?.trim() ||
-    realIp?.trim() ||
-    lastForwardedIp ||
-    req.socket?.remoteAddress ||
-    "anonymous"
-  );
+  try {
+    return getTrustedClientIp(req);
+  } catch {
+    return "unknown";
+  }
 }
 
 // Expired buckets are dead weight: without a sweep the map grows once per
@@ -1295,14 +1284,7 @@ async function runWithFinalGenerationStatuses(work, progress) {
   }
 }
 
-async function runGeneration(request, progress) {
-  const apiKey = await getOpenAIKey();
-  if (!apiKey) {
-    throw createHttpError("OPENAI_API_KEY is not configured.", 500);
-  }
-
-  const widgetAuthoringContext = await getWidgetAuthoringContext();
-
+async function runGeneration(request, progress, { apiKey, widgetAuthoringContext }) {
   let referenceImageNotes = "";
   if (request.referenceImages.length > 0) {
     progress(
@@ -1437,6 +1419,7 @@ async function runGeneration(request, progress) {
 }
 
 export default async function handler(req, res) {
+  res.setHeader("cache-control", "no-store");
   if (req.method !== "POST") {
     sendJson(res, 405, { error: "Method not allowed." }, { allow: "POST" });
     return;
@@ -1463,6 +1446,7 @@ export default async function handler(req, res) {
 
   let body;
   let request;
+  let generationContext;
   try {
     body = await readJsonBody(req);
     request = validateGenerateRequest(body);
@@ -1477,6 +1461,22 @@ export default async function handler(req, res) {
     return;
   }
 
+  try {
+    const apiKey = await getOpenAIKey();
+    if (!apiKey) {
+      throw createHttpError("The widget service is temporarily unavailable.", 503);
+    }
+    generationContext = { apiKey, widgetAuthoringContext: await getWidgetAuthoringContext() };
+    // Admit the entire generation once, before streaming or any billable call.
+    // Once admitted, failures still consume quota: upstream work may be billed.
+    await consumeGenerationQuota(req, res);
+  } catch (error) {
+    sendJson(res, Number(error?.statusCode) || 503, {
+      error: error?.statusCode ? error.message : "The widget service is temporarily unavailable."
+    });
+    return;
+  }
+
   const wantsStream =
     body.stream === true ||
     String(req.headers.accept || "").includes("application/x-ndjson");
@@ -1485,7 +1485,7 @@ export default async function handler(req, res) {
     const statuses = [];
     res.statusCode = 200;
     res.setHeader("content-type", "application/x-ndjson; charset=utf-8");
-    res.setHeader("cache-control", "no-cache, no-transform");
+    res.setHeader("cache-control", "no-store, no-transform");
     res.setHeader("x-accel-buffering", "no");
 
     const progress = (message) => {
@@ -1494,7 +1494,7 @@ export default async function handler(req, res) {
     };
 
     try {
-      const widget = await runGeneration(request, progress);
+      const widget = await runGeneration(request, progress, generationContext);
       sendStreamLine(res, { type: "result", widget, stages: statuses });
     } catch (error) {
       sendStreamLine(res, {
@@ -1512,7 +1512,7 @@ export default async function handler(req, res) {
 
   const statuses = [];
   try {
-    const result = await runGeneration(request, (message) => statuses.push(message));
+    const result = await runGeneration(request, (message) => statuses.push(message), generationContext);
     sendJson(res, 200, { ...result, stages: statuses });
   } catch (error) {
     const status = Number(error?.statusCode) || 500;

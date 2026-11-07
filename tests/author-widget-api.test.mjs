@@ -11,12 +11,12 @@ const widget = {
   designSpec: "A compact status card."
 };
 
-async function request({ method = "POST", body = {}, rawBody, headers = {} } = {}) {
+async function request({ method = "POST", body = {}, rawBody, headers = {}, ip = `192.0.2.${++clientId}` } = {}) {
   const req = Readable.from([Buffer.from(rawBody ?? JSON.stringify(body))]);
   req.method = method;
+  req.socket = { remoteAddress: ip };
   req.headers = {
     "content-type": "application/json",
-    "x-real-ip": `api-test-${++clientId}`,
     ...headers
   };
   const response = { headers: {}, text: "", ended: false };
@@ -31,15 +31,38 @@ async function request({ method = "POST", body = {}, rawBody, headers = {} } = {
   return { ...response, status: res.statusCode };
 }
 
-function mockResponses(t, outputs) {
-  const previousKey = process.env.OPENAI_API_KEY;
-  process.env.OPENAI_API_KEY = "test-only-key";
+function configureGeneration(t) {
+  const values = {
+    OPENAI_API_KEY: "test-only-key",
+    UPSTASH_REDIS_REST_URL: "https://quota.example.test",
+    UPSTASH_REDIS_REST_TOKEN: "quota-test-token",
+    WIDGET_QUOTA_SECRET: "test-only-secret-at-least-32-characters",
+    VERCEL: "0"
+  };
+  const previous = Object.fromEntries(Object.keys(values).map((key) => [key, process.env[key]]));
+  Object.assign(process.env, values);
   t.after(() => {
-    if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
-    else process.env.OPENAI_API_KEY = previousKey;
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
   });
+}
+
+function mockResponses(t, outputs, quotaResult) {
+  configureGeneration(t);
   const calls = [];
+  let admitted = false;
   t.mock.method(globalThis, "fetch", async (url, options) => {
+    if (url === "https://quota.example.test/") {
+      assert.equal(options.headers.authorization, "Bearer quota-test-token");
+      assert.equal(JSON.parse(options.body)[0], "EVAL");
+      assert.equal(admitted, false, "quota is consumed only once per generation");
+      admitted = true;
+      const now = Date.now();
+      return Response.json({ result: quotaResult || [1, 2, now + 86_400_000, now] });
+    }
+    assert.equal(admitted, true, "quota must be admitted before every OpenAI call");
     assert.equal(url, "https://api.openai.com/v1/responses");
     assert.equal(options.method, "POST");
     assert.equal(options.headers.authorization, "Bearer test-only-key");
@@ -84,6 +107,9 @@ test("author API returns a validated widget as JSON", async (t) => {
   assert.deepEqual(result, { ...widget, stages: result.stages });
   assert.equal(result.stages.at(-1), "Widget ready");
   assert.ok(Number(response.headers["x-ratelimit-remaining"]) >= 0);
+  assert.equal(response.headers["x-generation-limit"], "3");
+  assert.equal(response.headers["x-generation-remaining"], "2");
+  assert.match(response.headers["set-cookie"], /HttpOnly/);
   assert.equal(calls[0].text.format.name, "widget_asset_plan");
   assert.equal(calls[1].text.format.name, "generated_widget");
 });
@@ -147,7 +173,7 @@ test("author API ends a failed stream with a sanitized error event", async (t) =
 test("author API rate limiting ignores spoofed forwarded client addresses", async (t) => {
   t.mock.method(globalThis, "fetch", () => assert.fail("empty prompts must not reach OpenAI"));
   for (let index = 0; index <= 20; index += 1) {
-    const response = await request({ headers: {
+    const response = await request({ ip: "198.51.100.10", headers: {
       "x-vercel-forwarded-for": "rate-limit-test",
       "x-forwarded-for": `spoofed-${index}`
     } });
@@ -157,4 +183,38 @@ test("author API rate limiting ignores spoofed forwarded client addresses", asyn
       assert.ok(Number(response.headers["retry-after"]) > 0);
     }
   }
+});
+
+for (const stream of [false, true]) {
+  test(`author API rejects exhausted quota before paid work or streaming (stream=${stream})`, async (t) => {
+    const now = Date.now();
+    mockResponses(t, [], [0, 0, now + 60_000, now]);
+    const response = await request({ body: { prompt: "A status card", stream } });
+    assert.equal(response.status, 429);
+    assert.match(response.headers["content-type"], /application\/json/);
+    assert.equal(response.headers["x-generation-remaining"], "0");
+    assert.equal(response.headers["retry-after"], "60");
+    assert.ok(JSON.parse(response.text).error);
+    assert.equal(response.text.includes('"type":"status"'), false);
+  });
+}
+
+test("author API fails closed when quota configuration is missing", async (t) => {
+  configureGeneration(t);
+  delete process.env.WIDGET_QUOTA_SECRET;
+  t.mock.method(globalThis, "fetch", () => assert.fail("unconfigured quota must block all paid work"));
+  const response = await request({ body: { prompt: "A status card" } });
+  assert.equal(response.status, 503);
+  assert.ok(JSON.parse(response.text).error);
+});
+
+test("author API fails closed when the quota store is unavailable", async (t) => {
+  configureGeneration(t);
+  t.mock.method(globalThis, "fetch", async (url) => {
+    assert.equal(url, "https://quota.example.test/");
+    return new Response("private-store-error", { status: 500 });
+  });
+  const response = await request({ body: { prompt: "A status card", stream: true } });
+  assert.equal(response.status, 503);
+  assert.equal(response.text.includes("private-store-error"), false);
 });

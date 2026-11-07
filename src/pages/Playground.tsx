@@ -79,6 +79,18 @@ type ReferenceImage = {
   dataUrl: string;
 };
 
+type GenerationQuota = { limit: number; remaining: number; resetAt: number };
+
+function readGenerationQuota(headers: Headers): GenerationQuota | null {
+  const values = ["x-generation-limit", "x-generation-remaining", "x-generation-reset"]
+    .map((name) => headers.get(name));
+  if (values.some((value) => value === null || value.trim() === "")) return null;
+  const [limit, remaining, reset] = values.map(Number);
+  if (![limit, remaining, reset].every(Number.isSafeInteger) || limit <= 0 ||
+    remaining < 0 || remaining > limit || reset <= 0) return null;
+  return { limit, remaining, resetAt: reset * 1000 };
+}
+
 type GenerationStreamEvent =
   | {
       type: "status";
@@ -281,7 +293,18 @@ export function PlaygroundPage() {
   const [aiError, setAiError] = React.useState<string | null>(null);
   const [designSpec, setDesignSpec] = React.useState<string | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [generationQuota, setGenerationQuota] = React.useState<GenerationQuota | null>(null);
+  const quotaExhausted = generationQuota?.remaining === 0;
   const [referenceImages, setReferenceImages] = React.useState<ReferenceImage[]>([]);
+
+  React.useEffect(() => {
+    if (!generationQuota) return;
+    // A rolling window may release only one slot. Let the server check again
+    // instead of claiming that the whole allowance has reset.
+    const timer = window.setTimeout(() => setGenerationQuota(null),
+      Math.max(0, generationQuota.resetAt - Date.now()));
+    return () => window.clearTimeout(timer);
+  }, [generationQuota]);
 
   const [previewKey, setPreviewKey] = React.useState(0);
   const [selectedExampleId, setSelectedExampleId] = React.useState(defaultExampleId);
@@ -529,7 +552,7 @@ export function PlaygroundPage() {
     event.preventDefault();
 
     const prompt = aiPrompt.trim();
-    if (!prompt || isGenerating) return;
+    if (!prompt || isGenerating || quotaExhausted) return;
 
     setIsGenerating(true);
     setAiError(null);
@@ -540,6 +563,7 @@ export function PlaygroundPage() {
     try {
       const response = await fetch("/api/author-widget", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           accept: "application/x-ndjson",
           "content-type": "application/json"
@@ -552,6 +576,9 @@ export function PlaygroundPage() {
           }))
         })
       });
+
+      const quota = readGenerationQuota(response.headers);
+      if (quota) setGenerationQuota(quota);
 
       if (!response.ok) {
         const result = (await response.json()) as AuthorWidgetResponse;
@@ -778,12 +805,19 @@ export function PlaygroundPage() {
           </label>
           <Button
             type="submit"
-            disabled={!aiPrompt.trim() || isGenerating}
+            disabled={!aiPrompt.trim() || isGenerating || quotaExhausted}
             className="h-9 shrink-0 cursor-pointer rounded-lg bg-[var(--ink)] px-4 text-xs font-medium text-white hover:bg-stone-700"
           >
             {isGenerating ? "Generating…" : "Generate"}
           </Button>
         </div>
+
+        <p className="pl-4 text-xs text-slate-500" role="status">
+          {generationQuota
+            ? `${generationQuota.remaining} of ${generationQuota.limit} free generations remaining. ${quotaExhausted ? "Try again" : "Next allowance update"} ${new Date(generationQuota.resetAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.`
+            : "Up to 3 free AI generations per 24 hours, shared by this browser and network."}
+          {" "}Editing and examples are always available.
+        </p>
 
         {aiStatus ? (
           <p className="pl-4 text-xs text-slate-500">{aiStatus}</p>

@@ -61,6 +61,59 @@ npm run dev
 
 Open the URL printed by Vite, then visit `/gallery`, `/docs`, or `/playground`.
 
+### AI generation quota configuration
+
+The playground allows **3 admitted generations per rolling 24 hours for both the
+client IP and a signed browser cookie**. Both must have allowance left. The server
+checks and records both quotas atomically in Redis before any OpenAI call or
+stream begins. Internal searches and repair calls count as part of that one
+generation. Invalid requests and missing OpenAI configuration do not consume
+quota; once admitted, failed generations still count because upstream work may
+already have been billed.
+
+Configure these **server-only** environment variables in Vercel for each target
+environment, or in `.env.local` for `npm run dev`:
+
+| Variable | Value |
+| --- | --- |
+| `OPENAI_API_KEY` | OpenAI key used by the generator |
+| `UPSTASH_REDIS_REST_URL` | HTTPS REST endpoint of an Upstash Redis database |
+| `UPSTASH_REDIS_REST_TOKEN` | Write-capable REST token supporting `EVAL` |
+| `WIDGET_QUOTA_SECRET` | Random secret of at least 32 characters, shared by every instance |
+
+`KV_REST_API_URL` and `KV_REST_API_TOKEN` are supported aliases for existing Vercel
+Redis integrations. Use a dedicated database for production and a separate one
+for development/preview so tests and previews do not consume public allowances.
+Never prefix these settings with `VITE_` or expose them to the browser. Generate a
+secret using `openssl rand -hex 32`; keep it stable across deployments. Rotating
+it invalidates visitor cookies and changes the hashed quota identities, so
+existing allowances effectively reset.
+
+Missing configuration, an unreachable store, or an uncertain store response
+returns HTTP 503 and **blocks generation**. There is no in-memory fallback.
+Connect the store and set the secret **before deploying this change** to keep
+generation available. Redis keys contain keyed hashes rather than raw IPs and
+expire after 24 hours of inactivity. Configure the database to preserve quota
+keys (no eviction); deleting keys or restoring older data can reset allowances.
+
+On Vercel, only its overwritten `x-forwarded-for` header is trusted. Elsewhere,
+the server uses the direct socket IP and ignores forwarded headers; deployments
+behind another reverse proxy need an explicitly trusted IP adapter. Production
+uses a `__Host-widget_visitor` cookie with `Secure`, `HttpOnly`, `SameSite=Lax`, and
+`Path=/`. Local HTTP development uses `widget_visitor` without `Secure`.
+
+Quota rejections return HTTP 429 with `Retry-After`. Accepted and rejected quota
+checks provide `x-generation-limit`, `x-generation-remaining`, and
+`x-generation-reset` (Unix seconds). The reset indicates when another slot can
+become available, not necessarily a full replenishment. The playground shows
+these values after a generation attempt; the backend remains authoritative.
+
+People sharing an IP share its allowance. Clearing cookies alone does not reset
+the IP quota; switching IPs alone does not reset the browser quota. Changing both
+can evade these anonymous limits. This is not a per-person identity system or a
+global dollar spending cap. The separate public MCP renderer does not call
+OpenAI and is not changed by this playground quota.
+
 Visit `/glass` to compare the existing CSS glass with [Glass-HQ Liquid Glass](https://github.com/Glass-HQ/liquid-glass). Scroll over the photo or use the background slider to move it behind the widgets. Uploaded images stay in the browser. Gallery, Docs, and Playground previews also use the new renderer when the header's Glass toggle is on. This is a website enhancement; the published renderer keeps its existing optional CSS material. Enhanced scenes require localhost/HTTPS and WebGPU; Safari, unavailable GPUs, and accessibility transparency/contrast preferences retain CSS glass. Scenes are disposed offscreen and when the page is hidden.
 
 The twenty **Editorial** studies live at `/gallery?category=Editorial`, with twelve rich workflows followed by the original eight compact studies. They were independently authored from the expanded guide using existing components, with illustrative data and working local interactions. Their reusable `{ designSpec, template, data, theme }` JSON lives in `public/design-bible/`; paste `template` and `data` into the Playground editors to explore them without calling the AI generator. The sources are `src/examples/designBibleExamples.ts` and `src/examples/designBibleRichExamples.ts`, both included in the generated example corpora. Original SVG posters and a 2.8-second C4/E4/G4 tone fixture live in `public/design-bible/assets/`; root-relative asset URLs require those files on the host. The same `build-widget-examples-doc.mjs` command regenerates the corpora and JSON files together.
