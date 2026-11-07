@@ -114,6 +114,71 @@ can evade these anonymous limits. This is not a per-person identity system or a
 global dollar spending cap. The separate public MCP renderer does not call
 OpenAI and is not changed by this playground quota.
 
+### Owner access with passkeys
+
+The Playground's **Owner access** button authenticates an enrolled owner passkey.
+A valid owner session bypasses the daily browser/IP generation quotas without
+consuming either allowance. The ordinary short-term request burst protection
+still applies. The browser UI is advisory; the server verifies the session and
+credential before every exemption. No public account registration or IP allowlist
+grants owner access.
+
+Use Node.js 22 or newer. In addition to the Redis and quota settings above, set
+`WIDGET_OWNER_ORIGIN` to the site's exact origin, for example
+`https://widgets.example.com` (no path). The relying-party ID comes from that
+configured hostname, never a request header. Production requires HTTPS; local
+development can use `http://localhost:5173`. Keep production credentials and
+Redis data separate from preview/development environments. Credentials enrolled
+for localhost or a preview hostname do not authorize the production site.
+
+For initial setup, run this **privately** with the production settings in your
+local `.env.local` (or provide the environment variables through your secret
+manager and omit `--env-file`):
+
+```bash
+node --env-file=.env.local scripts/owner-access.mjs invite
+```
+
+The command creates a random, single-use invitation valid for 10 minutes and
+prints its URL. Open it in the browser you want to authorize, then select
+**Set up owner passkey** and approve your device's prompt. The invitation is
+carried in the URL fragment, removed from the address bar on page load, and kept
+only in component memory. Do not paste it into a public chat, issue, commit, or
+analytics system. Enrollment consumes it when the ceremony starts; cancellation
+or expiry requires a fresh invitation. An invitation authorizes registration,
+not generation by itself.
+
+Once enrolled, use **Owner access** on the website to restore access with the
+same passkey. A synced passkey can be used on another supported device. Authorized
+owners can select **Add passkey** to enroll a backup. Passkey challenges expire
+after 5 minutes, work once, are bound to the requesting browser, and require user
+verification. Public keys stay on the server; private keys and biometric data
+are never sent to it.
+
+Owner sessions use opaque random tokens in secure, HttpOnly, SameSite=Strict
+cookies, with hashed tokens stored in Redis. They last 90 days and renew when
+used with fewer than 30 days remaining. Each request checks that the session has
+not been revoked and its passkey is still registered. Redis failure blocks an
+owner exemption; an expired or revoked session falls back to visitor quotas.
+
+**Sign out** removes this browser's session. **Sign out all browsers** invalidates
+every current session, outstanding invitation, and pending authorization attempt,
+but preserves registered passkeys, which can authenticate again. **Manage passkeys**
+lets you remove a lost or compromised passkey and revoke its sessions. Removing
+your last passkey requires another private setup link to recover access. The same
+operations are available through the private administrative commands:
+
+```bash
+node --env-file=.env.local scripts/owner-access.mjs list
+node --env-file=.env.local scripts/owner-access.mjs revoke-passkey CREDENTIAL_ID
+node --env-file=.env.local scripts/owner-access.mjs revoke-all
+```
+
+If all passkeys are lost, mint another private invitation using the administrative
+Redis credentials. There is no unauthenticated recovery endpoint. Back up owner
+credential data and keep it in a non-evicting Redis database: losing that data
+requires enrolling again. This feature does not impose a global API spending cap.
+
 Visit `/glass` to compare the existing CSS glass with [Glass-HQ Liquid Glass](https://github.com/Glass-HQ/liquid-glass). Scroll over the photo or use the background slider to move it behind the widgets. Uploaded images stay in the browser. Gallery, Docs, and Playground previews also use the new renderer when the header's Glass toggle is on. This is a website enhancement; the published renderer keeps its existing optional CSS material. Enhanced scenes require localhost/HTTPS and WebGPU; Safari, unavailable GPUs, and accessibility transparency/contrast preferences retain CSS glass. Scenes are disposed offscreen and when the page is hidden.
 
 The twenty **Editorial** studies live at `/gallery?category=Editorial`, with twelve rich workflows followed by the original eight compact studies. They were independently authored from the expanded guide using existing components, with illustrative data and working local interactions. Their reusable `{ designSpec, template, data, theme }` JSON lives in `public/design-bible/`; paste `template` and `data` into the Playground editors to explore them without calling the AI generator. The sources are `src/examples/designBibleExamples.ts` and `src/examples/designBibleRichExamples.ts`, both included in the generated example corpora. Original SVG posters and a 2.8-second C4/E4/G4 tone fixture live in `public/design-bible/assets/`; root-relative asset URLs require those files on the host. The same `build-widget-examples-doc.mjs` command regenerates the corpora and JSON files together.

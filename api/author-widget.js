@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { widgetComponentNames } from "./widget-component-names.js";
 import { consumeGenerationQuota, getTrustedClientIp } from "./_lib/generation-quota.js";
+import { getOwnerSession, requireSameOrigin } from "./_lib/owner-auth.js";
 
 const DEFAULT_MODEL = "gpt-6.1-sol";
 const MAX_PROMPT_LENGTH = 2_000;
@@ -1467,9 +1468,18 @@ export default async function handler(req, res) {
       throw createHttpError("The widget service is temporarily unavailable.", 503);
     }
     generationContext = { apiKey, widgetAuthoringContext: await getWidgetAuthoringContext() };
-    // Admit the entire generation once, before streaming or any billable call.
-    // Once admitted, failures still consume quota: upstream work may be billed.
-    await consumeGenerationQuota(req, res);
+    const owner = await getOwnerSession(req, res);
+    if (owner) {
+      // A valid owner session exempts this request without consuming the
+      // allowance of other people on the same network. Never trust a UI flag.
+      requireSameOrigin(req);
+      res.setHeader("x-generation-owner", "true");
+    } else {
+      // Admit the entire generation once, before streaming or any billable call.
+      // Once admitted, failures still consume quota: upstream work may be billed.
+      res.setHeader("x-generation-owner", "false");
+      await consumeGenerationQuota(req, res);
+    }
   } catch (error) {
     sendJson(res, Number(error?.statusCode) || 503, {
       error: error?.statusCode ? error.message : "The widget service is temporarily unavailable."

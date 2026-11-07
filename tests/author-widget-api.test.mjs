@@ -218,3 +218,14 @@ test("author API fails closed when the quota store is unavailable", async (t) =>
   assert.equal(response.status, 503);
   assert.equal(response.text.includes("private-store-error"), false);
 });
+
+test("client owner flags and a forged owner cookie cannot bypass exhausted quota", async (t) => {
+  const now = Date.now();
+  mockResponses(t, [], [0, 0, now + 60_000, now]);
+  const response = await request({
+    body: { prompt: "A status card", owner: true },
+    headers: { "x-generation-owner": "true", cookie: "widget_owner=forged; __Host-widget_owner=forged" }
+  });
+  assert.equal(response.status, 429);
+  assert.equal(response.headers["x-generation-owner"], "false");
+});

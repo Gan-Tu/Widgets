@@ -3,8 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "vite",
+    "owner:invite": "node --env-file=.env.local scripts/owner-access.mjs invite",
     "build": "tsc -b && vite build",
     "build:widgets": "node packages/widgets/scripts/clean-dist.mjs && tsc -p packages/widgets/tsconfig.json && node packages/widgets/scripts/fix-esm-imports.mjs && node packages/widgets/scripts/build-css.mjs",
     "lint": "eslint .",
@@ -33,6 +37,8 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@simplewebauthn/browser": "^14.0.0",
+    "@simplewebauthn/server": "^14.1.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-table": "^8.21.3",

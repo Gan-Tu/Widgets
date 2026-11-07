@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/playground/CodeEditor";
+import { OwnerAccess } from "@/components/playground/OwnerAccess";
 import { cn } from "@/lib/utils";
 import { SiteWidgetRenderer as WidgetRenderer } from "@/components/glass/SiteWidgetRenderer";
 import { widgetExamples } from "@/examples/widgetExamples";
@@ -294,7 +295,8 @@ export function PlaygroundPage() {
   const [designSpec, setDesignSpec] = React.useState<string | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generationQuota, setGenerationQuota] = React.useState<GenerationQuota | null>(null);
-  const quotaExhausted = generationQuota?.remaining === 0;
+  const [isOwner, setIsOwner] = React.useState(false);
+  const quotaExhausted = !isOwner && generationQuota?.remaining === 0;
   const [referenceImages, setReferenceImages] = React.useState<ReferenceImage[]>([]);
 
   React.useEffect(() => {
@@ -579,6 +581,8 @@ export function PlaygroundPage() {
 
       const quota = readGenerationQuota(response.headers);
       if (quota) setGenerationQuota(quota);
+      const ownerHeader = response.headers.get("x-generation-owner");
+      if (ownerHeader !== null) setIsOwner(ownerHeader === "true");
 
       if (!response.ok) {
         const result = (await response.json()) as AuthorWidgetResponse;
@@ -813,11 +817,13 @@ export function PlaygroundPage() {
         </div>
 
         <p className="pl-4 text-xs text-slate-500" role="status">
-          {generationQuota
+          {isOwner ? "Owner access active. Visitor generation limits do not apply." : generationQuota
             ? `${generationQuota.remaining} of ${generationQuota.limit} free generations remaining. ${quotaExhausted ? "Try again" : "Next allowance update"} ${new Date(generationQuota.resetAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.`
             : "Up to 3 free AI generations per 24 hours, shared by this browser and network."}
           {" "}Editing and examples are always available.
         </p>
+
+        <OwnerAccess onOwnerChange={setIsOwner} />
 
         {aiStatus ? (
           <p className="pl-4 text-xs text-slate-500">{aiStatus}</p>
